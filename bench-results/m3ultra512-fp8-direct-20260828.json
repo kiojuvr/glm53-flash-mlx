@@ -1,0 +1,25 @@
+{
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "checkpoint": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+  "fingerprint": "89696445ecd255d98679052ba62fdcc73f0147412fd7d472e721b01e258b1846",
+  "target_bytes": 319706118392,
+  "load_seconds": 2.0393669605255127,
+  "warm_residency_seconds": 30.57231116294861,
+  "resident_active_gb": 319.706119424,
+  "decode": [
+    {"step": 0, "token": 5556, "seconds": 0.10336112976074219, "tok_s": 9.674816851506709},
+    {"step": 1, "token": 4402, "seconds": 0.08777999877929688, "tok_s": 11.392116813697797},
+    {"step": 2, "token": 4362, "seconds": 0.0870809555053711, "tok_s": 11.48356714963148}
+  ],
+  "peak_gb": 319.884981945,
+  "openai_api_smoke": {
+    "endpoint": "/v1/chat/completions",
+    "http_status": 200,
+    "prompt_tokens": 17,
+    "completion_tokens": 3,
+    "reported_decode_tok_s": 11.380928719777874,
+    "peak_gb": 319.926207015
+  },
+  "storage": "official uint8 E4M3 block-128 FP8 plus original BF16/FP32 tensors; no model conversion"
+}

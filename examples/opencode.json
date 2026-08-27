@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "glm53/glm-5.3-flash",
+  "provider": {
+    "glm53": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "GLM-5.3 Flash (M3 Ultra)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1",
+        "apiKey": "local"
+      },
+      "models": {
+        "glm-5.3-flash": {
+          "name": "GLM-5.3 Flash MLX",
+          "limit": {
+            "context": 1048576,
+            "output": 16384
+          }
+        }
+      }
+    }
+  }
+}

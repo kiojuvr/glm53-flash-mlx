@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glm53-flash-mlx"
+version = "0.1.0"
+description = "M3 Ultra optimized MLX runtime and OpenAI-compatible server for GLM-5.3-Flash"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+  "mlx>=0.32.2",
+  "mlx-vlm @ git+https://github.com/Blaizzy/mlx-vlm.git@e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "jinja2>=3.1.6",
+]
+
+[project.scripts]
+glm53 = "glm53_flash_mlx.cli:main"
+glm53-serve = "glm53_flash_mlx.server:main"
+
+[tool.setuptools.packages.find]
+include = ["glm53_flash_mlx*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

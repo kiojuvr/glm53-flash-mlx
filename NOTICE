@@ -1,0 +1,9 @@
+GLM-5.3-Flash MLX runtime
+Copyright 2026 contributors
+
+This product contains code derived from PipeNetwork/glm53-flash-mlx,
+revision b6665e8126c3b937031493e0580ef1e1c24f06cf, licensed under Apache-2.0.
+
+This product uses mlx-vlm and Apple MLX. Their respective licenses remain in
+effect. GLM-5.3-Flash model weights are distributed separately under their
+upstream license.
