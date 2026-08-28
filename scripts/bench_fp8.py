@@ -18,6 +18,7 @@ def main():
     p.add_argument("--tokens", type=int, default=3)
     p.add_argument("--prefault", action="store_true")
     p.add_argument("--warm-residency", action="store_true")
+    p.add_argument("--experimental-packed-grouped-moe", action="store_true")
     args = p.parse_args()
     mx.set_wired_limit(int(440e9))
     mx.set_cache_limit(int(32e9))
@@ -26,7 +27,11 @@ def main():
         count = prefault_checkpoint(args.model)
         print(json.dumps({"phase": "prefault", "bytes": count, "seconds": time.time() - t}), flush=True)
     t = time.time()
-    model, _ = load_model(args.model, strict=True)
+    model, _ = load_model(
+        args.model,
+        strict=True,
+        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+    )
     print(json.dumps({"phase": "load", "seconds": time.time() - t}), flush=True)
     if args.warm_residency:
         t = time.time()

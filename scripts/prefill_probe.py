@@ -20,11 +20,16 @@ def main() -> int:
     parser.add_argument("model")
     parser.add_argument("--tokens", type=int, default=256)
     parser.add_argument("--warm-residency", action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument("--experimental-packed-grouped-moe", action="store_true")
     args = parser.parse_args()
     report = inspect_checkpoint(args.model, require_server_ready=True)
     mx.set_wired_limit(int(440e9))
     mx.set_cache_limit(int(32e9))
-    model, config = load_model(args.model, strict=True)
+    model, config = load_model(
+        args.model,
+        strict=True,
+        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+    )
     if args.warm_residency:
         warm_residency(model)
     vocab = int(config["text_config"]["vocab_size"])
@@ -47,7 +52,12 @@ def main() -> int:
         "prompt_tok_s": args.tokens / elapsed,
         "active_gb": mx.get_active_memory() / 1e9,
         "peak_gb": mx.get_peak_memory() / 1e9,
-        "implementation": "tiled-8 FP8 projections; CPU expert bucket; full-KV DSA prefill",
+        "moe_backend": getattr(model, "_glm53_moe_backend", "direct"),
+        "implementation": (
+            "packed sorted grouped FP8 MoE; full-KV DSA prefill"
+            if args.experimental_packed_grouped_moe
+            else "tiled-8 FP8 projections; CPU expert bucket; full-KV DSA prefill"
+        ),
     }
     print(json.dumps(result, indent=2), flush=True)
     return 0

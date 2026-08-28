@@ -1,0 +1,99 @@
+{
+  "schema": "glm53-packed-grouped-runtime-gate-v1",
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "backend": {
+    "name": "packed-grouped",
+    "opt_in_flag": "--experimental-packed-grouped-moe",
+    "grouped_kernel_abi": "glm53-grouped-fp8-v4-simdgroup-mma32",
+    "packed_bank_abi": "glm53-packed-expert-bank-v1-gate-up-output-major",
+    "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+    "measured_kernel_crossover_routes": 16,
+    "correctness_dispatch_min_routes": 256
+  },
+  "direct": {
+    "load_seconds": 4.362521791947074,
+    "warm_residency_seconds": 22.98233024997171,
+    "steady_active_bytes": 319706119424,
+    "prefill_256_seconds": 5.706420541973785,
+    "prefill_tokens_per_second": 44.86174794110996,
+    "decode_median_tokens_per_second": 11.436895860099096
+  },
+  "packed_grouped": {
+    "load_and_pack_seconds_excluding_attestation": 40.28838654200081,
+    "warm_residency_seconds": 2.2015778749482706,
+    "startup_peak_bytes": 319742262764,
+    "steady_active_bytes": 319708315116,
+    "converted_layers": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44],
+    "converted_count": 42,
+    "remaining_direct_layers": [],
+    "old_expert_modules_detached_all_layers": true,
+    "bank_bytes_per_layer": 7249526784,
+    "layer_conversion_memory_invariant": {
+      "active_after_clear_minus_active_before_bytes": 7249526784,
+      "active_materialized_minus_active_after_clear_bytes": 7249526784,
+      "verified_for_every_converted_layer": true
+    },
+    "prefill_256_seconds": 2.323800666956231,
+    "prefill_tokens_per_second": 110.16435430122965,
+    "decode_median_tokens_per_second": 13.259921289125348
+  },
+  "comparison": {
+    "prefill_speedup": 2.4556411499133395,
+    "decode_speed_ratio": 1.1593986210354859,
+    "transition_parity": [
+      {"layer": 3, "max_abs": 0.015625, "mean_abs": 0.0010769177461043, "rms": 0.001972428523004055, "allclose": true},
+      {"layer": 24, "max_abs": 0.015625, "mean_abs": 0.0008845780976116657, "rms": 0.00158827961422503, "allclose": true},
+      {"layer": 44, "max_abs": 0.125, "mean_abs": 0.0012035493273288012, "rms": 0.002342533553019166, "allclose": true}
+    ],
+    "final_logits_256": {
+      "relative_l2": 0.2062733186416423,
+      "max_abs": 1.234375,
+      "argmax_match": true,
+      "reference_top_10": [2919, 5621, 343, 2056, 531, 197, 3028, 2627, 29425, 21113],
+      "packed_grouped_top_10": [2919, 5621, 343, 197, 29425, 2056, 3028, 531, 2627, 52543],
+      "top_10_order_match": false,
+      "top_10_set_match": false,
+      "top_10_overlap": 9
+    },
+    "oracle_16": {
+      "prompt_tokens": 17,
+      "generation_tokens": 16,
+      "all_token_ids_match": true,
+      "all_step_logits_hashes_match": true
+    }
+  },
+  "server": {
+    "attestation_seconds_from_log": 142.074,
+    "attestation_to_ready_seconds_from_log": 174.140,
+    "health_http_status": 200,
+    "health_status": "healthy",
+    "configured_context_limit": 16384,
+    "effective_context_limit": 16384,
+    "prompt_limit": 256,
+    "apc_enabled": false
+  },
+  "cache_identity": {
+    "direct_and_packed_grouped_separated": true,
+    "includes_grouped_kernel_abi": true,
+    "includes_grouped_min_routes": true,
+    "includes_packed_bank_abi": true,
+    "includes_packed_decode_kernel_abi": true
+  },
+  "acceptance": {
+    "converted_42_layers": true,
+    "startup_peak_at_most_340_gb": true,
+    "steady_at_most_321_gb": true,
+    "all_old_expert_tensors_released": true,
+    "prefill_speedup_at_least_1_20": true,
+    "decode_slowdown_at_most_3_percent": true,
+    "oracle_all_hashes_match": true,
+    "transition_parity_early_middle_late": true,
+    "health_success": true,
+    "prompt_limit_256_unchanged": true,
+    "accepted": true
+  },
+  "runtime_default_changed": false
+}

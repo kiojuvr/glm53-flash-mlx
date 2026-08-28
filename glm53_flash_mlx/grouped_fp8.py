@@ -5,6 +5,11 @@ from __future__ import annotations
 import mlx.core as mx
 import mlx.nn as nn
 
+from .abi import (
+    GROUPED_KERNEL_ABI,
+    GROUPED_MEASURED_CROSSOVER_ROUTES,
+    GROUPED_MIN_ROUTES,
+)
 from .fp8 import (
     BLOCK_SIZE,
     _FP8_LUT_HEADER,
@@ -14,8 +19,6 @@ from .packed import PackedFP8MoE
 GROUPED_TILE_ROWS = 32
 GROUPED_OUTPUT_COLS = 32
 GROUPED_K_TILE = 32
-GROUPED_MIN_ROUTES = 16
-GROUPED_KERNEL_ABI = "glm53-grouped-fp8-v4-simdgroup-mma32"
 
 _GROUPED_FP8_HEADER = r"""
 #include <metal_simdgroup>

@@ -2,7 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from glm53_flash_mlx.server import configure_m3_ultra, validate_admission
+from glm53_flash_mlx.server import (
+    _disk_cache_descriptor,
+    _disk_cache_identity,
+    build_parser,
+    configure_m3_ultra,
+    validate_admission,
+)
 
 
 def test_m3_defaults(monkeypatch, tmp_path):
@@ -17,6 +23,7 @@ def test_m3_defaults(monkeypatch, tmp_path):
         model=Path("/model"), prefill_step_size=2048, max_tokens=4096,
         api_key=None, apc=True, apc_blocks=64, apc_disk_path=tmp_path / "apc",
         warm_residency=True,
+        experimental_packed_grouped_moe=False,
         max_prompt_tokens=256, max_context_tokens=16384,
     )
     import os
@@ -28,6 +35,32 @@ def test_m3_defaults(monkeypatch, tmp_path):
     assert os.environ["GLM53_MAX_PROMPT_TOKENS"] == "256"
     assert os.environ["GLM53_MAX_GENERATION_TOKENS"] == "4096"
     assert os.environ["MAX_KV_SIZE"] == "16384"
+    assert os.environ["GLM53_MOE_BACKEND"] == "direct"
+    assert os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] == "0"
+
+
+def test_packed_grouped_server_backend_is_explicitly_opt_in():
+    assert not build_parser().parse_args([]).experimental_packed_grouped_moe
+    assert build_parser().parse_args(
+        ["--experimental-packed-grouped-moe"]
+    ).experimental_packed_grouped_moe
+
+
+def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
+    monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
+    direct = _disk_cache_identity("checkpoint-digest")
+    monkeypatch.setenv("GLM53_MOE_BACKEND", "packed-grouped")
+    grouped = _disk_cache_identity("checkpoint-digest")
+    assert direct != grouped
+    assert grouped == _disk_cache_identity("checkpoint-digest")
+    descriptor = _disk_cache_descriptor("checkpoint-digest")
+    assert descriptor["moe_backend"] == "packed-grouped"
+    assert descriptor["grouped_kernel_abi"].startswith("glm53-grouped-fp8-")
+    assert descriptor["grouped_min_routes"] == 256
+    assert descriptor["packed_bank_abi"].startswith("glm53-packed-expert-bank-")
+    assert descriptor["packed_decode_kernel_abi"].startswith(
+        "glm53-packed-selected8-"
+    )
 
 
 def test_prompt_and_total_context_admission_are_independent():

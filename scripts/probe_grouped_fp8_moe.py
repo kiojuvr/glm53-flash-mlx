@@ -17,7 +17,7 @@ from glm53_flash_mlx.abi import KERNEL_ABI_VERSION
 from glm53_flash_mlx.fp8 import DirectFP8MoE
 from glm53_flash_mlx.grouped_fp8 import (
     GROUPED_KERNEL_ABI,
-    GROUPED_MIN_ROUTES,
+    GROUPED_MEASURED_CROSSOVER_ROUTES,
     GROUPED_TILE_ROWS,
     SortedGroupedFP8MoE,
     activate_gate_up,
@@ -359,7 +359,9 @@ def main() -> int:
     crossover_bracketed = last_slower is not None
     threshold_matches = (
         break_even is not None
-        and grouped.min_routes == GROUPED_MIN_ROUTES == break_even["routes"]
+        and grouped.min_routes
+        == GROUPED_MEASURED_CROSSOVER_ROUTES
+        == break_even["routes"]
     )
     performance_ok = row_256["speedup"] >= 1.5
     memory_ok = working_peak_delta <= 512 * 2**20

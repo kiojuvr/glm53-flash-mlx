@@ -138,7 +138,7 @@ def test_packed_expert_bank_preserves_bytes_and_selected_top8_output():
     expected = direct(x)
     actual = packed_moe(x)
     mx.eval(expected, actual)
-    assert mx.allclose(actual, expected, rtol=0.02, atol=0.02).item()
+    assert mx.array_equal(actual, expected).item()
 
 
 def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback():
@@ -173,7 +173,7 @@ def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback
             ).astype(mx.float32)
     bank = PackedFP8ExpertBank.pack(direct.experts)
     grouped = SortedGroupedFP8MoE(bank, config, direct.gate, None)
-    assert grouped.min_routes == 16
+    assert grouped.min_routes == 256
 
     prefill_x = mx.random.normal(shape=(1, 32, 256)).astype(mx.bfloat16)
     expected = direct(prefill_x)
@@ -218,3 +218,49 @@ def test_grouped_tile_descriptors_cover_sparse_edge_buckets_without_boundaries()
         (287, 63, 32),
         (287, 95, 1),
     ]
+
+
+def test_installer_replaces_every_direct_moe_layer_one_at_a_time():
+    _require_metal()
+    from glm53_flash_mlx.fp8 import DirectFP8MoE
+    from glm53_flash_mlx.grouped_fp8 import SortedGroupedFP8MoE
+    from glm53_flash_mlx.loader import install_packed_grouped_moe
+
+    class Gate(nn.Module):
+        def __call__(self, x):
+            shape = (*x.shape[:-1], 2)
+            return mx.zeros(shape, dtype=mx.uint32), mx.ones(shape, dtype=x.dtype)
+
+    config = SimpleNamespace(
+        hidden_size=128,
+        moe_intermediate_size=128,
+        swiglu_limit=3.0,
+        n_routed_experts=2,
+        num_experts_per_tok=2,
+    )
+    layers = []
+    for _ in range(3):
+        layer = SimpleNamespace(
+            mlp=DirectFP8MoE(config, Gate(), None), compile_ffn=True
+        )
+        for expert in layer.mlp.experts:
+            for projection in (expert.gate_proj, expert.up_proj, expert.down_proj):
+                projection.weight = mx.zeros(projection.weight.shape, dtype=mx.uint8)
+        layers.append(layer)
+    model = SimpleNamespace(
+        language_model=SimpleNamespace(
+            model=SimpleNamespace(layers=layers)
+        )
+    )
+
+    report = install_packed_grouped_moe(model)
+    assert report["converted_layers"] == [0, 1, 2]
+    assert report["converted_count"] == 3
+    assert report["remaining_direct_layers"] == []
+    assert report["all_old_expert_modules_detached"]
+    assert all(isinstance(layer.mlp, SortedGroupedFP8MoE) for layer in layers)
+    assert all(not hasattr(layer.mlp, "experts") for layer in layers)
+    assert all(not layer.compile_ffn for layer in layers)
+    second = install_packed_grouped_moe(model)
+    assert second["converted_count"] == 0
+    assert second["remaining_direct_layers"] == []

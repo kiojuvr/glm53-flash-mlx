@@ -26,11 +26,21 @@ def _sha256_array(value: mx.array) -> tuple[str, np.ndarray]:
     return hashlib.sha256(array.tobytes()).hexdigest(), array
 
 
-def build_trace(model_path: str, *, prompt: str, tokens: int, warm: bool) -> dict:
+def build_trace(
+    model_path: str,
+    *,
+    prompt: str,
+    tokens: int,
+    warm: bool,
+    experimental_packed_grouped_moe: bool = False,
+) -> dict:
     report = inspect_checkpoint(model_path, require_server_ready=True)
     mx.set_wired_limit(int(440e9))
     mx.set_cache_limit(int(32e9))
-    model, processor = load(model_path)
+    model, processor = load(
+        model_path,
+        experimental_packed_grouped_moe=experimental_packed_grouped_moe,
+    )
     if warm:
         warm_residency(model)
     messages = [{"role": "user", "content": prompt}]
@@ -72,6 +82,7 @@ def build_trace(model_path: str, *, prompt: str, tokens: int, warm: bool) -> dic
         "checkpoint_fingerprint": report.fingerprint,
         "checkpoint_layout_digest": report.layout_digest,
         "kernel_abi": KERNEL_ABI_VERSION,
+        "moe_backend": getattr(model, "_glm53_moe_backend", "direct"),
         "prompt": prompt,
         "formatted_prompt_sha256": hashlib.sha256(formatted.encode()).hexdigest(),
         "prompt_token_count": int(prompt_ids.size),
@@ -113,9 +124,14 @@ def main() -> int:
     parser.add_argument("--tokens", type=int, choices=(16, 128), default=16)
     parser.add_argument("--warm-residency", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--expect", type=Path)
+    parser.add_argument("--experimental-packed-grouped-moe", action="store_true")
     args = parser.parse_args()
     trace = build_trace(
-        args.model, prompt=args.prompt, tokens=args.tokens, warm=args.warm_residency
+        args.model,
+        prompt=args.prompt,
+        tokens=args.tokens,
+        warm=args.warm_residency,
+        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
     )
     print(json.dumps(trace, indent=2, ensure_ascii=False), flush=True)
     if args.expect:

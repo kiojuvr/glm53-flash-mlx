@@ -11,7 +11,15 @@ import os
 import sys
 from pathlib import Path
 
-from .abi import CACHE_IDENTITY_SCHEMA, KERNEL_ABI_VERSION, MLX_VLM_REVISION
+from .abi import (
+    CACHE_IDENTITY_SCHEMA,
+    GROUPED_KERNEL_ABI,
+    GROUPED_MIN_ROUTES,
+    KERNEL_ABI_VERSION,
+    MLX_VLM_REVISION,
+    PACKED_DECODE_KERNEL_ABI,
+    PACKED_EXPERT_BANK_ABI,
+)
 from .manifest import ManifestError, attest_checkpoint, inspect_checkpoint
 from .patch import apply_runtime_patch, patch_status
 
@@ -53,8 +61,8 @@ def validate_admission(
         )
 
 
-def _disk_cache_identity(content_digest: str) -> str:
-    """Content-bound identity for the explicitly experimental disk APC."""
+def _disk_cache_descriptor(content_digest: str) -> dict:
+    """Build the auditable descriptor behind the disk APC namespace hash."""
     descriptor = {
         "schema": CACHE_IDENTITY_SCHEMA,
         "checkpoint_content_sha256": content_digest,
@@ -68,9 +76,28 @@ def _disk_cache_identity(content_digest: str) -> str:
         "kv_group_size": os.environ.get("KV_GROUP_SIZE"),
         "kv_quant_scheme": os.environ.get("KV_QUANT_SCHEME", "uniform"),
         "quantized_kv_start": os.environ.get("QUANTIZED_KV_START"),
+        "moe_backend": os.environ.get("GLM53_MOE_BACKEND", "direct"),
     }
+    if descriptor["moe_backend"] == "packed-grouped":
+        descriptor.update(
+            {
+                "grouped_kernel_abi": GROUPED_KERNEL_ABI,
+                "grouped_min_routes": GROUPED_MIN_ROUTES,
+                "packed_bank_abi": PACKED_EXPERT_BANK_ABI,
+                "packed_decode_kernel_abi": PACKED_DECODE_KERNEL_ABI,
+            }
+        )
+    return descriptor
+
+
+def _disk_cache_identity(content_digest: str) -> str:
+    """Content-bound identity for the explicitly experimental disk APC."""
     return hashlib.sha256(
-        json.dumps(descriptor, sort_keys=True, separators=(",", ":")).encode()
+        json.dumps(
+            _disk_cache_descriptor(content_digest),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
     ).hexdigest()
 
 
@@ -84,6 +111,7 @@ def configure_m3_ultra(
     apc_blocks: int,
     apc_disk_path: Path | None,
     warm_residency: bool,
+    experimental_packed_grouped_moe: bool,
     max_prompt_tokens: int,
     max_context_tokens: int,
 ) -> None:
@@ -100,6 +128,12 @@ def configure_m3_ultra(
     os.environ.setdefault("MLX_VLM_VISION_CACHE_SIZE", "8")
     os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
     os.environ["GLM53_WARM_RESIDENCY"] = "1" if warm_residency else "0"
+    os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] = (
+        "1" if experimental_packed_grouped_moe else "0"
+    )
+    os.environ["GLM53_MOE_BACKEND"] = (
+        "packed-grouped" if experimental_packed_grouped_moe else "direct"
+    )
     if api_key:
         os.environ["MLX_VLM_SERVER_API_KEY"] = api_key
     if apc:
@@ -125,6 +159,9 @@ def _install_server_loader() -> None:
 
     def load_patched(path, adapter_path=None, **kwargs):
         inspect_checkpoint(path, require_server_ready=True)
+        kwargs["experimental_packed_grouped_moe"] = (
+            os.environ.get("GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE") == "1"
+        )
         loaded = direct_load(path, adapter_path=adapter_path, **kwargs)
         if os.environ.get("GLM53_WARM_RESIDENCY", "1") == "1":
             warm_residency(loaded[0])
@@ -197,6 +234,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--apc-blocks", type=int, default=256)
     p.add_argument("--apc-disk-path", type=Path)
     p.add_argument(
+        "--experimental-packed-grouped-moe",
+        action="store_true",
+        help="pack all routed experts and enable the grouped prefill kernel",
+    )
+    p.add_argument(
         "--experimental-disk-apc",
         action="store_true",
         help="allow disk APC using the mandatory attested checkpoint identity",
@@ -246,6 +288,7 @@ def main(argv: list[str] | None = None) -> int:
         apc_blocks=args.apc_blocks,
         apc_disk_path=args.apc_disk_path,
         warm_residency=args.warm_residency,
+        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
         max_prompt_tokens=args.max_prompt_tokens,
         max_context_tokens=args.max_context_tokens,
     )
@@ -275,6 +318,11 @@ def main(argv: list[str] | None = None) -> int:
         report.path,
         report.fingerprint[:16],
         patch_status(),
+    )
+    logging.getLogger(__name__).info(
+        "moe_backend=%s prompt_limit=%d",
+        os.environ["GLM53_MOE_BACKEND"],
+        args.max_prompt_tokens,
     )
 
     import uvicorn
