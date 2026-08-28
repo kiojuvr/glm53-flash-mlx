@@ -1,0 +1,228 @@
+{
+  "schema": "glm53-sorted-grouped-fp8-moe-probe-v1",
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "runtime_kernel_abi": "glm53-metal-fp8-v3-tiled8-selected8-lut",
+  "grouped_kernel_abi": "glm53-grouped-fp8-v4-simdgroup-mma32",
+  "layer": 3,
+  "warmups": 2,
+  "repeats": 5,
+  "bank_bytes": 7249526784,
+  "canonical_dtype_preserved": true,
+  "weight_bf16_expansion": false,
+  "hot_path_host_sync_free": true,
+  "decode_selected_top8_fallback_below_routes": 256,
+  "storage_baseline": {
+    "active_bytes": 326955646208,
+    "cache_bytes": 34342655,
+    "peak_bytes": 326955646208
+  },
+  "grouped_working_peak_bytes": 327275348252,
+  "grouped_working_peak_delta_bytes": 319702044,
+  "steady_after_clear": {
+    "active_bytes": 326955662612,
+    "cache_bytes": 0,
+    "peak_bytes": 327275348252
+  },
+  "measured_break_even": {
+    "sequence_tokens": 32,
+    "routes": 256
+  },
+  "decode_oracle_16": {
+    "oracle": "oracles/glm53-official-greedy-16.json",
+    "all_step_logits_hashes_match": true,
+    "elapsed_seconds": 1.9962490419857204
+  },
+  "results": [
+    {
+      "sequence_tokens": 32,
+      "routes": 256,
+      "unique_experts": 43,
+      "routes_per_expert_mean": 5.953488372093023,
+      "routes_per_expert_max": 12,
+      "expert_boundary_tiles": 0,
+      "naive_fixed_grid_boundary_tiles": 8,
+      "aligned_route_tiles": 43,
+      "descriptor_slots": 296,
+      "unused_descriptor_slots": 253,
+      "direct_seconds": {
+        "median": 0.014704375062137842,
+        "samples": [0.014631542027927935, 0.014744874904863536, 0.014592209015972912, 0.01484570896718651, 0.014704375062137842]
+      },
+      "grouped_seconds": {
+        "median": 0.006768457940779626,
+        "samples": [0.006750125088728964, 0.006798582966439426, 0.006689040921628475, 0.006768457940779626, 0.0069155830424278975]
+      },
+      "speedup": 2.1724852530359544,
+      "error": {
+        "max_abs": 0.015625,
+        "mean_abs": 0.0010769177461043,
+        "rms": 0.001972428523004055,
+        "allclose_rtol_0_02_atol_0_02": true
+      },
+      "phase_seconds": {
+        "router_seconds": 0.0003491670358926058,
+        "sort_seconds": 0.0002982920268550515,
+        "tile_plan_seconds": 0.00045175000559538603,
+        "gate_up_seconds": 0.0033329579746350646,
+        "activation_seconds": 0.0002876659855246544,
+        "down_seconds": 0.0018977499566972256,
+        "restore_reduce_seconds": 0.00030287494882941246
+      }
+    },
+    {
+      "sequence_tokens": 64,
+      "routes": 512,
+      "unique_experts": 44,
+      "routes_per_expert_mean": 11.636363636363637,
+      "routes_per_expert_max": 24,
+      "expert_boundary_tiles": 0,
+      "naive_fixed_grid_boundary_tiles": 16,
+      "aligned_route_tiles": 44,
+      "descriptor_slots": 304,
+      "unused_descriptor_slots": 260,
+      "direct_seconds": {
+        "median": 0.029272584011778235,
+        "samples": [0.029420708073303103, 0.029272584011778235, 0.02942887495737523, 0.029270124970935285, 0.029208166990429163]
+      },
+      "grouped_seconds": {
+        "median": 0.008486417005769908,
+        "samples": [0.00849545793607831, 0.008487916900776327, 0.008486417005769908, 0.008486417005769908, 0.00847433297894895]
+      },
+      "speedup": 3.44934546486177,
+      "error": {
+        "max_abs": 0.015625,
+        "mean_abs": 0.0010758342687040567,
+        "rms": 0.00197167182341218,
+        "allclose_rtol_0_02_atol_0_02": true
+      },
+      "phase_seconds": {
+        "router_seconds": 0.0003472079988569021,
+        "sort_seconds": 0.0003053749678656459,
+        "tile_plan_seconds": 0.00041633297223597765,
+        "gate_up_seconds": 0.003387916018255055,
+        "activation_seconds": 0.00030462502036243677,
+        "down_seconds": 0.001861457945778966,
+        "restore_reduce_seconds": 0.00030091695953160524
+      }
+    },
+    {
+      "sequence_tokens": 128,
+      "routes": 1024,
+      "unique_experts": 49,
+      "routes_per_expert_mean": 20.897959183673468,
+      "routes_per_expert_max": 47,
+      "expert_boundary_tiles": 0,
+      "naive_fixed_grid_boundary_tiles": 28,
+      "aligned_route_tiles": 62,
+      "descriptor_slots": 320,
+      "unused_descriptor_slots": 258,
+      "direct_seconds": {
+        "median": 0.05791720806155354,
+        "samples": [0.0580894579179585, 0.058002457953989506, 0.05791720806155354, 0.057865291950292885, 0.057792083942331374]
+      },
+      "grouped_seconds": {
+        "median": 0.01309779193252325,
+        "samples": [0.013058291980996728, 0.01310362492222339, 0.013108542072586715, 0.013086542021483183, 0.01309779193252325]
+      },
+      "speedup": 4.421906254117442,
+      "error": {
+        "max_abs": 0.015625,
+        "mean_abs": 0.0010783427860587835,
+        "rms": 0.001976123545318842,
+        "allclose_rtol_0_02_atol_0_02": true
+      },
+      "phase_seconds": {
+        "router_seconds": 0.0003588330000638962,
+        "sort_seconds": 0.00031070795375853777,
+        "tile_plan_seconds": 0.00040370901115238667,
+        "gate_up_seconds": 0.004598541068844497,
+        "activation_seconds": 0.0003272080793976784,
+        "down_seconds": 0.0025193330366164446,
+        "restore_reduce_seconds": 0.0003853340167552233
+      }
+    },
+    {
+      "sequence_tokens": 256,
+      "routes": 2048,
+      "unique_experts": 51,
+      "routes_per_expert_mean": 40.15686274509804,
+      "routes_per_expert_max": 94,
+      "expert_boundary_tiles": 0,
+      "naive_fixed_grid_boundary_tiles": 38,
+      "aligned_route_tiles": 90,
+      "descriptor_slots": 352,
+      "unused_descriptor_slots": 262,
+      "direct_seconds": {
+        "median": 0.11146395793184638,
+        "samples": [0.11150599992834032, 0.11146395793184638, 0.11146637494675815, 0.11121795803774148, 0.1114334580488503]
+      },
+      "grouped_seconds": {
+        "median": 0.022079708985984325,
+        "samples": [0.022072916966862977, 0.022079708985984325, 0.022179500083439052, 0.022095790947787464, 0.021963584003970027]
+      },
+      "speedup": 5.048253036423671,
+      "error": {
+        "max_abs": 0.01953125,
+        "mean_abs": 0.0010768980719149113,
+        "rms": 0.0019715672824531794,
+        "allclose_rtol_0_02_atol_0_02": true
+      },
+      "phase_seconds": {
+        "router_seconds": 0.00040970800910145044,
+        "sort_seconds": 0.0003476660931482911,
+        "tile_plan_seconds": 0.00043829099740833044,
+        "gate_up_seconds": 0.006659667007625103,
+        "activation_seconds": 0.0003635829780250788,
+        "down_seconds": 0.003544375067576766,
+        "restore_reduce_seconds": 0.000490749953314662
+      }
+    },
+    {
+      "sequence_tokens": 512,
+      "routes": 4096,
+      "unique_experts": 53,
+      "routes_per_expert_mean": 77.28301886792453,
+      "routes_per_expert_max": 188,
+      "expert_boundary_tiles": 0,
+      "naive_fixed_grid_boundary_tiles": 41,
+      "aligned_route_tiles": 155,
+      "descriptor_slots": 416,
+      "unused_descriptor_slots": 261,
+      "direct_seconds": {
+        "median": 0.21609799994621426,
+        "samples": [0.21653774997685105, 0.21609799994621426, 0.21630845894105732, 0.21600412495899945, 0.2160463749896735]
+      },
+      "grouped_seconds": {
+        "median": 0.04120866709854454,
+        "samples": [0.041149083990603685, 0.04123541701119393, 0.04113954200875014, 0.04120866709854454, 0.04163858306128532]
+      },
+      "speedup": 5.243993925584812,
+      "error": {
+        "max_abs": 0.01953125,
+        "mean_abs": 0.0010766731575131416,
+        "rms": 0.001972505357116461,
+        "allclose_rtol_0_02_atol_0_02": true
+      },
+      "phase_seconds": {
+        "router_seconds": 0.0005037079099565744,
+        "sort_seconds": 0.00042575004044920206,
+        "tile_plan_seconds": 0.00043595791794359684,
+        "gate_up_seconds": 0.011011042050085962,
+        "activation_seconds": 0.0004783330950886011,
+        "down_seconds": 0.005738500040024519,
+        "restore_reduce_seconds": 0.000924333930015564
+      }
+    }
+  ],
+  "acceptance": {
+    "all_sequences_parity": true,
+    "speedup_256_at_least_1_5": true,
+    "working_peak_delta_at_most_512_mib": true,
+    "decode_oracle_16_unchanged": true,
+    "accepted": true
+  },
+  "runtime_default_changed": false
+}

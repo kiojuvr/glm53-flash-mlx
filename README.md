@@ -135,6 +135,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | deterministic 256-token prefill | 17.49 s / 14.63 tok/s / peak 320.64 GB |
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
 | layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
+| layer 3 grouped FP8 MoE, 256 tokens | 111.46 → 22.08 ms / 5.05× / working peak +319.7 MB |
 
 再測定コマンド:
 
@@ -146,6 +147,10 @@ uv run python scripts/bench_fp8.py \
 uv run python scripts/probe_packed_expert_bank.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --layer 3
+
+uv run python scripts/probe_grouped_fp8_moe.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --layer 3 --warmups 2 --repeats 5
 ```
 
 ### Packed expert bank feasibility
@@ -153,6 +158,16 @@ uv run python scripts/probe_packed_expert_bank.py \
 GPU MoE prefillの前提確認として、実checkpointのlayer 3だけを4個の連続bufferへin-memory packingしました。`gate_up_weight`と`down_weight`はuint8 E4M3、scaleはFP32のままで、BF16展開はありません。全288 expert × 6 tensor = 1,728 sliceが元tensorとbyte-identicalで、既存selected top-8出力もbit-identicalでした。
 
 全model常駐状態のactive memoryは319.706 GB、pack中peakは327.023 GBでした。module参照の切替、旧expert解放、`mx.clear_cache()`後は319.706 GBへ戻り、baselineとの差は4 bytesです。したがって層単位移行で元mmap-backed tensorを解放でき、定常的なexpert bank二重化を避けられることを確認しました。これはfeasibility probeであり、serverとloaderの既定経路はまだ変更していません。
+
+0.202秒は既にresidentなtensorから1層をpackする時間です。attestation、checkpoint load、全weight residencyを含むserver-ready時間とは分離して扱います。
+
+### Sorted grouped FP8 MoE feasibility
+
+layer 3のpacked bankを直接読むprefill専用Metal kernelを実装しました。route planはGPU上のargsort、histogram、prefix sumで構築し、expert境界に揃えた32-route descriptorごとに32×32×32 `simdgroup_matrix` GEMMを実行します。FP8 weightはthreadgroup tileへFP32 decodeするだけで、永続的なBF16 weight展開はありません。hot pathにはNumPy変換、`.item()`、明示的`mx.eval`を含みません。
+
+32/64/128/256/512 tokenの全点でDirectFP8MoEとの`rtol=0.02, atol=0.02` parityに合格し、speedupは2.17× / 3.45× / 4.42× / 5.05× / 5.24×でした。256 tokenのmax/mean/RMS errorは0.01953 / 0.001077 / 0.001972、追加working peakは319.7 MBです。実行tileはexpert境界を跨ぎません。測定済みの損益分岐点は256 routes（32 tokens）なので、それ未満は既存packed pathへfallbackします。公式checkpointの16-token oracleも全stepのlogits hashが不変で、batch-1 decodeはselected top-8経路を維持しています。
+
+開発中のscalar grouped variantは256 tokenで0.48–0.71×に留まり棄却しました。性能向上はdispatch統合だけではなく、MMA GEMMによるweight reuseで得られています。このprobeもlayer 3限定で、serverとloaderの既定経路は変更していません。
 
 ## 検証
 

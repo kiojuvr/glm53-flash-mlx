@@ -139,3 +139,49 @@ def test_packed_expert_bank_preserves_bytes_and_selected_top8_output():
     actual = packed_moe(x)
     mx.eval(expected, actual)
     assert mx.allclose(actual, expected, rtol=0.02, atol=0.02).item()
+
+
+def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback():
+    _require_metal()
+    from glm53_flash_mlx.fp8 import DirectFP8MoE
+    from glm53_flash_mlx.grouped_fp8 import SortedGroupedFP8MoE
+    from glm53_flash_mlx.packed import PackedFP8ExpertBank
+
+    class DeterministicGate(nn.Module):
+        def __call__(self, x):
+            rows = x.reshape(-1, x.shape[-1]).shape[0]
+            routes = mx.arange(rows * 8, dtype=mx.uint32).reshape(rows, 8)
+            indices = ((routes * 5 + 3) % 8).reshape(*x.shape[:-1], 8)
+            scores = mx.full(indices.shape, 0.125, dtype=x.dtype)
+            return indices, scores
+
+    config = SimpleNamespace(
+        hidden_size=256,
+        moe_intermediate_size=128,
+        swiglu_limit=3.0,
+        n_routed_experts=8,
+        num_experts_per_tok=8,
+    )
+    direct = DirectFP8MoE(config, DeterministicGate(), None)
+    for expert in direct.experts:
+        for projection in (expert.gate_proj, expert.up_proj, expert.down_proj):
+            projection.weight = mx.random.randint(
+                0, 247, shape=projection.weight.shape
+            ).astype(mx.uint8)
+            projection.weight_scale_inv = (
+                mx.random.uniform(shape=projection.weight_scale_inv.shape) * 0.002
+            ).astype(mx.float32)
+    bank = PackedFP8ExpertBank.pack(direct.experts)
+    grouped = SortedGroupedFP8MoE(bank, config, direct.gate, None, min_routes=256)
+
+    prefill_x = mx.random.normal(shape=(1, 32, 256)).astype(mx.bfloat16)
+    expected = direct(prefill_x)
+    actual = grouped(prefill_x)
+    mx.eval(expected, actual)
+    assert mx.allclose(actual, expected, rtol=0.02, atol=0.02).item()
+
+    decode_x = mx.random.normal(shape=(1, 1, 256)).astype(mx.bfloat16)
+    expected_decode = direct(decode_x)
+    actual_decode = grouped(decode_x)
+    mx.eval(expected_decode, actual_decode)
+    assert mx.array_equal(actual_decode, expected_decode).item()
