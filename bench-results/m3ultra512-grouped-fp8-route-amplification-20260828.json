@@ -19,7 +19,7 @@
       "mean_abs": 0.0,
       "rms": 0.0
     },
-    "elapsed_seconds": 5.7206229160074145,
+    "elapsed_seconds": 5.719682749942876,
     "final_logits_sha256": "aeaaa83e81f73a8b6dbcb124031cbd900859a210849dfd48d6e3adf151e1f6b2"
   },
   "targets": {
@@ -29,7 +29,7 @@
         8
       ],
       "free_routing": {
-        "elapsed_seconds": 5.920241750078276,
+        "elapsed_seconds": 5.916518166079186,
         "boundary_metrics": {
           "3": {
             "layer_input": {
@@ -588,6 +588,9 @@
           "3": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -598,6 +601,9 @@
           "4": {
             "slot_agreement": 0.96728515625,
             "tokens_with_identical_top8_set": 249,
+            "tokens_with_changed_top8_set": 7,
+            "tokens_with_order_only_change": 30,
+            "expert_membership_replacements": 7,
             "total_tokens": 256,
             "changed_route_slots": 67,
             "indices_array_equal": false,
@@ -608,6 +614,9 @@
           "5": {
             "slot_agreement": 0.951171875,
             "tokens_with_identical_top8_set": 246,
+            "tokens_with_changed_top8_set": 10,
+            "tokens_with_order_only_change": 38,
+            "expert_membership_replacements": 10,
             "total_tokens": 256,
             "changed_route_slots": 100,
             "indices_array_equal": false,
@@ -618,6 +627,9 @@
           "6": {
             "slot_agreement": 0.939453125,
             "tokens_with_identical_top8_set": 242,
+            "tokens_with_changed_top8_set": 14,
+            "tokens_with_order_only_change": 47,
+            "expert_membership_replacements": 14,
             "total_tokens": 256,
             "changed_route_slots": 124,
             "indices_array_equal": false,
@@ -628,6 +640,9 @@
           "7": {
             "slot_agreement": 0.93212890625,
             "tokens_with_identical_top8_set": 235,
+            "tokens_with_changed_top8_set": 21,
+            "tokens_with_order_only_change": 48,
+            "expert_membership_replacements": 21,
             "total_tokens": 256,
             "changed_route_slots": 139,
             "indices_array_equal": false,
@@ -638,6 +653,9 @@
           "8": {
             "slot_agreement": 0.8974609375,
             "tokens_with_identical_top8_set": 225,
+            "tokens_with_changed_top8_set": 31,
+            "tokens_with_order_only_change": 65,
+            "expert_membership_replacements": 31,
             "total_tokens": 256,
             "changed_route_slots": 210,
             "indices_array_equal": false,
@@ -648,6 +666,9 @@
           "9": {
             "slot_agreement": 0.86865234375,
             "tokens_with_identical_top8_set": 221,
+            "tokens_with_changed_top8_set": 35,
+            "tokens_with_order_only_change": 73,
+            "expert_membership_replacements": 38,
             "total_tokens": 256,
             "changed_route_slots": 269,
             "indices_array_equal": false,
@@ -658,6 +679,9 @@
           "10": {
             "slot_agreement": 0.85986328125,
             "tokens_with_identical_top8_set": 208,
+            "tokens_with_changed_top8_set": 48,
+            "tokens_with_order_only_change": 72,
+            "expert_membership_replacements": 53,
             "total_tokens": 256,
             "changed_route_slots": 287,
             "indices_array_equal": false,
@@ -668,6 +692,9 @@
           "11": {
             "slot_agreement": 0.81591796875,
             "tokens_with_identical_top8_set": 199,
+            "tokens_with_changed_top8_set": 57,
+            "tokens_with_order_only_change": 79,
+            "expert_membership_replacements": 64,
             "total_tokens": 256,
             "changed_route_slots": 377,
             "indices_array_equal": false,
@@ -678,6 +705,9 @@
           "12": {
             "slot_agreement": 0.8017578125,
             "tokens_with_identical_top8_set": 185,
+            "tokens_with_changed_top8_set": 71,
+            "tokens_with_order_only_change": 86,
+            "expert_membership_replacements": 75,
             "total_tokens": 256,
             "changed_route_slots": 406,
             "indices_array_equal": false,
@@ -688,6 +718,9 @@
           "13": {
             "slot_agreement": 0.80224609375,
             "tokens_with_identical_top8_set": 192,
+            "tokens_with_changed_top8_set": 64,
+            "tokens_with_order_only_change": 84,
+            "expert_membership_replacements": 67,
             "total_tokens": 256,
             "changed_route_slots": 405,
             "indices_array_equal": false,
@@ -698,6 +731,9 @@
           "14": {
             "slot_agreement": 0.79833984375,
             "tokens_with_identical_top8_set": 185,
+            "tokens_with_changed_top8_set": 71,
+            "tokens_with_order_only_change": 82,
+            "expert_membership_replacements": 76,
             "total_tokens": 256,
             "changed_route_slots": 413,
             "indices_array_equal": false,
@@ -708,6 +744,9 @@
           "15": {
             "slot_agreement": 0.7255859375,
             "tokens_with_identical_top8_set": 180,
+            "tokens_with_changed_top8_set": 76,
+            "tokens_with_order_only_change": 114,
+            "expert_membership_replacements": 81,
             "total_tokens": 256,
             "changed_route_slots": 562,
             "indices_array_equal": false,
@@ -718,6 +757,9 @@
           "16": {
             "slot_agreement": 0.77880859375,
             "tokens_with_identical_top8_set": 179,
+            "tokens_with_changed_top8_set": 77,
+            "tokens_with_order_only_change": 91,
+            "expert_membership_replacements": 83,
             "total_tokens": 256,
             "changed_route_slots": 453,
             "indices_array_equal": false,
@@ -728,6 +770,9 @@
           "17": {
             "slot_agreement": 0.7412109375,
             "tokens_with_identical_top8_set": 153,
+            "tokens_with_changed_top8_set": 103,
+            "tokens_with_order_only_change": 90,
+            "expert_membership_replacements": 112,
             "total_tokens": 256,
             "changed_route_slots": 530,
             "indices_array_equal": false,
@@ -738,6 +783,9 @@
           "18": {
             "slot_agreement": 0.703125,
             "tokens_with_identical_top8_set": 166,
+            "tokens_with_changed_top8_set": 90,
+            "tokens_with_order_only_change": 113,
+            "expert_membership_replacements": 103,
             "total_tokens": 256,
             "changed_route_slots": 608,
             "indices_array_equal": false,
@@ -748,6 +796,9 @@
           "19": {
             "slot_agreement": 0.70654296875,
             "tokens_with_identical_top8_set": 150,
+            "tokens_with_changed_top8_set": 106,
+            "tokens_with_order_only_change": 97,
+            "expert_membership_replacements": 117,
             "total_tokens": 256,
             "changed_route_slots": 601,
             "indices_array_equal": false,
@@ -758,6 +809,9 @@
           "20": {
             "slot_agreement": 0.76171875,
             "tokens_with_identical_top8_set": 162,
+            "tokens_with_changed_top8_set": 94,
+            "tokens_with_order_only_change": 92,
+            "expert_membership_replacements": 105,
             "total_tokens": 256,
             "changed_route_slots": 488,
             "indices_array_equal": false,
@@ -768,6 +822,9 @@
           "21": {
             "slot_agreement": 0.63720703125,
             "tokens_with_identical_top8_set": 151,
+            "tokens_with_changed_top8_set": 105,
+            "tokens_with_order_only_change": 115,
+            "expert_membership_replacements": 127,
             "total_tokens": 256,
             "changed_route_slots": 743,
             "indices_array_equal": false,
@@ -778,6 +835,9 @@
           "22": {
             "slot_agreement": 0.5947265625,
             "tokens_with_identical_top8_set": 139,
+            "tokens_with_changed_top8_set": 117,
+            "tokens_with_order_only_change": 102,
+            "expert_membership_replacements": 138,
             "total_tokens": 256,
             "changed_route_slots": 830,
             "indices_array_equal": false,
@@ -788,6 +848,9 @@
           "23": {
             "slot_agreement": 0.5712890625,
             "tokens_with_identical_top8_set": 125,
+            "tokens_with_changed_top8_set": 131,
+            "tokens_with_order_only_change": 94,
+            "expert_membership_replacements": 167,
             "total_tokens": 256,
             "changed_route_slots": 878,
             "indices_array_equal": false,
@@ -798,6 +861,9 @@
           "24": {
             "slot_agreement": 0.47900390625,
             "tokens_with_identical_top8_set": 87,
+            "tokens_with_changed_top8_set": 169,
+            "tokens_with_order_only_change": 76,
+            "expert_membership_replacements": 222,
             "total_tokens": 256,
             "changed_route_slots": 1067,
             "indices_array_equal": false,
@@ -808,6 +874,9 @@
           "25": {
             "slot_agreement": 0.4599609375,
             "tokens_with_identical_top8_set": 66,
+            "tokens_with_changed_top8_set": 190,
+            "tokens_with_order_only_change": 50,
+            "expert_membership_replacements": 281,
             "total_tokens": 256,
             "changed_route_slots": 1106,
             "indices_array_equal": false,
@@ -818,6 +887,9 @@
           "26": {
             "slot_agreement": 0.46923828125,
             "tokens_with_identical_top8_set": 57,
+            "tokens_with_changed_top8_set": 199,
+            "tokens_with_order_only_change": 51,
+            "expert_membership_replacements": 302,
             "total_tokens": 256,
             "changed_route_slots": 1087,
             "indices_array_equal": false,
@@ -828,6 +900,9 @@
           "27": {
             "slot_agreement": 0.37109375,
             "tokens_with_identical_top8_set": 50,
+            "tokens_with_changed_top8_set": 206,
+            "tokens_with_order_only_change": 47,
+            "expert_membership_replacements": 361,
             "total_tokens": 256,
             "changed_route_slots": 1288,
             "indices_array_equal": false,
@@ -838,6 +913,9 @@
           "28": {
             "slot_agreement": 0.34912109375,
             "tokens_with_identical_top8_set": 34,
+            "tokens_with_changed_top8_set": 222,
+            "tokens_with_order_only_change": 31,
+            "expert_membership_replacements": 411,
             "total_tokens": 256,
             "changed_route_slots": 1333,
             "indices_array_equal": false,
@@ -848,6 +926,9 @@
           "29": {
             "slot_agreement": 0.33447265625,
             "tokens_with_identical_top8_set": 31,
+            "tokens_with_changed_top8_set": 225,
+            "tokens_with_order_only_change": 27,
+            "expert_membership_replacements": 473,
             "total_tokens": 256,
             "changed_route_slots": 1363,
             "indices_array_equal": false,
@@ -858,6 +939,9 @@
           "30": {
             "slot_agreement": 0.38427734375,
             "tokens_with_identical_top8_set": 42,
+            "tokens_with_changed_top8_set": 214,
+            "tokens_with_order_only_change": 40,
+            "expert_membership_replacements": 440,
             "total_tokens": 256,
             "changed_route_slots": 1261,
             "indices_array_equal": false,
@@ -868,6 +952,9 @@
           "31": {
             "slot_agreement": 0.33203125,
             "tokens_with_identical_top8_set": 28,
+            "tokens_with_changed_top8_set": 228,
+            "tokens_with_order_only_change": 25,
+            "expert_membership_replacements": 477,
             "total_tokens": 256,
             "changed_route_slots": 1368,
             "indices_array_equal": false,
@@ -878,6 +965,9 @@
           "32": {
             "slot_agreement": 0.2939453125,
             "tokens_with_identical_top8_set": 19,
+            "tokens_with_changed_top8_set": 237,
+            "tokens_with_order_only_change": 17,
+            "expert_membership_replacements": 564,
             "total_tokens": 256,
             "changed_route_slots": 1446,
             "indices_array_equal": false,
@@ -888,6 +978,9 @@
           "33": {
             "slot_agreement": 0.35595703125,
             "tokens_with_identical_top8_set": 21,
+            "tokens_with_changed_top8_set": 235,
+            "tokens_with_order_only_change": 19,
+            "expert_membership_replacements": 497,
             "total_tokens": 256,
             "changed_route_slots": 1319,
             "indices_array_equal": false,
@@ -898,6 +991,9 @@
           "34": {
             "slot_agreement": 0.35498046875,
             "tokens_with_identical_top8_set": 19,
+            "tokens_with_changed_top8_set": 237,
+            "tokens_with_order_only_change": 16,
+            "expert_membership_replacements": 515,
             "total_tokens": 256,
             "changed_route_slots": 1321,
             "indices_array_equal": false,
@@ -908,6 +1004,9 @@
           "35": {
             "slot_agreement": 0.25390625,
             "tokens_with_identical_top8_set": 17,
+            "tokens_with_changed_top8_set": 239,
+            "tokens_with_order_only_change": 16,
+            "expert_membership_replacements": 586,
             "total_tokens": 256,
             "changed_route_slots": 1528,
             "indices_array_equal": false,
@@ -918,6 +1017,9 @@
           "36": {
             "slot_agreement": 0.27880859375,
             "tokens_with_identical_top8_set": 20,
+            "tokens_with_changed_top8_set": 236,
+            "tokens_with_order_only_change": 17,
+            "expert_membership_replacements": 585,
             "total_tokens": 256,
             "changed_route_slots": 1477,
             "indices_array_equal": false,
@@ -928,6 +1030,9 @@
           "37": {
             "slot_agreement": 0.32861328125,
             "tokens_with_identical_top8_set": 20,
+            "tokens_with_changed_top8_set": 236,
+            "tokens_with_order_only_change": 18,
+            "expert_membership_replacements": 516,
             "total_tokens": 256,
             "changed_route_slots": 1375,
             "indices_array_equal": false,
@@ -938,6 +1043,9 @@
           "38": {
             "slot_agreement": 0.30810546875,
             "tokens_with_identical_top8_set": 23,
+            "tokens_with_changed_top8_set": 233,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 506,
             "total_tokens": 256,
             "changed_route_slots": 1417,
             "indices_array_equal": false,
@@ -948,6 +1056,9 @@
           "39": {
             "slot_agreement": 0.3369140625,
             "tokens_with_identical_top8_set": 27,
+            "tokens_with_changed_top8_set": 229,
+            "tokens_with_order_only_change": 25,
+            "expert_membership_replacements": 498,
             "total_tokens": 256,
             "changed_route_slots": 1358,
             "indices_array_equal": false,
@@ -958,6 +1069,9 @@
           "40": {
             "slot_agreement": 0.30615234375,
             "tokens_with_identical_top8_set": 27,
+            "tokens_with_changed_top8_set": 229,
+            "tokens_with_order_only_change": 25,
+            "expert_membership_replacements": 490,
             "total_tokens": 256,
             "changed_route_slots": 1421,
             "indices_array_equal": false,
@@ -968,6 +1082,9 @@
           "41": {
             "slot_agreement": 0.31005859375,
             "tokens_with_identical_top8_set": 23,
+            "tokens_with_changed_top8_set": 233,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 506,
             "total_tokens": 256,
             "changed_route_slots": 1413,
             "indices_array_equal": false,
@@ -978,6 +1095,9 @@
           "42": {
             "slot_agreement": 0.421875,
             "tokens_with_identical_top8_set": 41,
+            "tokens_with_changed_top8_set": 215,
+            "tokens_with_order_only_change": 38,
+            "expert_membership_replacements": 371,
             "total_tokens": 256,
             "changed_route_slots": 1184,
             "indices_array_equal": false,
@@ -988,6 +1108,9 @@
           "43": {
             "slot_agreement": 0.41064453125,
             "tokens_with_identical_top8_set": 38,
+            "tokens_with_changed_top8_set": 218,
+            "tokens_with_order_only_change": 34,
+            "expert_membership_replacements": 368,
             "total_tokens": 256,
             "changed_route_slots": 1207,
             "indices_array_equal": false,
@@ -998,6 +1121,9 @@
           "44": {
             "slot_agreement": 0.3212890625,
             "tokens_with_identical_top8_set": 29,
+            "tokens_with_changed_top8_set": 227,
+            "tokens_with_order_only_change": 26,
+            "expert_membership_replacements": 446,
             "total_tokens": 256,
             "changed_route_slots": 1390,
             "indices_array_equal": false,
@@ -1088,6 +1214,9 @@
           "router": {
             "slot_agreement": 0.96728515625,
             "tokens_with_identical_top8_set": 249,
+            "tokens_with_changed_top8_set": 7,
+            "tokens_with_order_only_change": 30,
+            "expert_membership_replacements": 7,
             "total_tokens": 256,
             "changed_route_slots": 67,
             "indices_array_equal": false,
@@ -1147,8 +1276,8 @@
           }
         }
       },
-      "direct_route_fixed": {
-        "elapsed_seconds": 6.121451332932338,
+      "direct_indices_and_scores_fixed": {
+        "elapsed_seconds": 6.126808750093915,
         "boundary_metrics": {
           "3": {
             "layer_input": {
@@ -1707,6 +1836,9 @@
           "3": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1717,6 +1849,9 @@
           "4": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1727,6 +1862,9 @@
           "5": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1737,6 +1875,9 @@
           "6": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1747,6 +1888,9 @@
           "7": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1757,6 +1901,9 @@
           "8": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1767,6 +1914,9 @@
           "9": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1777,6 +1927,9 @@
           "10": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1787,6 +1940,9 @@
           "11": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1797,6 +1953,9 @@
           "12": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1807,6 +1966,9 @@
           "13": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1817,6 +1979,9 @@
           "14": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1827,6 +1992,9 @@
           "15": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1837,6 +2005,9 @@
           "16": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1847,6 +2018,9 @@
           "17": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1857,6 +2031,9 @@
           "18": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1867,6 +2044,9 @@
           "19": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1877,6 +2057,9 @@
           "20": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1887,6 +2070,9 @@
           "21": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1897,6 +2083,9 @@
           "22": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1907,6 +2096,9 @@
           "23": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1917,6 +2109,9 @@
           "24": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1927,6 +2122,9 @@
           "25": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1937,6 +2135,9 @@
           "26": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1947,6 +2148,9 @@
           "27": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1957,6 +2161,9 @@
           "28": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1967,6 +2174,9 @@
           "29": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1977,6 +2187,9 @@
           "30": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1987,6 +2200,9 @@
           "31": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -1997,6 +2213,9 @@
           "32": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2007,6 +2226,9 @@
           "33": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2017,6 +2239,9 @@
           "34": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2027,6 +2252,9 @@
           "35": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2037,6 +2265,9 @@
           "36": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2047,6 +2278,9 @@
           "37": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2057,6 +2291,9 @@
           "38": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2067,6 +2304,9 @@
           "39": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2077,6 +2317,9 @@
           "40": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2087,6 +2330,9 @@
           "41": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2097,6 +2343,9 @@
           "42": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2107,6 +2356,9 @@
           "43": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2117,6 +2369,9 @@
           "44": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2202,8 +2457,8 @@
         "free_final_relative_l2": 0.1860496828983764,
         "fixed_final_relative_l2": 0.020343787340435505,
         "relative_l2_reduction_factor": 9.145282527043639,
-        "fixed_routing_substantially_reduces_error": true,
-        "interpretation": "downstream route switching is a major amplifier"
+        "fixed_indices_and_scores_substantially_reduce_error": true,
+      "interpretation": "downstream router selection and mixture weighting are a major combined amplifier"
       }
     },
     "5": {
@@ -2212,7 +2467,7 @@
         12
       ],
       "free_routing": {
-        "elapsed_seconds": 5.920307417050935,
+        "elapsed_seconds": 5.911402458092198,
         "boundary_metrics": {
           "5": {
             "layer_input": {
@@ -2955,6 +3210,9 @@
           "5": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -2965,6 +3223,9 @@
           "6": {
             "slot_agreement": 0.974609375,
             "tokens_with_identical_top8_set": 252,
+            "tokens_with_changed_top8_set": 4,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 4,
             "total_tokens": 256,
             "changed_route_slots": 52,
             "indices_array_equal": false,
@@ -2975,6 +3236,9 @@
           "7": {
             "slot_agreement": 0.9736328125,
             "tokens_with_identical_top8_set": 244,
+            "tokens_with_changed_top8_set": 12,
+            "tokens_with_order_only_change": 19,
+            "expert_membership_replacements": 12,
             "total_tokens": 256,
             "changed_route_slots": 54,
             "indices_array_equal": false,
@@ -2985,6 +3249,9 @@
           "8": {
             "slot_agreement": 0.93896484375,
             "tokens_with_identical_top8_set": 239,
+            "tokens_with_changed_top8_set": 17,
+            "tokens_with_order_only_change": 42,
+            "expert_membership_replacements": 17,
             "total_tokens": 256,
             "changed_route_slots": 125,
             "indices_array_equal": false,
@@ -2995,6 +3262,9 @@
           "9": {
             "slot_agreement": 0.89990234375,
             "tokens_with_identical_top8_set": 232,
+            "tokens_with_changed_top8_set": 24,
+            "tokens_with_order_only_change": 67,
+            "expert_membership_replacements": 25,
             "total_tokens": 256,
             "changed_route_slots": 205,
             "indices_array_equal": false,
@@ -3005,6 +3275,9 @@
           "10": {
             "slot_agreement": 0.8974609375,
             "tokens_with_identical_top8_set": 218,
+            "tokens_with_changed_top8_set": 38,
+            "tokens_with_order_only_change": 56,
+            "expert_membership_replacements": 39,
             "total_tokens": 256,
             "changed_route_slots": 210,
             "indices_array_equal": false,
@@ -3015,6 +3288,9 @@
           "11": {
             "slot_agreement": 0.85888671875,
             "tokens_with_identical_top8_set": 214,
+            "tokens_with_changed_top8_set": 42,
+            "tokens_with_order_only_change": 77,
+            "expert_membership_replacements": 43,
             "total_tokens": 256,
             "changed_route_slots": 289,
             "indices_array_equal": false,
@@ -3025,6 +3301,9 @@
           "12": {
             "slot_agreement": 0.85107421875,
             "tokens_with_identical_top8_set": 211,
+            "tokens_with_changed_top8_set": 45,
+            "tokens_with_order_only_change": 70,
+            "expert_membership_replacements": 48,
             "total_tokens": 256,
             "changed_route_slots": 305,
             "indices_array_equal": false,
@@ -3035,6 +3314,9 @@
           "13": {
             "slot_agreement": 0.84423828125,
             "tokens_with_identical_top8_set": 191,
+            "tokens_with_changed_top8_set": 65,
+            "tokens_with_order_only_change": 68,
+            "expert_membership_replacements": 67,
             "total_tokens": 256,
             "changed_route_slots": 319,
             "indices_array_equal": false,
@@ -3045,6 +3327,9 @@
           "14": {
             "slot_agreement": 0.8173828125,
             "tokens_with_identical_top8_set": 193,
+            "tokens_with_changed_top8_set": 63,
+            "tokens_with_order_only_change": 83,
+            "expert_membership_replacements": 69,
             "total_tokens": 256,
             "changed_route_slots": 374,
             "indices_array_equal": false,
@@ -3055,6 +3340,9 @@
           "15": {
             "slot_agreement": 0.75146484375,
             "tokens_with_identical_top8_set": 186,
+            "tokens_with_changed_top8_set": 70,
+            "tokens_with_order_only_change": 110,
+            "expert_membership_replacements": 75,
             "total_tokens": 256,
             "changed_route_slots": 509,
             "indices_array_equal": false,
@@ -3065,6 +3353,9 @@
           "16": {
             "slot_agreement": 0.771484375,
             "tokens_with_identical_top8_set": 178,
+            "tokens_with_changed_top8_set": 78,
+            "tokens_with_order_only_change": 95,
+            "expert_membership_replacements": 84,
             "total_tokens": 256,
             "changed_route_slots": 468,
             "indices_array_equal": false,
@@ -3075,6 +3366,9 @@
           "17": {
             "slot_agreement": 0.73291015625,
             "tokens_with_identical_top8_set": 155,
+            "tokens_with_changed_top8_set": 101,
+            "tokens_with_order_only_change": 91,
+            "expert_membership_replacements": 111,
             "total_tokens": 256,
             "changed_route_slots": 547,
             "indices_array_equal": false,
@@ -3085,6 +3379,9 @@
           "18": {
             "slot_agreement": 0.68603515625,
             "tokens_with_identical_top8_set": 160,
+            "tokens_with_changed_top8_set": 96,
+            "tokens_with_order_only_change": 120,
+            "expert_membership_replacements": 101,
             "total_tokens": 256,
             "changed_route_slots": 643,
             "indices_array_equal": false,
@@ -3095,6 +3392,9 @@
           "19": {
             "slot_agreement": 0.71044921875,
             "tokens_with_identical_top8_set": 154,
+            "tokens_with_changed_top8_set": 102,
+            "tokens_with_order_only_change": 99,
+            "expert_membership_replacements": 112,
             "total_tokens": 256,
             "changed_route_slots": 593,
             "indices_array_equal": false,
@@ -3105,6 +3405,9 @@
           "20": {
             "slot_agreement": 0.7333984375,
             "tokens_with_identical_top8_set": 154,
+            "tokens_with_changed_top8_set": 102,
+            "tokens_with_order_only_change": 90,
+            "expert_membership_replacements": 113,
             "total_tokens": 256,
             "changed_route_slots": 546,
             "indices_array_equal": false,
@@ -3115,6 +3418,9 @@
           "21": {
             "slot_agreement": 0.61083984375,
             "tokens_with_identical_top8_set": 135,
+            "tokens_with_changed_top8_set": 121,
+            "tokens_with_order_only_change": 106,
+            "expert_membership_replacements": 142,
             "total_tokens": 256,
             "changed_route_slots": 797,
             "indices_array_equal": false,
@@ -3125,6 +3431,9 @@
           "22": {
             "slot_agreement": 0.59033203125,
             "tokens_with_identical_top8_set": 131,
+            "tokens_with_changed_top8_set": 125,
+            "tokens_with_order_only_change": 104,
+            "expert_membership_replacements": 149,
             "total_tokens": 256,
             "changed_route_slots": 839,
             "indices_array_equal": false,
@@ -3135,6 +3444,9 @@
           "23": {
             "slot_agreement": 0.55029296875,
             "tokens_with_identical_top8_set": 123,
+            "tokens_with_changed_top8_set": 133,
+            "tokens_with_order_only_change": 99,
+            "expert_membership_replacements": 168,
             "total_tokens": 256,
             "changed_route_slots": 921,
             "indices_array_equal": false,
@@ -3145,6 +3457,9 @@
           "24": {
             "slot_agreement": 0.4453125,
             "tokens_with_identical_top8_set": 71,
+            "tokens_with_changed_top8_set": 185,
+            "tokens_with_order_only_change": 63,
+            "expert_membership_replacements": 249,
             "total_tokens": 256,
             "changed_route_slots": 1136,
             "indices_array_equal": false,
@@ -3155,6 +3470,9 @@
           "25": {
             "slot_agreement": 0.439453125,
             "tokens_with_identical_top8_set": 71,
+            "tokens_with_changed_top8_set": 185,
+            "tokens_with_order_only_change": 69,
+            "expert_membership_replacements": 267,
             "total_tokens": 256,
             "changed_route_slots": 1148,
             "indices_array_equal": false,
@@ -3165,6 +3483,9 @@
           "26": {
             "slot_agreement": 0.4453125,
             "tokens_with_identical_top8_set": 48,
+            "tokens_with_changed_top8_set": 208,
+            "tokens_with_order_only_change": 45,
+            "expert_membership_replacements": 330,
             "total_tokens": 256,
             "changed_route_slots": 1136,
             "indices_array_equal": false,
@@ -3175,6 +3496,9 @@
           "27": {
             "slot_agreement": 0.3291015625,
             "tokens_with_identical_top8_set": 36,
+            "tokens_with_changed_top8_set": 220,
+            "tokens_with_order_only_change": 35,
+            "expert_membership_replacements": 398,
             "total_tokens": 256,
             "changed_route_slots": 1374,
             "indices_array_equal": false,
@@ -3185,6 +3509,9 @@
           "28": {
             "slot_agreement": 0.376953125,
             "tokens_with_identical_top8_set": 30,
+            "tokens_with_changed_top8_set": 226,
+            "tokens_with_order_only_change": 28,
+            "expert_membership_replacements": 415,
             "total_tokens": 256,
             "changed_route_slots": 1276,
             "indices_array_equal": false,
@@ -3195,6 +3522,9 @@
           "29": {
             "slot_agreement": 0.32421875,
             "tokens_with_identical_top8_set": 20,
+            "tokens_with_changed_top8_set": 236,
+            "tokens_with_order_only_change": 18,
+            "expert_membership_replacements": 505,
             "total_tokens": 256,
             "changed_route_slots": 1384,
             "indices_array_equal": false,
@@ -3205,6 +3535,9 @@
           "30": {
             "slot_agreement": 0.35302734375,
             "tokens_with_identical_top8_set": 36,
+            "tokens_with_changed_top8_set": 220,
+            "tokens_with_order_only_change": 34,
+            "expert_membership_replacements": 444,
             "total_tokens": 256,
             "changed_route_slots": 1325,
             "indices_array_equal": false,
@@ -3215,6 +3548,9 @@
           "31": {
             "slot_agreement": 0.32470703125,
             "tokens_with_identical_top8_set": 19,
+            "tokens_with_changed_top8_set": 237,
+            "tokens_with_order_only_change": 19,
+            "expert_membership_replacements": 504,
             "total_tokens": 256,
             "changed_route_slots": 1383,
             "indices_array_equal": false,
@@ -3225,6 +3561,9 @@
           "32": {
             "slot_agreement": 0.2939453125,
             "tokens_with_identical_top8_set": 13,
+            "tokens_with_changed_top8_set": 243,
+            "tokens_with_order_only_change": 13,
+            "expert_membership_replacements": 548,
             "total_tokens": 256,
             "changed_route_slots": 1446,
             "indices_array_equal": false,
@@ -3235,6 +3574,9 @@
           "33": {
             "slot_agreement": 0.369140625,
             "tokens_with_identical_top8_set": 20,
+            "tokens_with_changed_top8_set": 236,
+            "tokens_with_order_only_change": 18,
+            "expert_membership_replacements": 513,
             "total_tokens": 256,
             "changed_route_slots": 1292,
             "indices_array_equal": false,
@@ -3245,6 +3587,9 @@
           "34": {
             "slot_agreement": 0.3525390625,
             "tokens_with_identical_top8_set": 22,
+            "tokens_with_changed_top8_set": 234,
+            "tokens_with_order_only_change": 22,
+            "expert_membership_replacements": 496,
             "total_tokens": 256,
             "changed_route_slots": 1326,
             "indices_array_equal": false,
@@ -3255,6 +3600,9 @@
           "35": {
             "slot_agreement": 0.25341796875,
             "tokens_with_identical_top8_set": 10,
+            "tokens_with_changed_top8_set": 246,
+            "tokens_with_order_only_change": 9,
+            "expert_membership_replacements": 588,
             "total_tokens": 256,
             "changed_route_slots": 1529,
             "indices_array_equal": false,
@@ -3265,6 +3613,9 @@
           "36": {
             "slot_agreement": 0.25634765625,
             "tokens_with_identical_top8_set": 22,
+            "tokens_with_changed_top8_set": 234,
+            "tokens_with_order_only_change": 22,
+            "expert_membership_replacements": 590,
             "total_tokens": 256,
             "changed_route_slots": 1523,
             "indices_array_equal": false,
@@ -3275,6 +3626,9 @@
           "37": {
             "slot_agreement": 0.3203125,
             "tokens_with_identical_top8_set": 23,
+            "tokens_with_changed_top8_set": 233,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 492,
             "total_tokens": 256,
             "changed_route_slots": 1392,
             "indices_array_equal": false,
@@ -3285,6 +3639,9 @@
           "38": {
             "slot_agreement": 0.3046875,
             "tokens_with_identical_top8_set": 24,
+            "tokens_with_changed_top8_set": 232,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 467,
             "total_tokens": 256,
             "changed_route_slots": 1424,
             "indices_array_equal": false,
@@ -3295,6 +3652,9 @@
           "39": {
             "slot_agreement": 0.32177734375,
             "tokens_with_identical_top8_set": 30,
+            "tokens_with_changed_top8_set": 226,
+            "tokens_with_order_only_change": 26,
+            "expert_membership_replacements": 498,
             "total_tokens": 256,
             "changed_route_slots": 1389,
             "indices_array_equal": false,
@@ -3305,6 +3665,9 @@
           "40": {
             "slot_agreement": 0.29150390625,
             "tokens_with_identical_top8_set": 20,
+            "tokens_with_changed_top8_set": 236,
+            "tokens_with_order_only_change": 19,
+            "expert_membership_replacements": 523,
             "total_tokens": 256,
             "changed_route_slots": 1451,
             "indices_array_equal": false,
@@ -3315,6 +3678,9 @@
           "41": {
             "slot_agreement": 0.30419921875,
             "tokens_with_identical_top8_set": 22,
+            "tokens_with_changed_top8_set": 234,
+            "tokens_with_order_only_change": 21,
+            "expert_membership_replacements": 508,
             "total_tokens": 256,
             "changed_route_slots": 1425,
             "indices_array_equal": false,
@@ -3325,6 +3691,9 @@
           "42": {
             "slot_agreement": 0.40185546875,
             "tokens_with_identical_top8_set": 23,
+            "tokens_with_changed_top8_set": 233,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 420,
             "total_tokens": 256,
             "changed_route_slots": 1225,
             "indices_array_equal": false,
@@ -3335,6 +3704,9 @@
           "43": {
             "slot_agreement": 0.38916015625,
             "tokens_with_identical_top8_set": 37,
+            "tokens_with_changed_top8_set": 219,
+            "tokens_with_order_only_change": 35,
+            "expert_membership_replacements": 369,
             "total_tokens": 256,
             "changed_route_slots": 1251,
             "indices_array_equal": false,
@@ -3345,6 +3717,9 @@
           "44": {
             "slot_agreement": 0.30810546875,
             "tokens_with_identical_top8_set": 25,
+            "tokens_with_changed_top8_set": 231,
+            "tokens_with_order_only_change": 24,
+            "expert_membership_replacements": 475,
             "total_tokens": 256,
             "changed_route_slots": 1417,
             "indices_array_equal": false,
@@ -3435,6 +3810,9 @@
           "router": {
             "slot_agreement": 0.974609375,
             "tokens_with_identical_top8_set": 252,
+            "tokens_with_changed_top8_set": 4,
+            "tokens_with_order_only_change": 23,
+            "expert_membership_replacements": 4,
             "total_tokens": 256,
             "changed_route_slots": 52,
             "indices_array_equal": false,
@@ -3494,8 +3872,8 @@
           }
         }
       },
-      "direct_route_fixed": {
-        "elapsed_seconds": 6.092309833969921,
+      "direct_indices_and_scores_fixed": {
+        "elapsed_seconds": 6.078431667061523,
         "boundary_metrics": {
           "5": {
             "layer_input": {
@@ -4238,6 +4616,9 @@
           "5": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4248,6 +4629,9 @@
           "6": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4258,6 +4642,9 @@
           "7": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4268,6 +4655,9 @@
           "8": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4278,6 +4668,9 @@
           "9": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4288,6 +4681,9 @@
           "10": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4298,6 +4694,9 @@
           "11": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4308,6 +4707,9 @@
           "12": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4318,6 +4720,9 @@
           "13": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4328,6 +4733,9 @@
           "14": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4338,6 +4746,9 @@
           "15": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4348,6 +4759,9 @@
           "16": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4358,6 +4772,9 @@
           "17": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4368,6 +4785,9 @@
           "18": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4378,6 +4798,9 @@
           "19": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4388,6 +4811,9 @@
           "20": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4398,6 +4824,9 @@
           "21": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4408,6 +4837,9 @@
           "22": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4418,6 +4850,9 @@
           "23": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4428,6 +4863,9 @@
           "24": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4438,6 +4876,9 @@
           "25": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4448,6 +4889,9 @@
           "26": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4458,6 +4902,9 @@
           "27": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4468,6 +4915,9 @@
           "28": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4478,6 +4928,9 @@
           "29": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4488,6 +4941,9 @@
           "30": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4498,6 +4954,9 @@
           "31": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4508,6 +4967,9 @@
           "32": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4518,6 +4980,9 @@
           "33": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4528,6 +4993,9 @@
           "34": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4538,6 +5006,9 @@
           "35": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4548,6 +5019,9 @@
           "36": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4558,6 +5032,9 @@
           "37": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4568,6 +5045,9 @@
           "38": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4578,6 +5058,9 @@
           "39": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4588,6 +5071,9 @@
           "40": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4598,6 +5084,9 @@
           "41": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4608,6 +5097,9 @@
           "42": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4618,6 +5110,9 @@
           "43": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4628,6 +5123,9 @@
           "44": {
             "slot_agreement": 1.0,
             "tokens_with_identical_top8_set": 256,
+            "tokens_with_changed_top8_set": 0,
+            "tokens_with_order_only_change": 0,
+            "expert_membership_replacements": 0,
             "total_tokens": 256,
             "changed_route_slots": 0,
             "indices_array_equal": true,
@@ -4713,15 +5211,15 @@
         "free_final_relative_l2": 0.2019937566886287,
         "fixed_final_relative_l2": 0.018298921601415115,
         "relative_l2_reduction_factor": 11.03856069163157,
-        "fixed_routing_substantially_reduces_error": true,
-        "interpretation": "downstream route switching is a major amplifier"
+        "fixed_indices_and_scores_substantially_reduce_error": true,
+      "interpretation": "downstream router selection and mixture weighting are a major combined amplifier"
       }
     }
   },
   "causal_pattern": {
     "layer_3_and_5_same_pattern": true,
-    "layer_3_route_switching_major": true,
-    "layer_5_route_switching_major": true
+    "layer_3_router_selection_and_weighting_major": true,
+    "layer_5_router_selection_and_weighting_major": true
   },
   "runtime_policy": {
     "default_backend": "direct",
@@ -4741,7 +5239,7 @@
     "first_free_router_divergence_identified": true,
     "fixed_route_final_metrics_recorded": true,
     "layer_3_and_5_same_causal_pattern": true,
-    "route_fix_substantially_reduces_error_both": true,
+    "fixed_indices_and_scores_substantially_reduce_error_both": true,
     "all_traced_dsa_layers_bypass_indexpool": true,
     "runtime_policy_unchanged": true,
     "grouped_full_model_correctness_remains_unaccepted": true,

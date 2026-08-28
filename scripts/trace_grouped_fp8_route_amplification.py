@@ -289,10 +289,24 @@ def _route_metrics(reference: dict, actual: dict) -> dict:
     ref_sets = np.sort(ref_indices, axis=-1)
     actual_sets = np.sort(actual_indices, axis=-1)
     identical_sets = np.all(ref_sets == actual_sets, axis=-1)
+    identical_order = np.all(same_slots, axis=-1)
+    flat_reference = ref_indices.reshape(-1, ref_indices.shape[-1])
+    flat_actual = actual_indices.reshape(-1, actual_indices.shape[-1])
+    membership_replacements = sum(
+        len(set(reference_row.tolist()) - set(actual_row.tolist()))
+        for reference_row, actual_row in zip(
+            flat_reference, flat_actual, strict=True
+        )
+    )
     score_diff = actual_scores.astype(np.float64) - ref_scores.astype(np.float64)
     return {
         "slot_agreement": float(np.mean(same_slots)),
         "tokens_with_identical_top8_set": int(np.count_nonzero(identical_sets)),
+        "tokens_with_changed_top8_set": int(np.count_nonzero(~identical_sets)),
+        "tokens_with_order_only_change": int(
+            np.count_nonzero(identical_sets & ~identical_order)
+        ),
+        "expert_membership_replacements": int(membership_replacements),
         "total_tokens": int(identical_sets.size),
         "changed_route_slots": int(np.count_nonzero(~same_slots)),
         "indices_array_equal": bool(np.array_equal(ref_indices, actual_indices)),
@@ -527,16 +541,19 @@ def main() -> int:
         targets[str(target)] = {
             "trace_layers": [target, trace_end],
             "free_routing": free,
-            "direct_route_fixed": fixed,
+            "direct_indices_and_scores_fixed": fixed,
             "causal_comparison": {
                 "free_final_relative_l2": free_l2,
                 "fixed_final_relative_l2": fixed_l2,
                 "relative_l2_reduction_factor": (
                     free_l2 / fixed_l2 if fixed_l2 else None
                 ),
-                "fixed_routing_substantially_reduces_error": fixed_l2 <= free_l2 * 0.5,
+                "fixed_indices_and_scores_substantially_reduce_error": (
+                    fixed_l2 <= free_l2 * 0.5
+                ),
                 "interpretation": (
-                    "downstream route switching is a major amplifier"
+                    "downstream router selection and mixture weighting are a "
+                    "major combined amplifier"
                     if fixed_l2 <= free_l2 * 0.5
                     else "continuous hidden-state amplification remains material"
                 ),
@@ -545,7 +562,7 @@ def main() -> int:
 
     patterns = [
         targets[str(target)]["causal_comparison"][
-            "fixed_routing_substantially_reduces_error"
+            "fixed_indices_and_scores_substantially_reduce_error"
         ]
         for target, _ in specifications
     ]
@@ -557,13 +574,13 @@ def main() -> int:
         "target_layer_inputs_byte_identical": all(
             targets[str(target)][mode]["target_layer_input_byte_identical"]
             for target, _ in specifications
-            for mode in ("free_routing", "direct_route_fixed")
+            for mode in ("free_routing", "direct_indices_and_scores_fixed")
         ),
         "target_router_indices_and_scores_identical": all(
             targets[str(target)][mode]["target_router_indices_equal"]
             and targets[str(target)][mode]["target_router_scores_equal"]
             for target, _ in specifications
-            for mode in ("free_routing", "direct_route_fixed")
+            for mode in ("free_routing", "direct_indices_and_scores_fixed")
         ),
         "grouped_local_error_recorded": all(
             targets[str(target)]["free_routing"][
@@ -586,15 +603,15 @@ def main() -> int:
         ),
         "fixed_route_final_metrics_recorded": all(
             "kl_reference_to_actual"
-            in targets[str(target)]["direct_route_fixed"]["final_logits"]
+            in targets[str(target)]["direct_indices_and_scores_fixed"]["final_logits"]
             for target, _ in specifications
         ),
         "layer_3_and_5_same_causal_pattern": same_pattern,
-        "route_fix_substantially_reduces_error_both": all(patterns),
+        "fixed_indices_and_scores_substantially_reduce_error_both": all(patterns),
         "all_traced_dsa_layers_bypass_indexpool": all(
             row["bypassed"]
             for target, _ in specifications
-            for mode in ("free_routing", "direct_route_fixed")
+            for mode in ("free_routing", "direct_indices_and_scores_fixed")
             for row in targets[str(target)][mode]["dsa_indexpool"].values()
         ),
         "runtime_policy_unchanged": GROUPED_MIN_ROUTES == 256,
@@ -620,8 +637,8 @@ def main() -> int:
         "targets": targets,
         "causal_pattern": {
             "layer_3_and_5_same_pattern": same_pattern,
-            "layer_3_route_switching_major": patterns[0],
-            "layer_5_route_switching_major": patterns[1],
+            "layer_3_router_selection_and_weighting_major": patterns[0],
+            "layer_5_router_selection_and_weighting_major": patterns[1],
         },
         "runtime_policy": {
             "default_backend": "direct",
