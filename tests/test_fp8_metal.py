@@ -1,4 +1,6 @@
+import importlib.util
 import math
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -193,13 +195,21 @@ def test_grouped_tile_descriptors_cover_sparse_edge_buckets_without_boundaries()
     import numpy as np
 
     from glm53_flash_mlx.grouped_fp8 import build_grouped_tile_plan
-    from scripts.probe_grouped_fp8_moe import _route_metrics
+
+    spec = importlib.util.spec_from_file_location(
+        "probe_grouped_fp8_moe",
+        Path(__file__).parents[1] / "scripts" / "probe_grouped_fp8_moe.py",
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    route_metrics = module._route_metrics
 
     sorted_experts = mx.array(
         [0] * 31 + [1] * 32 + [287] * 33, dtype=mx.uint32
     )
     tile_plan = build_grouped_tile_plan(sorted_experts, expert_count=288)
-    metrics = _route_metrics(sorted_experts, tile_plan, expert_count=288)
+    metrics = route_metrics(sorted_experts, tile_plan, expert_count=288)
 
     assert metrics["unique_experts"] == 3
     assert metrics["zero_route_experts"] == 285

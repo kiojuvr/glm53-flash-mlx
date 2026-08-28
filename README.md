@@ -118,7 +118,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、NoPE DSA cache ABIから生成します。NoPE ABIはlatent 512、`-1` sentinel、shared row planを明示します。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。同じpathのweight payloadが置換された場合やDirectで生成したstateをgrouped backendが起動した場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、NoPE DSA cache ABIから生成します。NoPE ABIはlatent 512と`-1` sentinelを明示します。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。同じpathのweight payloadが置換された場合やDirectで生成したstateをgrouped backendが起動した場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -134,7 +134,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 
 ## M3 Ultra 512 GB実測
 
-2026-08-28、このリポジトリの公式checkpointで測定した値です。
+2026-08-28〜29、このリポジトリの公式checkpointで測定した値です。
 
 | 項目 | 実測 |
 |---|---:|
@@ -152,6 +152,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model opt-in decode | 11.44 → 13.26 tok/s / 1.159× |
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
+| layer 3 grouped route amplification | local 0.00408 → final 0.18605 / route固定 0.02034（9.15×縮小） |
+| layer 5 grouped route amplification | local 0.00426 → final 0.20199 / route固定 0.01830（11.04×縮小） |
 
 再測定コマンド:
 
@@ -181,6 +183,11 @@ uv run python scripts/probe_nope_indexpool_safety.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --layer 3 \
   --output bench-results/m3ultra512-nope-indexpool-safety-20260828.json
+
+uv run python scripts/trace_grouped_fp8_route_amplification.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --tokens 256 \
+  --output bench-results/m3ultra512-grouped-fp8-route-amplification-20260828.json
 ```
 
 ### Packed expert bank feasibility
@@ -212,6 +219,10 @@ shared expertを独立phaseとして測ると、256 tokenで11.81 msでした。
 256-token最終logitsはargmax一致、top-10 overlap 9/10ですが、top-10のset/orderは不一致でrelative L2は0.206、max absolute errorは1.234375です。原因は丸め順差と推定していますが品質影響は未評価であり、full-model grouped correctness gateは未合格です。したがってopt-inのまま維持し、既定化やprompt上限引き上げには進みません。backend別APC namespaceも引き続き必須です。
 
 層別localizationでは、全42層をpacked fallbackへ固定した256-token最終logitsがDirectとbyte-identicalでした。groupedを一層だけ有効にすると、early層の誤差が後段で大きく増幅され、relative L2の最大はlayer 5の0.202、argmax不一致はlayer 9で発生しました。late層ほど誤差は小さく、layer 44は0.00293です。累積系列はlayer 3で0.186へ跳ね、layer 5で最大0.229となった後、約0.18〜0.21を非単調に推移しました。特定一層の破損でも42層にわたる滑らかな蓄積でもなく、広いearly-layer sensitivityのパターンです。これは原因の局在化結果であり、品質受入ではありません。
+
+layer 3/5を一層だけgroupedにしたpaired traceでは、target layer入力、attention、mHC、normalized router input、top-8 indices/scoresはbyte-identicalで、差はrouted MoE出力から始まりました。局所relative L2はlayer 3で0.00408、layer 5で0.00426です。次層のattention/mHCはこの差を連続的に伝播し、最初のrouter不一致はそれぞれlayer 4（67/2,048 slots変更）とlayer 6（52/2,048 slots変更）、最初の2倍超増幅も同じ層のrouted MoEで発生しました。T=256の全DSA層はIndexPool short-context bypassです。
+
+自由routingの最終relative L2は0.18605 / 0.20199、KLは0.03363 / 0.03076、top-10 overlapはどちらも9/10でした。targetより後段へDirect基準のrouteを固定するとrelative L2は0.02034 / 0.01830へ9.15× / 11.04×縮小し、KLは0.000392 / 0.000316、top-10 setは10/10へ戻りました。両targetで同じ因果パターンであり、後続expert切替が主要な増幅要因です。一方、route固定後も約0.02の連続誤差は残るため、full-model grouped correctness gateは未合格のままです。runtime policy、APC、admission、server既定経路は変更していません。
 
 ### NoPE IndexPool safety gate
 

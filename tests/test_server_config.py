@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from glm53_flash_mlx.abi import NOPE_DSA_CACHE_ABI
 from glm53_flash_mlx.server import (
     _disk_cache_descriptor,
     _disk_cache_identity,
@@ -47,6 +48,10 @@ def test_packed_grouped_server_backend_is_explicitly_opt_in():
 
 
 def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
+    assert NOPE_DSA_CACHE_ABI == (
+        "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1"
+    )
+    assert "shared-row-plan" not in NOPE_DSA_CACHE_ABI
     monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
     direct = _disk_cache_identity("checkpoint-digest")
     monkeypatch.setenv("GLM53_MOE_BACKEND", "packed-grouped")
@@ -61,7 +66,7 @@ def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
     assert descriptor["packed_decode_kernel_abi"].startswith(
         "glm53-packed-selected8-"
     )
-    assert descriptor["attention_cache_abi"].startswith("glm53-nope-dsa-v1")
+    assert descriptor["attention_cache_abi"] == NOPE_DSA_CACHE_ABI
 
     monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
     direct_descriptor = _disk_cache_descriptor("checkpoint-digest")

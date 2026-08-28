@@ -5,7 +5,7 @@
   "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
   "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
   "layer": 3,
-  "nope_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
+  "nope_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
   "qk_rope_head_dim": 0,
   "mla_use_nope": true,
   "kv_lora_rank": 512,
@@ -354,8 +354,8 @@
     "output_sha256": "4b85fe6ead3fedfb702998fdecffbc647341cb3568f98bf1945d59383491367e"
   },
   "disk_apc": {
-    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
-    "grouped_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
+    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
+    "grouped_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
     "backend_namespaces_differ": true
   },
   "runtime_policy": {

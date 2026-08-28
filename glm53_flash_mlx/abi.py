@@ -10,7 +10,6 @@ NOPE_DSA_CACHE_ABI = (
     "glm53-nope-dsa-v1"
     "-kv-latent512"
     "-sentinel-minus1"
-    "-shared-row-plan"
 )
 MLX_VLM_REVISION = "e82d557d9f4b804cb1fc3eaaebc25488ba778a98"
 CACHE_IDENTITY_SCHEMA = "glm53-hybrid-state-v1"
