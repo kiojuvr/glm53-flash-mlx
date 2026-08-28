@@ -1,0 +1,67 @@
+{
+  "schema": "glm53-sorted-grouped-fp8-moe-evidence-v1",
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "base_commit": "13b3743",
+  "base_artifact": "bench-results/m3ultra512-grouped-fp8-layer3-20260828.json",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "layer": 3,
+  "warmups": 2,
+  "repeats": 5,
+  "measured_break_even": {
+    "last_slower": {"sequence_tokens": 1, "routes": 8, "speedup": 0.9287749704748819},
+    "first_faster": {"sequence_tokens": 2, "routes": 16, "speedup": 1.3365265292039739},
+    "selected_min_routes": 16
+  },
+  "forced_grouped_crossover": [
+    {"tokens": 1, "routes": 8, "packed_median": 0.0018467919435352087, "grouped_median": 0.0019884170033037663, "speedup": 0.9287749704748819, "packed_samples": [0.0019147079437971115, 0.0018311248859390616, 0.0018467919435352087, 0.001856291084550321, 0.0018418330000713468], "grouped_samples": [0.0019884170033037663, 0.001977332984097302, 0.001966250012628734, 0.002100709010846913, 0.001996833016164601], "max_abs": 0.0078125, "allclose": true},
+    {"tokens": 2, "routes": 16, "packed_median": 0.003627500031143427, "grouped_median": 0.0027141249738633633, "speedup": 1.3365265292039739, "packed_samples": [0.0036738330963999033, 0.003627500031143427, 0.00358474999666214, 0.0037102079950273037, 0.003563000005669892], "grouped_samples": [0.0027417080709710717, 0.0027141249738633633, 0.0028740830020979047, 0.002688208012841642, 0.0027140419697389007], "max_abs": 0.015625, "allclose": true},
+    {"tokens": 3, "routes": 24, "packed_median": 0.004482624935917556, "grouped_median": 0.003142624977044761, "speedup": 1.4263951214862725, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 4, "routes": 32, "packed_median": 0.005458957981318235, "grouped_median": 0.0036079169949516654, "speedup": 1.5130497705342492, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 5, "routes": 40, "packed_median": 0.0060415000189095736, "grouped_median": 0.003969250014051795, "speedup": 1.5220759583099261, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 6, "routes": 48, "packed_median": 0.0064236249309033155, "grouped_median": 0.0042905829614028335, "speedup": 1.4971450240419242, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 7, "routes": 56, "packed_median": 0.0070842920104041696, "grouped_median": 0.004408250097185373, "speedup": 1.6070531059314044, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 8, "routes": 64, "packed_median": 0.007213125005364418, "grouped_median": 0.004388917004689574, "speedup": 1.6434863082754052, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 16, "routes": 128, "packed_median": 0.008863625000230968, "grouped_median": 0.005925125093199313, "speedup": 1.495938880751122, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 24, "routes": 192, "packed_median": 0.011046875035390258, "grouped_median": 0.006331208045594394, "speedup": 1.7448289419390168, "max_abs": 0.015625, "allclose": true},
+    {"tokens": 32, "routes": 256, "packed_median": 0.015956124989315867, "grouped_median": 0.006794083979912102, "speedup": 2.3485321989679466, "max_abs": 0.015625, "allclose": true}
+  ],
+  "descriptor_validation": {
+    "asserts_single_expert_per_descriptor": true,
+    "asserts_every_route_covered_once": true,
+    "edge_case": {"expert_0_routes": 31, "expert_1_routes": 32, "expert_287_routes": 33, "zero_route_experts": 285, "valid_descriptors": 4},
+    "actual_256_tokens": {"unique_experts": 51, "zero_route_experts": 237, "max_routes_per_expert": 94, "valid_descriptors": 90, "expert_boundary_tiles": 0, "all_routes_covered_once": true}
+  },
+  "phase_seconds_256_tokens": {
+    "router": 0.0003860420547425747,
+    "sort": 0.0003139158943668008,
+    "tile_plan": 0.00038812507409602404,
+    "gate_up": 0.006674707983620465,
+    "activation": 0.0003679159563034773,
+    "down": 0.003490207949653268,
+    "restore_reduce": 0.00048437505029141903,
+    "shared_expert": 0.011808917042799294,
+    "note": "Phases are independently synchronized measurements and are not additive."
+  },
+  "full_points": [
+    {"tokens": 32, "direct_median": 0.014609167003072798, "grouped_median": 0.0068892911076545715, "speedup": 2.1205617203257394},
+    {"tokens": 64, "direct_median": 0.029298665933310986, "grouped_median": 0.008480750024318695, "speedup": 3.4547258024698952},
+    {"tokens": 128, "direct_median": 0.0578936249949038, "grouped_median": 0.013087500003166497, "speedup": 4.423581660431446},
+    {"tokens": 256, "direct_median": 0.11150362493935972, "grouped_median": 0.02203225006815046, "speedup": 5.060927712532999},
+    {"tokens": 512, "direct_median": 0.21622295794077218, "grouped_median": 0.04111895908135921, "speedup": 5.258473530736683}
+  ],
+  "memory": {
+    "storage_baseline_active_bytes": 326955646208,
+    "working_peak_bytes": 327275354828,
+    "working_peak_delta_bytes": 319708620
+  },
+  "acceptance": {
+    "forced_crossover_parity": true,
+    "break_even_bracketed": true,
+    "descriptor_boundaries_validated": true,
+    "shared_expert_profiled": true,
+    "accepted": true
+  },
+  "runtime_default_changed": false
+}

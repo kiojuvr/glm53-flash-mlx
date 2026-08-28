@@ -26,7 +26,7 @@
     "cache_bytes": 0,
     "peak_bytes": 327275348252
   },
-  "measured_break_even": {
+  "first_measured_profitable_point": {
     "sequence_tokens": 32,
     "routes": 256
   },

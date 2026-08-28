@@ -172,7 +172,8 @@ def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback
                 mx.random.uniform(shape=projection.weight_scale_inv.shape) * 0.002
             ).astype(mx.float32)
     bank = PackedFP8ExpertBank.pack(direct.experts)
-    grouped = SortedGroupedFP8MoE(bank, config, direct.gate, None, min_routes=256)
+    grouped = SortedGroupedFP8MoE(bank, config, direct.gate, None)
+    assert grouped.min_routes == 16
 
     prefill_x = mx.random.normal(shape=(1, 32, 256)).astype(mx.bfloat16)
     expected = direct(prefill_x)
@@ -185,3 +186,35 @@ def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback
     actual_decode = grouped(decode_x)
     mx.eval(expected_decode, actual_decode)
     assert mx.array_equal(actual_decode, expected_decode).item()
+
+
+def test_grouped_tile_descriptors_cover_sparse_edge_buckets_without_boundaries():
+    _require_metal()
+    import numpy as np
+
+    from glm53_flash_mlx.grouped_fp8 import build_grouped_tile_plan
+    from scripts.probe_grouped_fp8_moe import _route_metrics
+
+    sorted_experts = mx.array(
+        [0] * 31 + [1] * 32 + [287] * 33, dtype=mx.uint32
+    )
+    tile_plan = build_grouped_tile_plan(sorted_experts, expert_count=288)
+    metrics = _route_metrics(sorted_experts, tile_plan, expert_count=288)
+
+    assert metrics["unique_experts"] == 3
+    assert metrics["zero_route_experts"] == 285
+    assert metrics["routes_per_expert_max"] == 33
+    assert metrics["expert_boundary_tiles"] == 0
+    assert metrics["descriptor_routes_covered_once"]
+    assert metrics["aligned_route_tiles"] == 4
+
+    experts, starts, lengths = (
+        np.asarray(value) for value in tile_plan[:3]
+    )
+    valid = starts < sorted_experts.shape[0]
+    assert list(zip(experts[valid], starts[valid], lengths[valid], strict=True)) == [
+        (0, 0, 31),
+        (1, 31, 32),
+        (287, 63, 32),
+        (287, 95, 1),
+    ]

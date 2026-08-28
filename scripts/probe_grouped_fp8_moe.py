@@ -17,6 +17,7 @@ from glm53_flash_mlx.abi import KERNEL_ABI_VERSION
 from glm53_flash_mlx.fp8 import DirectFP8MoE
 from glm53_flash_mlx.grouped_fp8 import (
     GROUPED_KERNEL_ABI,
+    GROUPED_MIN_ROUTES,
     GROUPED_TILE_ROWS,
     SortedGroupedFP8MoE,
     activate_gate_up,
@@ -27,9 +28,10 @@ from glm53_flash_mlx.grouped_fp8 import (
 )
 from glm53_flash_mlx.loader import load_model, warm_residency
 from glm53_flash_mlx.manifest import inspect_checkpoint
-from glm53_flash_mlx.packed import PackedFP8ExpertBank
+from glm53_flash_mlx.packed import PackedFP8ExpertBank, PackedFP8MoE
 
 SEQUENCES = (32, 64, 128, 256, 512)
+CROSSOVER_SEQUENCES = (*range(1, 9), 16, 24, 32)
 
 
 def _snapshot() -> dict[str, int]:
@@ -83,24 +85,80 @@ def _error_metrics(expected, actual) -> dict[str, float]:
     }
 
 
+def _make_input(sequence: int, hidden_size: int):
+    raw = np.arange(sequence * hidden_size, dtype=np.float32)
+    raw = np.sin(raw * np.float32(0.0009765625)).reshape(
+        1, sequence, hidden_size
+    )
+    x = mx.array(raw).astype(mx.bfloat16)
+    mx.eval(x)
+    return x
+
+
+def _forced_grouped(grouped, x):
+    indices, scores = grouped.gate(x)
+    return grouped.grouped_from_routes(x, indices, scores)
+
+
 def _route_metrics(
-    sorted_experts, expert_count: int, tile_rows: int = GROUPED_TILE_ROWS
+    sorted_experts,
+    tile_plan,
+    expert_count: int,
+    tile_rows: int = GROUPED_TILE_ROWS,
 ) -> dict:
-    mx.eval(sorted_experts)
+    mx.eval(sorted_experts, *tile_plan)
     values = np.asarray(sorted_experts, dtype=np.uint32)
     counts = np.bincount(values, minlength=expert_count)
+    tile_experts, tile_starts, tile_lengths, route_offsets, tile_offsets = (
+        np.asarray(value, dtype=np.uint32) for value in tile_plan
+    )
+    expected_route_offsets = np.concatenate(
+        [np.zeros(1, dtype=np.uint32), np.cumsum(counts, dtype=np.uint32)]
+    )
+    expected_tile_counts = (counts + tile_rows - 1) // tile_rows
+    expected_tile_offsets = np.concatenate(
+        [
+            np.zeros(1, dtype=np.uint32),
+            np.cumsum(expected_tile_counts, dtype=np.uint32),
+        ]
+    )
+    assert np.array_equal(route_offsets, expected_route_offsets)
+    assert np.array_equal(tile_offsets, expected_tile_offsets)
+
+    valid = tile_starts < values.size
+    assert int(valid.sum()) == int(expected_tile_offsets[-1])
+    assert np.all(tile_lengths[~valid] == 0)
+    coverage = np.zeros(values.size, dtype=np.uint8)
+    boundary_tiles = 0
+    for expert, start, length in zip(
+        tile_experts[valid], tile_starts[valid], tile_lengths[valid], strict=True
+    ):
+        expert = int(expert)
+        start = int(start)
+        length = int(length)
+        assert 0 <= expert < expert_count
+        assert 0 < length <= tile_rows
+        assert start + length <= values.size
+        descriptor_values = values[start : start + length]
+        boundary_tiles += int(np.any(descriptor_values != expert))
+        coverage[start : start + length] += 1
+    assert boundary_tiles == 0
+    assert np.all(coverage == 1)
+
     naive_boundary_tiles = 0
     for start in range(0, values.size, tile_rows):
         if np.unique(values[start : start + tile_rows]).size > 1:
             naive_boundary_tiles += 1
     used = counts[counts > 0]
-    aligned_tiles = int(np.sum((used + tile_rows - 1) // tile_rows))
-    descriptor_slots = int((values.size + tile_rows - 1) // tile_rows + expert_count)
+    aligned_tiles = int(valid.sum())
+    descriptor_slots = int(tile_experts.size)
     return {
         "unique_experts": int(used.size),
+        "zero_route_experts": int(np.sum(counts == 0)),
         "routes_per_expert_mean": float(used.mean()) if used.size else 0.0,
         "routes_per_expert_max": int(used.max()) if used.size else 0,
-        "expert_boundary_tiles": 0,
+        "expert_boundary_tiles": boundary_tiles,
+        "descriptor_routes_covered_once": bool(np.all(coverage == 1)),
         "naive_fixed_grid_boundary_tiles": naive_boundary_tiles,
         "aligned_route_tiles": aligned_tiles,
         "descriptor_slots": descriptor_slots,
@@ -108,7 +166,7 @@ def _route_metrics(
     }
 
 
-def _phase_profile(grouped, x) -> tuple[dict, object]:
+def _phase_profile(grouped, x) -> tuple[dict, object, tuple]:
     (indices, scores), router_seconds = _time_value(lambda: grouped.gate(x))
     plan, sort_seconds = _time_value(lambda: build_route_plan(x, indices, scores))
     sorted_x, experts, sorted_scores, inverse = plan
@@ -145,6 +203,10 @@ def _phase_profile(grouped, x) -> tuple[dict, object]:
             grouped.config.num_experts_per_tok,
         )
     )
+    if grouped.shared_experts is None:
+        shared_seconds = 0.0
+    else:
+        _, shared_seconds = _time_value(lambda: grouped.shared_experts(x))
     return (
         {
             "router_seconds": router_seconds,
@@ -154,8 +216,10 @@ def _phase_profile(grouped, x) -> tuple[dict, object]:
             "activation_seconds": activation_seconds,
             "down_seconds": down_seconds,
             "restore_reduce_seconds": restore_seconds,
+            "shared_expert_seconds": shared_seconds,
         },
         experts,
+        tile_plan,
     )
 
 
@@ -183,19 +247,66 @@ def main() -> int:
     mx.eval(*(value for _, value in tree_flatten(bank.parameters())))
     mx.synchronize()
     grouped = SortedGroupedFP8MoE(
-        bank, direct.config, direct.gate, direct.shared_experts, min_routes=256
+        bank, direct.config, direct.gate, direct.shared_experts
+    )
+    packed = PackedFP8MoE(
+        bank, direct.config, direct.gate, direct.shared_experts
     )
     storage_baseline = _snapshot()
+
+    crossover_results = []
+    for sequence in CROSSOVER_SEQUENCES:
+        x = _make_input(sequence, direct.config.hidden_size)
+        expected = packed(x)
+        actual = _forced_grouped(grouped, x)
+        mx.eval(expected, actual)
+        errors = _error_metrics(expected, actual)
+        packed_median, packed_samples = _eval_timed(
+            lambda: packed(x), warmups=args.warmups, repeats=args.repeats
+        )
+        grouped_median, grouped_samples = _eval_timed(
+            lambda: _forced_grouped(grouped, x),
+            warmups=args.warmups,
+            repeats=args.repeats,
+        )
+        crossover_results.append(
+            {
+                "sequence_tokens": sequence,
+                "routes": sequence * direct.config.num_experts_per_tok,
+                "forced_grouped": True,
+                "packed_fallback_seconds": {
+                    "median": packed_median,
+                    "samples": packed_samples,
+                },
+                "grouped_seconds": {
+                    "median": grouped_median,
+                    "samples": grouped_samples,
+                },
+                "speedup": packed_median / grouped_median,
+                "error": errors,
+            }
+        )
+        del expected, actual, x
+        gc.collect()
+
+    break_even = next(
+        (row for row in crossover_results if row["speedup"] >= 1.0), None
+    )
+    break_even_index = (
+        crossover_results.index(break_even) if break_even is not None else None
+    )
+    last_slower = (
+        crossover_results[break_even_index - 1]
+        if break_even_index is not None and break_even_index > 0
+        else None
+    )
+    if break_even is not None:
+        grouped.min_routes = break_even["routes"]
 
     results = []
     grouped_peak_bytes = storage_baseline["active_bytes"]
     for sequence in args.sequences:
-        raw = np.arange(sequence * direct.config.hidden_size, dtype=np.float32)
-        raw = np.sin(raw * np.float32(0.0009765625)).reshape(
-            1, sequence, direct.config.hidden_size
-        )
-        x = mx.array(raw).astype(mx.bfloat16)
-        mx.eval(x)
+        x = _make_input(sequence, direct.config.hidden_size)
 
         expected = direct(x)
         actual = grouped(x)
@@ -210,14 +321,16 @@ def main() -> int:
         grouped_median, grouped_samples = _eval_timed(
             lambda: grouped(x), warmups=args.warmups, repeats=args.repeats
         )
-        phase, sorted_experts = _phase_profile(grouped, x)
+        phase, sorted_experts, tile_plan = _phase_profile(grouped, x)
         grouped_peak_bytes = max(grouped_peak_bytes, mx.get_peak_memory())
         routes = sequence * direct.config.num_experts_per_tok
         results.append(
             {
                 "sequence_tokens": sequence,
                 "routes": routes,
-                **_route_metrics(sorted_experts, bank.expert_count),
+                **_route_metrics(
+                    sorted_experts, tile_plan, bank.expert_count
+                ),
                 "direct_seconds": {
                     "median": direct_median,
                     "samples": direct_samples,
@@ -237,11 +350,17 @@ def main() -> int:
     mx.clear_cache()
     steady = _snapshot()
     working_peak_delta = grouped_peak_bytes - storage_baseline["active_bytes"]
-    break_even = next(
-        (row for row in results if row["speedup"] >= 1.0), None
-    )
     row_256 = next(row for row in results if row["sequence_tokens"] == 256)
     parity_ok = all(row["error"]["allclose_rtol_0_02_atol_0_02"] for row in results)
+    crossover_parity_ok = all(
+        row["error"]["allclose_rtol_0_02_atol_0_02"]
+        for row in crossover_results
+    )
+    crossover_bracketed = last_slower is not None
+    threshold_matches = (
+        break_even is not None
+        and grouped.min_routes == GROUPED_MIN_ROUTES == break_even["routes"]
+    )
     performance_ok = row_256["speedup"] >= 1.5
     memory_ok = working_peak_delta <= 512 * 2**20
     dtype_ok = (
@@ -250,9 +369,18 @@ def main() -> int:
         and bank.gate_up_scale_inv.dtype == mx.float32
         and bank.down_scale_inv.dtype == mx.float32
     )
-    accepted = parity_ok and performance_ok and memory_ok and dtype_ok
+    accepted = (
+        parity_ok
+        and crossover_parity_ok
+        and break_even is not None
+        and crossover_bracketed
+        and threshold_matches
+        and performance_ok
+        and memory_ok
+        and dtype_ok
+    )
     output = {
-        "schema": "glm53-sorted-grouped-fp8-moe-probe-v1",
+        "schema": "glm53-sorted-grouped-fp8-moe-probe-v2",
         "official_hf_revision": report.official_revision,
         "checkpoint_fingerprint": report.fingerprint,
         "runtime_kernel_abi": KERNEL_ABI_VERSION,
@@ -271,15 +399,28 @@ def main() -> int:
         "steady_after_clear": steady,
         "measured_break_even": (
             {
-                "sequence_tokens": break_even["sequence_tokens"],
-                "routes": break_even["routes"],
+                "last_slower": {
+                    "sequence_tokens": last_slower["sequence_tokens"],
+                    "routes": last_slower["routes"],
+                    "speedup": last_slower["speedup"],
+                },
+                "first_faster": {
+                    "sequence_tokens": break_even["sequence_tokens"],
+                    "routes": break_even["routes"],
+                    "speedup": break_even["speedup"],
+                },
+                "selected_min_routes": grouped.min_routes,
             }
-            if break_even
+            if break_even is not None and last_slower is not None
             else None
         ),
+        "forced_grouped_crossover": crossover_results,
         "results": results,
         "acceptance": {
             "all_sequences_parity": parity_ok,
+            "forced_crossover_parity": crossover_parity_ok,
+            "measured_break_even_bracketed": crossover_bracketed,
+            "selected_threshold_matches_measurement": threshold_matches,
             "speedup_256_at_least_1_5": performance_ok,
             "working_peak_delta_at_most_512_mib": memory_ok,
             "accepted": accepted,

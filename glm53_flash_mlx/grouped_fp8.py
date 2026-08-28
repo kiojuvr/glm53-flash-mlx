@@ -14,6 +14,7 @@ from .packed import PackedFP8MoE
 GROUPED_TILE_ROWS = 32
 GROUPED_OUTPUT_COLS = 32
 GROUPED_K_TILE = 32
+GROUPED_MIN_ROUTES = 16
 GROUPED_KERNEL_ABI = "glm53-grouped-fp8-v4-simdgroup-mma32"
 
 _GROUPED_FP8_HEADER = r"""
@@ -268,7 +269,15 @@ def restore_and_reduce(sorted_output, sorted_scores, inverse_order, shape, top_k
 class SortedGroupedFP8MoE(PackedFP8MoE):
     """Prefill-only grouped path with the existing packed/decode fallback."""
 
-    def __init__(self, bank, config, gate, shared_experts, *, min_routes: int = 256):
+    def __init__(
+        self,
+        bank,
+        config,
+        gate,
+        shared_experts,
+        *,
+        min_routes: int = GROUPED_MIN_ROUTES,
+    ):
         super().__init__(bank, config, gate, shared_experts)
         self.min_routes = int(min_routes)
 
