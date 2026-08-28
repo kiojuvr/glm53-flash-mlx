@@ -15,6 +15,9 @@ dependencies = [
   "jinja2>=3.1.6",
 ]
 
+[dependency-groups]
+dev = ["pytest>=8.4"]
+
 [project.scripts]
 glm53 = "glm53_flash_mlx.cli:main"
 glm53-serve = "glm53_flash_mlx.server:main"

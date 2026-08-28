@@ -1,0 +1,12 @@
+{
+  "schema": "glm53-prefill-probe-v1",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "prompt_tokens": 256,
+  "token_ids_sha256": "457ff6c433b7dc668d3f69cb0b5a34f725affa8f654fa5ad3b8d956f4e4df7ea",
+  "last_logits_f32_sha256": "aeaaa83e81f73a8b6dbcb124031cbd900859a210849dfd48d6e3adf151e1f6b2",
+  "elapsed_seconds": 17.49421933304984,
+  "prompt_tok_s": 14.633405190957467,
+  "active_gb": 319.786040584,
+  "peak_gb": 320.644553155,
+  "implementation": "tiled-8 FP8 projections; CPU expert bucket; full-KV DSA prefill"
+}

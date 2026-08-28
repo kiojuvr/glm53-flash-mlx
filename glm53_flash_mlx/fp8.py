@@ -6,9 +6,12 @@ import mlx.core as mx
 import mlx.nn as nn
 import numpy as np
 
+from .abi import KERNEL_ABI_VERSION
+
 BLOCK_SIZE = 128
 THREADS = 256
 DECODE_TOP_K = 8
+PREFILL_TILE_ROWS = 8
 
 
 def _e4m3_value(byte: int) -> float:
@@ -63,12 +66,67 @@ _FP8_GEMV_SOURCE = r"""
     }
 """
 
+_FP8_GEMM_SOURCE = r"""
+    uint tid = thread_position_in_threadgroup.x;
+    uint lane = thread_index_in_simdgroup;
+    uint simd_id = simdgroup_index_in_threadgroup;
+    uint group_id = threadgroup_position_in_grid.x;
+    uint out_row = group_id % OUT_FEATURES;
+    uint tile = group_id / OUT_FEATURES;
+    uint first_row = tile * TILE_ROWS;
+    if (first_row >= BATCH_ROWS) return;
+
+    thread float acc[TILE_ROWS];
+    for (uint row = 0; row < TILE_ROWS; ++row) acc[row] = 0.0f;
+    const device uint8_t* wr = weight + size_t(out_row) * IN_FEATURES;
+    uint scale_row = out_row / BLOCK_SIZE;
+    for (uint k = tid; k < IN_FEATURES; k += THREADS) {
+        float decoded = glm53_fp8_lut[wr[k]]
+            * scale_inv[scale_row * SCALE_COLS + k / BLOCK_SIZE];
+        for (uint row = 0; row < TILE_ROWS; ++row) {
+            uint batch_row = first_row + row;
+            if (batch_row < BATCH_ROWS) {
+                acc[row] += float(x[size_t(batch_row) * IN_FEATURES + k]) * decoded;
+            }
+        }
+    }
+    for (uint row = 0; row < TILE_ROWS; ++row) acc[row] = simd_sum(acc[row]);
+
+    constexpr uint NSIMD = THREADS / 32;
+    threadgroup float partial[TILE_ROWS][NSIMD];
+    if (lane == 0) {
+        for (uint row = 0; row < TILE_ROWS; ++row) partial[row][simd_id] = acc[row];
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simd_id == 0) {
+        for (uint row = 0; row < TILE_ROWS; ++row) {
+            float total = lane < NSIMD ? partial[row][lane] : 0.0f;
+            total = simd_sum(total);
+            uint batch_row = first_row + row;
+            if (lane == 0 && batch_row < BATCH_ROWS) {
+                output[size_t(batch_row) * OUT_FEATURES + out_row] = T(total);
+            }
+        }
+    }
+"""
+
 _fp8_gemv_kernel = (
     mx.fast.metal_kernel(
         name="glm53_block128_e4m3_gemv",
         input_names=["x", "weight", "scale_inv"],
         output_names=["output"],
         source=_FP8_GEMV_SOURCE,
+        header=_FP8_LUT_HEADER,
+    )
+    if mx.metal.is_available()
+    else None
+)
+_fp8_gemm_kernel = (
+    mx.fast.metal_kernel(
+        name="glm53_block128_e4m3_tiled8_gemm",
+        input_names=["x", "weight", "scale_inv"],
+        output_names=["output"],
+        source=_FP8_GEMM_SOURCE,
         header=_FP8_LUT_HEADER,
     )
     if mx.metal.is_available()
@@ -211,7 +269,10 @@ def block_fp8_linear(x: mx.array, weight: mx.array, scale_inv: mx.array) -> mx.a
     original_shape = x.shape
     flat = x.reshape(-1, in_features)
     batch_rows = flat.shape[0]
-    output = _fp8_gemv_kernel(
+    kernel = _fp8_gemv_kernel if batch_rows == 1 else _fp8_gemm_kernel
+    tile_rows = 1 if batch_rows == 1 else PREFILL_TILE_ROWS
+    groups = (batch_rows + tile_rows - 1) // tile_rows
+    output = kernel(
         inputs=[flat, weight, scale_inv],
         template=[
             ("T", flat.dtype),
@@ -221,8 +282,9 @@ def block_fp8_linear(x: mx.array, weight: mx.array, scale_inv: mx.array) -> mx.a
             ("SCALE_COLS", expected_scales[1]),
             ("BLOCK_SIZE", BLOCK_SIZE),
             ("THREADS", THREADS),
+            ("TILE_ROWS", tile_rows),
         ],
-        grid=(batch_rows * out_features * THREADS, 1, 1),
+        grid=(groups * out_features * THREADS, 1, 1),
         threadgroup=(THREADS, 1, 1),
         output_shapes=[(batch_rows, out_features)],
         output_dtypes=[flat.dtype],

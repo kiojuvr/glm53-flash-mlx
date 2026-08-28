@@ -1,0 +1,129 @@
+{
+  "schema": "glm53-greedy-oracle-v1",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_layout_digest": "c21cc9b55c8b977434e5932682313a3b84ac87e31c61a12e2768dd57e2954a72",
+  "kernel_abi": "glm53-metal-fp8-v3-tiled8-selected8-lut",
+  "prompt": "Reply with exactly: OK",
+  "formatted_prompt_sha256": "b9a11acce56d0d3c38ebb9829bff626e730923c78dafbc6985c9ce29ed33746b",
+  "prompt_token_count": 17,
+  "prompt_token_ids_sha256": "be69b26e77bbcd572cb8db20ccb1bf1b4b260c8cd6076e479fc4c8949c6561a9",
+  "generation_tokens": 16,
+  "generated_token_ids": [
+    785,
+    1196,
+    6801,
+    752,
+    311,
+    9846,
+    448,
+    6896,
+    330,
+    3925,
+    3263,
+    1096,
+    374,
+    264,
+    4285,
+    7600
+  ],
+  "decoded_text": "The user wants me to reply with exactly \"OK\". This is a simple instruction",
+  "elapsed_seconds": 2.435988749959506,
+  "steps": [
+    {
+      "step": 0,
+      "token": 785,
+      "logits_f32_sha256": "b5a80d0897a5641ae79a51b386de87344db81e479d547cc421d4774c8f76f4b5",
+      "top1_margin": 4.1875
+    },
+    {
+      "step": 1,
+      "token": 1196,
+      "logits_f32_sha256": "3487242e41b02bead6c6f7149add9d95ff3083e00564fb9319bf1b60de2753f7",
+      "top1_margin": 8.875
+    },
+    {
+      "step": 2,
+      "token": 6801,
+      "logits_f32_sha256": "5b52017191ff234fcc631b97b6e9028dc717378812362108046b6cc3b0c6d475",
+      "top1_margin": 0.5
+    },
+    {
+      "step": 3,
+      "token": 752,
+      "logits_f32_sha256": "9face2b740df4e91f3f0a50391e92ba7081f7a78b11202531be8695ffe200617",
+      "top1_margin": 4.125
+    },
+    {
+      "step": 4,
+      "token": 311,
+      "logits_f32_sha256": "c2da5e525407d8c97347fb5034bd0a1af0b7598df00eebb61c1c13e1a14d31b5",
+      "top1_margin": 13.125
+    },
+    {
+      "step": 5,
+      "token": 9846,
+      "logits_f32_sha256": "62db0635f358505971c84b2db3950c17523818b1a3c749d28e9204f84985ecbc",
+      "top1_margin": 7
+    },
+    {
+      "step": 6,
+      "token": 448,
+      "logits_f32_sha256": "1f15dce5242a332d32643f0b335e4cac844c49f1de628232cf07e7026a65fdf8",
+      "top1_margin": 10.625
+    },
+    {
+      "step": 7,
+      "token": 6896,
+      "logits_f32_sha256": "f59e0ef66b913efa5616ec4d988f3c962c95b404f14695553244cc64a9d9f0d2",
+      "top1_margin": 10.75
+    },
+    {
+      "step": 8,
+      "token": 330,
+      "logits_f32_sha256": "54f50fccac18a089f08400bbc061a702bff06674e32fe005a02c955d5de3af1e",
+      "top1_margin": 3.875
+    },
+    {
+      "step": 9,
+      "token": 3925,
+      "logits_f32_sha256": "775507fdee5840948b64b96dff32399bc4e1a63c0d0a0fc98c7c69e885537fca",
+      "top1_margin": 14.625
+    },
+    {
+      "step": 10,
+      "token": 3263,
+      "logits_f32_sha256": "1c42b6dd46d436b3e54384a7a287fd5b7d7fdfafa3a0b97603dcdb79d0a74d96",
+      "top1_margin": 0
+    },
+    {
+      "step": 11,
+      "token": 1096,
+      "logits_f32_sha256": "e21debcb2cf5cccf7e673feb6a0b351be19e909cacecd5a8557f74aa27ef8554",
+      "top1_margin": 2.125
+    },
+    {
+      "step": 12,
+      "token": 374,
+      "logits_f32_sha256": "ec3c9580794d2933c2a3c8244680321fe47c21afc4b0956c6ae87c2b48709cf6",
+      "top1_margin": 7
+    },
+    {
+      "step": 13,
+      "token": 264,
+      "logits_f32_sha256": "a4d103c7b2dc82c6285e3bf2dfed6fa113ebc173f0a2fd92e54193036d19f417",
+      "top1_margin": 8.5
+    },
+    {
+      "step": 14,
+      "token": 4285,
+      "logits_f32_sha256": "6ab843328be86c5e81ab0366235c99f2c6ba61bcd23a290ce31345dee0c353d1",
+      "top1_margin": 5.75
+    },
+    {
+      "step": 15,
+      "token": 7600,
+      "logits_f32_sha256": "4e0e117771341daa60dfdb351fc47720fc29e570e67c2a703363a665b00b1588",
+      "top1_margin": 1.5
+    }
+  ]
+}

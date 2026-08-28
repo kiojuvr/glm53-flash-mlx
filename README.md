@@ -1,6 +1,6 @@
 # GLM-5.3-Flash MLX runtime for M3 Ultra 512 GB
 
-`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node特化runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。
+`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first vertical sliceです。OpenCodeなどから利用できるOpenAI互換APIを提供しますが、GPU expert bucketingとsparse DSA prefillは未実装です。
 
 提供する主なendpointは次のとおりです。
 
@@ -49,7 +49,15 @@ uv run glm53 serve \
   --port 8080
 ```
 
-通常運転では同時sequenceを1に固定し、interactive decodeを優先します。既定memory設定はwired 440 GB、MLX cache 32 GB、prefill 2048 tokensです。
+通常運転では同時sequenceを1に固定し、interactive decodeを優先します。既定memory設定はwired 440 GB、MLX cache 32 GB、prefill chunk 2048 tokensです。
+
+CPU expert bucket/full-KV DSA prefillを巨大promptへ誤って起動しないよう、次の2段階admissionを既定で適用します。
+
+- prompt上限: 256 tokens（実機probe済み）
+- prompt + generationの総context上限: 16,384 tokens
+- requestのgeneration上限: 4,096 tokens
+
+`--max-prompt-tokens`と`--max-context-tokens`は別々に変更できます。256より大きいpromptは、GPU expert bucketing/grouped GEMMとselected-KV DSAが入るまで実験設定として扱ってください。
 
 起動時にtext target全体（実測319.706 GB、297.75 GiB）をunified memoryへmaterializeします。この処理はM3 Ultra実測で約30.6秒です。保存dtypeはFP8/BF16のままであり、BF16 model copyは作りません。一時的なsmoke testだけ常駐化を省く場合は`--no-warm-residency`を指定できます。
 
@@ -71,7 +79,7 @@ curl http://127.0.0.1:8080/v1/chat/completions \
 
 ## 4. OpenCode
 
-[examples/opencode.json](examples/opencode.json)をプロジェクトの`opencode.json`へコピーするか、既存設定へprovider部分を統合します。serverは安定したmodel alias `glm-5.3-flash`を受け付けます。
+[examples/opencode.json](examples/opencode.json)をプロジェクトの`opencode.json`へコピーするか、既存設定へprovider部分を統合します。serverは安定したmodel alias `glm-5.3-flash`を受け付けます。OpenCodeの`limit.context`は総contextなので、exampleは安全なprompt 256 + output 4,096 = 4,352を広告します。prompt単独の上限はserver側でも強制します。
 
 ```bash
 opencode --model glm53/glm-5.3-flash
@@ -87,10 +95,13 @@ API keyを有効にした場合は、exampleの`options.apiKey`を`"{env:GLM53_A
 # RAM APCを有効化
 uv run glm53 serve --apc --apc-blocks 256
 
-# SSD tierも使う（cacheは再計算可能なデータとして扱う）
+# SSD tierも使う（experimental。全checkpoint byteのhashを起動時に計算）
 uv run glm53 serve --apc --apc-blocks 512 \
-  --apc-disk-path /Volumes/SDXC-512/glm53-apc
+  --apc-disk-path /Volumes/SDXC-512/glm53-apc \
+  --experimental-disk-apc
 ```
+
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABIから生成します。同じpathのweight payloadが置換された場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -99,8 +110,9 @@ uv run glm53 serve --apc --apc-blocks 512 \
 - 対象はM3 Ultra 512 GB、batch 1、text target stackです。
 - MTPはcorrectnessと追加weight trafficのgateが未完了のため既定offです。
 - text-only runtimeではvision towerをloadしません。
-- 1M contextはmodel上の上限です。実運用上限はcache容量、TTFT、Metal working setを計測して決めてください。
-- batch-1 decodeはtop-8 expertを3個のMetal kernelへ融合しています。prefill用tiled grouped GEMMとrequest横断expert coalescingは次の性能段階です。
+- 1Mはmodel-native上限にすぎません。server既定はprompt 256、総context 16,384です。OpenCode exampleは安全な総context 4,352（prompt 256 + output 4,096）を広告します。
+- batch-1 decodeはtop-8 expertを3個のMetal kernelへ融合しています。GPU上のexpert sort/bucket、grouped GEMM、request横断expert coalescingは次の性能段階です。
+- 現在のprefill projectionは8 token rowでFP8 weightを共有するtiled-row Metal kernelです。ただしCPU expert bucketとDSA full-KV SDPAが残り、256-token probeでも旧経路から有意な改善はありません。大きなprompt向けruntimeではありません。
 - 設計レポートの15 tok/s gateに対し、現在の常駐後実測は11.4 tok/sです。API/runtimeとして利用可能ですが、このperformance gateは未達です。
 
 ## M3 Ultra 512 GB実測
@@ -115,6 +127,8 @@ uv run glm53 serve --apc --apc-blocks 512 \
 | warm decode token 2–3 | 11.39–11.48 tok/s |
 | decode中active memory | 約319.86 GB |
 | OpenAI chat completion | HTTP 200（実model、安定alias） |
+| deterministic 256-token prefill | 17.49 s / 14.63 tok/s / peak 320.64 GB |
+| greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
 
 再測定コマンド:
 
@@ -131,7 +145,21 @@ uv run pytest
 uv run glm53 inspect /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
-実機gateではMetal FP8 primitiveのdense reference一致、全45層のgreedy 16-token、checkpoint dtype/byte audit、OpenAI HTTP completionを確認しています。teacher forcing、router/IndexPoolの層別oracle、長文chunked prefillは追加gateです。巨大modelの実機試験は通常のmacOS sessionで行ってください。
+`inspect`は62 shardのsafetensors headerを読み、76,108 tensorの名前・shape・dtype・offset・file size、37,338 FP8/scale pair、総byte数、公式layout digestを照合します。payload全byte hashはexperimental disk APCを使う場合に追加実行します。
+
+実機oracleを再照合するには次を実行します。
+
+```bash
+uv run python scripts/oracle_trace.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --tokens 16 --expect oracles/glm53-official-greedy-16.json
+
+uv run python scripts/oracle_trace.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --tokens 128 --expect oracles/glm53-official-greedy-128.json
+```
+
+実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab logits trace、256-token prefill、strict checkpoint audit、OpenAI HTTP completionを確認します。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parity、chunked prefill parityはまだ追加gateです。
 
 ## Provenance
 
