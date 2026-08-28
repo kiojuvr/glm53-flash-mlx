@@ -146,7 +146,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
 | layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
 | layer 3 grouped FP8 MoE, 256 tokens | 111.50 → 22.03 ms / 5.06× / working peak +319.7 MB |
-| full-model opt-in grouped prefill, 256 tokens | 5.706 → 2.324 s / 2.456× |
+| full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |
 | full-model opt-in decode | 11.44 → 13.26 tok/s / 1.159× |
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
 
@@ -168,6 +168,11 @@ uv run python scripts/probe_grouped_fp8_moe.py \
 uv run python scripts/probe_packed_grouped_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --tokens 256
+
+uv run python scripts/localize_grouped_fp8_divergence.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --tokens 256 --warmups 2 --repeats 5 \
+  --output bench-results/m3ultra512-grouped-fp8-divergence-20260828.json
 ```
 
 ### Packed expert bank feasibility
@@ -194,9 +199,11 @@ shared expertを独立phaseとして測ると、256 tokenで11.81 msでした。
 
 `--experimental-packed-grouped-moe`はlayer 3–44を順番にpack、materialize、module交換し、旧288 expertを解放してから次層へ進みます。全42層でpack直後からclear後に減る量とbank容量がともに7,249,526,784 bytesで一致しました。起動peakは319.742 GB、clear後steadyは319.708 GBで、model規模の二重化はありません。既定server backendとprompt上限256は変更していません。
 
-同一processのDirect比較では、256-token full prefillが5.706秒から2.324秒へ短縮（2.456×）し、decodeも11.44から13.26 tok/sへ向上しました。early/middle/lateのlayer 3/24/44は`rtol=0.02, atol=0.02` parityに合格し、17-token prompt＋16 decodeの全step logits hashも一致しました。opt-in serverは全shard attestationから174.1秒でreadyとなり、`/health`はHTTP 200を返しました。
+同一processのDirect比較をcold first passとwarm kernelに分離して再測定しました。256-token warm medianはDirect 5.675秒、grouped 2.324秒（2.442×）で、各backendともwarmup 2回後の5 samplesは安定しています。first passも5.698秒と2.327秒でした。ただしgrouped側は同一process内でDirect実行後なので、共通する非MoE kernelのcompile cacheを再利用し得ます。decodeは11.44から13.26 tok/sへ向上しました。early/middle/lateのlayer 3/24/44は`rtol=0.02, atol=0.02` parityに合格しました。17-token prompt＋16 decodeの全step logits hashも一致しましたが、136 routesは256-route threshold未満なので、このoracleが証明するのはpacked fallbackとdecodeの正確性だけです。opt-in serverは全shard attestationから174.1秒でreadyとなり、`/health`はHTTP 200を返しました。
 
-grouped prefillはDirectと加算順が異なります。256-token最終logitsはargmax一致、top-10 overlap 9/10ですが、top-10のset/orderは不一致でrelative L2は0.206です。このためbackend別APC namespaceは必須です。MoE内の次の最大phaseはshared expertなので、次段階はshared gate/up MMA融合、その後にsparse DSA/IndexPoolです。
+256-token最終logitsはargmax一致、top-10 overlap 9/10ですが、top-10のset/orderは不一致でrelative L2は0.206、max absolute errorは1.234375です。原因は丸め順差と推定していますが品質影響は未評価であり、full-model grouped correctness gateは未合格です。したがってopt-inのまま維持し、既定化やprompt上限引き上げには進みません。backend別APC namespaceも引き続き必須です。
+
+層別localizationでは、全42層をpacked fallbackへ固定した256-token最終logitsがDirectとbyte-identicalでした。groupedを一層だけ有効にすると、early層の誤差が後段で大きく増幅され、relative L2の最大はlayer 5の0.202、argmax不一致はlayer 9で発生しました。late層ほど誤差は小さく、layer 44は0.00293です。累積系列はlayer 3で0.186へ跳ね、layer 5で最大0.229となった後、約0.18〜0.21を非単調に推移しました。特定一層の破損でも42層にわたる滑らかな蓄積でもなく、広いearly-layer sensitivityのパターンです。これは原因の局在化結果であり、品質受入ではありません。
 
 ## 検証
 

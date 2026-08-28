@@ -93,7 +93,11 @@
     "transition_parity_early_middle_late": true,
     "health_success": true,
     "prompt_limit_256_unchanged": true,
-    "accepted": true
+    "runtime_integration_and_performance_accepted": true,
+    "full_model_grouped_correctness_accepted": false,
+    "eligible_for_default_or_prompt_limit_increase": false,
+    "accepted": false,
+    "reason": "the 17-token oracle exercises packed fallback at the 256-route threshold; grouped prefill quality impact remains unassessed"
   },
   "runtime_default_changed": false
 }

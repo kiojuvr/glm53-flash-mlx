@@ -255,7 +255,7 @@ def main() -> int:
     parity_ok = all(
         row["allclose_rtol_0_02_atol_0_02"] for row in transition_parity
     )
-    acceptance = {
+    runtime_acceptance = {
         "converted_42_layers": converted_ok,
         "startup_peak_at_most_340_gb": startup_peak_bytes <= 340e9,
         "steady_at_most_321_gb": grouped_steady["active_bytes"] <= 321e9,
@@ -263,13 +263,19 @@ def main() -> int:
         "prefill_speedup_at_least_1_20": prefill_speedup >= 1.20,
         "decode_slowdown_at_most_3_percent": decode_speed_ratio >= 0.97,
         "oracle_all_hashes_match": oracle["all_step_logits_hashes_match"],
-        "final_argmax_match": logits["argmax_match"],
-        "final_logits_metrics_recorded": all(
-            key in logits
-            for key in ("relative_l2", "argmax_match", "top_k_overlap")
+    }
+    runtime_accepted = all(runtime_acceptance.values())
+    acceptance = {
+        **runtime_acceptance,
+        "runtime_integration_and_performance_accepted": runtime_accepted,
+        "full_model_grouped_correctness_accepted": False,
+        "eligible_for_default_or_prompt_limit_increase": False,
+        "accepted": False,
+        "reason": (
+            "the short oracle exercises packed fallback, not grouped prefill; "
+            "full-model grouped quality impact remains unassessed"
         ),
     }
-    acceptance["accepted"] = all(acceptance.values())
     output = {
         "schema": "glm53-packed-grouped-runtime-gate-v1",
         "official_hf_revision": report.official_revision,
@@ -310,7 +316,7 @@ def main() -> int:
         "prompt_limit_changed": False,
     }
     print(json.dumps(output, indent=2), flush=True)
-    return 0 if acceptance["accepted"] else 1
+    return 0 if runtime_accepted else 1
 
 
 if __name__ == "__main__":
