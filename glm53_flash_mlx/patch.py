@@ -15,7 +15,7 @@ _PATCHED = False
 
 
 def apply_runtime_patch() -> None:
-    """Install the four GLM-5.3 numerical fixes exactly once."""
+    """Install the pinned GLM-5.3 correctness fixes exactly once."""
     global _PATCHED
     with _LOCK:
         if _PATCHED:
@@ -26,6 +26,13 @@ def apply_runtime_patch() -> None:
         from mlx_vlm.models import switch_layers
         from mlx_vlm.models.deepseek_v32 import language as dsv32
         from mlx_vlm.models.glm5_next import language as glm
+
+        from .indexpool import (
+            build_prefill_indexpool_mask,
+            indexpool_cache_kv_len,
+            prepare_decode_indexpool_gather,
+            sanitize_indexpool_indices,
+        )
 
         class ClampedSwiGLU(nn.Module):
             def __init__(self, limit: float):
@@ -107,6 +114,17 @@ def apply_runtime_patch() -> None:
 
         glm.Glm5NextIndexer.__init__ = indexer_init
 
+        original_indexer_call = glm.Glm5NextIndexer.__call__
+
+        def indexer_call(self, x, qr, mask, cache=None):
+            indices = original_indexer_call(self, x, qr, mask, cache=cache)
+            if indices is None:
+                return None
+            kv_len = indexpool_cache_kv_len(cache, x.shape[1])
+            return sanitize_indexpool_indices(indices, kv_len)
+
+        glm.Glm5NextIndexer.__call__ = indexer_call
+
         original_sparse_init = glm.Glm5NextSparseAttention.__init__
 
         def sparse_init(self, config):
@@ -115,6 +133,86 @@ def apply_runtime_patch() -> None:
             self.kv_a_layernorm.eps = config.rms_norm_eps
 
         glm.Glm5NextSparseAttention.__init__ = sparse_init
+
+        def sparse_call(self, x, mask=None, cache=None):
+            B, L, _ = x.shape
+
+            qr = self.q_a_layernorm(self.q_a_proj(x))
+            q = self.q_b_proj(qr)
+            q = q.reshape(B, L, self.num_heads, self.q_head_dim).transpose(
+                0, 2, 1, 3
+            )
+
+            compressed_kv = self.kv_a_proj_with_mqa(x)
+            kv_latent = self.kv_a_layernorm(compressed_kv)
+            kv_latent = mx.expand_dims(kv_latent, axis=1)
+
+            if cache is not None:
+                kv_latent, _ = cache[0].update_and_fetch(kv_latent, kv_latent)
+            else:
+                cache = [None] * 2
+
+            topk_indices = self.indexer(x, qr, mask, cache=cache[1])
+            attn_mask = mask
+            if topk_indices is not None:
+                Kv = kv_latent.shape[2]
+                if L == 1:
+                    raw = topk_indices[:, :, 0, :]
+                    safe_indices, valid_sel = prepare_decode_indexpool_gather(raw, Kv)
+                    idx = safe_indices[..., None]
+                    kv_latent = mx.take_along_axis(
+                        kv_latent,
+                        mx.broadcast_to(
+                            idx, idx.shape[:-1] + (kv_latent.shape[-1],)
+                        ),
+                        axis=2,
+                    )
+                    sel_mask = valid_sel[:, :, None, :]
+                    if mask is not None and mask.dtype == mx.bool_:
+                        mkeys = mask.reshape(B, -1, Kv)[:, 0, :]
+                        gathered = mx.take_along_axis(
+                            mx.broadcast_to(
+                                mkeys[:, None, :],
+                                (B, safe_indices.shape[1], Kv),
+                            ),
+                            safe_indices,
+                            axis=-1,
+                        )
+                        sel_mask = sel_mask & gathered[:, :, None, :]
+                    attn_mask = sel_mask
+                else:
+                    sparse_mask, _ = build_prefill_indexpool_mask(topk_indices, Kv)
+                    if mask is not None and mask.dtype == mx.bool_:
+                        sparse_mask = sparse_mask & mask
+                    attn_mask = sparse_mask
+
+            if (
+                cache is not None
+                and cache[0] is not None
+                and cache[1] is not None
+                and cache[1].keys is not None
+            ):
+                cache[0].keys = mx.depends(
+                    cache[0].keys, (cache[1].keys, cache[1].values)
+                )
+
+            if L == 1:
+                q = self.embed_q(q)
+                k = v = kv_latent
+            else:
+                k = self.embed_q(kv_latent, transpose=False)
+                v = self.unembed_out(kv_latent)
+
+            output = glm.scaled_dot_product_attention(
+                q, k, v, cache=cache, scale=self.scale, mask=attn_mask
+            )
+            if L == 1:
+                output = self.unembed_out(output)
+
+            output = output.transpose(0, 2, 1, 3).reshape(B, L, -1)
+            return self.o_proj(output)
+
+        glm.Glm5NextSparseAttention.__call__ = sparse_call
 
         fp32_suffixes = (
             "_hc.base",
@@ -151,6 +249,8 @@ def patch_status() -> dict:
             "float32_router",
             "mla_rms_epsilon",
             "indexer_layernorm_epsilon",
+            "indexpool_sentinel_and_range",
+            "attention_gather_range_recheck",
             "mhc_kda_float32_storage",
         ],
     }

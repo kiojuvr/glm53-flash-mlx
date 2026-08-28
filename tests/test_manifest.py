@@ -39,6 +39,11 @@ def make_checkpoint(tmp_path: Path, *, quantized=True):
             "num_experts_per_tok": 8,
             "hidden_size": 4096,
             "max_position_embeddings": 1048576,
+            "qk_rope_head_dim": 0,
+            "mla_use_nope": True,
+            "kv_lora_rank": 512,
+            "index_topk": 2048,
+            "index_kpool": 4,
         },
         "vision_config": {},
     }
@@ -77,6 +82,27 @@ def test_converted_checkpoint_is_rejected(tmp_path):
     assert inspect_checkpoint(tmp_path).source_format == "mlx-affine"
     with pytest.raises(ManifestError, match="strict official-FP8 audit"):
         inspect_checkpoint(tmp_path, require_server_ready=True)
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "failure"),
+    [
+        ("qk_rope_head_dim", 64, "qk_rope_head_dim != 0"),
+        ("mla_use_nope", False, "mla_use_nope is not true"),
+        ("kv_lora_rank", 256, "kv_lora_rank != 512"),
+    ],
+)
+def test_nope_dsa_schema_is_explicitly_audited(tmp_path, field, value, failure):
+    make_checkpoint(tmp_path, quantized=False)
+    config_path = tmp_path / "config.json"
+    config = json.loads(config_path.read_text())
+    config["text_config"][field] = value
+    config_path.write_text(json.dumps(config))
+
+    report = inspect_checkpoint(tmp_path)
+
+    assert failure in report.audit_failures
+    assert report.attention_cache_abi.startswith("glm53-nope-dsa-v1")
 
 
 def test_missing_shard_is_rejected(tmp_path):

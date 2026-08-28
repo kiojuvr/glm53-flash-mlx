@@ -17,6 +17,7 @@ from .abi import (
     GROUPED_MIN_ROUTES,
     KERNEL_ABI_VERSION,
     MLX_VLM_REVISION,
+    NOPE_DSA_CACHE_ABI,
     PACKED_DECODE_KERNEL_ABI,
     PACKED_EXPERT_BANK_ABI,
 )
@@ -68,6 +69,7 @@ def _disk_cache_descriptor(content_digest: str) -> dict:
         "checkpoint_content_sha256": content_digest,
         "mlx_vlm_revision": MLX_VLM_REVISION,
         "metal_kernel_abi": KERNEL_ABI_VERSION,
+        "attention_cache_abi": NOPE_DSA_CACHE_ABI,
         "apc_hash": "sha256",
         "apc_block_size": 64,
         "kv_bits": os.environ.get("KV_BITS"),

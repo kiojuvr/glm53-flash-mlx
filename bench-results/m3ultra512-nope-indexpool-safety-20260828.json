@@ -1,0 +1,385 @@
+{
+  "schema": "glm53-nope-indexpool-safety-v1",
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "layer": 3,
+  "nope_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
+  "qk_rope_head_dim": 0,
+  "mla_use_nope": true,
+  "kv_lora_rank": 512,
+  "index_topk": 2048,
+  "index_kpool": 4,
+  "short_context_bypass_cases": {
+    "2047": {
+      "output_shape": null,
+      "bypassed": true,
+      "valid_slots": 0,
+      "unused_slots": 0,
+      "min_valid_index": null,
+      "max_valid_index": null,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": null,
+      "repeated_hash_match": true
+    },
+    "2048": {
+      "output_shape": null,
+      "bypassed": true,
+      "valid_slots": 0,
+      "unused_slots": 0,
+      "min_valid_index": null,
+      "max_valid_index": null,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": null,
+      "repeated_hash_match": true
+    },
+    "2049": {
+      "output_shape": [
+        1,
+        1,
+        2049,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 2100225,
+      "unused_slots": 2102274,
+      "min_valid_index": 0,
+      "max_valid_index": 2048,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "94477de4e875eca2aeef1a8f77f2f39504a1a59a03591576a5f4515c791381c8",
+      "repeated_hash_match": true,
+      "early_row_valid_slots": 1,
+      "early_row_unused_slots": 2050,
+      "final_row_contains_pool_0": true,
+      "final_row_contains_last_token": true
+    }
+  },
+  "pool_boundary_cases": {
+    "3": {
+      "output_shape": [
+        1,
+        1,
+        3,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 6,
+      "unused_slots": 6147,
+      "min_valid_index": 0,
+      "max_valid_index": 2,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "cf2ee8da1a0dd46b5a121d2630d6e0ad6cdc738f42751de33073ac023cfce8b8",
+      "repeated_hash_match": true
+    },
+    "4": {
+      "output_shape": [
+        1,
+        1,
+        4,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 10,
+      "unused_slots": 8194,
+      "min_valid_index": 0,
+      "max_valid_index": 3,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "d9e1a00c8e70655fdc915afa3ef66c777ebe35135c15356f468586c911ec9c62",
+      "repeated_hash_match": true
+    },
+    "5": {
+      "output_shape": [
+        1,
+        1,
+        5,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 15,
+      "unused_slots": 10240,
+      "min_valid_index": 0,
+      "max_valid_index": 4,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "9682ce658c2ac8a723d61c95bb0b0ac9740a1fd83181a2d46b37613e4f3986c9",
+      "repeated_hash_match": true
+    },
+    "31": {
+      "output_shape": [
+        1,
+        1,
+        31,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 496,
+      "unused_slots": 63085,
+      "min_valid_index": 0,
+      "max_valid_index": 30,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "d6390dbf11eaaf4610f4ecd1e0defd5318129491e357148ff68406363979c417",
+      "repeated_hash_match": true
+    },
+    "32": {
+      "output_shape": [
+        1,
+        1,
+        32,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 528,
+      "unused_slots": 65104,
+      "min_valid_index": 0,
+      "max_valid_index": 31,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "cefff3663f3185feb1e52cb2e316bf565a1fa0bdc5db9b690ecf369d7232c42b",
+      "repeated_hash_match": true
+    },
+    "33": {
+      "output_shape": [
+        1,
+        1,
+        33,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 561,
+      "unused_slots": 67122,
+      "min_valid_index": 0,
+      "max_valid_index": 32,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "f4cf0d73b8583a09b11b9790db24431dde9919966abddb9b7be0f643413b983a",
+      "repeated_hash_match": true
+    }
+  },
+  "padding_cases": {
+    "zero_valid_row": {
+      "output_shape": [
+        1,
+        1,
+        33,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 0,
+      "unused_slots": 67683,
+      "min_valid_index": null,
+      "max_valid_index": null,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "78bc3e8f2a74c402ca850160c6f048c791fc46261979788a6a72572bf229cbf6"
+    },
+    "left_padded_row": {
+      "output_shape": [
+        1,
+        1,
+        33,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 406,
+      "unused_slots": 67277,
+      "min_valid_index": 5,
+      "max_valid_index": 32,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "fed7c14746d89a17eaca0e1d636860471e67823e29ad34fa7c83d6f69a636b44"
+    }
+  },
+  "query_chunk_boundary_cases": {
+    "511": {
+      "output_shape": [
+        1,
+        1,
+        511,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 130816,
+      "unused_slots": 917245,
+      "min_valid_index": 0,
+      "max_valid_index": 510,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "ccada0b4b536e1171d75af53e8fd210fc99011ac8f30abae8cd258db6b81d743",
+      "repeated_hash_match": true
+    },
+    "512": {
+      "output_shape": [
+        1,
+        1,
+        512,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 131328,
+      "unused_slots": 918784,
+      "min_valid_index": 0,
+      "max_valid_index": 511,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "68532bbf170c076b6d46255ec39da1a0c8905eb3b1c6bfcd8c9ab4d5e9a67d48",
+      "repeated_hash_match": true
+    },
+    "513": {
+      "output_shape": [
+        1,
+        1,
+        513,
+        2051
+      ],
+      "bypassed": false,
+      "valid_slots": 131841,
+      "unused_slots": 920322,
+      "min_valid_index": 0,
+      "max_valid_index": 512,
+      "non_sentinel_out_of_range": 0,
+      "nan_count": 0,
+      "sha256": "ff020b7fced560141e401864a36b7b73ab51c8cb610887106439dd6b809506be",
+      "repeated_hash_match": true
+    }
+  },
+  "cached_mode_differential": {
+    "tokens": 33,
+    "one_shot_shape": [
+      1,
+      1,
+      33,
+      2051
+    ],
+    "chunked_shape": [
+      1,
+      1,
+      33,
+      2051
+    ],
+    "incremental_shape": [
+      1,
+      1,
+      33,
+      2051
+    ],
+    "one_shot_chunked_valid_set_parity": true,
+    "one_shot_incremental_valid_set_parity": true,
+    "chunked_repeated_hash_match": true,
+    "incremental_repeated_hash_match": true,
+    "partial_pool_valid_set_before_completion": [
+      0,
+      1,
+      2
+    ],
+    "complete_pool_valid_set_after_completion": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "non_sentinel_out_of_range": 0
+  },
+  "continuous_batch_cache_case": {
+    "output_shape": [
+      2,
+      1,
+      5,
+      2051
+    ],
+    "bypassed": false,
+    "valid_slots": 21,
+    "unused_slots": 20489,
+    "min_valid_index": 0,
+    "max_valid_index": 4,
+    "non_sentinel_out_of_range": 0,
+    "nan_count": 0,
+    "sha256": "f4eb98f3925c9e20299ab2e0c67ff4d906049afacb896c34b878a121d9d77e14",
+    "physical_kv_columns": 5,
+    "row_0_valid_indices": [
+      2,
+      3,
+      4
+    ],
+    "row_1_valid_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "attention_gather_differential": {
+    "raw_indices": [
+      -1,
+      0,
+      3,
+      4,
+      11
+    ],
+    "sanitized_indices": [
+      -1,
+      0,
+      3,
+      -1,
+      -1
+    ],
+    "decode_safe_indices": [
+      0,
+      0,
+      3,
+      0,
+      0
+    ],
+    "decode_valid": [
+      false,
+      true,
+      true,
+      false,
+      false
+    ],
+    "prefill_sparse_mask": [
+      true,
+      false,
+      false,
+      true
+    ],
+    "invalid_selected_kv_change_output_equal": true,
+    "output_sha256": "4b85fe6ead3fedfb702998fdecffbc647341cb3568f98bf1945d59383491367e"
+  },
+  "disk_apc": {
+    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
+    "grouped_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1-shared-row-plan",
+    "backend_namespaces_differ": true
+  },
+  "runtime_policy": {
+    "default_backend": "direct",
+    "packed_grouped_experimental_opt_in": true,
+    "grouped_min_routes": 256,
+    "prompt_limit": 256,
+    "grouped_full_model_correctness_accepted": false
+  },
+  "acceptance": {
+    "short_context_bypass_minus1_and_equal_topk": true,
+    "topk_plus_one_sentinel_and_range_clean": true,
+    "all_unused_slots_use_minus1": true,
+    "all_valid_indices_in_range": true,
+    "zero_valid_row_all_sentinel": true,
+    "batch_cache_physical_range_and_left_padding": true,
+    "one_shot_chunked_valid_set_parity": true,
+    "one_shot_incremental_valid_set_parity": true,
+    "repeated_execution_byte_identical": true,
+    "invalid_selected_kv_does_not_affect_attention": true,
+    "no_nan_or_undefined_positive_sentinel": true,
+    "nope_manifest_schema": true,
+    "attention_cache_abi_in_direct_and_grouped_apc": true,
+    "runtime_policy_unchanged": true,
+    "accepted": true
+  }
+}

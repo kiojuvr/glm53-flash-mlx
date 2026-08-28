@@ -16,6 +16,8 @@
 - router logitsのFP32化
 - MLA low-rank RMSNormを`1e-5`
 - Indexer LayerNormを`1e-6`
+- IndexPool最終出力を`-1` sentinelまたは`[0, Kv)`へsanitize
+- decode/prefill attention gatherでIndexPool範囲を独立再検査
 - mHC係数、KDA decay、router biasのFP32保持
 
 ## 1. セットアップ
@@ -116,7 +118,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABIから生成します。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。同じpathのweight payloadが置換された場合やDirectで生成したstateをgrouped backendが起動した場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、NoPE DSA cache ABIから生成します。NoPE ABIはlatent 512、`-1` sentinel、shared row planを明示します。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。同じpathのweight payloadが置換された場合やDirectで生成したstateをgrouped backendが起動した場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -149,6 +151,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |
 | full-model opt-in decode | 11.44 → 13.26 tok/s / 1.159× |
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
+| layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
 
 再測定コマンド:
 
@@ -173,6 +176,11 @@ uv run python scripts/localize_grouped_fp8_divergence.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --tokens 256 --warmups 2 --repeats 5 \
   --output bench-results/m3ultra512-grouped-fp8-divergence-20260828.json
+
+uv run python scripts/probe_nope_indexpool_safety.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --layer 3 \
+  --output bench-results/m3ultra512-nope-indexpool-safety-20260828.json
 ```
 
 ### Packed expert bank feasibility
@@ -205,6 +213,12 @@ shared expertを独立phaseとして測ると、256 tokenで11.81 msでした。
 
 層別localizationでは、全42層をpacked fallbackへ固定した256-token最終logitsがDirectとbyte-identicalでした。groupedを一層だけ有効にすると、early層の誤差が後段で大きく増幅され、relative L2の最大はlayer 5の0.202、argmax不一致はlayer 9で発生しました。late層ほど誤差は小さく、layer 44は0.00293です。累積系列はlayer 3で0.186へ跳ね、layer 5で最大0.229となった後、約0.18〜0.21を非単調に推移しました。特定一層の破損でも42層にわたる滑らかな蓄積でもなく、広いearly-layer sensitivityのパターンです。これは原因の局在化結果であり、品質受入ではありません。
 
+### NoPE IndexPool safety gate
+
+GLM-5.3-FlashのDSA cacheを`qk_rope_head_dim=0`、`mla_use_nope=true`、`kv_lora_rank=512`の独立したNoPE ABIとして監査します。Indexerの最終returnとattention gatherの両方で、indexが`-1`または`0 <= index < Kv`であることをGPU上で検査します。無効な正数をclipして実KVへ変換しません。
+
+公式checkpointのlayer 3では、`index_topk=2048`に対してT=2047/2048のshort bypassとT=2049の実IndexPool経路を確認しました。T=2049の出力は`[1,1,2049,2051]`、unused slotは2,102,274、valid indexは0–2048、範囲外indexとNaNは0です。31/32/33、511/512/513、zero-valid、left-padding、partial final pool、one-shot/chunked/incrementalの有効index集合一致、反復hash一致にも合格しました。これはstate/sentinel correctness gateであり、sparse DSA kernelやprompt上限は変更していません。
+
 ## 検証
 
 ```bash
@@ -212,7 +226,7 @@ uv run pytest
 uv run glm53 inspect /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
-`inspect`は既知metadata hashに加え、62 shardのsafetensors headerを読み、76,108 tensorの名前・shape・dtype・offset・file size、37,338 FP8/scale pair、総byte数、公式layout digestを照合します。`attest`とserver起動はさらに全weight payloadを読み、既知checkpoint content digestへ照合します。
+`inspect`は既知metadata hashに加え、62 shardのsafetensors headerを読み、76,108 tensorの名前・shape・dtype・offset・file size、37,338 FP8/scale pair、総byte数、公式layout digest、NoPE/latent512 cache schemaを照合します。`attest`とserver起動はさらに全weight payloadを読み、既知checkpoint content digestへ照合します。
 
 実機oracleを再照合するには次を実行します。
 
@@ -226,7 +240,7 @@ uv run python scripts/oracle_trace.py \
   --tokens 128 --expect oracles/glm53-official-greedy-128.json
 ```
 
-実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completionを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parity、`index_topk=2048`以降のsparse IndexPool、chunked prefill parityはまだ追加gateです。
+実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completion、`index_topk=2048`境界以降のIndexPool sentinel/rangeとchunked/incremental集合parityを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parityとselected-KV sparse DSA性能はまだ追加gateです。
 
 ## Provenance
 

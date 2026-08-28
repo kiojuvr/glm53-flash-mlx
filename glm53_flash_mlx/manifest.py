@@ -10,6 +10,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, BinaryIO
 
+from .abi import NOPE_DSA_CACHE_ABI
+
 EXPECTED_KDA = tuple(i for i in range(45) if i % 4 != 3)
 EXPECTED_DSA = tuple(range(3, 45, 4))
 EXPECTED_SHARDS = 62
@@ -74,6 +76,12 @@ class CheckpointReport:
     experts: int
     experts_per_token: int
     context_length: int
+    attention_cache_abi: str
+    qk_rope_head_dim: int
+    mla_use_nope: bool
+    kv_lora_rank: int
+    index_topk: int
+    index_kpool: int
     quantization: dict[str, Any] | None
     server_ready: bool
     audit_failures: tuple[str, ...]
@@ -252,6 +260,15 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
         failures.append("num_experts_per_tok != 8")
     if int(text.get("hidden_size", -1)) != 4096:
         failures.append("hidden_size != 4096")
+    qk_rope_head_dim = int(text.get("qk_rope_head_dim", -1))
+    mla_use_nope = text.get("mla_use_nope") is True
+    kv_lora_rank = int(text.get("kv_lora_rank", -1))
+    if qk_rope_head_dim != 0:
+        failures.append("qk_rope_head_dim != 0")
+    if not mla_use_nope:
+        failures.append("mla_use_nope is not true")
+    if kv_lora_rank != 512:
+        failures.append("kv_lora_rank != 512")
 
     weight_map = index.get("weight_map") or {}
     shards = sorted(set(weight_map.values()))
@@ -303,6 +320,12 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
         experts=int(text.get("n_routed_experts", -1)),
         experts_per_token=int(text.get("num_experts_per_tok", -1)),
         context_length=int(text.get("max_position_embeddings", -1)), quantization=quant,
+        attention_cache_abi=NOPE_DSA_CACHE_ABI,
+        qk_rope_head_dim=qk_rope_head_dim,
+        mla_use_nope=mla_use_nope,
+        kv_lora_rank=kv_lora_rank,
+        index_topk=int(text.get("index_topk", -1)),
+        index_kpool=int(text.get("index_kpool", -1)),
         server_ready=server_ready, audit_failures=tuple(failures),
     )
     if require_server_ready and not server_ready:

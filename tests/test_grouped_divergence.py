@@ -5,7 +5,10 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-pytest.importorskip("mlx.core")
+try:
+    import mlx.core as mx
+except ImportError:
+    pytest.skip("MLX/Metal is unavailable", allow_module_level=True)
 
 _SPEC = importlib.util.spec_from_file_location(
     "localize_grouped_fp8_divergence",

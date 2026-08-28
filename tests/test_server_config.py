@@ -61,6 +61,13 @@ def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
     assert descriptor["packed_decode_kernel_abi"].startswith(
         "glm53-packed-selected8-"
     )
+    assert descriptor["attention_cache_abi"].startswith("glm53-nope-dsa-v1")
+
+    monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
+    direct_descriptor = _disk_cache_descriptor("checkpoint-digest")
+    assert direct_descriptor["attention_cache_abi"] == descriptor[
+        "attention_cache_abi"
+    ]
 
 
 def test_prompt_and_total_context_admission_are_independent():
