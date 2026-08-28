@@ -134,6 +134,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | OpenAI chat completion | HTTP 200（実model、安定alias） |
 | deterministic 256-token prefill | 17.49 s / 14.63 tok/s / peak 320.64 GB |
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
+| layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
 
 再測定コマンド:
 
@@ -141,7 +142,17 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 uv run python scripts/bench_fp8.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --warm-residency --tokens 16
+
+uv run python scripts/probe_packed_expert_bank.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --layer 3
 ```
+
+### Packed expert bank feasibility
+
+GPU MoE prefillの前提確認として、実checkpointのlayer 3だけを4個の連続bufferへin-memory packingしました。`gate_up_weight`と`down_weight`はuint8 E4M3、scaleはFP32のままで、BF16展開はありません。全288 expert × 6 tensor = 1,728 sliceが元tensorとbyte-identicalで、既存selected top-8出力もbit-identicalでした。
+
+全model常駐状態のactive memoryは319.706 GB、pack中peakは327.023 GBでした。module参照の切替、旧expert解放、`mx.clear_cache()`後は319.706 GBへ戻り、baselineとの差は4 bytesです。したがって層単位移行で元mmap-backed tensorを解放でき、定常的なexpert bank二重化を避けられることを確認しました。これはfeasibility probeであり、serverとloaderの既定経路はまだ変更していません。
 
 ## 検証
 

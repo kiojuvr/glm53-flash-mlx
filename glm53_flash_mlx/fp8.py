@@ -363,7 +363,7 @@ class DirectFP8MoE(nn.Module):
         flat_x = x.reshape(-1, x.shape[-1])
         flat_scores = scores.reshape(-1, self.config.num_experts_per_tok)
         if flat_x.shape[0] == 1 and routes.shape == (1, DECODE_TOP_K):
-            selected = [self.experts[int(expert_id)] for expert_id in routes[0]]
+            selected = [self._expert(int(expert_id)) for expert_id in routes[0]]
             gate = _selected_projection(flat_x[0], selected, "gate_proj")
             up = _selected_projection(flat_x[0], selected, "up_proj")
             hidden = nn.silu(mx.minimum(gate, self.config.swiglu_limit)) * mx.clip(
@@ -381,13 +381,16 @@ class DirectFP8MoE(nn.Module):
             slots_np = positions[:, 1]
             rows = mx.array(rows_np, dtype=mx.int32)
             slots = mx.array(slots_np, dtype=mx.int32)
-            expert_out = self.experts[int(expert_id)](flat_x[rows])
+            expert_out = self._expert(int(expert_id))(flat_x[rows])
             route_weight = flat_scores[rows, slots][..., None]
             result = result.at[rows].add(expert_out * route_weight)
         result = result.reshape(x.shape)
         if self.shared_experts is not None:
             result = result + self.shared_experts(x)
         return result
+
+    def _expert(self, expert_id: int):
+        return self.experts[expert_id]
 
 
 def _selected_projection(x, experts, projection: str):

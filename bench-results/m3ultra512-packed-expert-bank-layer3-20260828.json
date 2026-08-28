@@ -1,0 +1,51 @@
+{
+  "schema": "glm53-packed-expert-bank-feasibility-v1",
+  "date": "2026-08-28",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "kernel_abi": "glm53-metal-fp8-v3-tiled8-selected8-lut",
+  "layer": 3,
+  "expert_count": 288,
+  "hidden_size": 4096,
+  "intermediate_size": 2048,
+  "bank_shapes": {
+    "gate_up_weight": [288, 4096, 4096],
+    "gate_up_scale_inv": [288, 32, 32],
+    "down_weight": [288, 4096, 2048],
+    "down_scale_inv": [288, 32, 16]
+  },
+  "bank_bytes": 7249526784,
+  "bank_gib": 6.75164794921875,
+  "packing_seconds": 0.2017037079203874,
+  "clear_cache_seconds": 0.12489787500817329,
+  "identity_checks": 1728,
+  "all_slices_byte_identical": true,
+  "selected_top8_parity": true,
+  "selected_top8_max_abs_error": 0.0,
+  "canonical_dtype_preserved": true,
+  "baseline": {
+    "active_bytes": 319706119424,
+    "cache_bytes": 34342655,
+    "peak_bytes": 319706119424
+  },
+  "packed_resident": {
+    "active_bytes": 326955646208,
+    "cache_bytes": 34342655,
+    "peak_bytes": 326955646208
+  },
+  "steady_after_replace_and_clear": {
+    "active_bytes": 319706119428,
+    "cache_bytes": 0,
+    "peak_bytes": 327023377782
+  },
+  "steady_delta_bytes": 4,
+  "original_expert_tensors_released": true,
+  "full_model_peak_below_limit": true,
+  "acceptance": {
+    "max_steady_delta_gib": 1.0,
+    "max_peak_gb": 340.0,
+    "accepted": true
+  },
+  "runtime_default_changed": false
+}
