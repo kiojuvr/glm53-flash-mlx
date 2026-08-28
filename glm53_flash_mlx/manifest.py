@@ -15,9 +15,20 @@ EXPECTED_DSA = tuple(range(3, 45, 4))
 EXPECTED_SHARDS = 62
 EXPECTED_TENSORS = 76_108
 EXPECTED_DECLARED_BYTES = 328_326_771_576
+OFFICIAL_HF_REVISION = "04c4e9e95c5da8862dced7e5056455116f83a7e0"
 # Canonical tensor metadata digest of the public checkpoint. Filled after the
 # audit algorithm itself is validated against that checkpoint.
 EXPECTED_LAYOUT_DIGEST = "c21cc9b55c8b977434e5932682313a3b84ac87e31c61a12e2768dd57e2954a72"
+EXPECTED_CONTENT_DIGEST = "6f5c2c108875dc81a63124d1e5f0f655cc1af7ff3cf34370f1e2b66f9d62dfd3"
+EXPECTED_METADATA_SHA256 = {
+    "config.json": "bb8f01c42cb92a52ca72e65afb4d5bd8d11aef083cd210e8de25dfb904f23e9f",
+    "generation_config.json": "230c30609ecbbb9e6583bedde8e7bdda0c6eb8fe5fad0eaeb3d1b293d751cb4f",
+    "model.safetensors.index.json": "3c3f40366a53c3fd7974b4eab7881a365a98c2a4329150befebab99fe7c18b05",
+    "tokenizer.json": "19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d",
+    "tokenizer_config.json": "98b1271574f41abf89427ae2dda030d94dc9478f0edc5a8bd240db213c6fd5fc",
+    "chat_template.jinja": "34d5ee66b12fa6446cdae131c352b8f68cd85369e0e6fda115583805fada3891",
+    "processor_config.json": "aae38374c94b08cc9b0547c6e64f05b951bd9735cea571c6988f5ed552bed3ed",
+}
 FP8_FORMAT = "e4m3"
 FP8_BLOCK = (128, 128)
 
@@ -48,8 +59,10 @@ class TensorHeader:
 @dataclass(frozen=True)
 class CheckpointReport:
     path: str
+    official_revision: str
     fingerprint: str
     layout_digest: str
+    metadata_authenticated: bool
     source_format: str
     shard_count: int
     tensor_count: int
@@ -75,6 +88,27 @@ def _canonical_digest(*objects: Any) -> str:
         h.update(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode())
         h.update(b"\0")
     return h.hexdigest()
+
+
+def _file_sha256(path: Path, *, chunk_mb: int = 16) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb", buffering=0) as handle:
+        while chunk := handle.read(chunk_mb * 1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _audit_official_metadata(root: Path) -> list[str]:
+    failures: list[str] = []
+    for name, expected in EXPECTED_METADATA_SHA256.items():
+        path = root / name
+        if not path.is_file():
+            failures.append(f"official metadata missing: {name}")
+            continue
+        actual = _file_sha256(path)
+        if actual != expected:
+            failures.append(f"official metadata digest mismatch: {name}")
+    return failures
 
 
 def _read_exact(handle: BinaryIO, size: int, label: str) -> bytes:
@@ -205,6 +239,7 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
     kda = tuple(i for i, kind in enumerate(layer_types) if kind == "linear_attention")
     dsa = tuple(i for i, kind in enumerate(layer_types) if kind == "deepseek_sparse_attention")
     failures: list[str] = []
+    failures.extend(_audit_official_metadata(root))
     if layers != 45 or len(layer_types) != 45:
         failures.append(f"layers={layers}/{len(layer_types)} (expected 45)")
     if kda != EXPECTED_KDA:
@@ -256,7 +291,11 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
     fingerprint = _canonical_digest(digest_config, layout_digest)
     server_ready = raw_fp8 and not failures
     report = CheckpointReport(
-        path=str(root), fingerprint=fingerprint, layout_digest=layout_digest,
+        path=str(root), official_revision=OFFICIAL_HF_REVISION,
+        fingerprint=fingerprint, layout_digest=layout_digest,
+        metadata_authenticated=not any(
+            failure.startswith("official metadata") for failure in failures
+        ),
         source_format=source_format, shard_count=len(shards), tensor_count=len(tensors),
         declared_bytes=declared_bytes,
         fp8_tensor_count=sum(tensor.dtype == "F8_E4M3" for tensor in tensors.values()),
@@ -296,3 +335,14 @@ def checkpoint_content_digest(path: str | Path, *, chunk_mb: int = 16) -> str:
             while chunk := handle.read(chunk_mb * 1024 * 1024):
                 digest.update(chunk)
     return digest.hexdigest()
+
+
+def attest_checkpoint(path: str | Path, *, chunk_mb: int = 16) -> str:
+    """Hash all official weight payloads and reject any content divergence."""
+    actual = checkpoint_content_digest(path, chunk_mb=chunk_mb)
+    if actual != EXPECTED_CONTENT_DIGEST:
+        raise ManifestError(
+            "checkpoint content digest mismatch for official Hugging Face revision "
+            f"{OFFICIAL_HF_REVISION}: got {actual}, expected {EXPECTED_CONTENT_DIGEST}"
+        )
+    return actual

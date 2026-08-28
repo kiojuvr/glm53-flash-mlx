@@ -12,20 +12,22 @@ import sys
 from pathlib import Path
 
 from .abi import CACHE_IDENTITY_SCHEMA, KERNEL_ABI_VERSION, MLX_VLM_REVISION
-from .manifest import ManifestError, checkpoint_content_digest, inspect_checkpoint
+from .manifest import ManifestError, attest_checkpoint, inspect_checkpoint
 from .patch import apply_runtime_patch, patch_status
 
 DEFAULT_SOURCE = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
 DEFAULT_MODEL = DEFAULT_SOURCE
 DEFAULT_MAX_PROMPT_TOKENS = 256
+DEFAULT_MAX_GENERATION_TOKENS = 4_096
 DEFAULT_MAX_CONTEXT_TOKENS = 16_384
 
 
 def validate_admission(
     prompt_tokens: int,
-    max_generation_tokens: int,
+    requested_generation_tokens: int,
     *,
     max_prompt_tokens: int,
+    max_generation_tokens: int,
     max_context_tokens: int,
 ) -> None:
     """Reject expensive prefill separately from total cache capacity."""
@@ -35,21 +37,27 @@ def validate_admission(
             f"is limited to {max_prompt_tokens}; GPU expert bucketing and sparse "
             "DSA prefill are not implemented"
         )
-    requested = prompt_tokens + max(0, max_generation_tokens)
+    if requested_generation_tokens < 0:
+        raise ValueError("requested generation tokens must be non-negative")
+    if requested_generation_tokens > max_generation_tokens:
+        raise ValueError(
+            f"request asks for {requested_generation_tokens} generation tokens, "
+            f"but the configured generation limit is {max_generation_tokens}"
+        )
+    requested = prompt_tokens + requested_generation_tokens
     if requested > max_context_tokens:
         raise ValueError(
             f"request needs {requested} total tokens "
-            f"({prompt_tokens} prompt + {max_generation_tokens} generation), "
+            f"({prompt_tokens} prompt + {requested_generation_tokens} generation), "
             f"but the configured total context limit is {max_context_tokens}"
         )
 
 
-def _disk_cache_identity(model: Path) -> str:
+def _disk_cache_identity(content_digest: str) -> str:
     """Content-bound identity for the explicitly experimental disk APC."""
-    content = checkpoint_content_digest(model)
     descriptor = {
         "schema": CACHE_IDENTITY_SCHEMA,
-        "checkpoint_content_sha256": content,
+        "checkpoint_content_sha256": content_digest,
         "mlx_vlm_revision": MLX_VLM_REVISION,
         "metal_kernel_abi": KERNEL_ABI_VERSION,
         "apc_hash": "sha256",
@@ -85,6 +93,7 @@ def configure_m3_ultra(
     os.environ["PREFILL_STEP_SIZE"] = str(prefill_step_size)
     os.environ["MLX_VLM_MAX_TOKENS"] = str(max_tokens)
     os.environ["GLM53_MAX_PROMPT_TOKENS"] = str(max_prompt_tokens)
+    os.environ["GLM53_MAX_GENERATION_TOKENS"] = str(max_tokens)
     os.environ["MAX_KV_SIZE"] = str(max_context_tokens)
     os.environ.setdefault("MLX_VLM_LOG_PROGRESS_INTERVAL", "16")
     os.environ.setdefault("MLX_VLM_ENABLE_THINKING", "1")
@@ -127,11 +136,13 @@ def _install_server_loader() -> None:
 
     def check_glm53_budget(prompt_tokens, max_tokens):
         prompt_limit = int(os.environ["GLM53_MAX_PROMPT_TOKENS"])
+        generation_limit = int(os.environ["GLM53_MAX_GENERATION_TOKENS"])
         context_limit = int(os.environ["MAX_KV_SIZE"])
         try:
             validate_admission(
                 int(prompt_tokens), int(max_tokens or 0),
                 max_prompt_tokens=prompt_limit,
+                max_generation_tokens=generation_limit,
                 max_context_tokens=context_limit,
             )
         except ValueError as exc:
@@ -177,7 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--port", type=int, default=8080)
     p.add_argument("--api-key", default=os.environ.get("GLM53_API_KEY"))
     p.add_argument("--prefill-step-size", type=int, default=2048)
-    p.add_argument("--max-tokens", type=int, default=4096)
+    p.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_GENERATION_TOKENS)
     p.add_argument("--max-prompt-tokens", type=int, default=DEFAULT_MAX_PROMPT_TOKENS)
     p.add_argument("--max-context-tokens", type=int, default=DEFAULT_MAX_CONTEXT_TOKENS)
     p.add_argument("--wired-limit-gb", type=float, default=440.0)
@@ -188,7 +199,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--experimental-disk-apc",
         action="store_true",
-        help="allow disk APC after hashing every checkpoint shard for cache identity",
+        help="allow disk APC using the mandatory attested checkpoint identity",
     )
     p.add_argument(
         "--warm-residency",
@@ -238,11 +249,16 @@ def main(argv: list[str] | None = None) -> int:
         max_prompt_tokens=args.max_prompt_tokens,
         max_context_tokens=args.max_context_tokens,
     )
+    logging.getLogger(__name__).warning(
+        "Attesting every checkpoint shard against the pinned official revision"
+    )
+    try:
+        content_digest = attest_checkpoint(args.model)
+    except ManifestError as exc:
+        print(f"glm53-serve: {exc}", file=sys.stderr)
+        return 2
     if args.apc_disk_path is not None:
-        logging.getLogger(__name__).warning(
-            "Experimental disk APC: hashing all checkpoint and tokenizer bytes"
-        )
-        os.environ["GLM53_DISK_APC_IDENTITY"] = _disk_cache_identity(args.model)
+        os.environ["GLM53_DISK_APC_IDENTITY"] = _disk_cache_identity(content_digest)
     apply_runtime_patch()
 
     import mlx.core as mx

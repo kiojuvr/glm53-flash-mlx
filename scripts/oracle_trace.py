@@ -14,7 +14,7 @@ import numpy as np
 
 from glm53_flash_mlx.abi import KERNEL_ABI_VERSION
 from glm53_flash_mlx.loader import load, warm_residency
-from glm53_flash_mlx.manifest import inspect_checkpoint
+from glm53_flash_mlx.manifest import OFFICIAL_HF_REVISION, inspect_checkpoint
 
 DEFAULT_PROMPT = "Reply with exactly: OK"
 
@@ -68,6 +68,7 @@ def build_trace(model_path: str, *, prompt: str, tokens: int, warm: bool) -> dic
     elapsed = time.perf_counter() - started
     return {
         "schema": "glm53-greedy-oracle-v1",
+        "official_hf_revision": OFFICIAL_HF_REVISION,
         "checkpoint_fingerprint": report.fingerprint,
         "checkpoint_layout_digest": report.layout_digest,
         "kernel_abi": KERNEL_ABI_VERSION,
@@ -86,7 +87,8 @@ def build_trace(model_path: str, *, prompt: str, tokens: int, warm: bool) -> dic
 def compare_trace(actual: dict, expected: dict) -> list[str]:
     failures = []
     for key in (
-        "schema", "checkpoint_fingerprint", "checkpoint_layout_digest", "kernel_abi",
+        "schema", "official_hf_revision", "checkpoint_fingerprint",
+        "checkpoint_layout_digest", "kernel_abi",
         "prompt", "formatted_prompt_sha256", "prompt_token_count",
         "prompt_token_ids_sha256", "generation_tokens", "generated_token_ids",
     ):

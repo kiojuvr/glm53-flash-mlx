@@ -1,5 +1,6 @@
 {
   "schema": "glm53-prefill-probe-v1",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
   "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
   "prompt_tokens": 256,
   "token_ids_sha256": "457ff6c433b7dc668d3f69cb0b5a34f725affa8f654fa5ad3b8d956f4e4df7ea",

@@ -1,3 +1,4 @@
+import hashlib
 import json
 import struct
 from pathlib import Path
@@ -5,7 +6,12 @@ from pathlib import Path
 import pytest
 
 from glm53_flash_mlx import manifest
-from glm53_flash_mlx.manifest import ManifestError, checkpoint_content_digest, inspect_checkpoint
+from glm53_flash_mlx.manifest import (
+    ManifestError,
+    attest_checkpoint,
+    checkpoint_content_digest,
+    inspect_checkpoint,
+)
 
 
 def _write_safetensors(path: Path, tensor_names: list[str]):
@@ -93,9 +99,39 @@ def test_disk_cache_content_digest_changes_when_payload_changes(tmp_path, monkey
         lambda *_args, **_kwargs: type("Report", (), {"layout_digest": "layout"})(),
     )
     before = checkpoint_content_digest(tmp_path, chunk_mb=1)
+    monkeypatch.setattr(manifest, "EXPECTED_CONTENT_DIGEST", before)
+    assert attest_checkpoint(tmp_path, chunk_mb=1) == before
     (tmp_path / "one.safetensors").write_bytes(b"same-size-payload-b")
     after = checkpoint_content_digest(tmp_path, chunk_mb=1)
     assert before != after
+    with pytest.raises(ManifestError, match="content digest mismatch"):
+        attest_checkpoint(tmp_path, chunk_mb=1)
+
+
+def test_config_and_chat_template_are_authenticated(tmp_path, monkeypatch):
+    config = tmp_path / "config.json"
+    template = tmp_path / "chat_template.jinja"
+    config.write_text('{"text_config":{"swiglu_limit":10.0}}')
+    template.write_text("official template")
+    monkeypatch.setattr(
+        manifest,
+        "EXPECTED_METADATA_SHA256",
+        {
+            "config.json": hashlib.sha256(config.read_bytes()).hexdigest(),
+            "chat_template.jinja": hashlib.sha256(template.read_bytes()).hexdigest(),
+        },
+    )
+    assert manifest._audit_official_metadata(tmp_path) == []
+
+    config.write_text('{"text_config":{"swiglu_limit":9.0}}')
+    assert manifest._audit_official_metadata(tmp_path) == [
+        "official metadata digest mismatch: config.json"
+    ]
+    config.write_text('{"text_config":{"swiglu_limit":10.0}}')
+    template.write_text("modified template")
+    assert manifest._audit_official_metadata(tmp_path) == [
+        "official metadata digest mismatch: chat_template.jinja"
+    ]
 
 
 def test_fp8_scale_shape_and_dtype_are_audited():

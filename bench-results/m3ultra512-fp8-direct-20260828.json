@@ -2,6 +2,7 @@
   "date": "2026-08-28",
   "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
   "checkpoint": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
   "fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
   "layout_digest": "c21cc9b55c8b977434e5932682313a3b84ac87e31c61a12e2768dd57e2954a72",
   "checkpoint_content_sha256": "6f5c2c108875dc81a63124d1e5f0f655cc1af7ff3cf34370f1e2b66f9d62dfd3",

@@ -25,6 +25,7 @@ Python 3.11以上と`uv`を使います。
 ```bash
 uv sync
 uv run glm53 inspect /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+uv run glm53 attest /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
 GPUアクセスを制限するsandbox内ではMLXをimportできません。通常のmacOS Terminalから実行してください。
@@ -59,7 +60,11 @@ CPU expert bucket/full-KV DSA prefillを巨大promptへ誤って起動しない�
 
 `--max-prompt-tokens`と`--max-context-tokens`は別々に変更できます。256より大きいpromptは、GPU expert bucketing/grouped GEMMとselected-KV DSAが入るまで実験設定として扱ってください。
 
-起動時にtext target全体（実測319.706 GB、297.75 GiB）をunified memoryへmaterializeします。この処理はM3 Ultra実測で約30.6秒です。保存dtypeはFP8/BF16のままであり、BF16 model copyは作りません。一時的なsmoke testだけ常駐化を省く場合は`--no-warm-residency`を指定できます。
+`--max-tokens`はrequest省略時の既定値であると同時に、各requestのgeneration hard capです。既定では4,096を受理し、4,097以上をHTTP 400で拒否します。
+
+serverは公式Hugging Face [revision `04c4e9e`](https://huggingface.co/zai-org/GLM-5.3-Flash/tree/04c4e9e95c5da8862dced7e5056455116f83a7e0)に固定されています。起動時にはconfig、tokenizer、chat template、index等の既知SHA-256に加え、全62 weight shardを含むcheckpoint content digestを照合します。全payload attestationはM3 Ultra実測で約130–142秒です。
+
+attestation後にtext target全体（実測319.706 GB、297.75 GiB）をunified memoryへmaterializeします。この処理はM3 Ultra実測で約30.6秒です。保存dtypeはFP8/BF16のままであり、BF16 model copyは作りません。一時的なsmoke testだけ常駐化を省く場合は`--no-warm-residency`を指定できます。content attestationは省略されません。
 
 API keyを使う場合は`--api-key`または`GLM53_API_KEY`を指定します。
 
@@ -95,7 +100,7 @@ API keyを有効にした場合は、exampleの`options.apiKey`を`"{env:GLM53_A
 # RAM APCを有効化
 uv run glm53 serve --apc --apc-blocks 256
 
-# SSD tierも使う（experimental。全checkpoint byteのhashを起動時に計算）
+# SSD tierも使う（experimental。attested content identityを使用）
 uv run glm53 serve --apc --apc-blocks 512 \
   --apc-disk-path /Volumes/SDXC-512/glm53-apc \
   --experimental-disk-apc
@@ -145,7 +150,7 @@ uv run pytest
 uv run glm53 inspect /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
-`inspect`は62 shardのsafetensors headerを読み、76,108 tensorの名前・shape・dtype・offset・file size、37,338 FP8/scale pair、総byte数、公式layout digestを照合します。payload全byte hashはexperimental disk APCを使う場合に追加実行します。
+`inspect`は既知metadata hashに加え、62 shardのsafetensors headerを読み、76,108 tensorの名前・shape・dtype・offset・file size、37,338 FP8/scale pair、総byte数、公式layout digestを照合します。`attest`とserver起動はさらに全weight payloadを読み、既知checkpoint content digestへ照合します。
 
 実機oracleを再照合するには次を実行します。
 
@@ -159,7 +164,7 @@ uv run python scripts/oracle_trace.py \
   --tokens 128 --expect oracles/glm53-official-greedy-128.json
 ```
 
-実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab logits trace、256-token prefill、strict checkpoint audit、OpenAI HTTP completionを確認します。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parity、chunked prefill parityはまだ追加gateです。
+実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completionを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parity、`index_topk=2048`以降のsparse IndexPool、chunked prefill parityはまだ追加gateです。
 
 ## Provenance
 

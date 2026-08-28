@@ -4,7 +4,7 @@ import argparse
 import json
 import sys
 
-from .manifest import ManifestError, inspect_checkpoint
+from .manifest import ManifestError, attest_checkpoint, inspect_checkpoint
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -16,6 +16,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     inspect_p = sub.add_parser("inspect", help="validate a source or converted checkpoint")
     inspect_p.add_argument("model")
+    attest_p = sub.add_parser("attest", help="hash and authenticate the official checkpoint")
+    attest_p.add_argument("model")
     sub.add_parser("serve", help="run the OpenAI-compatible server").add_argument(
         "args", nargs=argparse.REMAINDER
     )
@@ -26,6 +28,13 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         except ManifestError as exc:
             print(f"glm53 inspect: {exc}", file=sys.stderr)
+            return 2
+    if ns.command == "attest":
+        try:
+            print(attest_checkpoint(ns.model))
+            return 0
+        except ManifestError as exc:
+            print(f"glm53 attest: {exc}", file=sys.stderr)
             return 2
     raise AssertionError(f"unhandled command: {ns.command}")
 

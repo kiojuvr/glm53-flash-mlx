@@ -38,6 +38,7 @@ def main() -> int:
     logits_np = np.ascontiguousarray(np.asarray(logits), dtype=np.float32)
     result = {
         "schema": "glm53-prefill-probe-v1",
+        "official_hf_revision": report.official_revision,
         "checkpoint_fingerprint": report.fingerprint,
         "prompt_tokens": args.tokens,
         "token_ids_sha256": hashlib.sha256(token_ids.tobytes()).hexdigest(),
