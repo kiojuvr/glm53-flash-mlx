@@ -1,0 +1,2081 @@
+{
+  "schema": "glm53-long-context-dsa-decode-frontier-v1",
+  "date": "2026-08-29",
+  "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "nope_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
+  "layer": 3,
+  "qk_rope_head_dim": 0,
+  "kv_lora_rank": 512,
+  "index_topk": 2048,
+  "index_kpool": 4,
+  "primary_contexts": [
+    2048,
+    2049,
+    8192,
+    16384,
+    32768,
+    65536,
+    131072,
+    262144
+  ],
+  "pool_tail_contexts": [
+    32768,
+    32769,
+    32770,
+    32771
+  ],
+  "measurement_contract": {
+    "cache_source": "deterministic latent/indexer state; no long prefill",
+    "query_tokens": 1,
+    "warmups": 2,
+    "measurements": 5,
+    "phase_timings_synchronize_each_boundary": true,
+    "unsynchronized_end_to_end_syncs_only_final_output": true,
+    "pool_update_includes_current_key_gate_projection_and_pooling": true,
+    "score_includes_query projection and all-pool score": true,
+    "attention_includes_embed_q, SDPA, unembed_out, o_proj": true
+  },
+  "transition": {
+    "2048_path": "dense_bypass",
+    "2049_path": "sparse_indexpool"
+  },
+  "cases": {
+    "2048": {
+      "context_tokens": 2048,
+      "context_mod_index_kpool": 0,
+      "pool_count": 512,
+      "selected_pool_count": 0,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2048,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 3.0665829544886947,
+          "warmup_ms": [
+            1.4751249691471457,
+            1.8986249342560768
+          ],
+          "measurement_ms": [
+            2.0759589970111847,
+            1.8899579299613833,
+            1.9234169740229845,
+            1.8372079357504845,
+            1.9127089763060212
+          ],
+          "unsynchronized_end_to_end_ms": 1.9127089763060212,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.4736669836565852,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 1.3780000153928995
+            },
+            {
+              "pool_update": 0.34908391535282135,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.7706660544499755
+            },
+            {
+              "pool_update": 0.4308749921619892,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.7459999760612845
+            },
+            {
+              "pool_update": 0.32995804212987423,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.7001250050961971
+            },
+            {
+              "pool_update": 0.3353329375386238,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.8072919445112348
+            }
+          ],
+          "pool_update_ms": 0.34908391535282135,
+          "score_ms": 0.0,
+          "selection_ms": 0.0,
+          "expand_ms": 0.0,
+          "gather_ms": 0.0,
+          "attention_ms": 0.7706660544499755,
+          "synchronized_phase_sum_ms": 1.1197499698027968,
+          "active_memory_bytes": 152525832,
+          "peak_memory_bytes": 153547785,
+          "working_peak_bytes": 1030145,
+          "index_hash": null,
+          "output_hash": "f0851d2273a8c8050ec49f459f47ff704b8bb599c9496f0569a54a86fbe516e7",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "dense_bypass",
+          "valid_index_min": null,
+          "valid_index_max": null,
+          "valid_index_count": 0,
+          "sentinel_count": 0,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2048,
+          "reference_indexer_hash": null,
+          "reference_attention_output_hash": "f0851d2273a8c8050ec49f459f47ff704b8bb599c9496f0569a54a86fbe516e7",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": null
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 1.6227499581873417,
+          "warmup_ms": [
+            1.5997500158846378,
+            1.6045839292928576
+          ],
+          "measurement_ms": [
+            1.6248340252786875,
+            1.5016660327091813,
+            1.743790926411748,
+            1.6814999980852008,
+            1.685208990238607
+          ],
+          "unsynchronized_end_to_end_ms": 1.6814999980852008,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.3547500818967819,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.6371670169755816
+            },
+            {
+              "pool_update": 0.3498340956866741,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.6024170434102416
+            },
+            {
+              "pool_update": 0.3239159705117345,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.6386250024661422
+            },
+            {
+              "pool_update": 0.3136669984087348,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.5774999735876918
+            },
+            {
+              "pool_update": 0.3200839273631573,
+              "score": 0.0,
+              "selection": 0.0,
+              "expand": 0.0,
+              "gather": 0.0,
+              "attention": 0.5656660068780184
+            }
+          ],
+          "pool_update_ms": 0.3239159705117345,
+          "score_ms": 0.0,
+          "selection_ms": 0.0,
+          "expand_ms": 0.0,
+          "gather_ms": 0.0,
+          "attention_ms": 0.6024170434102416,
+          "synchronized_phase_sum_ms": 0.9263330139219761,
+          "active_memory_bytes": 152525832,
+          "peak_memory_bytes": 153547785,
+          "working_peak_bytes": 1030145,
+          "index_hash": null,
+          "output_hash": "f0851d2273a8c8050ec49f459f47ff704b8bb599c9496f0569a54a86fbe516e7",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "dense_bypass",
+          "valid_index_min": null,
+          "valid_index_max": null,
+          "valid_index_count": 0,
+          "sentinel_count": 0,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2048,
+          "reference_indexer_hash": null,
+          "reference_attention_output_hash": "f0851d2273a8c8050ec49f459f47ff704b8bb599c9496f0569a54a86fbe516e7",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": null
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "2049": {
+      "context_tokens": 2049,
+      "context_mod_index_kpool": 1,
+      "pool_count": 513,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2049,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 4.2458330281078815,
+          "warmup_ms": [
+            2.2547919070348144,
+            2.334916964173317
+          ],
+          "measurement_ms": [
+            2.153625013306737,
+            2.296208986081183,
+            2.3314579157158732,
+            2.405958017334342,
+            2.453833003528416
+          ],
+          "unsynchronized_end_to_end_ms": 2.3314579157158732,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.6340419640764594,
+              "score": 0.42233290150761604,
+              "selection": 0.3268748987466097,
+              "expand": 0.74562500230968,
+              "gather": 0.86358399130404,
+              "attention": 1.2796670198440552
+            },
+            {
+              "pool_update": 0.5658749723806977,
+              "score": 0.38370792753994465,
+              "selection": 0.2817079657688737,
+              "expand": 0.45362499076873064,
+              "gather": 0.2993750385940075,
+              "attention": 0.7427089149132371
+            },
+            {
+              "pool_update": 0.5794169846922159,
+              "score": 0.378625001758337,
+              "selection": 0.27570792008191347,
+              "expand": 0.46962499618530273,
+              "gather": 0.3333750646561384,
+              "attention": 1.298291957937181
+            },
+            {
+              "pool_update": 0.5857909563928843,
+              "score": 0.5270419642329216,
+              "selection": 0.30087505001574755,
+              "expand": 0.47400000039488077,
+              "gather": 0.38691703230142593,
+              "attention": 0.8346670074388385
+            },
+            {
+              "pool_update": 0.5916249938309193,
+              "score": 0.3897080896422267,
+              "selection": 0.29779202304780483,
+              "expand": 0.48833293840289116,
+              "gather": 0.3102499758824706,
+              "attention": 0.7470829878002405
+            }
+          ],
+          "pool_update_ms": 0.5857909563928843,
+          "score_ms": 0.3897080896422267,
+          "selection_ms": 0.29779202304780483,
+          "expand_ms": 0.47400000039488077,
+          "gather_ms": 0.3333750646561384,
+          "attention_ms": 0.8346670074388385,
+          "synchronized_phase_sum_ms": 2.9153331415727735,
+          "active_memory_bytes": 152566804,
+          "peak_memory_bytes": 160039393,
+          "working_peak_bytes": 7505345,
+          "index_hash": "b7f4e1d90ec40801827550b5260503cccaef572076d2361d8b2d71b6d4fd33ca",
+          "output_hash": "e687c252205f811b0a815d660c56b65bc6f2fe9a2a560455b2fb1c97ceffacdd",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 0,
+          "valid_index_max": 2048,
+          "valid_index_count": 2049,
+          "sentinel_count": 2,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "b7f4e1d90ec40801827550b5260503cccaef572076d2361d8b2d71b6d4fd33ca",
+          "reference_attention_output_hash": "e687c252205f811b0a815d660c56b65bc6f2fe9a2a560455b2fb1c97ceffacdd",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.2791658993810415,
+          "warmup_ms": [
+            2.495999913662672,
+            2.5972920702770352
+          ],
+          "measurement_ms": [
+            2.564250025898218,
+            2.4004169972613454,
+            2.6050839805975556,
+            2.5291250785812736,
+            2.5575419422239065
+          ],
+          "unsynchronized_end_to_end_ms": 2.5575419422239065,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.6770000327378511,
+              "score": 0.415540998801589,
+              "selection": 0.31870801467448473,
+              "expand": 0.6717499345541,
+              "gather": 0.3272920148447156,
+              "attention": 0.912124989554286
+            },
+            {
+              "pool_update": 0.72825001552701,
+              "score": 0.4076670156791806,
+              "selection": 0.30499999411404133,
+              "expand": 0.49295800272375345,
+              "gather": 0.3157499013468623,
+              "attention": 0.8612499805167317
+            },
+            {
+              "pool_update": 0.6137500749900937,
+              "score": 0.40083297062665224,
+              "selection": 0.3049169899895787,
+              "expand": 0.48720906488597393,
+              "gather": 0.31758297700434923,
+              "attention": 0.8542919531464577
+            },
+            {
+              "pool_update": 0.5447500152513385,
+              "score": 0.33900002017617226,
+              "selection": 0.258082989603281,
+              "expand": 0.4149579908698797,
+              "gather": 0.2674589632079005,
+              "attention": 0.5737090250477195
+            },
+            {
+              "pool_update": 0.5262080812826753,
+              "score": 0.33545796759426594,
+              "selection": 0.2608749782666564,
+              "expand": 0.4002919886261225,
+              "gather": 0.25224999990314245,
+              "attention": 0.597915961407125
+            }
+          ],
+          "pool_update_ms": 0.6137500749900937,
+          "score_ms": 0.40083297062665224,
+          "selection_ms": 0.3049169899895787,
+          "expand_ms": 0.48720906488597393,
+          "gather_ms": 0.3157499013468623,
+          "attention_ms": 0.8542919531464577,
+          "synchronized_phase_sum_ms": 2.9767509549856186,
+          "active_memory_bytes": 152550444,
+          "peak_memory_bytes": 163412044,
+          "working_peak_bytes": 10877996,
+          "index_hash": "b7f4e1d90ec40801827550b5260503cccaef572076d2361d8b2d71b6d4fd33ca",
+          "output_hash": "e687c252205f811b0a815d660c56b65bc6f2fe9a2a560455b2fb1c97ceffacdd",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 0,
+          "valid_index_max": 2048,
+          "valid_index_count": 2049,
+          "sentinel_count": 2,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "b7f4e1d90ec40801827550b5260503cccaef572076d2361d8b2d71b6d4fd33ca",
+          "reference_attention_output_hash": "e687c252205f811b0a815d660c56b65bc6f2fe9a2a560455b2fb1c97ceffacdd",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "8192": {
+      "context_tokens": 8192,
+      "context_mod_index_kpool": 0,
+      "pool_count": 2048,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 2.7212079148739576,
+          "warmup_ms": [
+            2.48133298009634,
+            2.4812089977785945
+          ],
+          "measurement_ms": [
+            2.523499890230596,
+            2.540916088037193,
+            2.5391250383108854,
+            2.4133330443874,
+            2.4731250014156103
+          ],
+          "unsynchronized_end_to_end_ms": 2.523499890230596,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.0572500759735703,
+              "score": 0.4140000091865659,
+              "selection": 0.3274580230936408,
+              "expand": 0.47383306082338095,
+              "gather": 0.3024999750778079,
+              "attention": 0.9781250264495611
+            },
+            {
+              "pool_update": 0.7156670326367021,
+              "score": 0.39499998092651367,
+              "selection": 0.3251669695600867,
+              "expand": 0.4724169848486781,
+              "gather": 0.29041594825685024,
+              "attention": 0.8725000079721212
+            },
+            {
+              "pool_update": 0.6610420532524586,
+              "score": 0.39541698060929775,
+              "selection": 0.310625066049397,
+              "expand": 0.49808400217443705,
+              "gather": 0.31212507747113705,
+              "attention": 0.8681670296937227
+            },
+            {
+              "pool_update": 0.895458972081542,
+              "score": 0.35854207817465067,
+              "selection": 0.262125045992434,
+              "expand": 0.3890830557793379,
+              "gather": 0.2538330154493451,
+              "attention": 0.551583943888545
+            },
+            {
+              "pool_update": 0.493332976475358,
+              "score": 0.3257909556850791,
+              "selection": 0.8839999791234732,
+              "expand": 0.4099590005353093,
+              "gather": 0.25220809038728476,
+              "attention": 0.9085830533877015
+            }
+          ],
+          "pool_update_ms": 0.7156670326367021,
+          "score_ms": 0.39499998092651367,
+          "selection_ms": 0.3251669695600867,
+          "expand_ms": 0.4724169848486781,
+          "gather_ms": 0.29041594825685024,
+          "attention_ms": 0.8725000079721212,
+          "synchronized_phase_sum_ms": 3.071166924200952,
+          "active_memory_bytes": 162431532,
+          "peak_memory_bytes": 170724337,
+          "working_peak_bytes": 8309201,
+          "index_hash": "e6e889a8fb1d5cd66ab18aa5b03be3370288a9576d9bec245776f712246b09b9",
+          "output_hash": "1ab3e5aa01e495b10cb981457f842f01594a69d1d3956d076ad8faf6922c4d8c",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 3376,
+          "valid_index_max": 8191,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "e6e889a8fb1d5cd66ab18aa5b03be3370288a9576d9bec245776f712246b09b9",
+          "reference_attention_output_hash": "1ab3e5aa01e495b10cb981457f842f01594a69d1d3956d076ad8faf6922c4d8c",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9238985603850476
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.566333976574242,
+          "warmup_ms": [
+            2.566374954767525,
+            2.5432079564779997
+          ],
+          "measurement_ms": [
+            2.4932919768616557,
+            2.574042067863047,
+            1.4923750422894955,
+            2.1117080468684435,
+            2.198374946601689
+          ],
+          "unsynchronized_end_to_end_ms": 2.198374946601689,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.5951659986749291,
+              "score": 0.36399997770786285,
+              "selection": 0.2624590415507555,
+              "expand": 0.8700840407982469,
+              "gather": 0.28033298440277576,
+              "attention": 0.5965420277789235
+            },
+            {
+              "pool_update": 0.555249978788197,
+              "score": 0.4038750194013119,
+              "selection": 0.8904170244932175,
+              "expand": 0.41333294939249754,
+              "gather": 0.257750041782856,
+              "attention": 0.6037079729139805
+            },
+            {
+              "pool_update": 0.7544170366600156,
+              "score": 0.3373750951141119,
+              "selection": 0.26179198175668716,
+              "expand": 0.4148329608142376,
+              "gather": 0.2660419559106231,
+              "attention": 0.6708750734105706
+            },
+            {
+              "pool_update": 0.5843330873176455,
+              "score": 0.34154101740568876,
+              "selection": 0.26245799381285906,
+              "expand": 0.4059999482706189,
+              "gather": 0.26433297898620367,
+              "attention": 0.5779999773949385
+            },
+            {
+              "pool_update": 0.6425830069929361,
+              "score": 0.33475004602223635,
+              "selection": 0.2609170041978359,
+              "expand": 0.41208299808204174,
+              "gather": 0.26133295614272356,
+              "attention": 0.5811250302940607
+            }
+          ],
+          "pool_update_ms": 0.5951659986749291,
+          "score_ms": 0.34154101740568876,
+          "selection_ms": 0.26245799381285906,
+          "expand_ms": 0.41333294939249754,
+          "gather_ms": 0.26433297898620367,
+          "attention_ms": 0.5965420277789235,
+          "synchronized_phase_sum_ms": 2.4733729660511017,
+          "active_memory_bytes": 162431544,
+          "peak_memory_bytes": 183575062,
+          "working_peak_bytes": 21159926,
+          "index_hash": "e6e889a8fb1d5cd66ab18aa5b03be3370288a9576d9bec245776f712246b09b9",
+          "output_hash": "1ab3e5aa01e495b10cb981457f842f01594a69d1d3956d076ad8faf6922c4d8c",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 3376,
+          "valid_index_max": 8191,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "e6e889a8fb1d5cd66ab18aa5b03be3370288a9576d9bec245776f712246b09b9",
+          "reference_attention_output_hash": "1ab3e5aa01e495b10cb981457f842f01594a69d1d3956d076ad8faf6922c4d8c",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.1633784064803996
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "16384": {
+      "context_tokens": 16384,
+      "context_mod_index_kpool": 0,
+      "pool_count": 4096,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 2.3439580108970404,
+          "warmup_ms": [
+            2.4240839993581176,
+            2.1237500477582216
+          ],
+          "measurement_ms": [
+            2.1130829118192196,
+            2.1912080701440573,
+            2.061709063127637,
+            2.2138330386951566,
+            2.317875041626394
+          ],
+          "unsynchronized_end_to_end_ms": 2.1912080701440573,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.6080000894144177,
+              "score": 0.42225001379847527,
+              "selection": 0.303249922581017,
+              "expand": 0.46399992424994707,
+              "gather": 0.2787499688565731,
+              "attention": 0.6777499802410603
+            },
+            {
+              "pool_update": 0.5413329927250743,
+              "score": 0.32887491397559643,
+              "selection": 0.291000003926456,
+              "expand": 0.40658400394022465,
+              "gather": 0.26162504218518734,
+              "attention": 0.6716670468449593
+            },
+            {
+              "pool_update": 0.5408329889178276,
+              "score": 0.3509159432724118,
+              "selection": 0.288125011138618,
+              "expand": 0.4004590446129441,
+              "gather": 0.2502499846741557,
+              "attention": 0.6293749902397394
+            },
+            {
+              "pool_update": 0.5755829624831676,
+              "score": 0.35870797000825405,
+              "selection": 0.3090419340878725,
+              "expand": 0.42387505527585745,
+              "gather": 0.2558340784162283,
+              "attention": 0.6525419885292649
+            },
+            {
+              "pool_update": 0.6495830602943897,
+              "score": 0.3196250181645155,
+              "selection": 0.298250000923872,
+              "expand": 0.44204096775501966,
+              "gather": 0.25766610633581877,
+              "attention": 0.6557089509442449
+            }
+          ],
+          "pool_update_ms": 0.5755829624831676,
+          "score_ms": 0.3509159432724118,
+          "selection_ms": 0.298250000923872,
+          "expand_ms": 0.42387505527585745,
+          "gather_ms": 0.25766610633581877,
+          "attention_ms": 0.6557089509442449,
+          "synchronized_phase_sum_ms": 2.5619990192353725,
+          "active_memory_bytes": 175630879,
+          "peak_memory_bytes": 189015025,
+          "working_peak_bytes": 13408721,
+          "index_hash": "75e2580610ec97028e9c1d9515b62f8c9888930ce1a9b53314efe86601e67331",
+          "output_hash": "4aad9cc23e79382e7adeb3413925d19a38d1f36c4d78f138ad93fb9a114322d1",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 3876,
+          "valid_index_max": 16383,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "75e2580610ec97028e9c1d9515b62f8c9888930ce1a9b53314efe86601e67331",
+          "reference_attention_output_hash": "4aad9cc23e79382e7adeb3413925d19a38d1f36c4d78f138ad93fb9a114322d1",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0640057178881217
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.2596250055357814,
+          "warmup_ms": [
+            2.630457980558276,
+            2.5338749401271343
+          ],
+          "measurement_ms": [
+            2.634832984767854,
+            2.6775419246405363,
+            2.6082079857587814,
+            2.1387500455603004,
+            2.545249997638166
+          ],
+          "unsynchronized_end_to_end_ms": 2.6082079857587814,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.0019580367952585,
+              "score": 0.4165000282227993,
+              "selection": 0.3440839936956763,
+              "expand": 0.5057910457253456,
+              "gather": 0.35208300687372684,
+              "attention": 0.9023330640047789
+            },
+            {
+              "pool_update": 1.0015420848503709,
+              "score": 0.9656670736148953,
+              "selection": 0.7986669661477208,
+              "expand": 0.4927909467369318,
+              "gather": 0.36995799746364355,
+              "attention": 0.8105420274659991
+            },
+            {
+              "pool_update": 0.6180829368531704,
+              "score": 0.3748330054804683,
+              "selection": 0.28879207093268633,
+              "expand": 0.3969579702243209,
+              "gather": 0.25779101997613907,
+              "attention": 0.5957079119980335
+            },
+            {
+              "pool_update": 0.6213749293237925,
+              "score": 0.3568340325728059,
+              "selection": 0.2815000480040908,
+              "expand": 0.41041604708880186,
+              "gather": 0.265000038780272,
+              "attention": 0.5919159157201648
+            },
+            {
+              "pool_update": 0.651458976790309,
+              "score": 0.34920801408588886,
+              "selection": 0.2842079848051071,
+              "expand": 0.4175840876996517,
+              "gather": 0.262749963440001,
+              "attention": 0.8403749670833349
+            }
+          ],
+          "pool_update_ms": 0.651458976790309,
+          "score_ms": 0.3748330054804683,
+          "selection_ms": 0.28879207093268633,
+          "expand_ms": 0.4175840876996517,
+          "gather_ms": 0.265000038780272,
+          "attention_ms": 0.8105420274659991,
+          "synchronized_phase_sum_ms": 2.8082102071493864,
+          "active_memory_bytes": 175622700,
+          "peak_memory_bytes": 214731273,
+          "working_peak_bytes": 39124969,
+          "index_hash": "75e2580610ec97028e9c1d9515b62f8c9888930ce1a9b53314efe86601e67331",
+          "output_hash": "4aad9cc23e79382e7adeb3413925d19a38d1f36c4d78f138ad93fb9a114322d1",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 3876,
+          "valid_index_max": 16383,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "75e2580610ec97028e9c1d9515b62f8c9888930ce1a9b53314efe86601e67331",
+          "reference_attention_output_hash": "4aad9cc23e79382e7adeb3413925d19a38d1f36c4d78f138ad93fb9a114322d1",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9805743852439992
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "32768": {
+      "context_tokens": 32768,
+      "context_mod_index_kpool": 0,
+      "pool_count": 8192,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 2.990624983794987,
+          "warmup_ms": [
+            2.0557079697027802,
+            2.598667051643133
+          ],
+          "measurement_ms": [
+            2.478917012922466,
+            2.4775000056251884,
+            2.4681660579517484,
+            2.458499977365136,
+            2.6243749307468534
+          ],
+          "unsynchronized_end_to_end_ms": 2.4775000056251884,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.6615830352529883,
+              "score": 1.0810840176418424,
+              "selection": 0.3821669379249215,
+              "expand": 0.5046670557931066,
+              "gather": 0.3144160145893693,
+              "attention": 0.8467499865218997
+            },
+            {
+              "pool_update": 0.6686249980702996,
+              "score": 0.6155420560389757,
+              "selection": 0.37479097954928875,
+              "expand": 0.49454206600785255,
+              "gather": 0.3024999750778079,
+              "attention": 0.8519170805811882
+            },
+            {
+              "pool_update": 0.6546659860759974,
+              "score": 0.3802090650424361,
+              "selection": 0.337958917953074,
+              "expand": 0.45983295422047377,
+              "gather": 0.2716669114306569,
+              "attention": 0.7346250349655747
+            },
+            {
+              "pool_update": 0.6217920454218984,
+              "score": 0.36474992521107197,
+              "selection": 0.33820897806435823,
+              "expand": 0.4396250005811453,
+              "gather": 0.2667919034138322,
+              "attention": 0.8103339932858944
+            },
+            {
+              "pool_update": 0.7351660169661045,
+              "score": 0.3749579191207886,
+              "selection": 0.5127920303493738,
+              "expand": 0.48200006131082773,
+              "gather": 0.2996249822899699,
+              "attention": 0.9095000568777323
+            }
+          ],
+          "pool_update_ms": 0.6615830352529883,
+          "score_ms": 0.3802090650424361,
+          "selection_ms": 0.37479097954928875,
+          "expand_ms": 0.48200006131082773,
+          "gather_ms": 0.2996249822899699,
+          "attention_ms": 0.8467499865218997,
+          "synchronized_phase_sum_ms": 3.0449581099674106,
+          "active_memory_bytes": 202005036,
+          "peak_memory_bytes": 225530886,
+          "working_peak_bytes": 23542246,
+          "index_hash": "7bab914dc8a72fd9ac91bad9f62473a42273c3c723745751c05581f72e728d87",
+          "output_hash": "098bfd326360956acbd0860b17ea68b555a8bc371d4704af9a61cf80051e82c6",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32767,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "7bab914dc8a72fd9ac91bad9f62473a42273c3c723745751c05581f72e728d87",
+          "reference_attention_output_hash": "098bfd326360956acbd0860b17ea68b555a8bc371d4704af9a61cf80051e82c6",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9410526379101009
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.415457973256707,
+          "warmup_ms": [
+            2.7927079936489463,
+            2.736958907917142
+          ],
+          "measurement_ms": [
+            2.818582928739488,
+            2.809333032928407,
+            2.8009170200675726,
+            2.7689170092344284,
+            2.8791659278795123
+          ],
+          "unsynchronized_end_to_end_ms": 2.809333032928407,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.2265410041436553,
+              "score": 0.4177909577265382,
+              "selection": 0.3585410304367542,
+              "expand": 1.1347909457981586,
+              "gather": 0.874500023201108,
+              "attention": 1.2381250271573663
+            },
+            {
+              "pool_update": 1.123082940466702,
+              "score": 0.3955001011490822,
+              "selection": 0.3327080048620701,
+              "expand": 0.4574580816552043,
+              "gather": 0.2975839888677001,
+              "attention": 0.8008750155568123
+            },
+            {
+              "pool_update": 1.1432080063968897,
+              "score": 0.40787504985928535,
+              "selection": 0.3528749803081155,
+              "expand": 0.47279195860028267,
+              "gather": 0.28499995823949575,
+              "attention": 0.8854579646140337
+            },
+            {
+              "pool_update": 1.1553330114111304,
+              "score": 0.561458058655262,
+              "selection": 0.33724994864314795,
+              "expand": 0.4164999118074775,
+              "gather": 0.2643340267241001,
+              "attention": 0.6032499950379133
+            },
+            {
+              "pool_update": 0.9237920166924596,
+              "score": 0.3536250442266464,
+              "selection": 0.3060409799218178,
+              "expand": 0.40966691449284554,
+              "gather": 0.26899995282292366,
+              "attention": 0.5897500086575747
+            }
+          ],
+          "pool_update_ms": 1.1432080063968897,
+          "score_ms": 0.40787504985928535,
+          "selection_ms": 0.33724994864314795,
+          "expand_ms": 0.4574580816552043,
+          "gather_ms": 0.28499995823949575,
+          "attention_ms": 0.8008750155568123,
+          "synchronized_phase_sum_ms": 3.4316660603508353,
+          "active_memory_bytes": 202005036,
+          "peak_memory_bytes": 277002782,
+          "working_peak_bytes": 75014142,
+          "index_hash": "7bab914dc8a72fd9ac91bad9f62473a42273c3c723745751c05581f72e728d87",
+          "output_hash": "098bfd326360956acbd0860b17ea68b555a8bc371d4704af9a61cf80051e82c6",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32767,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "7bab914dc8a72fd9ac91bad9f62473a42273c3c723745751c05581f72e728d87",
+          "reference_attention_output_hash": "098bfd326360956acbd0860b17ea68b555a8bc371d4704af9a61cf80051e82c6",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9103733563257762
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "32769": {
+      "context_tokens": 32769,
+      "context_mod_index_kpool": 1,
+      "pool_count": 8193,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2049,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 3.4361250000074506,
+          "warmup_ms": [
+            2.303791930899024,
+            2.751499996520579
+          ],
+          "measurement_ms": [
+            2.8230840107426047,
+            2.8345000464469194,
+            2.7875000378116965,
+            2.8951249551028013,
+            2.8400419978424907
+          ],
+          "unsynchronized_end_to_end_ms": 2.8345000464469194,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.7530830334872007,
+              "score": 0.4064170643687248,
+              "selection": 0.3687090938910842,
+              "expand": 0.5297919269651175,
+              "gather": 0.32783299684524536,
+              "attention": 1.3128749560564756
+            },
+            {
+              "pool_update": 0.7261249702423811,
+              "score": 0.4030829295516014,
+              "selection": 0.3743750276044011,
+              "expand": 0.5003750557079911,
+              "gather": 0.30204211361706257,
+              "attention": 0.9725000709295273
+            },
+            {
+              "pool_update": 0.7164579583331943,
+              "score": 0.41620898991823196,
+              "selection": 0.36987499333918095,
+              "expand": 0.4820829490199685,
+              "gather": 0.2853330224752426,
+              "attention": 0.7973749889060855
+            },
+            {
+              "pool_update": 0.9632919682189822,
+              "score": 0.4080419894307852,
+              "selection": 0.4047499969601631,
+              "expand": 0.5041660042479634,
+              "gather": 0.3012079978361726,
+              "attention": 0.8582919836044312
+            },
+            {
+              "pool_update": 0.6899581057950854,
+              "score": 0.40266697760671377,
+              "selection": 0.35491702146828175,
+              "expand": 0.4933339077979326,
+              "gather": 0.30924996826797724,
+              "attention": 0.8628750219941139
+            }
+          ],
+          "pool_update_ms": 0.7261249702423811,
+          "score_ms": 0.4064170643687248,
+          "selection_ms": 0.36987499333918095,
+          "expand_ms": 0.5003750557079911,
+          "gather_ms": 0.30204211361706257,
+          "attention_ms": 0.8628750219941139,
+          "synchronized_phase_sum_ms": 3.1677092192694545,
+          "active_memory_bytes": 202013216,
+          "peak_memory_bytes": 260158451,
+          "working_peak_bytes": 58169811,
+          "index_hash": "85bb0899e2ca19b9494e6946c775e27638e08d2b147de20d8e0d720844462956",
+          "output_hash": "195d77f55f59e4607116ab69de3a24178b3b487e312f1d5b255813c2198a8a02",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32768,
+          "valid_index_count": 2049,
+          "sentinel_count": 2,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "85bb0899e2ca19b9494e6946c775e27638e08d2b147de20d8e0d720844462956",
+          "reference_attention_output_hash": "195d77f55f59e4607116ab69de3a24178b3b487e312f1d5b255813c2198a8a02",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.8225287978521589
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 4.041500040329993,
+          "warmup_ms": [
+            3.1165831023827195,
+            3.259790944866836
+          ],
+          "measurement_ms": [
+            3.085833042860031,
+            2.9826249228790402,
+            2.6236670091748238,
+            2.686999971047044,
+            2.619249979034066
+          ],
+          "unsynchronized_end_to_end_ms": 2.686999971047044,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.1921669356524944,
+              "score": 0.4342499887570739,
+              "selection": 0.32470899168401957,
+              "expand": 0.43887493666261435,
+              "gather": 0.2829579170793295,
+              "attention": 0.6082090549170971
+            },
+            {
+              "pool_update": 1.0325410403311253,
+              "score": 0.40662498213350773,
+              "selection": 0.3162079956382513,
+              "expand": 0.44733297545462847,
+              "gather": 0.27270906139165163,
+              "attention": 0.7493749726563692
+            },
+            {
+              "pool_update": 1.027249963954091,
+              "score": 0.3896660637110472,
+              "selection": 0.3172500291839242,
+              "expand": 0.43224997352808714,
+              "gather": 0.2696249866858125,
+              "attention": 0.8937499951571226
+            },
+            {
+              "pool_update": 0.9706669952720404,
+              "score": 0.3397089894860983,
+              "selection": 0.2910420298576355,
+              "expand": 0.9366250596940517,
+              "gather": 0.27058308478444815,
+              "attention": 0.6889579817652702
+            },
+            {
+              "pool_update": 0.9123330237343907,
+              "score": 0.3513749688863754,
+              "selection": 0.308999908156693,
+              "expand": 0.4077089251950383,
+              "gather": 0.2523750299587846,
+              "attention": 0.6103749619796872
+            }
+          ],
+          "pool_update_ms": 1.027249963954091,
+          "score_ms": 0.3896660637110472,
+          "selection_ms": 0.3162079956382513,
+          "expand_ms": 0.43887493666261435,
+          "gather_ms": 0.27058308478444815,
+          "attention_ms": 0.6889579817652702,
+          "synchronized_phase_sum_ms": 3.1315400265157223,
+          "active_memory_bytes": 202005036,
+          "peak_memory_bytes": 311892519,
+          "working_peak_bytes": 109903879,
+          "index_hash": "85bb0899e2ca19b9494e6946c775e27638e08d2b147de20d8e0d720844462956",
+          "output_hash": "195d77f55f59e4607116ab69de3a24178b3b487e312f1d5b255813c2198a8a02",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32768,
+          "valid_index_count": 2049,
+          "sentinel_count": 2,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "85bb0899e2ca19b9494e6946c775e27638e08d2b147de20d8e0d720844462956",
+          "reference_attention_output_hash": "195d77f55f59e4607116ab69de3a24178b3b487e312f1d5b255813c2198a8a02",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9518206065433297
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "32770": {
+      "context_tokens": 32770,
+      "context_mod_index_kpool": 2,
+      "pool_count": 8193,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2050,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 2.6238750433549285,
+          "warmup_ms": [
+            1.5699160285294056,
+            2.2297080140560865
+          ],
+          "measurement_ms": [
+            2.1871670614928007,
+            2.4195410078391433,
+            2.252667094580829,
+            2.1866250317543745,
+            2.331791096366942
+          ],
+          "unsynchronized_end_to_end_ms": 2.252667094580829,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.6009580101817846,
+              "score": 0.3903749166056514,
+              "selection": 0.36237493623048067,
+              "expand": 0.42816600762307644,
+              "gather": 0.2652079565450549,
+              "attention": 0.6422919686883688
+            },
+            {
+              "pool_update": 1.236374955624342,
+              "score": 0.3595419693738222,
+              "selection": 0.3711250610649586,
+              "expand": 0.4348339280113578,
+              "gather": 0.2699160249903798,
+              "attention": 0.8399999933317304
+            },
+            {
+              "pool_update": 0.6162910722196102,
+              "score": 0.3701249370351434,
+              "selection": 0.3391669597476721,
+              "expand": 0.42325002141296864,
+              "gather": 0.27429196052253246,
+              "attention": 0.7980830268934369
+            },
+            {
+              "pool_update": 0.6136669544503093,
+              "score": 0.39287505205720663,
+              "selection": 0.4151250468567014,
+              "expand": 0.428540981374681,
+              "gather": 0.26245799381285906,
+              "attention": 0.7674999069422483
+            },
+            {
+              "pool_update": 0.5755840102210641,
+              "score": 0.3701250534504652,
+              "selection": 0.39779196958988905,
+              "expand": 0.41799992322921753,
+              "gather": 0.2618340076878667,
+              "attention": 0.5870830500498414
+            }
+          ],
+          "pool_update_ms": 0.6136669544503093,
+          "score_ms": 0.3701250534504652,
+          "selection_ms": 0.3711250610649586,
+          "expand_ms": 0.42816600762307644,
+          "gather_ms": 0.2652079565450549,
+          "attention_ms": 0.7674999069422483,
+          "synchronized_phase_sum_ms": 2.8157909400761127,
+          "active_memory_bytes": 202455585,
+          "peak_memory_bytes": 226358268,
+          "working_peak_bytes": 23927259,
+          "index_hash": "24df8c538422c874450f5c4710e555b1783c6366abb37bbbbbb2956c274d4a9c",
+          "output_hash": "b3ed352ea918a2612bb87629612ae4bf6cc0d1d63a3aa21a41673f607f213e46",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32769,
+          "valid_index_count": 2050,
+          "sentinel_count": 1,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "24df8c538422c874450f5c4710e555b1783c6366abb37bbbbbb2956c274d4a9c",
+          "reference_attention_output_hash": "b3ed352ea918a2612bb87629612ae4bf6cc0d1d63a3aa21a41673f607f213e46",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0349766822290736
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.4861249839887023,
+          "warmup_ms": [
+            2.6663329917937517,
+            2.8335420647636056
+          ],
+          "measurement_ms": [
+            2.7170419925823808,
+            2.812832943163812,
+            2.7982910396531224,
+            2.841499983333051,
+            2.808250021189451
+          ],
+          "unsynchronized_end_to_end_ms": 2.808250021189451,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.2552500702440739,
+              "score": 0.4122920800000429,
+              "selection": 0.3751249751076102,
+              "expand": 0.6240420043468475,
+              "gather": 0.3106669755652547,
+              "attention": 0.7852090056985617
+            },
+            {
+              "pool_update": 1.1020409874618053,
+              "score": 0.3819169942289591,
+              "selection": 0.354000017978251,
+              "expand": 0.4669589689001441,
+              "gather": 0.28479204047471285,
+              "attention": 0.724583980627358
+            },
+            {
+              "pool_update": 1.5496249543502927,
+              "score": 1.0165419662371278,
+              "selection": 0.3850000211969018,
+              "expand": 0.49637502525001764,
+              "gather": 0.6586250383406878,
+              "attention": 0.6610830314457417
+            },
+            {
+              "pool_update": 0.9732089238241315,
+              "score": 0.35295903217047453,
+              "selection": 0.2988340565934777,
+              "expand": 0.43925002682954073,
+              "gather": 0.2615000121295452,
+              "attention": 0.5854169139638543
+            },
+            {
+              "pool_update": 0.9347909362986684,
+              "score": 0.3513749688863754,
+              "selection": 0.3053749678656459,
+              "expand": 0.410082982853055,
+              "gather": 0.27470896020531654,
+              "attention": 0.6344580324366689
+            }
+          ],
+          "pool_update_ms": 1.1020409874618053,
+          "score_ms": 0.3819169942289591,
+          "selection_ms": 0.354000017978251,
+          "expand_ms": 0.4669589689001441,
+          "gather_ms": 0.28479204047471285,
+          "attention_ms": 0.6610830314457417,
+          "synchronized_phase_sum_ms": 3.250792040489614,
+          "active_memory_bytes": 202447405,
+          "peak_memory_bytes": 278059556,
+          "working_peak_bytes": 75628547,
+          "index_hash": "24df8c538422c874450f5c4710e555b1783c6366abb37bbbbbb2956c274d4a9c",
+          "output_hash": "b3ed352ea918a2612bb87629612ae4bf6cc0d1d63a3aa21a41673f607f213e46",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32769,
+          "valid_index_count": 2050,
+          "sentinel_count": 1,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "24df8c538422c874450f5c4710e555b1783c6366abb37bbbbbb2956c274d4a9c",
+          "reference_attention_output_hash": "b3ed352ea918a2612bb87629612ae4bf6cc0d1d63a3aa21a41673f607f213e46",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9107244450907702
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "32771": {
+      "context_tokens": 32771,
+      "context_mod_index_kpool": 3,
+      "pool_count": 8193,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2051,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 2.9878750210627913,
+          "warmup_ms": [
+            2.455333014950156,
+            2.47766706161201
+          ],
+          "measurement_ms": [
+            2.5283750146627426,
+            2.6055830530822277,
+            2.5728329783305526,
+            2.5937919272109866,
+            2.100875019095838
+          ],
+          "unsynchronized_end_to_end_ms": 2.5728329783305526,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.5935420049354434,
+              "score": 0.3772920463234186,
+              "selection": 0.3208339912816882,
+              "expand": 0.4235830856487155,
+              "gather": 0.26366603560745716,
+              "attention": 0.6052500102669001
+            },
+            {
+              "pool_update": 0.5538749974220991,
+              "score": 0.35024993121623993,
+              "selection": 0.31170807778835297,
+              "expand": 0.41679199784994125,
+              "gather": 0.2625000197440386,
+              "attention": 0.5862090038135648
+            },
+            {
+              "pool_update": 0.6296670762822032,
+              "score": 0.34383300226181746,
+              "selection": 0.3119170432910323,
+              "expand": 0.4189580213278532,
+              "gather": 0.26658305432647467,
+              "attention": 0.5727499956265092
+            },
+            {
+              "pool_update": 0.559207983314991,
+              "score": 0.3464579349383712,
+              "selection": 0.3118750173598528,
+              "expand": 0.41687500197440386,
+              "gather": 0.2514580264687538,
+              "attention": 0.5644999910145998
+            },
+            {
+              "pool_update": 0.5457500228658319,
+              "score": 0.34970801789313555,
+              "selection": 0.3145829541608691,
+              "expand": 0.41212502401322126,
+              "gather": 0.26816700119525194,
+              "attention": 0.57516701053828
+            }
+          ],
+          "pool_update_ms": 0.559207983314991,
+          "score_ms": 0.34970801789313555,
+          "selection_ms": 0.3119170432910323,
+          "expand_ms": 0.41687500197440386,
+          "gather_ms": 0.26366603560745716,
+          "attention_ms": 0.57516701053828,
+          "synchronized_phase_sum_ms": 2.4765410926193,
+          "active_memory_bytes": 202455585,
+          "peak_memory_bytes": 226358276,
+          "working_peak_bytes": 23927267,
+          "index_hash": "963f06f9da5a7476c6c1dc7536c582ed8f267b6c7256036ba0606b1e00753f22",
+          "output_hash": "df232247b473db5270eca151107239f67381b50cce35ef04aac209d82d15057f",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32770,
+          "valid_index_count": 2051,
+          "sentinel_count": 0,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "963f06f9da5a7476c6c1dc7536c582ed8f267b6c7256036ba0606b1e00753f22",
+          "reference_attention_output_hash": "df232247b473db5270eca151107239f67381b50cce35ef04aac209d82d15057f",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9061831589350579
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.4832499912008643,
+          "warmup_ms": [
+            2.4269999703392386,
+            2.4387090234085917
+          ],
+          "measurement_ms": [
+            2.415916998870671,
+            2.4328749859705567,
+            2.3937089135870337,
+            2.40062503144145,
+            2.4296670453622937
+          ],
+          "unsynchronized_end_to_end_ms": 2.415916998870671,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.5197920147329569,
+              "score": 0.38650003261864185,
+              "selection": 0.33704203087836504,
+              "expand": 0.4355000564828515,
+              "gather": 0.26637502014636993,
+              "attention": 0.6277499487623572
+            },
+            {
+              "pool_update": 0.8571249200031161,
+              "score": 0.3450830699875951,
+              "selection": 0.32333401031792164,
+              "expand": 0.429541920311749,
+              "gather": 0.3095410065725446,
+              "attention": 0.6277499487623572
+            },
+            {
+              "pool_update": 0.868583912961185,
+              "score": 0.3392499638721347,
+              "selection": 0.32279209699481726,
+              "expand": 0.4431669367477298,
+              "gather": 0.3119169268757105,
+              "attention": 0.6175839807838202
+            },
+            {
+              "pool_update": 0.9466659976169467,
+              "score": 0.35975000355392694,
+              "selection": 0.31620904337614775,
+              "expand": 0.6140000186860561,
+              "gather": 0.2668329980224371,
+              "attention": 0.6472080713137984
+            },
+            {
+              "pool_update": 0.93029101844877,
+              "score": 0.3542499616742134,
+              "selection": 0.31691696494817734,
+              "expand": 0.5177080165594816,
+              "gather": 0.2691670088097453,
+              "attention": 0.6322499830275774
+            }
+          ],
+          "pool_update_ms": 0.93029101844877,
+          "score_ms": 0.3542499616742134,
+          "selection_ms": 0.32279209699481726,
+          "expand_ms": 0.4431669367477298,
+          "gather_ms": 0.2691670088097453,
+          "attention_ms": 0.6277499487623572,
+          "synchronized_phase_sum_ms": 2.947416971437633,
+          "active_memory_bytes": 202447405,
+          "peak_memory_bytes": 278059556,
+          "working_peak_bytes": 75628547,
+          "index_hash": "963f06f9da5a7476c6c1dc7536c582ed8f267b6c7256036ba0606b1e00753f22",
+          "output_hash": "df232247b473db5270eca151107239f67381b50cce35ef04aac209d82d15057f",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4156,
+          "valid_index_max": 32770,
+          "valid_index_count": 2051,
+          "sentinel_count": 0,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "963f06f9da5a7476c6c1dc7536c582ed8f267b6c7256036ba0606b1e00753f22",
+          "reference_attention_output_hash": "df232247b473db5270eca151107239f67381b50cce35ef04aac209d82d15057f",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0586216096908292
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "65536": {
+      "context_tokens": 65536,
+      "context_mod_index_kpool": 0,
+      "pool_count": 16384,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 3.0789169250056148,
+          "warmup_ms": [
+            2.42604105733335,
+            2.5364579632878304
+          ],
+          "measurement_ms": [
+            2.5921670021489263,
+            2.5599170476198196,
+            2.5781249860301614,
+            2.531916950829327,
+            2.607082948088646
+          ],
+          "unsynchronized_end_to_end_ms": 2.5781249860301614,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.3300409773364663,
+              "score": 0.44466706458479166,
+              "selection": 0.41333306580781937,
+              "expand": 0.5162089364603162,
+              "gather": 0.3175840247422457,
+              "attention": 1.0420839535072446
+            },
+            {
+              "pool_update": 0.7451670244336128,
+              "score": 0.43275009375065565,
+              "selection": 0.3886669874191284,
+              "expand": 0.5004999693483114,
+              "gather": 0.3365409793332219,
+              "attention": 0.851290998980403
+            },
+            {
+              "pool_update": 0.735584064386785,
+              "score": 0.4277910338714719,
+              "selection": 0.3983329515904188,
+              "expand": 0.49541692715138197,
+              "gather": 0.3392089856788516,
+              "attention": 0.8518750546500087
+            },
+            {
+              "pool_update": 0.7602910045534372,
+              "score": 0.3753750352188945,
+              "selection": 0.31933397985994816,
+              "expand": 0.4319580039009452,
+              "gather": 0.25991699658334255,
+              "attention": 0.5747500108554959
+            },
+            {
+              "pool_update": 0.6343330023810267,
+              "score": 0.3802089486271143,
+              "selection": 0.3264169208705425,
+              "expand": 0.42095896787941456,
+              "gather": 0.2638750011101365,
+              "attention": 0.623667030595243
+            }
+          ],
+          "pool_update_ms": 0.7451670244336128,
+          "score_ms": 0.4277910338714719,
+          "selection_ms": 0.3886669874191284,
+          "expand_ms": 0.49541692715138197,
+          "gather_ms": 0.3175840247422457,
+          "attention_ms": 0.851290998980403,
+          "synchronized_phase_sum_ms": 3.2259169965982437,
+          "active_memory_bytes": 254769708,
+          "peak_memory_bytes": 298578966,
+          "working_peak_bytes": 43825654,
+          "index_hash": "5f7bb20d8594104434edb825472b546d93f20fc92c73a0c5961dc2de98d246a2",
+          "output_hash": "393e472e19786f0d26bd8fa3139910f84b571646b91c7a787bd91e4ec0e821c9",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4216,
+          "valid_index_max": 65535,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "5f7bb20d8594104434edb825472b546d93f20fc92c73a0c5961dc2de98d246a2",
+          "reference_attention_output_hash": "393e472e19786f0d26bd8fa3139910f84b571646b91c7a787bd91e4ec0e821c9",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.9043230752384468
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 3.2362909987568855,
+          "warmup_ms": [
+            3.2973330235108733,
+            3.4837090643122792
+          ],
+          "measurement_ms": [
+            3.234541043639183,
+            3.218333004042506,
+            3.248874912969768,
+            3.2986250007525086,
+            2.7220830088481307
+          ],
+          "unsynchronized_end_to_end_ms": 3.234541043639183,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.7881669336929917,
+              "score": 0.4034999292343855,
+              "selection": 0.3240840742364526,
+              "expand": 0.44112501200288534,
+              "gather": 0.2686670050024986,
+              "attention": 0.5998749984428287
+            },
+            {
+              "pool_update": 1.1382920201867819,
+              "score": 0.39941701106727123,
+              "selection": 0.3433340461924672,
+              "expand": 0.4699999699369073,
+              "gather": 0.2626249333843589,
+              "attention": 0.5891660694032907
+            },
+            {
+              "pool_update": 1.1263330234214664,
+              "score": 0.4046660615131259,
+              "selection": 0.3279589582234621,
+              "expand": 0.4520000657066703,
+              "gather": 0.2686670050024986,
+              "attention": 0.643208040855825
+            },
+            {
+              "pool_update": 1.0947920382022858,
+              "score": 0.37829100620001554,
+              "selection": 0.30308403074741364,
+              "expand": 0.40675001218914986,
+              "gather": 0.2644170308485627,
+              "attention": 0.6211251020431519
+            },
+            {
+              "pool_update": 1.1059580137953162,
+              "score": 0.38649991620332,
+              "selection": 0.3089590463787317,
+              "expand": 0.3878750139847398,
+              "gather": 0.29983301647007465,
+              "attention": 0.6172499852254987
+            }
+          ],
+          "pool_update_ms": 1.1263330234214664,
+          "score_ms": 0.39941701106727123,
+          "selection_ms": 0.3240840742364526,
+          "expand_ms": 0.44112501200288534,
+          "gather_ms": 0.2686670050024986,
+          "attention_ms": 0.6172499852254987,
+          "synchronized_phase_sum_ms": 3.176876110956073,
+          "active_memory_bytes": 254769708,
+          "peak_memory_bytes": 401463854,
+          "working_peak_bytes": 146710542,
+          "index_hash": "5f7bb20d8594104434edb825472b546d93f20fc92c73a0c5961dc2de98d246a2",
+          "output_hash": "393e472e19786f0d26bd8fa3139910f84b571646b91c7a787bd91e4ec0e821c9",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4216,
+          "valid_index_max": 65535,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "5f7bb20d8594104434edb825472b546d93f20fc92c73a0c5961dc2de98d246a2",
+          "reference_attention_output_hash": "393e472e19786f0d26bd8fa3139910f84b571646b91c7a787bd91e4ec0e821c9",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.7906970131831795
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "131072": {
+      "context_tokens": 131072,
+      "context_mod_index_kpool": 0,
+      "pool_count": 32768,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 3.4673340851441026,
+          "warmup_ms": [
+            2.262833993881941,
+            2.3230420192703605
+          ],
+          "measurement_ms": [
+            1.6557920025661588,
+            2.305875066667795,
+            2.396999974735081,
+            2.2868330124765635,
+            2.4119580630213022
+          ],
+          "unsynchronized_end_to_end_ms": 2.305875066667795,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.8193750400096178,
+              "score": 0.40200003422796726,
+              "selection": 0.36708300467580557,
+              "expand": 0.45308296103030443,
+              "gather": 0.293583027087152,
+              "attention": 0.6149170221760869
+            },
+            {
+              "pool_update": 0.6465420592576265,
+              "score": 0.6140840705484152,
+              "selection": 0.34845806658267975,
+              "expand": 0.44000009074807167,
+              "gather": 0.28674991335719824,
+              "attention": 0.606709043495357
+            },
+            {
+              "pool_update": 0.7090000435709953,
+              "score": 0.43825001921504736,
+              "selection": 0.3462500171735883,
+              "expand": 0.4454590380191803,
+              "gather": 0.28204103000462055,
+              "attention": 0.5997499683871865
+            },
+            {
+              "pool_update": 0.661000027321279,
+              "score": 0.40895806159824133,
+              "selection": 0.4099590005353093,
+              "expand": 0.4527500132098794,
+              "gather": 0.27591700199991465,
+              "attention": 0.671791029162705
+            },
+            {
+              "pool_update": 0.7996249478310347,
+              "score": 0.4096659831702709,
+              "selection": 0.31541602220386267,
+              "expand": 0.408291001804173,
+              "gather": 0.2626250497996807,
+              "attention": 0.5813749739900231
+            }
+          ],
+          "pool_update_ms": 0.7090000435709953,
+          "score_ms": 0.4096659831702709,
+          "selection_ms": 0.34845806658267975,
+          "expand_ms": 0.4454590380191803,
+          "gather_ms": 0.28204103000462055,
+          "attention_ms": 0.606709043495357,
+          "synchronized_phase_sum_ms": 2.801333204843104,
+          "active_memory_bytes": 360299052,
+          "peak_memory_bytes": 444675126,
+          "working_peak_bytes": 84392470,
+          "index_hash": "852814e62138871c2b38e5c4de8e73bc576f7958a8c91cfab85b1e712fab709e",
+          "output_hash": "b02e9a75534bdd6572c2e20e6814a4c94f2c44a40d30f47ee1579dcc629055c9",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4256,
+          "valid_index_max": 131071,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "852814e62138871c2b38e5c4de8e73bc576f7958a8c91cfab85b1e712fab709e",
+          "reference_attention_output_hash": "b02e9a75534bdd6572c2e20e6814a4c94f2c44a40d30f47ee1579dcc629055c9",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 1.0110946379610444
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 2.9232080560177565,
+          "warmup_ms": [
+            3.498333040624857,
+            3.5287500359117985
+          ],
+          "measurement_ms": [
+            3.6736249458044767,
+            3.8061250234022737,
+            3.557250020094216,
+            4.175665904767811,
+            3.480167011730373
+          ],
+          "unsynchronized_end_to_end_ms": 3.6736249458044767,
+          "phase_samples_ms": [
+            {
+              "pool_update": 1.8869590712711215,
+              "score": 0.4390830872580409,
+              "selection": 0.36225002259016037,
+              "expand": 0.4689999623224139,
+              "gather": 0.2821669913828373,
+              "attention": 0.61495800036937
+            },
+            {
+              "pool_update": 1.6593750333413482,
+              "score": 0.43162505608052015,
+              "selection": 0.34675002098083496,
+              "expand": 0.4631670890375972,
+              "gather": 0.3124590730294585,
+              "attention": 0.5892079789191484
+            },
+            {
+              "pool_update": 1.6580830560997128,
+              "score": 0.4235419910401106,
+              "selection": 0.3512080293148756,
+              "expand": 0.4455000162124634,
+              "gather": 0.3184169763699174,
+              "attention": 0.6005410104990005
+            },
+            {
+              "pool_update": 1.6527080442756414,
+              "score": 0.41816604789346457,
+              "selection": 0.33962505403906107,
+              "expand": 0.49879192374646664,
+              "gather": 0.2937909448519349,
+              "attention": 0.6261250237002969
+            },
+            {
+              "pool_update": 1.6626249998807907,
+              "score": 0.42183289770036936,
+              "selection": 0.5125000607222319,
+              "expand": 0.4756670678034425,
+              "gather": 0.2615000121295452,
+              "attention": 0.5907079903408885
+            }
+          ],
+          "pool_update_ms": 1.6593750333413482,
+          "score_ms": 0.4235419910401106,
+          "selection_ms": 0.3512080293148756,
+          "expand_ms": 0.4689999623224139,
+          "gather_ms": 0.2937909448519349,
+          "attention_ms": 0.6005410104990005,
+          "synchronized_phase_sum_ms": 3.7974569713696837,
+          "active_memory_bytes": 360299052,
+          "peak_memory_bytes": 650451534,
+          "working_peak_bytes": 290168878,
+          "index_hash": "852814e62138871c2b38e5c4de8e73bc576f7958a8c91cfab85b1e712fab709e",
+          "output_hash": "b02e9a75534bdd6572c2e20e6814a4c94f2c44a40d30f47ee1579dcc629055c9",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4256,
+          "valid_index_max": 131071,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "852814e62138871c2b38e5c4de8e73bc576f7958a8c91cfab85b1e712fab709e",
+          "reference_attention_output_hash": "b02e9a75534bdd6572c2e20e6814a4c94f2c44a40d30f47ee1579dcc629055c9",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.6961902698164082
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    },
+    "262144": {
+      "context_tokens": 262144,
+      "context_mod_index_kpool": 0,
+      "pool_count": 65536,
+      "selected_pool_count": 512,
+      "expected_valid_selected_tokens": 2048,
+      "selected_token_width": 2051,
+      "modes": {
+        "steady_incremental": {
+          "compile_first_run_ms": 4.883832996711135,
+          "warmup_ms": [
+            2.663542050868273,
+            2.5952919386327267
+          ],
+          "measurement_ms": [
+            2.6140830013900995,
+            2.605208079330623,
+            2.6042500976473093,
+            2.642500097863376,
+            2.826708951033652
+          ],
+          "unsynchronized_end_to_end_ms": 2.6140830013900995,
+          "phase_samples_ms": [
+            {
+              "pool_update": 0.9535829303786159,
+              "score": 0.5334160523489118,
+              "selection": 0.45354210305958986,
+              "expand": 0.5200830055400729,
+              "gather": 0.2984169404953718,
+              "attention": 0.6340000545606017
+            },
+            {
+              "pool_update": 0.9690419537946582,
+              "score": 0.4877500468865037,
+              "selection": 0.3712910693138838,
+              "expand": 0.5009579472243786,
+              "gather": 0.3153340658172965,
+              "attention": 0.637084012851119
+            },
+            {
+              "pool_update": 0.9195000166073442,
+              "score": 0.4682919243350625,
+              "selection": 0.37754199001938105,
+              "expand": 0.46491704415529966,
+              "gather": 0.26454206090420485,
+              "attention": 0.6114579737186432
+            },
+            {
+              "pool_update": 0.927707995288074,
+              "score": 0.4802499897778034,
+              "selection": 0.36112498492002487,
+              "expand": 0.46670797746628523,
+              "gather": 0.30220800545066595,
+              "attention": 0.6394169759005308
+            },
+            {
+              "pool_update": 0.9232909651473165,
+              "score": 0.48633397091180086,
+              "selection": 0.38229196798056364,
+              "expand": 0.4848749376833439,
+              "gather": 0.3070830134674907,
+              "attention": 0.7965420372784138
+            }
+          ],
+          "pool_update_ms": 0.927707995288074,
+          "score_ms": 0.48633397091180086,
+          "selection_ms": 0.37754199001938105,
+          "expand_ms": 0.4848749376833439,
+          "gather_ms": 0.30220800545066595,
+          "attention_ms": 0.637084012851119,
+          "synchronized_phase_sum_ms": 3.215750912204385,
+          "active_memory_bytes": 571357740,
+          "peak_memory_bytes": 736867446,
+          "working_peak_bytes": 165526102,
+          "index_hash": "2a3b5e38e021c98df8eceb3da862ec27616632280d4de725f1fb5efde5fc4490",
+          "output_hash": "fdc54dbe0dddc14261167ff788a43e125c54844f78d04c914c3b80e7ae035a67",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4256,
+          "valid_index_max": 262143,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "2a3b5e38e021c98df8eceb3da862ec27616632280d4de725f1fb5efde5fc4490",
+          "reference_attention_output_hash": "fdc54dbe0dddc14261167ff788a43e125c54844f78d04c914c3b80e7ae035a67",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.8918836603413381
+        },
+        "pool_rebuild": {
+          "compile_first_run_ms": 4.788208054378629,
+          "warmup_ms": [
+            5.574750015512109,
+            5.4001250537112355
+          ],
+          "measurement_ms": [
+            5.6039170594885945,
+            5.850292043760419,
+            5.879165953956544,
+            4.839958040975034,
+            5.034249974414706
+          ],
+          "unsynchronized_end_to_end_ms": 5.6039170594885945,
+          "phase_samples_ms": [
+            {
+              "pool_update": 4.0897500002756715,
+              "score": 0.5546249449253082,
+              "selection": 0.42687496170401573,
+              "expand": 0.5463339621201158,
+              "gather": 0.3472079988569021,
+              "attention": 0.8770839776843786
+            },
+            {
+              "pool_update": 3.38254205416888,
+              "score": 0.475957989692688,
+              "selection": 0.36729208659380674,
+              "expand": 0.4872089484706521,
+              "gather": 0.27724995743483305,
+              "attention": 0.6181669887155294
+            },
+            {
+              "pool_update": 3.1371249351650476,
+              "score": 0.4802079638466239,
+              "selection": 0.5136249819770455,
+              "expand": 0.4746250342577696,
+              "gather": 0.30695798341184855,
+              "attention": 0.6459159776568413
+            },
+            {
+              "pool_update": 3.1169999856501818,
+              "score": 0.4830419784411788,
+              "selection": 0.3696250496432185,
+              "expand": 0.48341602087020874,
+              "gather": 0.2874999772757292,
+              "attention": 0.6070421077311039
+            },
+            {
+              "pool_update": 3.1095000449568033,
+              "score": 0.4817090230062604,
+              "selection": 0.3595419693738222,
+              "expand": 0.4724579630419612,
+              "gather": 0.2971249632537365,
+              "attention": 0.5874589551240206
+            }
+          ],
+          "pool_update_ms": 3.1371249351650476,
+          "score_ms": 0.4817090230062604,
+          "selection_ms": 0.3696250496432185,
+          "expand_ms": 0.48341602087020874,
+          "gather_ms": 0.2971249632537365,
+          "attention_ms": 0.6181669887155294,
+          "synchronized_phase_sum_ms": 5.387166980654001,
+          "active_memory_bytes": 571357740,
+          "peak_memory_bytes": 1148458633,
+          "working_peak_bytes": 577117289,
+          "index_hash": "2a3b5e38e021c98df8eceb3da862ec27616632280d4de725f1fb5efde5fc4490",
+          "output_hash": "fdc54dbe0dddc14261167ff788a43e125c54844f78d04c914c3b80e7ae035a67",
+          "repeated_hash_match": true,
+          "nan_count": 0,
+          "path": "sparse_indexpool",
+          "valid_index_min": 4256,
+          "valid_index_max": 262143,
+          "valid_index_count": 2048,
+          "sentinel_count": 3,
+          "non_sentinel_out_of_range": 0,
+          "selected_token_width": 2051,
+          "reference_indexer_hash": "2a3b5e38e021c98df8eceb3da862ec27616632280d4de725f1fb5efde5fc4490",
+          "reference_attention_output_hash": "fdc54dbe0dddc14261167ff788a43e125c54844f78d04c914c3b80e7ae035a67",
+          "manual_reference_index_match": true,
+          "manual_reference_output_match": true,
+          "sparse_path_retention": 0.45638468861587755
+        }
+      },
+      "steady_rebuild_differential": {
+        "index_hash_match": true,
+        "output_hash_match": true
+      }
+    }
+  },
+  "performance_kpi": {
+    "operator_metric": "latency_ms_at_2049 / latency_ms_at_context",
+    "informational_only": true,
+    "future_full_model_decode_retention_target": 0.8,
+    "future_minimum_decode_tps_at_256k": 15.0
+  },
+  "next_implementation_branch": {
+    "steady_256k_dominant_phase": "pool_update",
+    "pool_rebuild_256k_dominant_phase": "pool_update",
+    "steady_256k_retention": 0.8918836603413381,
+    "pool_rebuild_256k_retention": 0.45638468861587755,
+    "degradation_classification": "pool_rebuild_only",
+    "single_next_candidate": "pool state as first-class session/APC state"
+  },
+  "roadmap": {
+    "dsa_prefill_chunk_sizes": [
+      512,
+      1024,
+      2048,
+      4096,
+      8192
+    ],
+    "shared_metadata": "page table and row metadata may be shared; top-k is per-layer",
+    "shared_row_plan_abi": "not implemented and not present in cache ABI",
+    "state_safety": "idle/dummy forward must not mutate KDA/DSA state",
+    "external_drafter": {
+      "policy": "share target MLA/KV state; avoid an independent drafter KV pool",
+      "benchmark": "acceptance_by_position[0..k-1]",
+      "first_grouped_recheck_routes": 64
+    }
+  },
+  "runtime_policy": {
+    "default_backend": "direct",
+    "packed_grouped_prefill_candidate_stopped": true,
+    "prompt_limit": 256,
+    "server_changed": false,
+    "apc_abi_changed": false,
+    "admission_changed": false
+  },
+  "acceptance": {
+    "all_primary_and_pool_tail_contexts_measured": true,
+    "dense_2048_sparse_2049_transition": true,
+    "all_indices_sentinel_or_in_range": true,
+    "all_unused_slots_minus1": true,
+    "no_nan": true,
+    "repeated_execution_byte_identical": true,
+    "manual_decomposition_matches_fixed_mlx_vlm": true,
+    "steady_incremental_pool_rebuild_parity": true,
+    "pool_tail_mod_0_1_2_3_measured": true,
+    "selected_sparse_attention_width_bounded": true,
+    "context_256k_completed_without_oom": true,
+    "runtime_server_apc_admission_unchanged": true,
+    "accepted": true
+  }
+}

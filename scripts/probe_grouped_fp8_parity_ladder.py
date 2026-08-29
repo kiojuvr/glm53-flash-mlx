@@ -360,33 +360,31 @@ def _direct_bucket_stages(moe, x, indices, scores, plan):
     sorted_x = plan["sorted_x"]
     gate_parts = []
     up_parts = []
+    expert_ranges = []
     start = 0
     while start < experts.size:
         end = start + 1
         while end < experts.size and experts[end] == experts[start]:
             end += 1
+        expert_ranges.append((start, end))
+        start = end
+    for start, end in expert_ranges:
         expert = bank.expert(
             int(experts[start]), limit=moe.config.swiglu_limit
         )
         gate_parts.append(expert.gate_proj(sorted_x[start:end]))
         up_parts.append(expert.up_proj(sorted_x[start:end]))
-        start = end
     gate = mx.concatenate(gate_parts, axis=0)
     up = mx.concatenate(up_parts, axis=0)
     activation = nn.silu(mx.minimum(gate, moe.config.swiglu_limit)) * mx.clip(
         up, -moe.config.swiglu_limit, moe.config.swiglu_limit
     )
     down_parts = []
-    start = 0
-    while start < experts.size:
-        end = start + 1
-        while end < experts.size and experts[end] == experts[start]:
-            end += 1
+    for start, end in expert_ranges:
         expert = bank.expert(
             int(experts[start]), limit=moe.config.swiglu_limit
         )
         down_parts.append(expert.down_proj(activation[start:end]))
-        start = end
     down = mx.concatenate(down_parts, axis=0)
     weighted = down * plan["sorted_scores"][:, None]
     reduced = _direct_scatter_reduce(down, plan, x.shape)
