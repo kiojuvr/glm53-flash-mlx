@@ -158,6 +158,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | Direct-order BM8 parity anchor | 10/10 stage・full logits・全router hash一致 / warm median 6.554 s / Direct比0.866× |
 | layer 3 DSA steady decode, 2049 → 256k | 2.331 → 2.614 ms / retention 0.892 / selected幅2051固定 |
 | layer 3 DSA pool rebuild, 2049 → 256k | 2.558 → 5.604 ms / retention 0.456 / 256k pool update 3.137 ms |
+| all 11 DSA persistent steady, 2049 → 256k | 9.296 → 15.255 ms / retention 0.609 / token 2–16 median |
+| all 11 DSA restored first token, 2049 → 256k | 13.891 → 39.704 ms / rebuild追加2.876 → 27.146 ms |
 
 再測定コマンド:
 
@@ -207,6 +209,11 @@ uv run python scripts/probe_long_context_dsa_decode_frontier.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --layer 3 --warmups 2 --repeats 5 \
   --output bench-results/m3ultra512-long-context-dsa-decode-frontier-20260829.json
+
+uv run python scripts/probe_persistent_all_dsa_session_frontier.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --warmup-steps 2 \
+  --output bench-results/m3ultra512-persistent-all-dsa-session-frontier-20260829.json
 ```
 
 ### Packed expert bank feasibility
@@ -272,6 +279,16 @@ steady end-to-end medianは2049の2.331 msから256kの2.614 msで、sparse-path
 全contextでsteady/rebuildのindex・output hashが一致し、分解operatorと固定mlx-vlmのIndexer/SparseAttentionもbyte-identicalでした。全indexは`-1`または`[0, Kv)`、反復hash一致、NaNなし、pool-tail全境界合格、256k OOMなしです。この結果はlayer 3 operatorの特性であり、製品KPIのfull-model `decode_tps(256k) / decode_tps(2k) >= 0.8`や256kで15 tok/sを証明しません。
 
 後続roadmapには、DSA prefill chunk 512/1024/2048/4096/8192とpool-score scratch、layer共有可能なpage table・row metadata、層別top-k再計算、idle/dummy forwardによるKDA/DSA state mutation禁止を残します。未実装のshared-row-planはcache ABIへ戻しません。DFlash2型external drafterはtarget MLA/KV stateを共有し、独自KV poolを原則持たず、`acceptance_by_position[0..k-1]`をfirst-class benchmarkにします。
+
+### Persistent all-DSA session frontier
+
+全11 DSA層（3, 7, 11, ..., 43）へ独立した実weight、latent cache、Indexer cacheを持たせ、2049 / 32k / 64k / 128k / 256kから16 tokenを連続decodeするoperator probeを追加しました。各stepではcache objectを作り直さず、resident armはtoken 1以前から`_pool`を保持し、restored armはtoken 1だけ`_pool=None`としてfull rebuild後のtoken 2–16で同じpool stateを再利用します。
+
+residentの全11層aggregate token 2–16 medianは2049で9.296 ms、256kで15.255 ms、retentionは0.609です。0.8 decision gateに届かないため、full-model synthetic-cache frontierへはまだ進まず、次はall-DSA steady degradationの局所化です。256kのp95は38.271 msで、context開始時の物理cache容量が尽きるtoken 2では78.037 msまで上がりました。これはIndexPool境界ではなく、11層のlatent/indexer KVCacheが256-token単位で同時に容量拡張されるcopy spikeです。既存prefixは全拡張でbyte-identicalに保持されています。
+
+restoredのfirst tokenは2049で13.891 ms、256kで39.704 ms、residentに対するpool rebuild追加は2.876 / 27.146 msです。token 2–16 medianは9.314 / 15.316 msまでresident相当に戻り、再構築は一回限りでした。256k pool payloadはBF16 184,560,640 bytes、int64 23,070,080 bytes、bool 720,940 bytes、計208,351,660 bytesです。7 GB/sという楽観的なdisk I/Oでも29.765 msが下限なので、128k/256kのscreeningではpool payload永続化より再構築が安価でした。ただし実I/O benchmarkではなく、disk APC ABIは変更していません。RAM APCもzero-copy保持経路が存在しないため候補化していません。
+
+全160 step × 11層でindexは`-1`または`[0, Kv)`、unused slotはすべて`-1`、NaNなし、resident/restoredのindex・output hash一致、pool tail 0/1/2/3一致、cache object identity保持、idle measurementによるstate mutationなしです。256k residentの16-token memory driftは2,960,935,042 bytes、peakは13,814,772,322 bytesでした。これらはDSA operator集合の測定であり、KDA/MoE/lm_headを含むfull-model decode性能ではありません。
 
 ### NoPE IndexPool safety gate
 
