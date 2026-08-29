@@ -51,8 +51,10 @@ from probe_single_buffer_nope_latent_cache_frontier import ProbeNoPELatentCache
 CONTEXTS = (2049, 131072, 262144)
 WARMUP_STEPS = 4
 MEASURED_STEPS = 16
-ROLLBACK_CASES = (1, 2, 3, 4, 8, 16)
+ROLLBACK_CASES = (1, 2, 3, 4, 8, 15, 16)
 ROLLBACK_WINDOW = 16
+RAW_STATE_WINDOW = ROLLBACK_WINDOW + 4 - 1
+ROLLBACK_BASE_CONTEXT = 2052
 ARMS = (
     "full_packed_history_oracle",
     "compact_pool_state",
@@ -119,7 +121,7 @@ class CompactIndexPoolState:
     tail_positions: mx.array
 
     # The remaining raw rollback journal.  Journal + active tail never exceeds
-    # rollback_window; complete-prefix token history is absent.
+    # rollback_window + kpool - 1; complete-prefix token history is absent.
     journal_keys: mx.array
     journal_gates: mx.array
     journal_valid: mx.array
@@ -265,7 +267,7 @@ def _build_compact_state(indexer, layer_id: int, history: int):
     pool_indices = _leaf_capacity_buffer(pooled[1], pool_capacity)
     pool_valid = _leaf_capacity_buffer(pooled[2], pool_capacity)
 
-    raw_start = max(0, history - ROLLBACK_WINDOW)
+    raw_start = max(0, history - RAW_STATE_WINDOW)
     raw_keys = _leaf_array(keys[:, raw_start:history])
     raw_gates = _leaf_array(gates[:, raw_start:history])
     raw_valid = _leaf_array(valid[:, raw_start:history])
@@ -342,11 +344,12 @@ def _project_indexer_token(indexer, x):
 
 def _split_raw_window(state: CompactIndexPoolState, indexer, raw):
     keys, gates, valid, positions = raw
-    if keys.shape[1] > state.rollback_window:
-        keys = keys[:, -state.rollback_window :]
-        gates = gates[:, -state.rollback_window :]
-        valid = valid[:, -state.rollback_window :]
-        positions = positions[:, -state.rollback_window :]
+    raw_capacity = state.rollback_window + indexer.index_kpool - 1
+    if keys.shape[1] > raw_capacity:
+        keys = keys[:, -raw_capacity:]
+        gates = gates[:, -raw_capacity:]
+        valid = valid[:, -raw_capacity:]
+        positions = positions[:, -raw_capacity:]
     active = state.total_tokens % indexer.index_kpool
     split = int(keys.shape[1]) - active
     state.journal_keys, state.tail_keys = keys[:, :split], keys[:, split:]
@@ -805,6 +808,12 @@ def _measure_phases(attentions, context):
 
 def _compact_trim(session, tokens):
     state = session.state
+    if tokens < 1 or tokens > state.rollback_window:
+        raise ValueError(
+            f"compact IndexPool trim must be within [1, {state.rollback_window}]"
+        )
+    if tokens > state.total_tokens:
+        raise ValueError("compact IndexPool trim exceeds cached token count")
     target = state.total_tokens - tokens
     raw = state.raw_rows()
     keep = max(0, int(raw[0].shape[1]) - tokens)
@@ -812,62 +821,226 @@ def _compact_trim(session, tokens):
     state.total_tokens = target
     state.logical_pool_count = (target + session.attention.indexer.index_kpool - 1) // session.attention.indexer.index_kpool
     _split_raw_window(state, session.attention.indexer, raw)
+    active = target % session.attention.indexer.index_kpool
+    if state.active_tail_count != active:
+        raise RuntimeError("rollback raw window cannot reconstruct target tail")
+    if active:
+        row = _complete_partial_pool(state, session.attention.indexer)
+        _carry_pool_row(state, session.attention.indexer, row)
     session.latent_cache.offset -= tokens
 
 
 def _oracle_trim(session, tokens):
+    if tokens < 1 or tokens > ROLLBACK_WINDOW:
+        raise ValueError(
+            f"full-history oracle trim must be within [1, {ROLLBACK_WINDOW}]"
+        )
+    indexer = session.attention.indexer
+    previous_pool = session.indexer_cache._pool
     session.latent_cache.offset -= tokens
     session.indexer_cache.trim(tokens)
-    session.indexer_cache._pool = None
+    target = int(session.indexer_cache.offset)
+    packed = session.indexer_cache.keys[:, 0, :target]
+    keys, gates, valid_channel = mx.split(
+        packed, [indexer.head_dim, 2 * indexer.head_dim], axis=-1
+    )
+    stable = target // indexer.index_kpool
+    prefix = tuple(value[:, :stable] for value in previous_pool[:3])
+    if target % indexer.index_kpool:
+        start = stable * indexer.index_kpool
+        suffix = indexer._pooled_states(
+            keys[:, start:], gates[:, start:], valid_channel[:, start:, 0] > 0
+        )
+        suffix = (
+            suffix[0],
+            mx.where(
+                suffix[1] >= 0,
+                suffix[1] + start,
+                INDEXPOOL_SENTINEL,
+            ),
+            suffix[2],
+        )
+        pool = tuple(
+            mx.concatenate([left, right], axis=1)
+            for left, right in zip(prefix, suffix, strict=True)
+        )
+    else:
+        pool = prefix
+    session.indexer_cache._pool = (*pool, target)
+
+
+def _compact_state_hashes(sessions):
+    hashes = []
+    for session in sessions:
+        state = session.state
+        digest = hashlib.sha256()
+        for value in (
+            state.pool_keys,
+            state.pool_indices,
+            state.pool_valid,
+            state.tail_keys,
+            state.tail_gates,
+            state.tail_valid,
+            state.tail_positions,
+            state.journal_keys,
+            state.journal_gates,
+            state.journal_valid,
+            state.journal_positions,
+        ):
+            digest.update(_leaf_numpy(value)[0].tobytes())
+        digest.update(
+            f"{state.total_tokens}:{state.logical_pool_count}:{state.pool_capacity}".encode()
+        )
+        hashes.append({"layer": session.layer_id, "sha256": digest.hexdigest()})
+    return hashes
+
+
+def _rollback_layer_safety(left, right):
+    return all(
+        row["non_sentinel_out_of_range"] == 0
+        and row["nan_count"] == 0
+        and row["sentinel_count"]
+        == _expected_tail_sentinels(result["context_tokens"], 4)
+        for result in (left, right)
+        for row in result["layers"]
+    )
+
+
+def _rollback_round(oracle, compact, context, tokens, baseline, state_hashes, round_id):
+    for session in oracle:
+        _oracle_trim(session, tokens)
+    for session in compact:
+        _compact_trim(session, tokens)
+    target = context - 1
+    trimmed_pool = _pool_parity(oracle, compact)
+    stale_hidden = all(
+        session.state.logical_pool_count
+        == (target + session.attention.indexer.index_kpool - 1)
+        // session.attention.indexer.index_kpool
+        for session in compact
+    )
+    replay = []
+    for step in range(1, tokens + 1):
+        left = _actual_step(oracle, context, step, compact=False, chained=False)
+        right = _actual_step(compact, context, step, compact=True, chained=False)
+        pool = _pool_parity(oracle, compact)
+        before = baseline[step - 1]
+        replay.append(
+            {
+                "step": step,
+                "oracle_replay_index_hash_match": before[0]["combined_index_hash"]
+                == left["combined_index_hash"],
+                "oracle_replay_output_hash_match": before[0]["combined_output_hash"]
+                == left["combined_output_hash"],
+                "compact_replay_index_hash_match": before[1]["combined_index_hash"]
+                == right["combined_index_hash"],
+                "compact_replay_output_hash_match": before[1]["combined_output_hash"]
+                == right["combined_output_hash"],
+                "oracle_compact_index_hash_match": left["combined_index_hash"]
+                == right["combined_index_hash"],
+                "oracle_compact_output_hash_match": left["combined_output_hash"]
+                == right["combined_output_hash"],
+                "pool_byte_identical": all(
+                    row["keys_byte_identical"]
+                    and row["indices_byte_identical"]
+                    and row["valid_byte_identical"]
+                    for row in pool
+                ),
+                "sentinel_range_nan_safe": _rollback_layer_safety(left, right),
+            }
+        )
+    after_hashes = _compact_state_hashes(compact)
+    return {
+        "round": round_id,
+        "trimmed_partial_pool_byte_identical": all(
+            row["keys_byte_identical"]
+            and row["indices_byte_identical"]
+            and row["valid_byte_identical"]
+            for row in trimmed_pool
+        ),
+        "stale_future_rows_hidden": stale_hidden,
+        "replay_state_byte_identical": after_hashes == state_hashes,
+        "raw_tokens_after_replay_max": max(
+            session.state.raw_token_count for session in compact
+        ),
+        "steps": replay,
+    }
+
+
+def _rollback_case(attentions, target, tokens, kind):
+    # _build_sessions stores context - 1 history rows, so target + 1 creates
+    # exactly target cached tokens.  _actual_step reports the post-append KV
+    # width with the same context + step - 1 convention.
+    context = target + 1
+    oracle = _build_sessions(attentions, context, ARMS[0])
+    compact = _build_sessions(attentions, context, ARMS[1])
+    baseline = []
+    for step in range(1, tokens + 1):
+        left = _actual_step(oracle, context, step, compact=False, chained=False)
+        right = _actual_step(compact, context, step, compact=True, chained=False)
+        baseline.append((left, right))
+    state_hashes = _compact_state_hashes(compact)
+    rounds = [
+        _rollback_round(
+            oracle, compact, context, tokens, baseline, state_hashes, round_id
+        )
+        for round_id in (1, 2)
+    ]
+    first_pool = target // 4
+    last_pool = (target + tokens - 1) // 4
+    result = {
+        "kind": kind,
+        "target_context_tokens": target,
+        "target_mod_index_kpool": target % 4,
+        "trim_tokens": tokens,
+        "pool_rows_crossed": last_pool - first_pool + 1,
+        "state_hashes": state_hashes,
+        "rounds": rounds,
+    }
+    _release(oracle)
+    _release(compact)
+    return result
+
+
+def _fail_closed_probe(attentions):
+    sessions = _build_sessions(attentions, 2049, ARMS[1])
+    before = _compact_state_hashes(sessions)
+    errors = []
+    for session in sessions:
+        try:
+            _compact_trim(session, ROLLBACK_WINDOW + 1)
+        except ValueError as error:
+            errors.append({"layer": session.layer_id, "error": str(error)})
+    after = _compact_state_hashes(sessions)
+    result = {
+        "requested_trim_tokens": ROLLBACK_WINDOW + 1,
+        "all_11_layers_rejected": len(errors) == len(EXPECTED_DSA),
+        "state_unchanged": before == after,
+        "errors": errors,
+    }
+    _release(sessions)
+    return result
 
 
 def _rollback_probe(attentions):
-    # The rollback target is an exact pool boundary.  This lets a 16-token raw
-    # journal support the full 16-token rollback without retaining 19 tokens.
-    context = 2049
-    results = []
-    for tokens in ROLLBACK_CASES:
-        oracle = _build_sessions(attentions, context, ARMS[0])
-        compact = _build_sessions(attentions, context, ARMS[1])
-        first = []
-        for step in range(1, tokens + 1):
-            left = _actual_step(oracle, context, step, compact=False, chained=False)
-            right = _actual_step(compact, context, step, compact=True, chained=False)
-            first.append((left, right))
-        for session in oracle:
-            _oracle_trim(session, tokens)
-        for session in compact:
-            _compact_trim(session, tokens)
-        replay = []
-        for step in range(1, tokens + 1):
-            left = _actual_step(oracle, context, step, compact=False, chained=False)
-            right = _actual_step(compact, context, step, compact=True, chained=False)
-            replay.append((left, right, _pool_parity(oracle, compact)))
-        results.append(
-            {
-                "trim_tokens": tokens,
-                "target_context_tokens": context - 1,
-                "target_is_complete_pool_boundary": True,
-                "steps": [
-                    {
-                        "step": step,
-                        "oracle_replay_hash_match": before[0]["combined_output_hash"] == after[0]["combined_output_hash"],
-                        "compact_replay_hash_match": before[1]["combined_output_hash"] == after[1]["combined_output_hash"],
-                        "oracle_compact_index_hash_match": after[0]["combined_index_hash"] == after[1]["combined_index_hash"],
-                        "oracle_compact_output_hash_match": after[0]["combined_output_hash"] == after[1]["combined_output_hash"],
-                        "pool_byte_identical": all(
-                            row["keys_byte_identical"] and row["indices_byte_identical"] and row["valid_byte_identical"]
-                            for row in after[2]
-                        ),
-                    }
-                    for step, (before, after) in enumerate(zip(first, replay, strict=True), 1)
-                ],
-                "raw_tokens_after_replay_max": max(session.state.raw_token_count for session in compact),
-            }
+    cases = [
+        _rollback_case(
+            attentions,
+            ROLLBACK_BASE_CONTEXT + target_mod,
+            tokens,
+            "mod_trim_matrix",
         )
-        _release(oracle)
-        _release(compact)
-    return results
+        for target_mod in range(4)
+        for tokens in ROLLBACK_CASES
+    ]
+    cases.extend(
+        _rollback_case(attentions, target, 16, "capacity_boundary")
+        for target in (2303, 2304)
+    )
+    return {
+        "cases": cases,
+        "fail_closed": _fail_closed_probe(attentions),
+    }
 
 
 def _context_case(attentions, context, warmup_steps):
@@ -919,19 +1092,43 @@ def _decision(cases, rollbacks):
         for case in cases.values()
         for row in case["oracle_dependency_chained_parity"]
     )
+    rollback_rounds = [
+        round_result
+        for case in rollbacks["cases"]
+        for round_result in case["rounds"]
+    ]
     replay = all(
-        all(value for key, value in step.items() if key != "step")
-        for case in rollbacks
-        for step in case["steps"]
+        round_result["trimmed_partial_pool_byte_identical"]
+        and round_result["stale_future_rows_hidden"]
+        and round_result["replay_state_byte_identical"]
+        and round_result["raw_tokens_after_replay_max"] <= RAW_STATE_WINDOW
+        and all(
+            all(value for key, value in step.items() if key != "step")
+            for step in round_result["steps"]
+        )
+        for round_result in rollback_rounds
     )
-    qualified = reduction >= 0.8 and append_retention >= 0.8 and chained_retention >= 0.8 and parity and chained_parity and replay
+    fail_closed = (
+        rollbacks["fail_closed"]["all_11_layers_rejected"]
+        and rollbacks["fail_closed"]["state_unchanged"]
+    )
+    qualified = (
+        reduction >= 0.8
+        and append_retention >= 0.8
+        and chained_retention >= 0.8
+        and parity
+        and chained_parity
+        and replay
+        and fail_closed
+    )
     return {
         "packed_state_reduction_ratio": reduction,
         "token_append_retention": append_retention,
         "dependency_chained_all_dsa_retention": chained_retention,
         "byte_identical": parity,
         "dependency_chained_byte_identical": chained_parity,
-        "trim_replay_byte_identical": replay,
+        "arbitrary_trim_replay_byte_identical": replay,
+        "fail_closed_beyond_rollback_window": fail_closed,
         "targets": {
             "packed_state_reduction_ratio": 0.8,
             "token_append_retention": 0.8,
@@ -1031,11 +1228,39 @@ def main() -> int:
             for case in cases.values()
             for row in case["oracle_dependency_chained_parity"]
         ),
-        "all_trim_replay_cases_match": all(
-            all(value for key, value in step.items() if key != "step")
-            for rollback in rollbacks
-            for step in rollback["steps"]
+        "all_arbitrary_trim_replay_cases_match": decision[
+            "arbitrary_trim_replay_byte_identical"
+        ],
+        "rollback_target_mod_0_1_2_3_covered": {
+            case["target_mod_index_kpool"]
+            for case in rollbacks["cases"]
+            if case["kind"] == "mod_trim_matrix"
+        }
+        == {0, 1, 2, 3},
+        "rollback_trim_1_2_3_4_8_15_16_covered": {
+            case["trim_tokens"]
+            for case in rollbacks["cases"]
+            if case["kind"] == "mod_trim_matrix"
+        }
+        == set(ROLLBACK_CASES),
+        "rollback_crosses_1_to_5_pool_rows": {
+            case["pool_rows_crossed"]
+            for case in rollbacks["cases"]
+            if case["kind"] == "mod_trim_matrix"
+        }
+        >= {1, 2, 3, 4, 5},
+        "trim_replay_retrim_completed": all(
+            len(case["rounds"]) == 2 for case in rollbacks["cases"]
         ),
+        "capacity_boundary_before_after_covered": {
+            case["target_context_tokens"]
+            for case in rollbacks["cases"]
+            if case["kind"] == "capacity_boundary"
+        }
+        == {2303, 2304},
+        "trim_beyond_window_fails_closed": decision[
+            "fail_closed_beyond_rollback_window"
+        ],
         "pool_tail_0_1_2_3_covered": all(
             {step["context_mod_index_kpool"] for step in case["arms"][ARMS[1]]["steps"]} == {0, 1, 2, 3}
             for case in cases.values()
@@ -1043,9 +1268,18 @@ def main() -> int:
         "compact_has_no_full_packed_history": all(
             not step["state_bytes"]["full_packed_history_present"] for step in compact_steps
         ),
-        "raw_state_within_rollback_window": all(
-            step["state_bytes"]["max_raw_tokens_per_layer"] <= ROLLBACK_WINDOW for step in compact_steps
+        "raw_state_within_19_token_bound": all(
+            step["state_bytes"]["max_raw_tokens_per_layer"] <= RAW_STATE_WINDOW
+            for step in compact_steps
         ),
+        "compact_state_reduction_at_least_80_percent": decision[
+            "packed_state_reduction_ratio"
+        ]
+        >= 0.8,
+        "dependency_chained_retention_at_least_0_8": decision[
+            "dependency_chained_all_dsa_retention"
+        ]
+        >= 0.8,
         "append_copy_bytes_context_independent": len(append_copy_values) == 1,
         "active_memory_drift_bounded_64mib": max(compact_drifts) <= 64 * 1024 * 1024,
         "runtime_server_apc_admission_unchanged": DEFAULT_MAX_PROMPT_TOKENS == 256,
@@ -1056,7 +1290,7 @@ def main() -> int:
     compact_state = large["arms"][ARMS[1]]["final_state_bytes"]
     latent_logical = len(EXPECTED_DSA) * (262144 + MEASURED_STEPS - 1) * 512 * 2
     output = {
-        "schema": "glm53-compact-authoritative-indexpool-state-v1",
+        "schema": "glm53-compact-indexpool-arbitrary-rollback-v2",
         "date": date.today().isoformat(),
         "machine": "Apple M3 Ultra, 80-core GPU, 512 GB unified memory",
         "checkpoint_revision": report.official_revision,
@@ -1068,6 +1302,8 @@ def main() -> int:
         "warmup_steps": args.warmup_steps,
         "measured_steps": args.measured_steps,
         "rollback_window": ROLLBACK_WINDOW,
+        "raw_state_window": RAW_STATE_WINDOW,
+        "rollback_base_context": ROLLBACK_BASE_CONTEXT,
         "rollback_cases": list(ROLLBACK_CASES),
         "arms": list(ARMS),
         "measurement_contract": {
@@ -1076,7 +1312,11 @@ def main() -> int:
             "independent_aggregate_is_throughput_oriented": True,
             "dependency_chain": "x[layer] = mx.depends(deterministic_x[layer], previous_output)",
             "phase_timings_synchronize_consumer_boundaries": True,
-            "rollback_target_is_complete_pool_boundary": True,
+            "rollback_targets_cover_all_pool_tail_mods": True,
+            "rollback_recomputes_partial_logical_last_pool_row": True,
+            "trim_beyond_rollback_window_fails_closed": True,
+            "initialization_only_host_materialization": True,
+            "append_score_and_trim_hot_paths_have_no_host_synchronization": True,
             "pool_indices_dtype_unchanged": "int64",
         },
         "cases": cases,

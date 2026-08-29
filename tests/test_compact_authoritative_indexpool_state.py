@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -39,6 +40,7 @@ def _make_indexer():
     )
     mx.random.seed(41)
     indexer = Glm5NextIndexer(config)
+    indexer.set_dtype(mx.bfloat16)
     indexer.bypass_short = False
     return indexer
 
@@ -47,13 +49,13 @@ def _inputs(start: int, tokens: int):
     positions = mx.arange(start, start + tokens, dtype=mx.float32)[:, None]
     x = mx.sin(positions * 0.03125 + mx.arange(8)[None] * 0.0625)[None]
     qr = mx.cos(positions * 0.046875 + mx.arange(4)[None] * 0.09375)[None]
-    return x, qr
+    return x.astype(mx.bfloat16), qr.astype(mx.bfloat16)
 
 
-def _oracle_cache(indexer, history=32):
+def _oracle_cache(indexer, history=32, *, reserve=True):
     from mlx_vlm.models.cache import KVCache
 
-    capacity = 256
+    capacity = _MODULE._capacity(history + 16 if reserve else history)
     keys, gates, valid = _MODULE._history_rows(indexer, 3, capacity)
     valid = mx.arange(capacity)[None] < history
     packed = mx.concatenate(
@@ -79,7 +81,7 @@ def _oracle_cache(indexer, history=32):
 
 
 def _step(indexer, cache, state, step):
-    x, qr = _inputs(31 + step, 1)
+    x, qr = _inputs(state.total_tokens, 1)
     pooled = _MODULE._pool_update(indexer, x, qr, cache)
     pooled["x"] = x
     expected = _MODULE._expand_phase(
@@ -104,6 +106,31 @@ def _assert_pool_equal(cache, state):
         assert mx.array_equal(expected, actual).item()
 
 
+def _state_hash(state):
+    digest = hashlib.sha256()
+    for value in (
+        state.pool_keys,
+        state.pool_indices,
+        state.pool_valid,
+        *state.raw_rows(),
+    ):
+        digest.update(_MODULE._leaf_numpy(value)[0].tobytes())
+    digest.update(
+        f"{state.total_tokens}:{state.logical_pool_count}:{state.pool_capacity}".encode()
+    )
+    return digest.hexdigest()
+
+
+def _trim_oracle(cache, indexer, tokens):
+    session = _MODULE._OracleSession(
+        3,
+        SimpleNamespace(indexer=indexer),
+        SimpleNamespace(offset=cache.offset),
+        cache,
+    )
+    _MODULE._oracle_trim(session, tokens)
+
+
 def test_compact_state_matches_full_history_for_16_steps():
     indexer = _make_indexer()
     cache = _oracle_cache(indexer)
@@ -117,7 +144,7 @@ def test_compact_state_matches_full_history_for_16_steps():
         )
         assert mx.array_equal(expected, actual).item()
         _assert_pool_equal(cache, state)
-        assert state.raw_token_count <= state.rollback_window
+        assert state.raw_token_count <= _MODULE.RAW_STATE_WINDOW
         assert state.active_tail_count == (32 + step) % 4
         assert carry_copy > 0
         append_copies.add(append_copy)
@@ -128,32 +155,83 @@ def test_compact_state_matches_full_history_for_16_steps():
     assert not hasattr(state, "packed_token_history")
 
 
+@pytest.mark.parametrize("target_mod", range(4))
 @pytest.mark.parametrize("tokens", _MODULE.ROLLBACK_CASES)
-def test_compact_trim_replay_matches_full_history(tokens):
+def test_compact_trim_replay_matches_full_history(target_mod, tokens):
     indexer = _make_indexer()
-    cache = _oracle_cache(indexer)
-    state = _MODULE._build_compact_state(indexer, 3, 32)
+    history = 32 + target_mod
+    cache = _oracle_cache(indexer, history)
+    state = _MODULE._build_compact_state(indexer, 3, history)
     first = []
     for step in range(1, tokens + 1):
         first.append(_step(indexer, cache, state, step)[:2])
+    expected_state_hash = _state_hash(state)
 
-    cache.trim(tokens)
-    cache._pool = None
+    _trim_oracle(cache, indexer, tokens)
     session = _MODULE._CompactSession(
         3,
         SimpleNamespace(indexer=indexer),
-        SimpleNamespace(offset=32 + tokens),
+        SimpleNamespace(offset=history + tokens),
         state,
     )
     _MODULE._compact_trim(session, tokens)
-    assert state.total_tokens == 32
-    assert state.active_tail_count == 0
+    assert state.total_tokens == history
+    assert state.active_tail_count == target_mod
 
     for step, before in enumerate(first, 1):
         expected, actual, _, _ = _step(indexer, cache, state, step)
         assert mx.array_equal(expected, before[0]).item()
         assert mx.array_equal(actual, before[1]).item()
         assert mx.array_equal(expected, actual).item()
+        _assert_pool_equal(cache, state)
+    assert _state_hash(state) == expected_state_hash
+
+    _trim_oracle(cache, indexer, tokens)
+    _MODULE._compact_trim(session, tokens)
+    for step, before in enumerate(first, 1):
+        expected, actual, _, _ = _step(indexer, cache, state, step)
+        assert mx.array_equal(expected, before[0]).item()
+        assert mx.array_equal(actual, before[1]).item()
+        _assert_pool_equal(cache, state)
+    assert _state_hash(state) == expected_state_hash
+
+
+def test_compact_trim_fails_closed_beyond_window_without_mutation():
+    indexer = _make_indexer()
+    state = _MODULE._build_compact_state(indexer, 3, 48)
+    session = _MODULE._CompactSession(
+        3,
+        SimpleNamespace(indexer=indexer),
+        SimpleNamespace(offset=48),
+        state,
+    )
+    before = (state.total_tokens, state.logical_pool_count, state.raw_token_count)
+
+    with pytest.raises(ValueError, match="within"):
+        _MODULE._compact_trim(session, 17)
+
+    assert (state.total_tokens, state.logical_pool_count, state.raw_token_count) == before
+
+
+@pytest.mark.parametrize("history", [255, 256, 257])
+def test_compact_trim_replay_across_cache_capacity_boundary(history):
+    indexer = _make_indexer()
+    cache = _oracle_cache(indexer, history, reserve=False)
+    state = _MODULE._build_compact_state(indexer, 3, history)
+    first = [_step(indexer, cache, state, step)[:2] for step in range(1, 5)]
+    _trim_oracle(cache, indexer, 4)
+    session = _MODULE._CompactSession(
+        3,
+        SimpleNamespace(indexer=indexer),
+        SimpleNamespace(offset=history + 4),
+        state,
+    )
+    _MODULE._compact_trim(session, 4)
+
+    for step, before in enumerate(first, 1):
+        expected, actual, _, _ = _step(indexer, cache, state, step)
+        assert mx.array_equal(expected, before[0]).item()
+        assert mx.array_equal(actual, before[1]).item()
         _assert_pool_equal(cache, state)
 
 
@@ -165,7 +243,7 @@ def test_compact_state_reduction_exceeds_eighty_percent_at_256k():
     # Official layout: BF16 key/gate and pool key, int64 four-token indices.
     oracle = capacity * (2 * 128 + 1) * 2
     compact = pool_capacity * (128 * 2 + 4 * 8 + 1)
-    compact += _MODULE.ROLLBACK_WINDOW * (2 * 128 * 2 + 1 + 8)
+    compact += _MODULE.RAW_STATE_WINDOW * (2 * 128 * 2 + 1 + 8)
 
     assert 1.0 - compact / oracle >= 0.8
-    assert state.raw_token_count == 16
+    assert state.raw_token_count == _MODULE.RAW_STATE_WINDOW

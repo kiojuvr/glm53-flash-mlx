@@ -164,8 +164,9 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | NoPE capacity boundary, 256k | dual step256 87.797 ms / single step256 87.595 ms / single preallocated 39.071 ms |
 | all-DSA preallocated pool-row, 2049 → 256k | 9.326 → 9.377 ms / aggregate retention 0.994 |
 | decomposed IndexPool update, 2049 → 256k | 2.927 → 8.121 ms / retention 0.360 / packed-token append 4.665 ms @256k |
-| compact authoritative IndexPool, 256k | 1,483,609,600 → 208,443,356 bytes / 85.95%削減 / raw journal 91,696 bytes |
-| compact all-DSA dependency chain, 2049 → 256k | 9.468 → 11.715 ms / retention 0.808 |
+| compact authoritative IndexPool, 256k | 1,483,609,600 → 208,460,549 bytes / 85.95%削減 / raw state 108,889 bytes |
+| compact arbitrary rollback | target mod 0/1/2/3 / trim 1–16 / 最大5 pool row / 全11 DSA層byte-identical |
+| compact all-DSA dependency chain, 2049 → 256k | 9.525 → 11.705 ms / retention 0.814 |
 
 再測定コマンド:
 
@@ -234,7 +235,7 @@ uv run python scripts/probe_incremental_indexpool_update_copies.py \
 uv run python scripts/probe_compact_authoritative_indexpool_state.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --warmup-steps 4 --measured-steps 16 \
-  --output bench-results/m3ultra512-compact-authoritative-indexpool-state-20260830.json
+  --output bench-results/m3ultra512-compact-indexpool-arbitrary-rollback-20260830.json
 ```
 
 ### Packed expert bank feasibility
@@ -331,13 +332,13 @@ segmented armはimmutable complete prefixをcopyせず、pool carryは0.044 ms�
 
 ### Compact authoritative IndexPool state
 
-全context分のpacked Indexer token historyを保持せず、contiguous pool buffer、最大3-tokenのactive tail、tailと合わせて最大16-tokenになるrollback journalだけを残すprobeを追加しました。初期変換時だけpoolをbyte-preserving leaf bufferへmaterializeし、BF16はuint16経由でbitを維持してfull-history計算graphを切り離します。decode hot pathにはNumPy変換、`.item()`、明示的`mx.eval`を含みません。scoreへ渡すlogical poolのshapeとrow orderはreferenceと同一です。未完成poolについては、exact score shapeを保つためinvalidなpreview rowをlogical末尾へ反映しますが、これはactive tailから再生成可能なderived stateです。
+全context分のpacked Indexer token historyを保持せず、contiguous pool buffer、最大3-tokenのactive tail、16-token rollbackを任意のpool位置で復元するjournalを残すprobeを追加しました。raw stateの上限は`16 + index_kpool - 1 = 19` tokenです。初期変換時だけpoolをbyte-preserving leaf bufferへmaterializeし、BF16はuint16経由でbitを維持してfull-history計算graphを切り離します。decode/append/score/trim hot pathにはNumPy変換、`.item()`、明示的`mx.eval`を含みません。scoreへ渡すlogical poolのshapeとrow orderはreferenceと同一です。未完成poolについては、exact score shapeを保つためinvalidなpreview rowをlogical末尾へ反映し、rollback先がpool境界でなければactive tailからそのrowをbyte-identicalに再計算します。staleなfuture rowはcapacity bufferに残ってもlogical sliceへ露出しません。
 
-256kの全11層ではfull packed history 1,483,609,600 bytesに対し、pool 208,351,660 bytes、active tail＋rollback journal 91,696 bytes、合計208,443,356 bytesです。削減率は85.95%で80% gateを通過しました。single NoPE latent logical payloadと合わせた256k authoritative payload概算は3,161,402,332 bytesです。16-token decode後のactive-memory driftはindependent 792,046 bytes、dependency-chained 248,601 bytesで、token数比例のraw-state増加はありません。
+256kの全11層ではfull packed history 1,483,609,600 bytesに対し、pool 208,351,660 bytes、active tail＋rollback journal 108,889 bytes、合計208,460,549 bytesです。削減率は85.95%で80% gateを通過しました。single NoPE latent logical payloadと合わせた256k authoritative payload概算は3,161,419,525 bytesです。16-token decode後のactive-memory driftはindependent 797,650 bytes、dependency-chained 237,827 bytesで64 MiB gateを十分下回り、token数比例のraw-state増加はありません。
 
-全3 context × 16 step × 11層でindex/output hashとpool keys/indices/validがfull-history oracleとbyte-identicalです。`mx.depends`で11層を直列化したarmも全hash一致し、2049→256k medianは9.468→11.715 ms、critical-path retentionは0.808でした。独立aggregateは8.650→9.464 msです。rollback 1/2/3/4/8/16 tokenも、complete-pool境界へtrimして同一入力をreplayした全stepでoracle/compact hashとpool bytesが一致しました。
+全3 context × 16 step × 11層でindex/output hashとpool keys/indices/validがfull-history oracleとbyte-identicalです。`mx.depends`で11層を直列化したarmも全hash一致し、2049→256k medianは9.525→11.705 ms、critical-path retentionは0.814でした。独立aggregateは8.634→9.426 msです。rollback target mod 0/1/2/3、trim 1/2/3/4/8/15/16、1〜5 pool row横断、capacity境界前後の30 caseを全11層で測定し、各caseでtrim→replay→再trimを実行しました。60 roundの全stepでpool keys/indices/valid、selected index、attention output、replay後stateがoracleとbyte-identicalです。17-token trimは全11層でfail closedし、stateを変更しません。
 
-tail/journal appendは全contextで97,427 bytesと一定で、phase retentionは0.978です。一方、contiguous pool末尾のMLX functional scatterは256kで208,348,481 bytes、1.127 ms残ります。今回の判定目標はすべて通過したためcompact stateはruntime architecture候補ですが、このcommitはprobe-onlyです。runtime cache、disk/RAM APC schema、NoPE cache ABI、server、admissionは変更していません。disk APCで208 MB級compact poolをauthoritative stateとして保存する判断は、runtime統合とI/O実測を行う次の独立gateで再評価します。
+tail/journal appendは全contextで114,620 bytesと一定で、phase retentionは0.991です。一方、contiguous pool末尾のMLX functional scatterは256kで208,348,481 bytes、0.949 ms残ります。今回の判定目標はすべて通過したためcompact stateはruntime architecture候補ですが、このcommitはprobe-onlyです。runtime cache、disk/RAM APC schema、NoPE cache ABI、server、admissionは変更していません。disk APCで208 MB級compact poolをauthoritative stateとして保存する判断は、runtime統合とI/O実測を行う次の独立gateで再評価します。
 
 ### NoPE IndexPool safety gate
 
