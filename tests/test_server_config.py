@@ -101,6 +101,8 @@ def test_disk_cache_identity_separates_compact_cache_and_moe_combinations(monkey
     compact_direct_moe = _disk_cache_identity("checkpoint-digest")
     compact_descriptor = _disk_cache_descriptor("checkpoint-digest")
     assert compact_descriptor["attention_cache_abi"] == NOPE_DSA_CACHE_ABI_COMPACT
+    assert NOPE_DSA_CACHE_ABI_COMPACT.startswith("glm53-nope-dsa-v3-")
+    assert "self-contained-ape" in NOPE_DSA_CACHE_ABI_COMPACT
     assert compact_descriptor["cache_backend"] == "compact-nope-dsa"
     assert compact_direct_moe != direct
 

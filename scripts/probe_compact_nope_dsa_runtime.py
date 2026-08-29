@@ -251,7 +251,7 @@ def _fill_compact_dsa(entry, attention, layer_id: int, context: int) -> None:
         valid[:, raw_start:],
         mx.arange(raw_start, context, dtype=mx.int64)[None],
     )
-    pool_cache.state = (*pool, *raw)
+    pool_cache.state = (*pool, *raw, indexer.index_kpool_compress_ape)
     pool_cache.meta_state = (
         str(context),
         str(pool[0].shape[1]),

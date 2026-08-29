@@ -24,6 +24,7 @@ def apply_runtime_patch() -> None:
         import mlx.core as mx
         import mlx.nn as nn
         from mlx_vlm.models import switch_layers
+        from mlx_vlm.models.cache import CacheList
         from mlx_vlm.models.deepseek_v32 import language as dsv32
         from mlx_vlm.models.glm5_next import language as glm
 
@@ -37,6 +38,22 @@ def apply_runtime_patch() -> None:
             CompactIndexPoolCache,
             make_compact_nope_dsa_cache,
         )
+
+        original_cache_list_trim = CacheList.trim
+
+        def atomic_cache_list_trim(self, tokens):
+            # Compact NoPE children expose validation so a rejected rollback
+            # cannot leave the latent and IndexPool offsets out of sync.
+            validators = [
+                validator
+                for cache in self.caches
+                if callable(validator := getattr(cache, "validate_trim", None))
+            ]
+            for validator in validators:
+                validator(tokens)
+            return original_cache_list_trim(self, tokens)
+
+        CacheList.trim = atomic_cache_list_trim
 
         class ClampedSwiGLU(nn.Module):
             def __init__(self, limit: float):
@@ -143,6 +160,10 @@ def apply_runtime_patch() -> None:
 
         def sparse_call(self, x, mask=None, cache=None):
             B, L, _ = x.shape
+
+            if cache is not None and isinstance(cache[1], CompactIndexPoolCache):
+                # Preflight before either the latent or IndexPool cache mutates.
+                cache[1].validate_update(self.indexer, batch=B, length=L)
 
             qr = self.q_a_layernorm(self.q_a_proj(x))
             q = self.q_b_proj(qr)
@@ -284,6 +305,7 @@ def patch_status() -> dict:
             "indexpool_sentinel_and_range",
             "attention_gather_range_recheck",
             "compact_nope_dsa_cache_dispatch",
+            "compact_nope_dsa_atomic_transitions",
             "mhc_kda_float32_storage",
         ],
     }

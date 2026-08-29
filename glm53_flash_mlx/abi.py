@@ -12,11 +12,12 @@ NOPE_DSA_CACHE_ABI_DIRECT = (
     "-sentinel-minus1"
 )
 NOPE_DSA_CACHE_ABI_COMPACT = (
-    "glm53-nope-dsa-v2"
+    "glm53-nope-dsa-v3"
     "-single-latent512"
-    "-compact-indexpool-v2"
+    "-compact-indexpool-v3"
     "-kpool4-int64"
     "-rollback16-raw19"
+    "-self-contained-ape"
     "-sentinel-minus1"
 )
 # Backward-compatible name used by the direct-cache probes and manifest.

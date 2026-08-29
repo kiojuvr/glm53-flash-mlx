@@ -36,6 +36,33 @@ def _make_indexer(*, topk=32, kpool=4):
     return indexer
 
 
+def _make_attention(*, topk=32, kpool=4):
+    apply_runtime_patch()
+    from mlx_vlm.models.glm5_next.language import Glm5NextSparseAttention
+
+    config = SimpleNamespace(
+        hidden_size=8,
+        num_attention_heads=2,
+        q_lora_rank=4,
+        qk_rope_head_dim=0,
+        kv_lora_rank=4,
+        v_head_dim=4,
+        qk_nope_head_dim=4,
+        mla_use_nope=True,
+        attention_bias=False,
+        rms_norm_eps=1e-6,
+        index_n_heads=2,
+        index_head_dim=4,
+        index_topk=topk,
+        index_kpool=kpool,
+        index_kpool_always_select_tail=True,
+    )
+    mx.random.seed(79)
+    attention = Glm5NextSparseAttention(config)
+    attention.set_dtype(mx.bfloat16)
+    return attention
+
+
 def _inputs(start: int, tokens: int):
     positions = mx.arange(start, start + tokens, dtype=mx.float32)[:, None]
     x = mx.sin(positions * 0.03125 + mx.arange(8)[None] * 0.0625)[None]
@@ -46,6 +73,42 @@ def _inputs(start: int, tokens: int):
 def _assert_equal(left, right):
     assert left.shape == right.shape
     assert mx.array_equal(left, right).item()
+
+
+def _copy_tree(value):
+    if isinstance(value, tuple):
+        return tuple(_copy_tree(item) for item in value)
+    if isinstance(value, list):
+        return [_copy_tree(item) for item in value]
+    if value is None or isinstance(value, str):
+        return value
+    copied = mx.array(value)
+    mx.eval(copied)
+    return copied
+
+
+def _assert_tree_equal(left, right):
+    assert type(left) is type(right)
+    if isinstance(left, (tuple, list)):
+        assert len(left) == len(right)
+        for left_item, right_item in zip(left, right, strict=True):
+            _assert_tree_equal(left_item, right_item)
+    elif left is None or isinstance(left, str):
+        assert left == right
+    else:
+        _assert_equal(left, right)
+
+
+def _append_combined(indexer, cache, start: int, tokens: int):
+    x, qr = _inputs(start, tokens)
+    selected = indexer(x, qr, None, cache=cache[1])
+    latent = mx.sin(
+        mx.arange(start, start + tokens, dtype=mx.float32)[:, None] * 0.015625
+        + mx.arange(4, dtype=mx.float32)[None] * 0.125
+    ).astype(mx.bfloat16)
+    latent = latent.reshape(1, 1, tokens, 4)
+    cache[0].update_and_fetch(latent, latent)
+    return selected
 
 
 def _assert_pool(indexer, cache, x, mask=None):
@@ -177,12 +240,122 @@ def test_trim_over_window_fails_before_either_cache_changes():
     indexer(x, qr, None, cache=combined[1])
     latent = mx.zeros((1, 1, 32, 4), dtype=mx.bfloat16)
     combined[0].update_and_fetch(latent, latent)
-    before = (combined[0].size(), combined[1].size())
+    before = _copy_tree((combined.state, combined.meta_state))
 
     with pytest.raises(ValueError, match="within"):
         combined.trim(17)
 
-    assert (combined[0].size(), combined[1].size()) == before
+    _assert_tree_equal(before, (combined.state, combined.meta_state))
+
+
+def test_cache_list_preflight_keeps_latent_atomic_when_pool_rejects():
+    indexer = _make_indexer(topk=2048)
+    combined = make_compact_nope_dsa_cache(indexer, reserve_tokens=16)
+    _append_combined(indexer, combined, 0, 32)
+    pool = combined[1]
+    pool.raw_keys = pool.raw_keys[:, -1:]
+    pool.raw_gates = pool.raw_gates[:, -1:]
+    pool.raw_valid = pool.raw_valid[:, -1:]
+    pool.raw_positions = pool.raw_positions[:, -1:]
+    before = _copy_tree((combined.state, combined.meta_state))
+
+    with pytest.raises(ValueError, match="cannot reconstruct"):
+        combined.trim(2)
+
+    _assert_tree_equal(before, (combined.state, combined.meta_state))
+
+
+@pytest.mark.parametrize("target_mod", range(4))
+@pytest.mark.parametrize("tokens", range(1, 17))
+def test_apc_clone_trim_replay_is_self_contained(target_mod, tokens):
+    from mlx_vlm.apc_adapters import clone_cache_entry
+
+    indexer = _make_indexer(topk=32)
+    target = 48 + target_mod
+    total = target + tokens
+    original = make_compact_nope_dsa_cache(indexer, reserve_tokens=96)
+    _append_combined(indexer, original, 0, 32)
+    for position in range(32, total):
+        _append_combined(indexer, original, position, 1)
+
+    eval_targets = []
+    restored = clone_cache_entry(
+        original, min_capacity_tokens=total + 16, eval_targets=eval_targets
+    )
+    mx.eval(*eval_targets)
+    assert not hasattr(restored[1], "_indexer")
+    restored.trim(tokens)
+
+    oracle = make_compact_nope_dsa_cache(indexer, reserve_tokens=96)
+    _append_combined(indexer, oracle, 0, 32)
+    for position in range(32, target):
+        _append_combined(indexer, oracle, position, 1)
+    _assert_tree_equal(oracle[0].state, restored[0].state)
+    _assert_tree_equal(oracle[1].logical_pool(), restored[1].logical_pool())
+    assert restored[1].total_tokens == target
+    assert restored[1].raw_token_count <= restored[1].raw_state_window
+
+    for position in range(target, total):
+        _append_combined(indexer, restored, position, 1)
+    _assert_tree_equal(
+        (original.state, original.meta_state),
+        (restored.state, restored.meta_state),
+    )
+
+    next_original = _append_combined(indexer, original, total, 1)
+    next_restored = _append_combined(indexer, restored, total, 1)
+    _assert_equal(next_original, next_restored)
+
+
+@pytest.mark.parametrize("target_mod", range(4))
+@pytest.mark.parametrize("tokens", range(1, 17))
+def test_apc_clone_trim_replay_attention_output_hash_matches(target_mod, tokens):
+    from mlx_vlm.apc_adapters import clone_cache_entry
+
+    attention = _make_attention(topk=32)
+    target = 48 + target_mod
+    total = target + tokens
+    original = make_compact_nope_dsa_cache(attention.indexer, reserve_tokens=96)
+    x, _ = _inputs(0, 32)
+    attention(x, cache=original)
+    replay_outputs = {}
+    for position in range(32, total):
+        x, _ = _inputs(position, 1)
+        replay_outputs[position] = attention(x, cache=original)
+
+    eval_targets = []
+    restored = clone_cache_entry(
+        original, min_capacity_tokens=total + 16, eval_targets=eval_targets
+    )
+    mx.eval(*eval_targets)
+    restored.trim(tokens)
+    for position in range(target, total):
+        x, _ = _inputs(position, 1)
+        actual = attention(x, cache=restored)
+        _assert_equal(replay_outputs[position], actual)
+
+    x, _ = _inputs(total, 1)
+    _assert_equal(attention(x, cache=original), attention(x, cache=restored))
+
+
+def test_long_sparse_prefill_rejection_is_atomic_and_precedes_latent_update():
+    from mlx_vlm.models.glm5_next.language import Glm5NextSparseAttention
+
+    attention = _make_attention(topk=32)
+    cache = make_compact_nope_dsa_cache(attention.indexer, reserve_tokens=16)
+    x, _ = _inputs(0, 32)
+    attention(x, cache=cache)
+    before = _copy_tree((cache.state, cache.meta_state))
+    x, _ = _inputs(32, 2)
+
+    with pytest.raises(ValueError, match="long sparse prefill"):
+        attention(x, cache=cache)
+
+    _assert_tree_equal(before, (cache.state, cache.meta_state))
+    sparse_source = inspect.getsource(Glm5NextSparseAttention.__call__)
+    assert sparse_source.index("validate_update") < sparse_source.index(
+        "update_and_fetch"
+    )
 
 
 def test_batch_greater_than_one_is_rejected():

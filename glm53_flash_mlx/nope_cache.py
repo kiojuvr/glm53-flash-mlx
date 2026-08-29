@@ -28,6 +28,55 @@ def _concat(left: mx.array | None, right: mx.array) -> mx.array:
     return mx.concatenate([left, right], axis=1)
 
 
+def pool_indexer_states(
+    keys: mx.array,
+    gate_scores: mx.array,
+    valid: mx.array,
+    *,
+    index_kpool: int,
+    compress_ape: mx.array,
+):
+    """Apply the audited Indexer pooling tree without a model reference."""
+    batch, tokens, head_dim = keys.shape
+    pools = (tokens + index_kpool - 1) // index_kpool
+    any_valid = mx.any(valid, axis=-1)
+    first_key = mx.where(
+        any_valid,
+        mx.argmax(valid.astype(mx.int32), axis=-1),
+        mx.array(tokens),
+    )
+    pool_offsets = mx.arange(pools * index_kpool).reshape(
+        1, pools, index_kpool
+    )
+    pool_indices = first_key[:, None, None] + pool_offsets
+    safe = mx.clip(pool_indices, 0, tokens - 1)
+    flat = safe.reshape(batch, pools * index_kpool)
+    index_columns = mx.broadcast_to(
+        flat[..., None], (batch, pools * index_kpool, head_dim)
+    )
+    grouped_keys = mx.take_along_axis(keys, index_columns, axis=1).reshape(
+        batch, pools, index_kpool, head_dim
+    )
+    grouped_gate = mx.take_along_axis(
+        gate_scores, index_columns, axis=1
+    ).reshape(batch, pools, index_kpool, head_dim)
+    grouped_valid = (
+        mx.take_along_axis(valid.astype(mx.int32), flat, axis=1).reshape(
+            batch, pools, index_kpool
+        )
+        > 0
+    )
+    grouped_valid = grouped_valid & (pool_indices < tokens)
+    pool_valid = mx.all(grouped_valid, axis=-1)
+    pool_indices = mx.where(grouped_valid, pool_indices, INDEXPOOL_SENTINEL)
+    logits = grouped_gate + compress_ape[None, None]
+    logits = mx.where(grouped_valid[..., None], logits, -1e30)
+    probabilities = mx.softmax(logits, axis=2)
+    probabilities = mx.where(mx.isnan(probabilities), 0.0, probabilities)
+    pool_keys = mx.sum(probabilities * grouped_keys, axis=2)
+    return pool_keys, pool_indices, pool_valid
+
+
 class SingleNoPELatentCache:
     """KVCache-compatible storage which owns one latent K/V buffer."""
 
@@ -103,13 +152,16 @@ class SingleNoPELatentCache:
     def is_trimmable(self) -> bool:
         return True
 
-    def trim(self, tokens: int) -> int:
+    def validate_trim(self, tokens: int) -> None:
         if tokens < 1 or tokens > self.rollback_window:
             raise ValueError(
                 f"single NoPE latent trim must be within [1, {self.rollback_window}]"
             )
         if tokens > self.offset:
             raise ValueError("single NoPE latent trim exceeds cached token count")
+
+    def trim(self, tokens: int) -> int:
+        self.validate_trim(tokens)
         self.offset -= tokens
         return tokens
 
@@ -207,7 +259,9 @@ class CompactIndexPoolCache:
         self.raw_gates = None
         self.raw_valid = None
         self.raw_positions = None
-        self._indexer = indexer
+        # This tiny tensor is sufficient to rebuild a partial pool after an APC
+        # restore; no model or Indexer object is part of the cache state.
+        self.compress_ape = indexer.index_kpool_compress_ape
 
     @property
     def offset(self) -> int:
@@ -238,7 +292,24 @@ class CompactIndexPoolCache:
             or int(indexer.head_dim) != self.head_dim
         ):
             raise ValueError("restored compact IndexPool metadata does not match Indexer")
-        self._indexer = indexer
+        if indexer.index_kpool_compress_ape.shape != self.compress_ape.shape:
+            raise ValueError("restored compact IndexPool APE shape does not match Indexer")
+
+    def validate_update(self, indexer, *, batch: int, length: int) -> bool:
+        if batch != 1:
+            raise ValueError("compact NoPE DSA cache supports batch size 1 only")
+        self._validate_indexer(indexer)
+        resulting_tokens = self.total_tokens + length
+        short_bypass = (
+            getattr(indexer, "bypass_short", True)
+            and resulting_tokens <= self.index_topk
+        )
+        if length != 1 and not short_bypass:
+            raise ValueError(
+                "compact NoPE DSA sparse path supports incremental decode only; "
+                "long sparse prefill is not admitted"
+            )
+        return short_bypass
 
     def _ensure_pool_capacity(self, rows: int, dtype) -> None:
         if rows <= self.pool_capacity:
@@ -280,8 +351,14 @@ class CompactIndexPoolCache:
         self.raw_valid = valid
         self.raw_positions = positions
 
-    def _pool_suffix(self, indexer, start: int, keys, gates, valid):
-        pooled = indexer._pooled_states(keys, gates, valid)
+    def _pool_suffix(self, start: int, keys, gates, valid):
+        pooled = pool_indexer_states(
+            keys,
+            gates,
+            valid,
+            index_kpool=self.index_kpool,
+            compress_ape=self.compress_ape,
+        )
         absolute_indices = mx.where(
             pooled[1] >= 0,
             pooled[1] + start,
@@ -303,13 +380,13 @@ class CompactIndexPoolCache:
             self.total_tokens + self.index_kpool - 1
         ) // self.index_kpool
 
-    def _write_pool_suffix(self, indexer, start: int, keys, gates, valid) -> None:
+    def _write_pool_suffix(self, start: int, keys, gates, valid) -> None:
         self._write_pool_rows(
             start,
-            self._pool_suffix(indexer, start, keys, gates, valid),
+            self._pool_suffix(start, keys, gates, valid),
         )
 
-    def _append_projected(self, indexer, keys, gates, valid) -> None:
+    def _append_projected(self, keys, gates, valid) -> None:
         previous = self.total_tokens
         count = int(keys.shape[1])
         stable = previous // self.index_kpool
@@ -330,7 +407,6 @@ class CompactIndexPoolCache:
         raw_positions = _concat(self.raw_positions, positions)
         self.total_tokens = previous + count
         self._write_pool_suffix(
-            indexer,
             stable * self.index_kpool,
             suffix_keys,
             suffix_gates,
@@ -410,24 +486,19 @@ class CompactIndexPoolCache:
         )
 
     def update(self, indexer, x: mx.array, qr: mx.array, mask=None):
-        if int(x.shape[0]) != 1:
-            raise ValueError("compact NoPE DSA cache supports batch size 1 only")
-        self._validate_indexer(indexer)
         length = int(x.shape[1])
+        short_bypass = self.validate_update(
+            indexer, batch=int(x.shape[0]), length=length
+        )
         keys = indexer.k_norm(indexer.wk(x)).reshape(1, length, self.head_dim)
         gates = x @ indexer.index_kpool_compress_gate.swapaxes(-1, -2)
         if mask is not None and mask.dtype == mx.bool_ and mask.shape == (1, length):
             valid = mask
         else:
             valid = mx.ones((1, length), dtype=mx.bool_)
-        self._append_projected(indexer, keys, gates, valid)
-        if getattr(indexer, "bypass_short", True) and self.total_tokens <= self.index_topk:
+        self._append_projected(keys, gates, valid)
+        if short_bypass:
             return None
-        if length != 1:
-            raise ValueError(
-                "compact NoPE DSA sparse path supports incremental decode only; "
-                "long sparse prefill is not admitted"
-            )
         return self._decode_selection(indexer, x, qr, valid)
 
     def is_trimmable(self) -> bool:
@@ -436,34 +507,44 @@ class CompactIndexPoolCache:
     def size(self) -> int:
         return self.total_tokens
 
-    def trim(self, tokens: int) -> int:
+    def validate_trim(self, tokens: int) -> None:
         if tokens < 1 or tokens > self.rollback_window:
             raise ValueError(
                 f"compact IndexPool trim must be within [1, {self.rollback_window}]"
             )
         if tokens > self.total_tokens:
             raise ValueError("compact IndexPool trim exceeds cached token count")
+        if self.raw_token_count - tokens < 0:
+            raise ValueError("compact IndexPool raw state cannot reconstruct trim target")
+
+    def trim(self, tokens: int) -> int:
+        self.validate_trim(tokens)
         target = self.total_tokens - tokens
         keep = self.raw_token_count - tokens
-        if keep < 0:
-            raise ValueError("compact IndexPool raw state cannot reconstruct trim target")
-        self.raw_keys = self.raw_keys[:, :keep]
-        self.raw_gates = self.raw_gates[:, :keep]
-        self.raw_valid = self.raw_valid[:, :keep]
-        self.raw_positions = self.raw_positions[:, :keep]
+        raw_keys = self.raw_keys[:, :keep]
+        raw_gates = self.raw_gates[:, :keep]
+        raw_valid = self.raw_valid[:, :keep]
+        raw_positions = self.raw_positions[:, :keep]
+        active = target % self.index_kpool
+        pooled = None
+        if active:
+            start = target - active
+            pooled = self._pool_suffix(
+                start,
+                raw_keys[:, -active:],
+                raw_gates[:, -active:],
+                raw_valid[:, -active:],
+            )
+        self.raw_keys = raw_keys
+        self.raw_gates = raw_gates
+        self.raw_valid = raw_valid
+        self.raw_positions = raw_positions
         self.total_tokens = target
         self.logical_pool_count = (
             target + self.index_kpool - 1
         ) // self.index_kpool
-        active = target % self.index_kpool
-        if active:
-            if self._indexer is None:
-                raise RuntimeError("restored IndexPool must bind an Indexer before trim")
-            keys = self.raw_keys[:, -active:]
-            gates = self.raw_gates[:, -active:]
-            valid = self.raw_valid[:, -active:]
-            start = target - active
-            self._write_pool_suffix(self._indexer, start, keys, gates, valid)
+        if pooled is not None:
+            self._write_pool_rows(start, pooled)
         return tokens
 
     def empty(self) -> bool:
@@ -478,6 +559,7 @@ class CompactIndexPoolCache:
             self.raw_gates,
             self.raw_valid,
             self.raw_positions,
+            self.compress_ape,
         )
 
     @state.setter
@@ -490,13 +572,13 @@ class CompactIndexPoolCache:
             self.raw_gates,
             self.raw_valid,
             self.raw_positions,
+            self.compress_ape,
         ) = value
         self.logical_pool_count = (
             0 if self.pool_keys is None else int(self.pool_keys.shape[1])
         )
         self.pool_capacity = self.logical_pool_count
         self.total_tokens = 0
-        self._indexer = getattr(self, "_indexer", None)
 
     @property
     def meta_state(self):
@@ -568,6 +650,7 @@ class CompactIndexPoolCache:
             self.raw_gates,
             self.raw_valid,
             self.raw_positions,
+            self.compress_ape,
         )
         return sum(int(value.nbytes) for value in values if value is not None)
 
@@ -582,6 +665,7 @@ class CompactIndexPoolCache:
                 self.raw_gates,
                 self.raw_valid,
                 self.raw_positions,
+                self.compress_ape,
             )
             if value is not None
         )
