@@ -1,6 +1,6 @@
 # GLM-5.3-Flash MLX runtime for M3 Ultra 512 GB
 
-`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutを直接読む経路で、全42 MoE層のpacked grouped FP8 prefillを実験的にopt-inできます。sparse DSA prefillは未実装です。
+`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。全42 MoE層のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。sparse DSA prefillは未実装です。
 
 提供する主なendpointは次のとおりです。
 
@@ -62,6 +62,16 @@ uv run glm53 serve \
 
 このflagは既定offです。kernel単体の実測損益分岐は16 routesですが、17-token oracleの全logits hashを維持するためruntimeは256 routes未満をpacked Direct-compatible pathへfallbackします。したがって256-token prefillはgrouped、batch-1 decodeと短いpromptはbit-identicalなselected top-8経路です。
 
+NoPE latentのK/V二重保持と全context分のpacked Indexer token historyを除去するproduction cacheは、次のflagで明示的に有効化します。
+
+```bash
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --experimental-compact-nope-dsa-cache
+```
+
+この経路は11 DSA層を`SingleNoPELatentCache + CompactIndexPoolCache`へ切り替えます。prefill 1〜256 tokenから直接compact poolを構築し、4,096-token generation headroomを256-token境界へ予約します。raw rollback state上限は監査済み`index_kpool`から`16 + index_kpool - 1`として導出され、公式checkpointでは19 tokenです。batch 1専用で、batch > 1はfail closedします。既定Direct cache、MoE backend、prompt/context admissionは変わりません。
+
 通常運転では同時sequenceを1に固定し、interactive decodeを優先します。既定memory設定はwired 440 GB、MLX cache 32 GB、prefill chunk 2048 tokensです。
 
 CPU expert bucket/full-KV DSA prefillを巨大promptへ誤って起動しないよう、次の2段階admissionを既定で適用します。
@@ -109,8 +119,12 @@ API keyを有効にした場合は、exampleの`options.apiKey`を`"{env:GLM53_A
 既定ではAPCを無効化しています。通常のBF16 hybrid state/KV cache容量は512 GB構成で十分であり、まず単一sessionの正しさを優先するためです。明示的に検証する場合だけ有効化してください。
 
 ```bash
-# RAM APCを有効化
+# Direct cacheのRAM APCを有効化
 uv run glm53 serve --apc --apc-blocks 256
+
+# compact NoPE cacheのRAM exact-snapshot APC
+uv run glm53 serve --apc --apc-blocks 256 \
+  --experimental-compact-nope-dsa-cache
 
 # SSD tierも使う（experimental。attested content identityを使用）
 uv run glm53 serve --apc --apc-blocks 512 \
@@ -118,7 +132,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、NoPE DSA cache ABIから生成します。NoPE ABIはlatent 512と`-1` sentinelを明示します。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。同じpathのweight payloadが置換された場合やDirectで生成したstateをgrouped backendが起動した場合も古いstateを復元しません。RAM/disk APCはいずれもhybrid-state parity gateが未完了なので既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、compact IndexPool v2、kpool4/int64、rollback16/raw19を明示する`glm53-nope-dsa-v2`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -167,6 +181,10 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | compact authoritative IndexPool, 256k | 1,483,609,600 → 208,460,549 bytes / 85.95%削減 / raw state 108,889 bytes |
 | compact arbitrary rollback | target mod 0/1/2/3 / trim 1–16 / 最大5 pool row / 全11 DSA層byte-identical |
 | compact all-DSA dependency chain, 2049 → 256k | 9.525 → 11.705 ms / retention 0.814 |
+| production compact full-model decode, 2k → 256k | 11.005 → 10.633 tok/s / retention 0.966 |
+| production compact 2k vs Direct | 11.005 vs 10.920 tok/s / 1.008× |
+| production compact DSA total, 2k → 256k | 13.444 → 19.877 ms |
+| production compact active/peak, 256k | 324.396 / 324.585 GB |
 
 再測定コマンド:
 
@@ -236,6 +254,10 @@ uv run python scripts/probe_compact_authoritative_indexpool_state.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --warmup-steps 4 --measured-steps 16 \
   --output bench-results/m3ultra512-compact-indexpool-arbitrary-rollback-20260830.json
+
+uv run python scripts/probe_compact_nope_dsa_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-compact-nope-dsa-runtime-20260830.json
 ```
 
 ### Packed expert bank feasibility
@@ -338,7 +360,17 @@ segmented armはimmutable complete prefixをcopyせず、pool carryは0.044 ms�
 
 全3 context × 16 step × 11層でindex/output hashとpool keys/indices/validがfull-history oracleとbyte-identicalです。`mx.depends`で11層を直列化したarmも全hash一致し、2049→256k medianは9.525→11.705 ms、critical-path retentionは0.814でした。独立aggregateは8.634→9.426 msです。rollback target mod 0/1/2/3、trim 1/2/3/4/8/15/16、1〜5 pool row横断、capacity境界前後の30 caseを全11層で測定し、各caseでtrim→replay→再trimを実行しました。60 roundの全stepでpool keys/indices/valid、selected index、attention output、replay後stateがoracleとbyte-identicalです。17-token trimは全11層でfail closedし、stateを変更しません。
 
-tail/journal appendは全contextで114,620 bytesと一定で、phase retentionは0.991です。一方、contiguous pool末尾のMLX functional scatterは256kで208,348,481 bytes、0.949 ms残ります。今回の判定目標はすべて通過したためcompact stateはruntime architecture候補ですが、このcommitはprobe-onlyです。runtime cache、disk/RAM APC schema、NoPE cache ABI、server、admissionは変更していません。disk APCで208 MB級compact poolをauthoritative stateとして保存する判断は、runtime統合とI/O実測を行う次の独立gateで再評価します。
+tail/journal appendは全contextで114,620 bytesと一定で、phase retentionは0.991です。一方、contiguous pool末尾のMLX functional scatterは256kで208,348,481 bytes、0.949 ms残ります。このprobeで状態表現を確定し、次節のopt-in production runtimeへ統合しました。
+
+### Opt-in production compact NoPE DSA cache
+
+production moduleはprobe scriptへ依存せず、`SingleNoPELatentCache`と`CompactIndexPoolCache`を実装します。前者はlatent 512を一つだけ保持し、後者はcontiguous pool keys/int64 indices/valid、最大3-token active tail、16-token rollback journalだけをauthoritative stateにします。decode/append/score/trim hot pathにNumPy、`.item()`、明示的`mx.eval`、CPU同期はありません。capacityは16 token固定ではなく、promptとadmitted generation 4,096 tokenを256境界へ予約し、追加growthにも対応します。
+
+prompt 1/16/128/256からの16-token decodeは全stepのfull-vocab logitsがDirectとbyte-identicalです。synthetic 2k sparse cacheでも5 measured stepのfull-model logits hashがDirectと一致しました。RAM APC restore位置mod 4 = 0/1/2/3は各16-token continuationがbyte-identicalで、prefill後のpacked Indexer full historyは存在せず、raw stateは最大19 tokenです。256-token caseのdecode中active memoryは増加せず、正のgrowth最大値はprompt 1の13.8 MBでした。
+
+full-model synthetic-cache frontierは2 warmup＋5 samplesで、2k / 8k / 16k / 32k / 128k / 256kを測定しました。decodeは11.005から10.633 tok/s、retention 0.966です。2k Direct 10.920 tok/sに対してcompactは1.008×で、5% non-regression gateを通過しました。全11 DSA同期合計は13.444→19.877 ms、IndexPool updateは7.169→10.175 ms、pool carryは2.549→2.406 msです。256k active/peakは324.396/324.585 GBでOOMはありません。opt-in serverも`cache_backend=compact-nope-dsa`で起動し、`/health` HTTP 200を確認しました。
+
+compactとDirectはAPC descriptorの`cache_backend`とcache ABIで分離します。RAM APCだけを許可し、compact disk APCはfail closedです。このruntimeはnon-speculativeです。KDA recurrent stateにrollback journalはないため、MTP/DFlash2やtarget verification対応済みとは扱いません。既定backendはDirect、prompt上限256、総context上限16,384のままです。
 
 ### NoPE IndexPool safety gate
 

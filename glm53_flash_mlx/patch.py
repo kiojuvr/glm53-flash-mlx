@@ -33,6 +33,10 @@ def apply_runtime_patch() -> None:
             prepare_decode_indexpool_gather,
             sanitize_indexpool_indices,
         )
+        from .nope_cache import (
+            CompactIndexPoolCache,
+            make_compact_nope_dsa_cache,
+        )
 
         class ClampedSwiGLU(nn.Module):
             def __init__(self, limit: float):
@@ -117,7 +121,10 @@ def apply_runtime_patch() -> None:
         original_indexer_call = glm.Glm5NextIndexer.__call__
 
         def indexer_call(self, x, qr, mask, cache=None):
-            indices = original_indexer_call(self, x, qr, mask, cache=cache)
+            if isinstance(cache, CompactIndexPoolCache):
+                indices = cache.update(self, x, qr, mask)
+            else:
+                indices = original_indexer_call(self, x, qr, mask, cache=cache)
             if indices is None:
                 return None
             kv_len = indexpool_cache_kv_len(cache, x.shape[1])
@@ -186,15 +193,15 @@ def apply_runtime_patch() -> None:
                         sparse_mask = sparse_mask & mask
                     attn_mask = sparse_mask
 
-            if (
-                cache is not None
-                and cache[0] is not None
-                and cache[1] is not None
-                and cache[1].keys is not None
-            ):
-                cache[0].keys = mx.depends(
-                    cache[0].keys, (cache[1].keys, cache[1].values)
-                )
+            if cache is not None and cache[0] is not None and cache[1] is not None:
+                if isinstance(cache[1], CompactIndexPoolCache):
+                    dependencies = cache[1].dependency_arrays()
+                    if cache[0].keys is not None and dependencies:
+                        cache[0].keys = mx.depends(cache[0].keys, dependencies)
+                elif cache[1].keys is not None:
+                    cache[0].keys = mx.depends(
+                        cache[0].keys, (cache[1].keys, cache[1].values)
+                    )
 
             if L == 1:
                 q = self.embed_q(q)
@@ -237,6 +244,31 @@ def apply_runtime_patch() -> None:
             return lambda key: not key.endswith(fp32_suffixes)
 
         glm.LanguageModel.cast_predicate = property(cast_predicate)
+
+        original_make_cache = glm.LanguageModel.make_cache
+
+        def make_cache(self):
+            if getattr(self, "_glm53_cache_backend", "direct") != "compact-nope-dsa":
+                return original_make_cache(self)
+            from mlx_vlm.models.cache import ArraysCache
+
+            reserve_tokens = int(
+                getattr(self, "_glm53_compact_cache_reserve_tokens", 4096)
+            )
+            caches = []
+            for layer in self.layers:
+                if layer.is_linear:
+                    caches.append(ArraysCache(size=2))
+                else:
+                    caches.append(
+                        make_compact_nope_dsa_cache(
+                            layer.self_attn.indexer,
+                            reserve_tokens=reserve_tokens,
+                        )
+                    )
+            return caches
+
+        glm.LanguageModel.make_cache = make_cache
         _PATCHED = True
 
 
@@ -251,6 +283,7 @@ def patch_status() -> dict:
             "indexer_layernorm_epsilon",
             "indexpool_sentinel_and_range",
             "attention_gather_range_recheck",
+            "compact_nope_dsa_cache_dispatch",
             "mhc_kda_float32_storage",
         ],
     }

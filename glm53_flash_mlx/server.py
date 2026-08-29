@@ -17,7 +17,8 @@ from .abi import (
     GROUPED_MIN_ROUTES,
     KERNEL_ABI_VERSION,
     MLX_VLM_REVISION,
-    NOPE_DSA_CACHE_ABI,
+    NOPE_DSA_CACHE_ABI_COMPACT,
+    NOPE_DSA_CACHE_ABI_DIRECT,
     PACKED_DECODE_KERNEL_ABI,
     PACKED_EXPERT_BANK_ABI,
 )
@@ -29,6 +30,28 @@ DEFAULT_MODEL = DEFAULT_SOURCE
 DEFAULT_MAX_PROMPT_TOKENS = 256
 DEFAULT_MAX_GENERATION_TOKENS = 4_096
 DEFAULT_MAX_CONTEXT_TOKENS = 16_384
+
+
+def validate_cache_apc_policy(
+    *,
+    apc: bool,
+    apc_disk_path: Path | None,
+    experimental_disk_apc: bool,
+    experimental_compact_nope_dsa_cache: bool,
+) -> None:
+    """Fail closed before loading weights for unsupported disk cache layouts."""
+    if apc_disk_path is None:
+        return
+    if not apc or not experimental_disk_apc:
+        raise ValueError(
+            "disk APC is experimental; require both --apc and "
+            "--experimental-disk-apc"
+        )
+    if experimental_compact_nope_dsa_cache:
+        raise ValueError(
+            "compact NoPE DSA disk APC is not implemented; "
+            "use RAM APC or disable the compact cache"
+        )
 
 
 def validate_admission(
@@ -64,12 +87,18 @@ def validate_admission(
 
 def _disk_cache_descriptor(content_digest: str) -> dict:
     """Build the auditable descriptor behind the disk APC namespace hash."""
+    cache_backend = os.environ.get("GLM53_CACHE_BACKEND", "direct")
     descriptor = {
         "schema": CACHE_IDENTITY_SCHEMA,
         "checkpoint_content_sha256": content_digest,
         "mlx_vlm_revision": MLX_VLM_REVISION,
         "metal_kernel_abi": KERNEL_ABI_VERSION,
-        "attention_cache_abi": NOPE_DSA_CACHE_ABI,
+        "attention_cache_abi": (
+            NOPE_DSA_CACHE_ABI_COMPACT
+            if cache_backend == "compact-nope-dsa"
+            else NOPE_DSA_CACHE_ABI_DIRECT
+        ),
+        "cache_backend": cache_backend,
         "apc_hash": "sha256",
         "apc_block_size": 64,
         "kv_bits": os.environ.get("KV_BITS"),
@@ -114,6 +143,7 @@ def configure_m3_ultra(
     apc_disk_path: Path | None,
     warm_residency: bool,
     experimental_packed_grouped_moe: bool,
+    experimental_compact_nope_dsa_cache: bool,
     max_prompt_tokens: int,
     max_context_tokens: int,
 ) -> None:
@@ -135,6 +165,12 @@ def configure_m3_ultra(
     )
     os.environ["GLM53_MOE_BACKEND"] = (
         "packed-grouped" if experimental_packed_grouped_moe else "direct"
+    )
+    os.environ["GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE"] = (
+        "1" if experimental_compact_nope_dsa_cache else "0"
+    )
+    os.environ["GLM53_CACHE_BACKEND"] = (
+        "compact-nope-dsa" if experimental_compact_nope_dsa_cache else "direct"
     )
     if api_key:
         os.environ["MLX_VLM_SERVER_API_KEY"] = api_key
@@ -163,6 +199,12 @@ def _install_server_loader() -> None:
         inspect_checkpoint(path, require_server_ready=True)
         kwargs["experimental_packed_grouped_moe"] = (
             os.environ.get("GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE") == "1"
+        )
+        kwargs["experimental_compact_nope_dsa_cache"] = (
+            os.environ.get("GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE") == "1"
+        )
+        kwargs["compact_cache_reserve_tokens"] = int(
+            os.environ.get("GLM53_MAX_GENERATION_TOKENS", "4096")
         )
         loaded = direct_load(path, adapter_path=adapter_path, **kwargs)
         if os.environ.get("GLM53_WARM_RESIDENCY", "1") == "1":
@@ -241,6 +283,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="pack all routed experts and enable the grouped prefill kernel",
     )
     p.add_argument(
+        "--experimental-compact-nope-dsa-cache",
+        action="store_true",
+        help=(
+            "use single-latent and compact authoritative IndexPool caches; "
+            "single-sequence and RAM-APC only"
+        ),
+    )
+    p.add_argument(
         "--experimental-disk-apc",
         action="store_true",
         help="allow disk APC using the mandatory attested checkpoint identity",
@@ -262,8 +312,16 @@ def main(argv: list[str] | None = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     try:
+        validate_cache_apc_policy(
+            apc=args.apc,
+            apc_disk_path=args.apc_disk_path,
+            experimental_disk_apc=args.experimental_disk_apc,
+            experimental_compact_nope_dsa_cache=(
+                args.experimental_compact_nope_dsa_cache
+            ),
+        )
         report = inspect_checkpoint(args.model, require_server_ready=True)
-    except ManifestError as exc:
+    except (ManifestError, ValueError) as exc:
         print(f"glm53-serve: {exc}", file=sys.stderr)
         return 2
     if args.max_prompt_tokens <= 0 or args.max_context_tokens <= 0 or args.max_tokens <= 0:
@@ -272,15 +330,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.max_prompt_tokens > args.max_context_tokens:
         print("glm53-serve: max prompt tokens cannot exceed total context", file=sys.stderr)
         return 2
-    if args.apc_disk_path is not None:
-        if not args.apc or not args.experimental_disk_apc:
-            print(
-                "glm53-serve: disk APC is experimental; require both --apc and "
-                "--experimental-disk-apc",
-                file=sys.stderr,
-            )
-            return 2
-
     configure_m3_ultra(
         model=args.model,
         prefill_step_size=args.prefill_step_size,
@@ -291,6 +340,9 @@ def main(argv: list[str] | None = None) -> int:
         apc_disk_path=args.apc_disk_path,
         warm_residency=args.warm_residency,
         experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+        experimental_compact_nope_dsa_cache=(
+            args.experimental_compact_nope_dsa_cache
+        ),
         max_prompt_tokens=args.max_prompt_tokens,
         max_context_tokens=args.max_context_tokens,
     )
@@ -322,8 +374,9 @@ def main(argv: list[str] | None = None) -> int:
         patch_status(),
     )
     logging.getLogger(__name__).info(
-        "moe_backend=%s prompt_limit=%d",
+        "moe_backend=%s cache_backend=%s prompt_limit=%d",
         os.environ["GLM53_MOE_BACKEND"],
+        os.environ["GLM53_CACHE_BACKEND"],
         args.max_prompt_tokens,
     )
 
