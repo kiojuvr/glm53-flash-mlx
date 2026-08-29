@@ -162,6 +162,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | all 11 DSA restored first token, 2049 → 256k | 13.891 → 39.704 ms / rebuild追加2.876 → 27.146 ms |
 | NoPE single latent storage, 256k | 5,911,347,200 → 2,955,673,600 bytes / 2,955,673,600 bytes削減 |
 | NoPE capacity boundary, 256k | dual step256 87.797 ms / single step256 87.595 ms / single preallocated 39.071 ms |
+| all-DSA preallocated pool-row, 2049 → 256k | 9.326 → 9.377 ms / aggregate retention 0.994 |
+| decomposed IndexPool update, 2049 → 256k | 2.927 → 8.121 ms / retention 0.360 / packed-token append 4.665 ms @256k |
 
 再測定コマンド:
 
@@ -221,6 +223,11 @@ uv run python scripts/probe_single_buffer_nope_latent_cache_frontier.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --warmup-steps 4 --measured-steps 16 \
   --output bench-results/m3ultra512-single-buffer-nope-latent-cache-frontier-20260829.json
+
+uv run python scripts/probe_incremental_indexpool_update_copies.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --warmup-steps 4 --measured-steps 16 \
+  --output bench-results/m3ultra512-incremental-indexpool-update-copies-20260829.json
 ```
 
 ### Packed expert bank feasibility
@@ -303,9 +310,17 @@ restoredのfirst tokenは2049で13.891 ms、256kで39.704 ms、residentに対す
 
 256kでdual storageは5,911,347,200 bytes、single storageは2,955,673,600 bytesで、2,955,673,600 bytes削減しました。step256 armの16-token memory driftはdual 2,958,169,240 bytesに対してsingle 5,202,062 bytes、working peakは3,465,020,985 bytesから569,959,264 bytesへ低下しています。latent copy bytesも5,905,580,032から2,952,790,016へ半減しました。steady medianはdual 15.438 ms、single 15.650 msで1.014×、5%非劣化gate内です。
 
-ただしsingle-buffer単独では256k capacity-boundary latencyは87.797 msから87.595 msで、実質的なspike低減はありません。16-token分を事前確保したsingle armではlatent copyが0、boundaryは39.071 ms、working peakは509,214,351 bytesです。したがってprobe上のruntime候補は「single NoPE latent buffer + 16-token allocation headroom」であり、copy本数削減だけをlatency改善とは扱いません。preallocated steadyもdual比1.009×で5%非劣化gate内です。
+ただしsingle-buffer単独では256k capacity-boundary latencyは87.797 msから87.595 msで、実質的なspike低減はありません。測定用の16-token headroomを持つsingle armではlatent copyが0、boundaryは39.071 ms、working peakは509,214,351 bytesです。容量は256-token境界へ切り上げられ、Indexer token/pool stateの拡張は別に残るため、runtime候補は「single NoPE latent buffer + admitted generation全体のhybrid cache capacity reservation」です。16-token固定のpolicyではありません。preallocated steadyもdual比1.009×で5%非劣化gate内です。
 
 single preallocatedの2049→256k retentionは0.625で、0.8 gateには届きません。consumer境界で同期したphase medianでは、latent projection/append 0.690→0.735 ms、Indexer pool update 2.695→7.053 ms、pool score 1.005→2.222 ms、argsort/top-k 0.355→1.430 ms、pool expansion 1.502→1.845 ms、gather 0.975→1.184 ms、selected attention 4.444→4.516 msでした。最大の絶対増加はIndexer pool updateなので、full-model frontierへは進まず、次はこのphaseをtoken append、partial-pool再計算、complete-pool row copyへ分解します。
+
+### Incremental IndexPool update copy decomposition
+
+全11 DSA層のIndexer updateをcurrent-token projection、packed-token append、最大4-token partial-pool recomputation、complete-prefix carry、pool publicationの5区間へ分けました。2049 / 128k / 256kの各contextで4 warmup後に16 tokenを連続実行し、Indexer token cacheとsingle latent cacheには測定区間を越えるcapacityを予約しています。容量拡張は別armで測定し、steady統計へ混ぜていません。
+
+`reference-concat`、`preallocated-pool-row`、`segmented-pool`を比較した結果、preallocated armは全48 case × 全11層でreferenceとのindex/output hashがbyte-identicalでした。all-DSA aggregate medianは9.326 msから9.377 msでretention 0.994です。しかしMLXのslice assignmentは物理的なin-place row更新ではなくfunctional scatterです。256kのphase同期値はprojection 0.545 ms、packed-token append 4.665 ms、partial recomputation 1.505 ms、pool-row scatter 1.372 ms、publication 0.034 msで、5区間合計は8.121 msです。packed-token bufferは約1,483.6 MB、pool bufferは約208.35 MBのprefixを新しいMLX valueへcarryするため、pool-update retentionは0.360に留まりました。
+
+segmented armはimmutable complete prefixをcopyせず、pool carryは0.044 ms、complete-prefix copy bytesは0です。一方、prefixとtailを別matmulでscoreすると48 step case中14 caseでindex order hashがreferenceと一致せず、byte-identical gateを通過しませんでした。attention output hashまで変わったのはその一部ですが、runtime候補にはしません。したがってpreallocated armはaggregate性能を満たすがcopy-free条件で棄却、segmented armはcopy-freeだがexact parity条件で棄却です。次はpacked Indexer token appendをcopy-freeにする状態表現と、Direct-orderを保つsegmented scoreを独立に検証します。runtime、server、APC ABI、admissionは変更していません。pool indicesもint64のままです。
 
 ### NoPE IndexPool safety gate
 
