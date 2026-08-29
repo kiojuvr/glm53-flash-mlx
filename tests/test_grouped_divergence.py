@@ -39,6 +39,17 @@ _SUFFIX_MODULE = importlib.util.module_from_spec(_SUFFIX_SPEC)
 sys.modules[_SUFFIX_SPEC.name] = _SUFFIX_MODULE
 _SUFFIX_SPEC.loader.exec_module(_SUFFIX_MODULE)
 
+_PARITY_SPEC = importlib.util.spec_from_file_location(
+    "probe_grouped_fp8_parity_ladder",
+    Path(__file__).parents[1]
+    / "scripts"
+    / "probe_grouped_fp8_parity_ladder.py",
+)
+assert _PARITY_SPEC is not None and _PARITY_SPEC.loader is not None
+_PARITY_MODULE = importlib.util.module_from_spec(_PARITY_SPEC)
+sys.modules[_PARITY_SPEC.name] = _PARITY_MODULE
+_PARITY_SPEC.loader.exec_module(_PARITY_MODULE)
+
 DISABLED_MIN_ROUTES = _MODULE.DISABLED_MIN_ROUTES
 _logits_metrics = _MODULE._logits_metrics
 _set_grouped_layers = _MODULE._set_grouped_layers
@@ -50,6 +61,9 @@ _screen = _SUFFIX_MODULE._screen
 _RecordedIndicesCurrentScoresGate = (
     _SUFFIX_MODULE._RecordedIndicesCurrentScoresGate
 )
+_build_direct_order_tile_plan = _PARITY_MODULE._build_tile_plan
+_direct_order_grouped_linear = _PARITY_MODULE.direct_order_grouped_linear
+_direct_order_reduce = _PARITY_MODULE.direct_order_reduce
 
 
 def test_set_grouped_layers_enables_only_requested_layers():
@@ -183,3 +197,58 @@ def test_indices_only_gate_recomputes_scores_for_direct_expert_ids():
 
     assert np.array_equal(np.asarray(indices), np.array([[2, 0]]))
     assert np.allclose(np.asarray(scores), expected, rtol=1e-6, atol=1e-6)
+
+
+def test_direct_order_bm8_projection_matches_direct_singleton_and_tiled8_exactly():
+    from glm53_flash_mlx.fp8 import block_fp8_linear
+
+    sorted_experts = mx.array([0] + [1] * 7 + [2] * 9, dtype=mx.uint32)
+    x = mx.random.normal(shape=(17, 128)).astype(mx.bfloat16)
+    weight = mx.random.randint(0, 247, shape=(3, 128, 128)).astype(mx.uint8)
+    scale = (mx.random.uniform(shape=(3, 1, 1)) * 0.002).astype(mx.float32)
+    plan = _build_direct_order_tile_plan(
+        sorted_experts, 3, tile_rows=8
+    )
+    actual = _direct_order_grouped_linear(
+        x,
+        plan,
+        weight,
+        scale,
+        row_offset=0,
+        scale_row_offset=0,
+        out_features=128,
+    )
+    expected = mx.concatenate(
+        [
+            block_fp8_linear(x[:1], weight[0], scale[0]),
+            block_fp8_linear(x[1:8], weight[1], scale[1]),
+            block_fp8_linear(x[8:], weight[2], scale[2]),
+        ],
+        axis=0,
+    )
+    mx.eval(actual, expected)
+    assert mx.array_equal(actual, expected).item()
+
+
+def test_fused_direct_order_reduction_matches_expert_scatter_add():
+    indices = mx.array(
+        [[7, 0, 6, 1, 5, 2, 4, 3], [3, 4, 2, 5, 1, 6, 0, 7]],
+        dtype=mx.uint32,
+    )
+    scores = mx.random.uniform(shape=(2, 8)).astype(mx.float32)
+    route_output = mx.random.normal(shape=(16, 128)).astype(mx.bfloat16)
+    expected = mx.zeros((2, 128), dtype=mx.bfloat16)
+    indices_np = np.asarray(indices)
+    for expert_id in range(8):
+        positions = np.argwhere(indices_np == expert_id)
+        rows = mx.array(positions[:, 0], dtype=mx.int32)
+        flat_positions = mx.array(
+            positions[:, 0] * 8 + positions[:, 1], dtype=mx.int32
+        )
+        slots = mx.array(positions[:, 1], dtype=mx.int32)
+        expected = expected.at[rows].add(
+            route_output[flat_positions] * scores[rows, slots][..., None]
+        )
+    actual = _direct_order_reduce(route_output, indices, scores)
+    mx.eval(actual, expected)
+    assert mx.array_equal(actual, expected).item()
