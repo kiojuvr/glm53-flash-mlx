@@ -160,6 +160,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | layer 3 DSA pool rebuild, 2049 → 256k | 2.558 → 5.604 ms / retention 0.456 / 256k pool update 3.137 ms |
 | all 11 DSA persistent steady, 2049 → 256k | 9.296 → 15.255 ms / retention 0.609 / token 2–16 median |
 | all 11 DSA restored first token, 2049 → 256k | 13.891 → 39.704 ms / rebuild追加2.876 → 27.146 ms |
+| NoPE single latent storage, 256k | 5,911,347,200 → 2,955,673,600 bytes / 2,955,673,600 bytes削減 |
+| NoPE capacity boundary, 256k | dual step256 87.797 ms / single step256 87.595 ms / single preallocated 39.071 ms |
 
 再測定コマンド:
 
@@ -214,6 +216,11 @@ uv run python scripts/probe_persistent_all_dsa_session_frontier.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --warmup-steps 2 \
   --output bench-results/m3ultra512-persistent-all-dsa-session-frontier-20260829.json
+
+uv run python scripts/probe_single_buffer_nope_latent_cache_frontier.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --warmup-steps 4 --measured-steps 16 \
+  --output bench-results/m3ultra512-single-buffer-nope-latent-cache-frontier-20260829.json
 ```
 
 ### Packed expert bank feasibility
@@ -289,6 +296,16 @@ residentの全11層aggregate token 2–16 medianは2049で9.296 ms、256kで15.2
 restoredのfirst tokenは2049で13.891 ms、256kで39.704 ms、residentに対するpool rebuild追加は2.876 / 27.146 msです。token 2–16 medianは9.314 / 15.316 msまでresident相当に戻り、再構築は一回限りでした。256k pool payloadはBF16 184,560,640 bytes、int64 23,070,080 bytes、bool 720,940 bytes、計208,351,660 bytesです。7 GB/sという楽観的なdisk I/Oでも29.765 msが下限なので、128k/256kのscreeningではpool payload永続化より再構築が安価でした。ただし実I/O benchmarkではなく、disk APC ABIは変更していません。RAM APCもzero-copy保持経路が存在しないため候補化していません。
 
 全160 step × 11層でindexは`-1`または`[0, Kv)`、unused slotはすべて`-1`、NaNなし、resident/restoredのindex・output hash一致、pool tail 0/1/2/3一致、cache object identity保持、idle measurementによるstate mutationなしです。256k residentの16-token memory driftは2,960,935,042 bytes、peakは13,814,772,322 bytesでした。これらはDSA operator集合の測定であり、KDA/MoE/lm_headを含むfull-model decode性能ではありません。
+
+### Single-buffer NoPE latent cache frontier
+
+全11 DSA層について、現行dual KVCache / dual preallocated / single latent step256 / single latent preallocatedの4 armを2049 / 128k / 256kで比較しました。warmupはpool-tailの4 shapeをすべて通す4 step、測定はpersistent cacheで16 stepです。非同期end-to-end sessionとは別にphase同期sessionを再生し、全arm・全step・全層で現行KVCacheとのindex/output hashと、manual phase decompositionとのhashがbyte-identicalであることを確認しています。この`ProbeNoPELatentCache`はprobe内だけにあり、runtimeやcache ABIには導入していません。
+
+256kでdual storageは5,911,347,200 bytes、single storageは2,955,673,600 bytesで、2,955,673,600 bytes削減しました。step256 armの16-token memory driftはdual 2,958,169,240 bytesに対してsingle 5,202,062 bytes、working peakは3,465,020,985 bytesから569,959,264 bytesへ低下しています。latent copy bytesも5,905,580,032から2,952,790,016へ半減しました。steady medianはdual 15.438 ms、single 15.650 msで1.014×、5%非劣化gate内です。
+
+ただしsingle-buffer単独では256k capacity-boundary latencyは87.797 msから87.595 msで、実質的なspike低減はありません。16-token分を事前確保したsingle armではlatent copyが0、boundaryは39.071 ms、working peakは509,214,351 bytesです。したがってprobe上のruntime候補は「single NoPE latent buffer + 16-token allocation headroom」であり、copy本数削減だけをlatency改善とは扱いません。preallocated steadyもdual比1.009×で5%非劣化gate内です。
+
+single preallocatedの2049→256k retentionは0.625で、0.8 gateには届きません。consumer境界で同期したphase medianでは、latent projection/append 0.690→0.735 ms、Indexer pool update 2.695→7.053 ms、pool score 1.005→2.222 ms、argsort/top-k 0.355→1.430 ms、pool expansion 1.502→1.845 ms、gather 0.975→1.184 ms、selected attention 4.444→4.516 msでした。最大の絶対増加はIndexer pool updateなので、full-model frontierへは進まず、次はこのphaseをtoken append、partial-pool再計算、complete-pool row copyへ分解します。
 
 ### NoPE IndexPool safety gate
 
