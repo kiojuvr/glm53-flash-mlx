@@ -273,8 +273,8 @@ def apply_runtime_patch() -> None:
                 return original_make_cache(self)
             from mlx_vlm.models.cache import ArraysCache
 
-            reserve_tokens = int(
-                getattr(self, "_glm53_compact_cache_reserve_tokens", 4096)
+            capacity_tokens = int(
+                getattr(self, "_glm53_compact_cache_capacity_tokens", 4352)
             )
             caches = []
             for layer in self.layers:
@@ -284,7 +284,7 @@ def apply_runtime_patch() -> None:
                     caches.append(
                         make_compact_nope_dsa_cache(
                             layer.self_attn.indexer,
-                            reserve_tokens=reserve_tokens,
+                            capacity_tokens=capacity_tokens,
                         )
                     )
             return caches

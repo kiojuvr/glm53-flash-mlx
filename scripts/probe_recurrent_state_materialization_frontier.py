@@ -347,7 +347,7 @@ def main() -> int:
         "cache_abi": NOPE_DSA_CACHE_ABI_COMPACT,
         "backend": "compact-nope-dsa+direct-moe",
         "steps": args.steps,
-        "reserve_tokens": args.steps + RESERVE_TAIL,
+        "capacity_tokens": args.steps + RESERVE_TAIL,
         "telemetry_interval": TELEMETRY_INTERVAL,
         "hash_steps": list(hash_steps(args.steps)),
         "materialization_operation": (
@@ -369,7 +369,7 @@ def main() -> int:
     model, _ = load(
         args.model,
         experimental_compact_nope_dsa_cache=True,
-        compact_cache_reserve_tokens=args.steps + RESERVE_TAIL,
+        compact_cache_capacity_tokens=args.steps + RESERVE_TAIL,
     )
     warm_residency(model)
     _warm_model(model)

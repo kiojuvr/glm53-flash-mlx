@@ -14,9 +14,10 @@ NOPE_DSA_CACHE_ABI_DIRECT = (
     "-sentinel-minus1"
 )
 NOPE_DSA_CACHE_ABI_COMPACT = (
-    "glm53-nope-dsa-v3"
+    "glm53-nope-dsa-v4"
     "-single-latent512"
-    "-compact-indexpool-v3"
+    "-compact-indexpool-v4"
+    "-fixed-absolute-capacity"
     "-kpool4-int64"
     "-rollback16-raw19"
     "-self-contained-ape"

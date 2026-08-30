@@ -42,6 +42,7 @@ def test_m3_defaults(monkeypatch, tmp_path):
     assert os.environ["GLM53_WARM_RESIDENCY"] == "1"
     assert os.environ["GLM53_MAX_PROMPT_TOKENS"] == "256"
     assert os.environ["GLM53_MAX_GENERATION_TOKENS"] == "4096"
+    assert os.environ["GLM53_COMPACT_CACHE_CAPACITY_TOKENS"] == "4352"
     assert os.environ["MAX_KV_SIZE"] == "16384"
     assert os.environ["GLM53_MOE_BACKEND"] == "direct"
     assert os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] == "0"
@@ -104,7 +105,9 @@ def test_disk_cache_identity_separates_compact_cache_and_moe_combinations(monkey
     compact_direct_moe = _disk_cache_identity("checkpoint-digest")
     compact_descriptor = _disk_cache_descriptor("checkpoint-digest")
     assert compact_descriptor["attention_cache_abi"] == NOPE_DSA_CACHE_ABI_COMPACT
-    assert NOPE_DSA_CACHE_ABI_COMPACT.startswith("glm53-nope-dsa-v3-")
+    assert NOPE_DSA_CACHE_ABI_COMPACT.startswith("glm53-nope-dsa-v4-")
+    assert "compact-indexpool-v4" in NOPE_DSA_CACHE_ABI_COMPACT
+    assert "fixed-absolute-capacity" in NOPE_DSA_CACHE_ABI_COMPACT
     assert "self-contained-ape" in NOPE_DSA_CACHE_ABI_COMPACT
     assert compact_descriptor["cache_backend"] == "compact-nope-dsa"
     assert compact_direct_moe != direct

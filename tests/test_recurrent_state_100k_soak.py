@@ -75,6 +75,14 @@ def test_25k_stop_gate_detects_monotonic_cache_growth():
                     "peak_memory_bytes": 1_000,
                 },
                 "state_leaf_count": 167,
+                "authoritative_cache_bytes": 1_000,
+                "capacity": {
+                    "dsa_layer_count": 11,
+                    "configured_capacity_tokens": [100_016],
+                    "latent_physical_capacity_tokens": [100_096],
+                    "indexpool_physical_capacity_rows": [25_024],
+                    "all_layers_uniform": True,
+                },
             }
             for step in range(1, 5)
         ],
@@ -103,6 +111,14 @@ def test_final_acceptance_keeps_final_evidence_out_of_scheduled_count():
         "materialization_ms": 1.5,
         "state_leaf_count": 167,
         "state_array_leaf_count": 167,
+        "authoritative_cache_bytes": 1_000,
+        "capacity": {
+            "dsa_layer_count": 11,
+            "configured_capacity_tokens": [100_016],
+            "latent_physical_capacity_tokens": [100_096],
+            "indexpool_physical_capacity_rows": [25_024],
+            "all_layers_uniform": True,
+        },
     }
     artifact = {
         "boundary_telemetry": [dict(boundary) for _ in range(390)],
@@ -110,6 +126,15 @@ def test_final_acceptance_keeps_final_evidence_out_of_scheduled_count():
         "reference_8192": {
             "logits_hashes": {"8192": "logits"},
             "token_sha256": "tokens",
+        },
+        "previous_100k": {
+            "checkpoint_hashes": {
+                "8192": {
+                    "logits_sha256": "logits",
+                    "token_sha256": "tokens",
+                }
+            },
+            "final_token_sha256": "final",
         },
         "checkpoint_hashes": {
             "8192": {"logits_sha256": "logits", "token_sha256": "tokens"}
@@ -123,13 +148,39 @@ def test_final_acceptance_keeps_final_evidence_out_of_scheduled_count():
     probe._finalize(artifact, [0.1] * 100_000)
     assert artifact["acceptance"]["accepted"] is True
     assert artifact["summary"]["scheduled_materialization_count"] == 390
+    assert artifact["summary"]["physical_capacity_constant"] is True
+
+
+def test_fixed_capacity_gates_reject_physical_or_authoritative_growth():
+    probe = _load_probe()
+    capacity = {
+        "dsa_layer_count": 11,
+        "configured_capacity_tokens": [100_016],
+        "latent_physical_capacity_tokens": [100_096],
+        "indexpool_physical_capacity_rows": [25_024],
+        "all_layers_uniform": True,
+    }
+    boundaries = [
+        {
+            "capacity": capacity,
+            "authoritative_cache_bytes": 1_000,
+        },
+        {
+            "capacity": {**capacity, "indexpool_physical_capacity_rows": [25_088]},
+            "authoritative_cache_bytes": 1_000 + 2**20 + 1,
+        },
+    ]
+    assert probe._physical_capacity_is_constant(boundaries) is False
+    assert probe._authoritative_cache_drift(boundaries) == 2**20 + 1
 
 
 def test_probe_is_explicitly_non_runtime_and_atomic():
     probe = _load_probe()
     source = Path(probe.__file__).read_text()
     assert "experimental_compact_nope_dsa_cache=True" in source
-    assert "compact_cache_reserve_tokens=args.steps + RESERVE_TAIL" in source
+    assert "compact_cache_capacity_tokens=args.steps + RESERVE_TAIL" in source
+    assert "glm53-recurrent-state-100k-fixed-capacity-v2" in source
+    assert "token_and_logits_hashes_match_79e1a60" in source
     assert "server_admission_bypassed_inside_probe_only" in source
     assert "temporary.replace(path)" in source
     assert '"process_resume_supported": False' in source

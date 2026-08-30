@@ -213,7 +213,7 @@ def load_model(
     strict: bool = True,
     experimental_packed_grouped_moe: bool = False,
     experimental_compact_nope_dsa_cache: bool = False,
-    compact_cache_reserve_tokens: int = 4096,
+    compact_cache_capacity_tokens: int = 4352,
 ):
     path = Path(path).expanduser().resolve()
     report = inspect_checkpoint(path, require_server_ready=True)
@@ -239,12 +239,12 @@ def load_model(
     else:
         model._glm53_moe_backend = "direct"
     if experimental_compact_nope_dsa_cache:
-        if compact_cache_reserve_tokens < 0:
-            raise ValueError("compact cache reserve must be non-negative")
+        if compact_cache_capacity_tokens < 0:
+            raise ValueError("compact cache capacity must be non-negative")
         model._glm53_cache_backend = "compact-nope-dsa"
         model.language_model._glm53_cache_backend = "compact-nope-dsa"
-        model.language_model._glm53_compact_cache_reserve_tokens = int(
-            compact_cache_reserve_tokens
+        model.language_model._glm53_compact_cache_capacity_tokens = int(
+            compact_cache_capacity_tokens
         )
     else:
         model._glm53_cache_backend = "direct"
@@ -269,8 +269,8 @@ def load(path: str | Path, adapter_path=None, **kwargs):
         experimental_compact_nope_dsa_cache=kwargs.pop(
             "experimental_compact_nope_dsa_cache", False
         ),
-        compact_cache_reserve_tokens=kwargs.pop(
-            "compact_cache_reserve_tokens", 4096
+        compact_cache_capacity_tokens=kwargs.pop(
+            "compact_cache_capacity_tokens", 4352
         ),
     )
     if kwargs:

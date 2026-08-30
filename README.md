@@ -132,7 +132,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、compact IndexPool v3、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v3`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、row-contiguous packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、row-contiguous packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -188,6 +188,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | Metal v4 contiguous ABI, raw → enforced | 11.302 → 11.213 tok/s / 0.796%回帰 / working peak +0 bytes |
 | recurrent materialization 50 → 256 | warm median 92.044 → 92.163 ms / +0.129% / active drift 4.79 MB @256 |
 | recurrent state 100k soak, interval 256 | 100,000完走 / retention 0.984 / active drift 79.28 MB（64 MiB gate未達） |
+| recurrent state 100k fixed capacity | 100,000完走 / retention 0.985 / active drift 23.7 KB / authoritative drift 0 bytes |
 
 再測定コマンド:
 
@@ -272,7 +273,7 @@ uv run python scripts/probe_recurrent_state_materialization_frontier.py \
 
 uv run python scripts/soak_recurrent_state_100k.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
-  --output bench-results/m3ultra512-recurrent-state-100k-soak-20260830.json
+  --output bench-results/m3ultra512-recurrent-state-100k-fixed-capacity-20260830.json
 ```
 
 ### Packed expert bank feasibility
@@ -379,7 +380,7 @@ tail/journal appendは全contextで114,620 bytesと一定で、phase retention�
 
 ### Opt-in production compact NoPE DSA cache
 
-production moduleはprobe scriptへ依存せず、`SingleNoPELatentCache`と`CompactIndexPoolCache`を実装します。前者はlatent 512を一つだけ保持し、後者はcontiguous pool keys/int64 indices/valid、最大3-token active tail、16-token rollback journalだけをauthoritative stateにします。decode/append/score/trim hot pathにNumPy、`.item()`、明示的`mx.eval`、CPU同期はありません。capacityは16 token固定ではなく、promptとadmitted generation 4,096 tokenを256境界へ予約し、追加growthにも対応します。v3 stateは小さなcompress APE tensorと純粋pooling演算だけでpartial rowを再構築するため、RAM APC clone直後もIndexer参照なしでtrimできます。CacheList rollbackとlong sparse prefill拒否は全cache mutation前にpreflightします。
+production moduleはprobe scriptへ依存せず、`SingleNoPELatentCache`と`CompactIndexPoolCache`を実装します。前者はlatent 512を一つだけ保持し、後者はcontiguous pool keys/int64 indices/valid、最大3-token active tail、16-token rollback journalだけをauthoritative stateにします。decode/append/score/trim hot pathにNumPy、`.item()`、明示的`mx.eval`、CPU同期はありません。v4では容量を追加headroomではなくcache incarnation先頭からの絶対token位置として固定します。serverは最大prompt 256＋最大generation 4,096から両compact childへ4,352を渡し、追加容量は`reserve_until(absolute_token_capacity)`でのみ拡張します。v4 stateは絶対capacity、小さなcompress APE tensor、純粋pooling演算を保持するため、RAM APC clone直後もIndexer参照なしでtrimできます。CacheList rollbackとlong sparse prefill拒否は全cache mutation前にpreflightします。
 
 prompt 1/16/128/256からの16-token decodeは全stepのfull-vocab logitsがDirectとbyte-identicalです。synthetic 2k sparse cacheでも5 measured stepのfull-model logits hashがDirectと一致しました。RAM APC restore位置mod 4 = 0/1/2/3は各16-token continuationがbyte-identicalで、prefill後のpacked Indexer full historyは存在せず、raw stateは最大19 tokenです。256-token caseのdecode中active memoryは増加せず、正のgrowth最大値はprompt 1の13.8 MBでした。
 
@@ -403,7 +404,11 @@ interval 256、compact NoPE DSA cache、Direct MoEを使い、100,016 tokenを�
 
 ただしpost-materialization active-memory driftは79,275,215 bytesで64 MiB gateを超えたため、総合判定は`accepted=false`です。authoritative cache増分79,144,384 bytesと99.835%一致します。原因は`SingleNoPELatentCache`が初回だけ総容量を予約する一方、`CompactIndexPoolCache`が`total_tokens + reserve_tokens`を毎更新で再計算し、100,016-token headroomを前方へ移動させてpool bufferを256-token境界ごとに拡張することです。これはresource graph leakや数値破綻の証拠ではありませんが、「capacity growthを完全に排除したsoak」にはなっていません。
 
-したがってinterval 256のproduction既定化は保留します。次工程は別commitでIndexPool reserveを固定absolute capacity契約へ揃え、capacityが全100kで不変なことを小さな境界fixtureで確認した後、同条件の100k soakを再実行することです。runtime、server、cache ABI、admissionはこのprobeでは変更していません。
+この失敗証拠を受け、compact cache ABIを`glm53-nope-dsa-v4-...-compact-indexpool-v4-fixed-absolute-capacity`へ更新しました。capacity 4,352ではtoken 1–4,352のlatent/IndexPool物理bufferが不変で、4,353で一度だけ4,608境界へ拡張します。`reserve_until(8192)`、RAM APC clone/restore、trim→replay、rejected updateも絶対capacityとstateを維持します。既定Direct backend、prompt/context admission、disk APC fail-closedは変更していません。
+
+fixed-capacity v2 artifactでは、100,016 token設定をlatent 100,096 token、IndexPool 25,024 rowsへ一度だけalignmentし、全11 DSA層・全390 boundaryで同じ物理capacityを維持しました。authoritative cacheは全runで1,354,772,633 bytesのままdrift 0、post-materialization active driftは23,712 bytesです。100,000 token、390 scheduled materialization、leaf 167、NaN/Metal error 0、final evidence materialization、peak 321.099 GBをすべて通過しました。late retentionは0.985、materialization median/p95は1.543/1.657 ms、旧`79e1a60` runの全token/logits checkpoint hashとも一致し、総合`accepted=true`です。
+
+opt-in serverは絶対capacity 4,352で起動し、`/health` HTTP 200を確認しました。この結果によりinterval 256はproduction固定のcorrectness/resource gateを通過しましたが、materialization intervalのCLI・health telemetryへの昇格はこのcapacity修正commitには混ぜていません。
 
 ### NoPE IndexPool safety gate
 

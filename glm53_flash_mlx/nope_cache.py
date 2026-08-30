@@ -13,7 +13,7 @@ from .indexpool import INDEXPOOL_SENTINEL, sanitize_indexpool_indices
 
 DEFAULT_CACHE_STEP = 256
 DEFAULT_ROLLBACK_WINDOW = 16
-DEFAULT_RESERVE_TOKENS = 4096
+DEFAULT_CAPACITY_TOKENS = 4352
 
 
 def _round_up(value: int, step: int) -> int:
@@ -85,12 +85,14 @@ class SingleNoPELatentCache:
     def __init__(
         self,
         *,
-        reserve_tokens: int = DEFAULT_RESERVE_TOKENS,
+        capacity_tokens: int = DEFAULT_CAPACITY_TOKENS,
         rollback_window: int = DEFAULT_ROLLBACK_WINDOW,
     ):
+        if capacity_tokens < 0:
+            raise ValueError("latent capacity must be non-negative")
         self._latent = None
         self.offset = 0
-        self.reserve_tokens = int(reserve_tokens)
+        self.capacity_tokens = int(capacity_tokens)
         self.rollback_window = int(rollback_window)
 
     @property
@@ -124,12 +126,18 @@ class SingleNoPELatentCache:
             grown[..., : self.offset, :] = self._latent[..., : self.offset, :]
         self._latent = grown
 
-    def reserve(self, additional_tokens: int) -> None:
-        if additional_tokens < 0:
-            raise ValueError("latent reserve must be non-negative")
-        self.reserve_tokens = max(self.reserve_tokens, int(additional_tokens))
+    @property
+    def physical_capacity_tokens(self) -> int:
+        return 0 if self._latent is None else int(self._latent.shape[2])
+
+    def reserve_until(self, absolute_token_capacity: int) -> None:
+        if absolute_token_capacity < 0:
+            raise ValueError("latent capacity must be non-negative")
+        self.capacity_tokens = max(
+            self.capacity_tokens, int(absolute_token_capacity)
+        )
         if self._latent is not None:
-            self._ensure_capacity(self.offset + int(additional_tokens))
+            self._ensure_capacity(max(self.offset, self.capacity_tokens))
 
     def update_and_fetch(self, keys: mx.array, values: mx.array):
         if int(keys.shape[0]) != 1:
@@ -138,12 +146,11 @@ class SingleNoPELatentCache:
             raise ValueError("NoPE latent K/V inputs must have identical shapes")
         count = int(keys.shape[2])
         previous = self.offset
-        required = previous + count
-        allocation = required + (self.reserve_tokens if self._latent is None else 0)
-        self._ensure_capacity(allocation, keys)
-        self._latent[..., previous:required, :] = keys
-        self.offset = required
-        logical = self._latent[..., :required, :]
+        next_offset = previous + count
+        self._ensure_capacity(max(next_offset, self.capacity_tokens), keys)
+        self._latent[..., previous:next_offset, :] = keys
+        self.offset = next_offset
+        logical = self._latent[..., :next_offset, :]
         return logical, logical
 
     def size(self) -> int:
@@ -184,8 +191,8 @@ class SingleNoPELatentCache:
         latent = value[0]
         self._latent = latent
         self.offset = 0 if latent is None else int(latent.shape[2])
-        if not hasattr(self, "reserve_tokens"):
-            self.reserve_tokens = 0
+        if not hasattr(self, "capacity_tokens"):
+            self.capacity_tokens = 0
         if not hasattr(self, "rollback_window"):
             self.rollback_window = DEFAULT_ROLLBACK_WINDOW
 
@@ -193,20 +200,20 @@ class SingleNoPELatentCache:
     def meta_state(self):
         return (
             str(self.offset),
-            str(self.reserve_tokens),
+            str(self.capacity_tokens),
             str(self.rollback_window),
             str(self.step),
         )
 
     @meta_state.setter
     def meta_state(self, value):
-        offset, reserve, rollback, step = map(int, value)
+        offset, capacity, rollback, step = map(int, value)
         self.offset = offset
-        self.reserve_tokens = reserve
+        self.capacity_tokens = capacity
         self.rollback_window = rollback
         self.step = step
         if self._latent is not None:
-            self._ensure_capacity(self.offset + self.reserve_tokens)
+            self._ensure_capacity(max(self.offset, self.capacity_tokens))
 
     @classmethod
     def from_state(cls, state, meta_state):
@@ -239,16 +246,18 @@ class CompactIndexPoolCache:
         self,
         indexer,
         *,
-        reserve_tokens: int = DEFAULT_RESERVE_TOKENS,
+        capacity_tokens: int = DEFAULT_CAPACITY_TOKENS,
         rollback_window: int = DEFAULT_ROLLBACK_WINDOW,
     ):
+        if capacity_tokens < 0:
+            raise ValueError("IndexPool capacity must be non-negative")
         self.index_kpool = int(indexer.index_kpool)
         self.index_topk = int(indexer.index_topk)
         self.head_dim = int(indexer.head_dim)
         self.always_select_tail = bool(indexer.index_kpool_always_select_tail)
         self.rollback_window = int(rollback_window)
         self.raw_state_window = self.rollback_window + self.index_kpool - 1
-        self.reserve_tokens = int(reserve_tokens)
+        self.capacity_tokens = int(capacity_tokens)
         self.total_tokens = 0
         self.logical_pool_count = 0
         self.pool_capacity = 0
@@ -330,14 +339,25 @@ class CompactIndexPoolCache:
         self.pool_keys, self.pool_indices, self.pool_valid = keys, indices, valid
         self.pool_capacity = capacity
 
-    def reserve(self, additional_tokens: int) -> None:
-        if additional_tokens < 0:
-            raise ValueError("IndexPool reserve must be non-negative")
-        self.reserve_tokens = max(self.reserve_tokens, int(additional_tokens))
+    @property
+    def physical_capacity_rows(self) -> int:
+        return self.pool_capacity
+
+    def _required_pool_rows(self, written_end: int) -> int:
+        target_tokens = max(self.total_tokens, self.capacity_tokens)
+        reserved_rows = (
+            target_tokens + self.index_kpool - 1
+        ) // self.index_kpool
+        return max(written_end, reserved_rows)
+
+    def reserve_until(self, absolute_token_capacity: int) -> None:
+        if absolute_token_capacity < 0:
+            raise ValueError("IndexPool capacity must be non-negative")
+        self.capacity_tokens = max(
+            self.capacity_tokens, int(absolute_token_capacity)
+        )
         if self.pool_keys is not None:
-            rows = (
-                self.total_tokens + int(additional_tokens) + self.index_kpool - 1
-            ) // self.index_kpool
+            rows = self._required_pool_rows(self.logical_pool_count)
             self._ensure_pool_capacity(rows, self.pool_keys.dtype)
 
     def _set_raw(self, keys, gates, valid, positions) -> None:
@@ -368,10 +388,9 @@ class CompactIndexPoolCache:
 
     def _write_pool_rows(self, start: int, pooled) -> None:
         end = start // self.index_kpool + int(pooled[0].shape[1])
-        wanted = (
-            self.total_tokens + self.reserve_tokens + self.index_kpool - 1
-        ) // self.index_kpool
-        self._ensure_pool_capacity(max(end, wanted), pooled[0].dtype)
+        self._ensure_pool_capacity(
+            self._required_pool_rows(end), pooled[0].dtype
+        )
         row = start // self.index_kpool
         self.pool_keys[:, row:end] = pooled[0]
         self.pool_indices[:, row:end] = pooled[1]
@@ -588,7 +607,7 @@ class CompactIndexPoolCache:
                 (
                     self.total_tokens,
                     self.logical_pool_count,
-                    self.reserve_tokens,
+                    self.capacity_tokens,
                     self.rollback_window,
                     self.index_kpool,
                     self.index_topk,
@@ -604,7 +623,7 @@ class CompactIndexPoolCache:
         (
             total,
             logical,
-            reserve,
+            capacity,
             rollback,
             kpool,
             topk,
@@ -614,7 +633,7 @@ class CompactIndexPoolCache:
         ) = map(int, value)
         self.total_tokens = total
         self.logical_pool_count = logical
-        self.reserve_tokens = reserve
+        self.capacity_tokens = capacity
         self.rollback_window = rollback
         self.index_kpool = kpool
         self.index_topk = topk
@@ -623,7 +642,7 @@ class CompactIndexPoolCache:
         self.step = step
         self.raw_state_window = rollback + kpool - 1
         if self.pool_keys is not None:
-            wanted = (total + reserve + kpool - 1) // kpool
+            wanted = self._required_pool_rows(self.logical_pool_count)
             self._ensure_pool_capacity(wanted, self.pool_keys.dtype)
 
     @classmethod
@@ -671,12 +690,12 @@ class CompactIndexPoolCache:
         )
 
 
-def make_compact_nope_dsa_cache(indexer, *, reserve_tokens: int):
+def make_compact_nope_dsa_cache(indexer, *, capacity_tokens: int):
     from mlx_vlm.models.cache import CacheList
 
     return CacheList(
-        SingleNoPELatentCache(reserve_tokens=reserve_tokens),
-        CompactIndexPoolCache(indexer, reserve_tokens=reserve_tokens),
+        SingleNoPELatentCache(capacity_tokens=capacity_tokens),
+        CompactIndexPoolCache(indexer, capacity_tokens=capacity_tokens),
     )
 
 

@@ -154,6 +154,9 @@ def configure_m3_ultra(
     os.environ["MLX_VLM_MAX_TOKENS"] = str(max_tokens)
     os.environ["GLM53_MAX_PROMPT_TOKENS"] = str(max_prompt_tokens)
     os.environ["GLM53_MAX_GENERATION_TOKENS"] = str(max_tokens)
+    os.environ["GLM53_COMPACT_CACHE_CAPACITY_TOKENS"] = str(
+        max_prompt_tokens + max_tokens
+    )
     os.environ["MAX_KV_SIZE"] = str(max_context_tokens)
     os.environ.setdefault("MLX_VLM_LOG_PROGRESS_INTERVAL", "16")
     os.environ.setdefault("MLX_VLM_ENABLE_THINKING", "1")
@@ -203,8 +206,8 @@ def _install_server_loader() -> None:
         kwargs["experimental_compact_nope_dsa_cache"] = (
             os.environ.get("GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE") == "1"
         )
-        kwargs["compact_cache_reserve_tokens"] = int(
-            os.environ.get("GLM53_MAX_GENERATION_TOKENS", "4096")
+        kwargs["compact_cache_capacity_tokens"] = int(
+            os.environ.get("GLM53_COMPACT_CACHE_CAPACITY_TOKENS", "4352")
         )
         loaded = direct_load(path, adapter_path=adapter_path, **kwargs)
         if os.environ.get("GLM53_WARM_RESIDENCY", "1") == "1":

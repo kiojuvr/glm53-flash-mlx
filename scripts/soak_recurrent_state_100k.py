@@ -24,6 +24,10 @@ from glm53_flash_mlx.abi import (
 )
 from glm53_flash_mlx.loader import load, warm_residency
 from glm53_flash_mlx.manifest import inspect_checkpoint
+from glm53_flash_mlx.nope_cache import (
+    CompactIndexPoolCache,
+    SingleNoPELatentCache,
+)
 
 DEFAULT_STEPS = 100_000
 RESERVE_TAIL = 16
@@ -35,6 +39,7 @@ EARLY_WARM_START = 257
 EARLY_WARM_END = 10_256
 LATE_WINDOW_START = 90_001
 MAX_ACTIVE_DRIFT = 64 * 2**20
+MAX_AUTHORITATIVE_DRIFT = 1 * 2**20
 MAX_MATERIALIZATION_P95_MS = 10.0
 MAX_PEAK_MEMORY = 340_000_000_000
 MIN_LATE_RETENTION = 0.90
@@ -83,6 +88,36 @@ def _state_leaves(cache) -> tuple[int, int]:
 
 def _cache_nbytes(cache) -> int:
     return sum(int(entry.nbytes) for entry in cache)
+
+
+def _capacity_snapshot(cache) -> dict:
+    configured = []
+    latent_physical = []
+    pool_physical = []
+    for entry in cache:
+        children = getattr(entry, "caches", ())
+        if (
+            len(children) == 2
+            and isinstance(children[0], SingleNoPELatentCache)
+            and isinstance(children[1], CompactIndexPoolCache)
+        ):
+            latent, pool = children
+            configured.append(int(latent.capacity_tokens))
+            if latent.capacity_tokens != pool.capacity_tokens:
+                raise RuntimeError("latent and IndexPool capacities diverged")
+            latent_physical.append(latent.physical_capacity_tokens)
+            pool_physical.append(pool.physical_capacity_rows)
+    return {
+        "dsa_layer_count": len(configured),
+        "configured_capacity_tokens": sorted(set(configured)),
+        "latent_physical_capacity_tokens": sorted(set(latent_physical)),
+        "indexpool_physical_capacity_rows": sorted(set(pool_physical)),
+        "all_layers_uniform": (
+            len(set(configured)) <= 1
+            and len(set(latent_physical)) <= 1
+            and len(set(pool_physical)) <= 1
+        ),
+    }
 
 
 def _memory_snapshot() -> dict[str, int]:
@@ -161,6 +196,32 @@ def _reference_descriptor(reference: dict, path: Path) -> dict:
     }
 
 
+def _load_previous_soak(path: Path) -> dict:
+    previous = json.loads(path.read_text())
+    if previous.get("schema") != "glm53-recurrent-state-100k-soak-v1":
+        raise ValueError("unexpected previous 100k soak schema")
+    if not previous.get("complete") or previous.get("last_completed_step") != 100_000:
+        raise ValueError("previous 100k soak is incomplete")
+    return previous
+
+
+def _previous_soak_descriptor(previous: dict, path: Path) -> dict:
+    checkpoint_hashes = {
+        step: {
+            "token_sha256": row["token_sha256"],
+            "logits_sha256": row["logits_sha256"],
+        }
+        for step, row in previous["checkpoint_hashes"].items()
+    }
+    return {
+        "path": str(path),
+        "schema": previous["schema"],
+        "commit": "79e1a60",
+        "final_token_sha256": previous["summary"]["final_token_sha256"],
+        "checkpoint_hashes": checkpoint_hashes,
+    }
+
+
 def _post_materialization_drift(boundaries: list[dict]) -> int:
     if not boundaries:
         return 0
@@ -168,6 +229,24 @@ def _post_materialization_drift(boundaries: list[dict]) -> int:
     return max(
         0,
         max(row["after"]["active_memory_bytes"] for row in boundaries) - baseline,
+    )
+
+
+def _authoritative_cache_drift(boundaries: list[dict]) -> int:
+    if not boundaries:
+        return 0
+    baseline = boundaries[0]["authoritative_cache_bytes"]
+    return max(
+        abs(row["authoritative_cache_bytes"] - baseline) for row in boundaries
+    )
+
+
+def _physical_capacity_is_constant(boundaries: list[dict]) -> bool:
+    if not boundaries:
+        return False
+    baseline = boundaries[0]["capacity"]
+    return baseline["dsa_layer_count"] == 11 and all(
+        row["capacity"] == baseline for row in boundaries
     )
 
 
@@ -193,6 +272,28 @@ def _reference_prefix_matches(artifact: dict) -> bool:
     ]
 
 
+def _previous_soak_matches(artifact: dict) -> bool:
+    reference = artifact["previous_100k"]
+    try:
+        observed = {
+            step: {
+                "token_sha256": artifact["checkpoint_hashes"][step][
+                    "token_sha256"
+                ],
+                "logits_sha256": artifact["checkpoint_hashes"][step][
+                    "logits_sha256"
+                ],
+            }
+            for step in reference["checkpoint_hashes"]
+        }
+    except KeyError:
+        return False
+    return (
+        observed == reference["checkpoint_hashes"]
+        and artifact["rolling_token_sha256"] == reference["final_token_sha256"]
+    )
+
+
 def _milestone_stop_failures(artifact: dict) -> list[str]:
     boundaries = artifact["boundary_telemetry"]
     failures = []
@@ -208,6 +309,10 @@ def _milestone_stop_failures(artifact: dict) -> list[str]:
         failures.append("materialization_count_mismatch")
     if _post_materialization_drift(boundaries) > MAX_ACTIVE_DRIFT:
         failures.append("post_materialization_active_drift_over_64_mib")
+    if _authoritative_cache_drift(boundaries) > MAX_AUTHORITATIVE_DRIFT:
+        failures.append("authoritative_cache_drift_over_1_mib")
+    if not _physical_capacity_is_constant(boundaries):
+        failures.append("physical_capacity_changed")
     if _cache_memory_strictly_increasing(boundaries):
         failures.append("post_materialization_cache_memory_monotonic_increase")
     if max(row["after"]["peak_memory_bytes"] for row in boundaries) > MAX_PEAK_MEMORY:
@@ -239,6 +344,7 @@ def _record_milestone(
         "state_leaf_count": leaves,
         "state_array_leaf_count": array_leaves,
         "authoritative_cache_bytes": _cache_nbytes(cache),
+        "capacity": _capacity_snapshot(cache),
         "memory": snapshot,
         "decode_last_256": _latency_summary(latencies[-TELEMETRY_INTERVAL:]),
     }
@@ -264,6 +370,7 @@ def _finalize(artifact: dict, latencies: list[float]) -> None:
         <= MAX_ACTIVE_DRIFT
     )
     reference_match = _reference_prefix_matches(artifact)
+    previous_soak_match = _previous_soak_matches(artifact)
     peak = max(
         row[phase]["peak_memory_bytes"]
         for row in boundaries
@@ -287,6 +394,12 @@ def _finalize(artifact: dict, latencies: list[float]) -> None:
         "post_materialization_active_drift_at_most_64_mib": (
             _post_materialization_drift(boundaries) <= MAX_ACTIVE_DRIFT
         ),
+        "authoritative_cache_drift_at_most_1_mib": (
+            _authoritative_cache_drift(boundaries) <= MAX_AUTHORITATIVE_DRIFT
+        ),
+        "all_11_dsa_physical_capacities_constant": (
+            _physical_capacity_is_constant(boundaries)
+        ),
         "final_evidence_materialization_returns_to_boundary_band": final_returns_to_band,
         "late_decode_retention_at_least_0_90": retention >= MIN_LATE_RETENTION,
         "materialization_p95_at_most_10_ms": (
@@ -295,6 +408,7 @@ def _finalize(artifact: dict, latencies: list[float]) -> None:
         ),
         "peak_memory_at_most_340_gb": peak <= MAX_PEAK_MEMORY,
         "first_8192_matches_4006e9d": reference_match,
+        "token_and_logits_hashes_match_79e1a60": previous_soak_match,
     }
     artifact["summary"] = {
         "scheduled_materialization_count": artifact["scheduled_materialization_count"],
@@ -306,6 +420,11 @@ def _finalize(artifact: dict, latencies: list[float]) -> None:
         "post_materialization_active_drift_bytes": _post_materialization_drift(
             boundaries
         ),
+        "authoritative_cache_drift_bytes": _authoritative_cache_drift(
+            boundaries
+        ),
+        "physical_capacity": boundaries[0]["capacity"],
+        "physical_capacity_constant": _physical_capacity_is_constant(boundaries),
         "post_materialization_cache_memory_strictly_increasing": (
             _cache_memory_strictly_increasing(boundaries)
         ),
@@ -333,7 +452,15 @@ def _finalize(artifact: dict, latencies: list[float]) -> None:
 
 def run_soak(model, artifact: dict, output_path: Path) -> None:
     steps = int(artifact["steps"])
-    reference_hashes = artifact["reference_8192"]["logits_hashes"]
+    reference_hashes = {
+        **artifact["reference_8192"]["logits_hashes"],
+        **{
+            step: row["logits_sha256"]
+            for step, row in artifact["previous_100k"][
+                "checkpoint_hashes"
+            ].items()
+        },
+    }
     checkpoints = set(evidence_steps(steps, reference_hashes))
     milestones = set(milestone_steps(steps))
     cache = model.make_cache()
@@ -343,6 +470,7 @@ def run_soak(model, artifact: dict, output_path: Path) -> None:
     mx.reset_peak_memory()
     artifact["reserved_cache_initial_memory"] = _memory_snapshot()
     artifact["reserved_cache_initial_authoritative_bytes"] = _cache_nbytes(cache)
+    artifact["reserved_cache_initial_capacity"] = _capacity_snapshot(cache)
 
     try:
         for step in range(1, steps + 1):
@@ -384,6 +512,7 @@ def run_soak(model, artifact: dict, output_path: Path) -> None:
                     "state_leaf_count": state_leaves,
                     "state_array_leaf_count": array_leaves,
                     "authoritative_cache_bytes": _cache_nbytes(cache),
+                    "capacity": _capacity_snapshot(cache),
                     "decode_window_p50_ms": statistics.median(
                         latencies[-TELEMETRY_INTERVAL:]
                     )
@@ -454,6 +583,7 @@ def run_soak(model, artifact: dict, output_path: Path) -> None:
             "state_leaf_count": leaves,
             "state_array_leaf_count": array_leaves,
             "authoritative_cache_bytes": _cache_nbytes(cache),
+            "capacity": _capacity_snapshot(cache),
         }
         if steps == DEFAULT_STEPS:
             _finalize(artifact, latencies)
@@ -474,17 +604,28 @@ def main() -> int:
             "m3ultra512-recurrent-state-materialization-frontier-20260830.json"
         ),
     )
+    parser.add_argument(
+        "--previous-soak",
+        type=Path,
+        default=Path(
+            "bench-results/"
+            "m3ultra512-recurrent-state-100k-soak-20260830.json"
+        ),
+    )
     parser.add_argument("--steps", type=int, default=DEFAULT_STEPS)
     args = parser.parse_args()
     if args.steps < TELEMETRY_INTERVAL:
         raise ValueError("100k soak probe requires at least 256 steps")
 
     reference = _load_reference(args.reference)
+    previous_soak = _load_previous_soak(args.previous_soak)
     report = inspect_checkpoint(args.model, require_server_ready=True)
     if report.fingerprint != reference["checkpoint_fingerprint"]:
         raise ValueError("checkpoint fingerprint does not match the 4006e9d reference")
+    if report.fingerprint != previous_soak["checkpoint_fingerprint"]:
+        raise ValueError("checkpoint fingerprint does not match the previous 100k soak")
     artifact = {
-        "schema": "glm53-recurrent-state-100k-soak-v1",
+        "schema": "glm53-recurrent-state-100k-fixed-capacity-v2",
         "date": date.today().isoformat(),
         "machine": platform.machine(),
         "checkpoint_revision": report.official_revision,
@@ -494,7 +635,7 @@ def main() -> int:
         "cache_abi": NOPE_DSA_CACHE_ABI_COMPACT,
         "backend": "compact-nope-dsa+direct-moe",
         "steps": args.steps,
-        "reserve_tokens": args.steps + RESERVE_TAIL,
+        "configured_capacity_tokens": args.steps + RESERVE_TAIL,
         "materialization_interval": MATERIALIZATION_INTERVAL,
         "telemetry_interval": TELEMETRY_INTERVAL,
         "milestone_steps": list(milestone_steps(args.steps)),
@@ -507,6 +648,9 @@ def main() -> int:
             "mx.clear_cache(); mx.synchronize()"
         ),
         "reference_8192": _reference_descriptor(reference, args.reference),
+        "previous_100k": _previous_soak_descriptor(
+            previous_soak, args.previous_soak
+        ),
         "checkpoint_hashes": {},
         "boundary_telemetry": [],
         "milestones": {},
@@ -528,7 +672,7 @@ def main() -> int:
         model, _ = load(
             args.model,
             experimental_compact_nope_dsa_cache=True,
-            compact_cache_reserve_tokens=args.steps + RESERVE_TAIL,
+            compact_cache_capacity_tokens=args.steps + RESERVE_TAIL,
         )
         warm_residency(model)
         _warm_model(model)

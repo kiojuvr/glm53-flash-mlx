@@ -34,7 +34,7 @@ RESTORE_MODS = (0, 1, 2, 3)
 DECODE_STEPS = 16
 WARMUP_STEPS = 2
 SAMPLES = 5
-RESERVE_TOKENS = 4096
+CAPACITY_TOKENS = 4096
 
 
 def _progress(phase: str, **values) -> None:
@@ -59,7 +59,7 @@ def _tokens(length: int) -> mx.array:
 def _set_backend(model, backend: str) -> None:
     model._glm53_cache_backend = backend
     model.language_model._glm53_cache_backend = backend
-    model.language_model._glm53_compact_cache_reserve_tokens = RESERVE_TOKENS
+    model.language_model._glm53_compact_cache_capacity_tokens = CAPACITY_TOKENS
 
 
 def _release(value) -> None:
@@ -230,7 +230,7 @@ def _fill_compact_dsa(entry, attention, layer_id: int, context: int) -> None:
     latent_cache.state = (latent,)
     latent_cache.meta_state = (
         str(context),
-        str(RESERVE_TOKENS),
+        str(CAPACITY_TOKENS),
         "16",
         "256",
     )
@@ -255,7 +255,7 @@ def _fill_compact_dsa(entry, attention, layer_id: int, context: int) -> None:
     pool_cache.meta_state = (
         str(context),
         str(pool[0].shape[1]),
-        str(RESERVE_TOKENS),
+        str(CAPACITY_TOKENS),
         "16",
         str(indexer.index_kpool),
         str(indexer.index_topk),
@@ -451,7 +451,7 @@ def main() -> int:
     model, _ = load(
         args.model,
         experimental_compact_nope_dsa_cache=True,
-        compact_cache_reserve_tokens=RESERVE_TOKENS,
+        compact_cache_capacity_tokens=CAPACITY_TOKENS,
     )
     warm_residency(model)
     correctness = _prompt_correctness(model)
@@ -510,7 +510,7 @@ def main() -> int:
         "contexts": list(CONTEXTS),
         "prompt_cases": list(PROMPTS),
         "decode_steps": DECODE_STEPS,
-        "reserve_tokens": RESERVE_TOKENS,
+        "capacity_tokens": CAPACITY_TOKENS,
         "correctness": correctness,
         "ram_apc": ram_apc,
         "performance_frontier": frontier,

@@ -127,7 +127,7 @@ def _assert_pool(indexer, cache, x, mask=None):
 @pytest.mark.parametrize("prompt_tokens", [1, 16, 128, 256])
 def test_prefill_builds_compact_state_without_packed_history(prompt_tokens):
     indexer = _make_indexer(topk=2048)
-    cache = CompactIndexPoolCache(indexer, reserve_tokens=4096)
+    cache = CompactIndexPoolCache(indexer, capacity_tokens=4352)
     x, qr = _inputs(0, prompt_tokens)
 
     assert indexer(x, qr, None, cache=cache) is None
@@ -141,7 +141,7 @@ def test_prefill_builds_compact_state_without_packed_history(prompt_tokens):
 
 def test_left_padded_prefill_preserves_pool_validity_and_sentinel():
     indexer = _make_indexer(topk=2048)
-    cache = CompactIndexPoolCache(indexer, reserve_tokens=16)
+    cache = CompactIndexPoolCache(indexer, capacity_tokens=16)
     x, qr = _inputs(0, 16)
     mask = mx.arange(16)[None] >= 3
 
@@ -159,7 +159,7 @@ def test_sparse_decode_indices_match_full_history_cache_for_16_steps():
 
     indexer = _make_indexer(topk=32)
     direct = KVCache()
-    compact = CompactIndexPoolCache(indexer, reserve_tokens=64)
+    compact = CompactIndexPoolCache(indexer, capacity_tokens=64)
     x, qr = _inputs(0, 32)
     assert indexer(x, qr, None, cache=direct) is None
     assert indexer(x, qr, None, cache=compact) is None
@@ -185,7 +185,7 @@ def test_ram_apc_clone_restores_each_pool_tail_position(target_mod):
     from mlx_vlm.apc_adapters import clone_cache_entry
 
     indexer = _make_indexer(topk=32)
-    original = make_compact_nope_dsa_cache(indexer, reserve_tokens=64)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=64)
     x, qr = _inputs(0, 32)
     indexer(x, qr, None, cache=original[1])
     for position in range(32, 32 + target_mod):
@@ -215,7 +215,7 @@ def test_ram_apc_clone_restores_each_pool_tail_position(target_mod):
 
 def test_capacity_growth_covers_255_256_257_and_4095_4096():
     indexer = _make_indexer(topk=8192)
-    cache = CompactIndexPoolCache(indexer, reserve_tokens=0)
+    cache = CompactIndexPoolCache(indexer, capacity_tokens=0)
     for start, count in ((0, 255), (255, 1), (256, 1), (257, 3838), (4095, 1)):
         x, qr = _inputs(start, count)
         assert indexer(x, qr, None, cache=cache) is None
@@ -224,7 +224,7 @@ def test_capacity_growth_covers_255_256_257_and_4095_4096():
         assert cache.pool_capacity >= cache.logical_pool_count
     assert cache.total_tokens == 4096
 
-    latent = SingleNoPELatentCache(reserve_tokens=0)
+    latent = SingleNoPELatentCache(capacity_tokens=0)
     for start, count in ((0, 255), (255, 1), (256, 1), (257, 3838), (4095, 1)):
         value = mx.zeros((1, 1, count, 4), dtype=mx.bfloat16)
         keys, values = latent.update_and_fetch(value, value)
@@ -233,9 +233,100 @@ def test_capacity_growth_covers_255_256_257_and_4095_4096():
     assert latent.nbytes == latent.keys.nbytes
 
 
+def test_absolute_capacity_is_fixed_through_4352_and_grows_once_at_4353():
+    indexer = _make_indexer(topk=8192)
+    combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=4352)
+
+    _append_combined(indexer, combined, 0, 1)
+    latent, pool = combined
+    assert latent.capacity_tokens == pool.capacity_tokens == 4352
+    assert latent.physical_capacity_tokens == 4352
+    assert pool.physical_capacity_rows == 1088
+    initial_latent = latent.keys
+    initial_pool = pool.pool_keys
+
+    for start, count in ((1, 15), (16, 112), (128, 128), (256, 4096)):
+        _append_combined(indexer, combined, start, count)
+        assert latent.physical_capacity_tokens == 4352
+        assert pool.physical_capacity_rows == 1088
+        assert latent.keys is initial_latent
+        assert pool.pool_keys is initial_pool
+
+    _append_combined(indexer, combined, 4352, 1)
+    assert latent.physical_capacity_tokens == 4608
+    assert pool.physical_capacity_rows == 1152
+    grown_latent = latent.keys
+    grown_pool = pool.pool_keys
+    _append_combined(indexer, combined, 4353, 1)
+    assert latent.keys is grown_latent
+    assert pool.pool_keys is grown_pool
+
+
+@pytest.mark.parametrize("tail_mod", range(4))
+def test_absolute_capacity_pool_tail_contract_matches_latent(tail_mod):
+    indexer = _make_indexer(topk=2048)
+    combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=65)
+    total = 64 + tail_mod
+    _append_combined(indexer, combined, 0, total)
+    latent, pool = combined
+    assert latent.capacity_tokens == pool.capacity_tokens == 65
+    assert latent.physical_capacity_tokens == 256
+    assert pool.physical_capacity_rows == 64
+    assert pool.logical_pool_count == (total + 3) // 4
+    assert pool.active_tail_count == total % 4
+
+
+def test_reserve_until_is_absolute_and_allocates_only_once():
+    indexer = _make_indexer(topk=8192)
+    combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=4352)
+    _append_combined(indexer, combined, 0, 32)
+    latent, pool = combined
+
+    latent.reserve_until(8192)
+    pool.reserve_until(8192)
+    assert latent.capacity_tokens == pool.capacity_tokens == 8192
+    assert latent.physical_capacity_tokens == 8192
+    assert pool.physical_capacity_rows == 2048
+    latent_buffer = latent.keys
+    pool_buffer = pool.pool_keys
+
+    latent.reserve_until(8192)
+    pool.reserve_until(8192)
+    _append_combined(indexer, combined, 32, 4096)
+    assert latent.keys is latent_buffer
+    assert pool.pool_keys is pool_buffer
+
+
+def test_clone_trim_replay_preserves_absolute_physical_capacity():
+    from mlx_vlm.apc_adapters import clone_cache_entry
+
+    indexer = _make_indexer(topk=2048)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=4352)
+    _append_combined(indexer, original, 0, 65)
+    eval_targets = []
+    restored = clone_cache_entry(
+        original, min_capacity_tokens=81, eval_targets=eval_targets
+    )
+    mx.eval(*eval_targets)
+
+    assert restored[0].capacity_tokens == restored[1].capacity_tokens == 4352
+    assert restored[0].physical_capacity_tokens == 4352
+    assert restored[1].physical_capacity_rows == 1088
+    latent_buffer = restored[0].keys
+    pool_buffer = restored[1].pool_keys
+    restored.trim(1)
+    _append_combined(indexer, restored, 64, 1)
+    assert restored[0].keys is latent_buffer
+    assert restored[1].pool_keys is pool_buffer
+    _assert_tree_equal(
+        (original.state, original.meta_state),
+        (restored.state, restored.meta_state),
+    )
+
+
 def test_trim_over_window_fails_before_either_cache_changes():
     indexer = _make_indexer(topk=2048)
-    combined = make_compact_nope_dsa_cache(indexer, reserve_tokens=16)
+    combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=16)
     x, qr = _inputs(0, 32)
     indexer(x, qr, None, cache=combined[1])
     latent = mx.zeros((1, 1, 32, 4), dtype=mx.bfloat16)
@@ -250,7 +341,7 @@ def test_trim_over_window_fails_before_either_cache_changes():
 
 def test_cache_list_preflight_keeps_latent_atomic_when_pool_rejects():
     indexer = _make_indexer(topk=2048)
-    combined = make_compact_nope_dsa_cache(indexer, reserve_tokens=16)
+    combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=16)
     _append_combined(indexer, combined, 0, 32)
     pool = combined[1]
     pool.raw_keys = pool.raw_keys[:, -1:]
@@ -273,7 +364,7 @@ def test_apc_clone_trim_replay_is_self_contained(target_mod, tokens):
     indexer = _make_indexer(topk=32)
     target = 48 + target_mod
     total = target + tokens
-    original = make_compact_nope_dsa_cache(indexer, reserve_tokens=96)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=96)
     _append_combined(indexer, original, 0, 32)
     for position in range(32, total):
         _append_combined(indexer, original, position, 1)
@@ -286,7 +377,7 @@ def test_apc_clone_trim_replay_is_self_contained(target_mod, tokens):
     assert not hasattr(restored[1], "_indexer")
     restored.trim(tokens)
 
-    oracle = make_compact_nope_dsa_cache(indexer, reserve_tokens=96)
+    oracle = make_compact_nope_dsa_cache(indexer, capacity_tokens=96)
     _append_combined(indexer, oracle, 0, 32)
     for position in range(32, target):
         _append_combined(indexer, oracle, position, 1)
@@ -315,7 +406,7 @@ def test_apc_clone_trim_replay_attention_output_hash_matches(target_mod, tokens)
     attention = _make_attention(topk=32)
     target = 48 + target_mod
     total = target + tokens
-    original = make_compact_nope_dsa_cache(attention.indexer, reserve_tokens=96)
+    original = make_compact_nope_dsa_cache(attention.indexer, capacity_tokens=96)
     x, _ = _inputs(0, 32)
     attention(x, cache=original)
     replay_outputs = {}
@@ -342,7 +433,7 @@ def test_long_sparse_prefill_rejection_is_atomic_and_precedes_latent_update():
     from mlx_vlm.models.glm5_next.language import Glm5NextSparseAttention
 
     attention = _make_attention(topk=32)
-    cache = make_compact_nope_dsa_cache(attention.indexer, reserve_tokens=16)
+    cache = make_compact_nope_dsa_cache(attention.indexer, capacity_tokens=16)
     x, _ = _inputs(0, 32)
     attention(x, cache=cache)
     before = _copy_tree((cache.state, cache.meta_state))

@@ -82,5 +82,5 @@ def test_probe_is_explicitly_non_runtime_and_has_no_buffer_count_inference():
     assert "metal_buffer_count_api_available" in source
     assert "buffer_count_estimate" not in source
     assert "experimental_compact_nope_dsa_cache=True" in source
-    assert "compact_cache_reserve_tokens=args.steps + RESERVE_TAIL" in source
+    assert "compact_cache_capacity_tokens=args.steps + RESERVE_TAIL" in source
     assert "MLX_VLM_BATCH_CACHE_EVAL_INTERVAL" not in source
