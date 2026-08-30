@@ -187,6 +187,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | production compact active/peak, 256k | 324.396 / 324.585 GB |
 | Metal v4 contiguous ABI, raw → enforced | 11.302 → 11.213 tok/s / 0.796%回帰 / working peak +0 bytes |
 | recurrent materialization 50 → 256 | warm median 92.044 → 92.163 ms / +0.129% / active drift 4.79 MB @256 |
+| recurrent state 100k soak, interval 256 | 100,000完走 / retention 0.984 / active drift 79.28 MB（64 MiB gate未達） |
 
 再測定コマンド:
 
@@ -268,6 +269,10 @@ uv run python scripts/probe_metal_input_layout_abi.py \
 uv run python scripts/probe_recurrent_state_materialization_frontier.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-recurrent-state-materialization-frontier-20260830.json
+
+uv run python scripts/soak_recurrent_state_100k.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-recurrent-state-100k-soak-20260830.json
 ```
 
 ### Packed expert bank feasibility
@@ -388,7 +393,17 @@ compact NoPE DSA cacheとDirect MoEを使い、cache容量を8,208 tokenへ事�
 
 interval 50 / 128 / 256 / 512の全checkpointでfull-vocab logits hashが完全一致し、cache state leaf数は全armで167のまま、NaNとMetal errorは0でした。materialization回数は163 / 64 / 32 / 16で、それぞれ`floor(8192 / interval)`と一致します。interval 256のwarm decode medianは92.163 msで、interval 50の92.044 msに対する回帰は0.129%です。active-memory正方向driftは4,789,621 bytesで64 MiB gate内、materialization medianは1.640 msでした。よってinterval 256を100k-token soak候補に選定します。512は観測armであり、このscreenだけではproduction候補にしません。
 
-materializationなしのinterval 0も8,192 stepを完走し、logits hashとleaf数は一致しました。ただし最終cache memoryは342,683,480 bytesで、256の2,393,502 bytesより大きく、resource回収を省略する根拠にはなりません。Metal buffer object数を得る公開APIはないため、artifactは`metal_buffer_count_api_available=false`を明示し、byte数からbuffer数を推測していません。次工程ではinterval 256をCLIとhealth telemetryへ明示してから、同一processを25kの中間判定を経て100kまで継続します。
+materializationなしのinterval 0も8,192 stepを完走し、logits hashとleaf数は一致しました。ただし最終cache memoryは342,683,480 bytesで、256の2,393,502 bytesより大きく、resource回収を省略する根拠にはなりません。Metal buffer object数を得る公開APIはないため、artifactは`metal_buffer_count_api_available=false`を明示し、byte数からbuffer数を推測していません。
+
+### Recurrent state 100k-token soak
+
+interval 256、compact NoPE DSA cache、Direct MoEを使い、100,016 tokenを予約した同一processで100,000 decode stepを実行しました。25k stop gateを通過し、25k / 50k / 75k / 100kの全milestoneへatomicにartifactを保存しました。scheduled materializationは予定どおり390回、別枠のfinal evidence materialization後もcountは390です。state leafは全boundaryで167、NaNとMetal errorは0、最初の8,192 tokenと全指定full-vocab logits hashはinterval-256 referenceと一致しました。
+
+100k自体は完走し、90k–100kのdecode median 93.923 msは初期warm 10kの92.381 msに対してretention 0.984です。materializationは合計673.19 ms、median 1.647 ms、p95 2.102 ms、償却0.0067 ms/tokenでした。peakは321.182 GBで、final evidence materialization後も直前boundary帯へ戻りました。
+
+ただしpost-materialization active-memory driftは79,275,215 bytesで64 MiB gateを超えたため、総合判定は`accepted=false`です。authoritative cache増分79,144,384 bytesと99.835%一致します。原因は`SingleNoPELatentCache`が初回だけ総容量を予約する一方、`CompactIndexPoolCache`が`total_tokens + reserve_tokens`を毎更新で再計算し、100,016-token headroomを前方へ移動させてpool bufferを256-token境界ごとに拡張することです。これはresource graph leakや数値破綻の証拠ではありませんが、「capacity growthを完全に排除したsoak」にはなっていません。
+
+したがってinterval 256のproduction既定化は保留します。次工程は別commitでIndexPool reserveを固定absolute capacity契約へ揃え、capacityが全100kで不変なことを小さな境界fixtureで確認した後、同条件の100k soakを再実行することです。runtime、server、cache ABI、admissionはこのprobeでは変更していません。
 
 ### NoPE IndexPool safety gate
 
