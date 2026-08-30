@@ -186,6 +186,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | production compact DSA total, 2k → 256k | 13.444 → 19.877 ms |
 | production compact active/peak, 256k | 324.396 / 324.585 GB |
 | Metal v4 contiguous ABI, raw → enforced | 11.302 → 11.213 tok/s / 0.796%回帰 / working peak +0 bytes |
+| recurrent materialization 50 → 256 | warm median 92.044 → 92.163 ms / +0.129% / active drift 4.79 MB @256 |
 
 再測定コマンド:
 
@@ -263,6 +264,10 @@ uv run python scripts/probe_compact_nope_dsa_runtime.py \
 uv run python scripts/probe_metal_input_layout_abi.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-metal-input-layout-abi-20260830.json
+
+uv run python scripts/probe_recurrent_state_materialization_frontier.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-recurrent-state-materialization-frontier-20260830.json
 ```
 
 ### Packed expert bank feasibility
@@ -376,6 +381,14 @@ prompt 1/16/128/256からの16-token decodeは全stepのfull-vocab logitsがDire
 full-model synthetic-cache frontierは2 warmup＋5 samplesで、2k / 8k / 16k / 32k / 128k / 256kを測定しました。decodeは11.005から10.633 tok/s、retention 0.966です。2k Direct 10.920 tok/sに対してcompactは1.008×で、5% non-regression gateを通過しました。全11 DSA同期合計は13.444→19.877 ms、IndexPool updateは7.169→10.175 ms、pool carryは2.549→2.406 msです。256k active/peakは324.396/324.585 GBでOOMはありません。opt-in serverも`cache_backend=compact-nope-dsa`で起動し、`/health` HTTP 200を確認しました。
 
 compactとDirectはAPC descriptorの`cache_backend`とcache ABIで分離します。RAM APCだけを許可し、compact disk APCはfail closedです。このruntimeはnon-speculativeです。KDA recurrent stateにrollback journalはないため、MTP/DFlash2やtarget verification対応済みとは扱いません。既定backendはDirect、prompt上限256、総context上限16,384のままです。
+
+### Recurrent state materialization frontier
+
+compact NoPE DSA cacheとDirect MoEを使い、cache容量を8,208 tokenへ事前予約した同一processで、materialization interval 0 / 50 / 128 / 256 / 512を各8,192 decode step測定しました。interval 50のgreedy token列を他armへteacher-forced replayし、EOSでは停止していません。materialization操作は固定mlx-vlmと同じ`mx.eval([entry.state for entry in cache]); mx.clear_cache()`です。runtime、server、cache ABI、admissionは変更していません。
+
+interval 50 / 128 / 256 / 512の全checkpointでfull-vocab logits hashが完全一致し、cache state leaf数は全armで167のまま、NaNとMetal errorは0でした。materialization回数は163 / 64 / 32 / 16で、それぞれ`floor(8192 / interval)`と一致します。interval 256のwarm decode medianは92.163 msで、interval 50の92.044 msに対する回帰は0.129%です。active-memory正方向driftは4,789,621 bytesで64 MiB gate内、materialization medianは1.640 msでした。よってinterval 256を100k-token soak候補に選定します。512は観測armであり、このscreenだけではproduction候補にしません。
+
+materializationなしのinterval 0も8,192 stepを完走し、logits hashとleaf数は一致しました。ただし最終cache memoryは342,683,480 bytesで、256の2,393,502 bytesより大きく、resource回収を省略する根拠にはなりません。Metal buffer object数を得る公開APIはないため、artifactは`metal_buffer_count_api_available=false`を明示し、byte数からbuffer数を推測していません。次工程ではinterval 256をCLIとhealth telemetryへ明示してから、同一processを25kの中間判定を経て100kまで継続します。
 
 ### NoPE IndexPool safety gate
 
