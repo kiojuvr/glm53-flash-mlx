@@ -36,6 +36,7 @@ def test_m3_defaults(monkeypatch, tmp_path):
     )
     import os
     assert os.environ["MLX_VLM_MAX_NUM_SEQS"] == "1"
+    assert os.environ["MLX_VLM_BATCH_CACHE_EVAL_INTERVAL"] == "256"
     assert os.environ["PREFILL_STEP_SIZE"] == "2048"
     assert os.environ["APC_BLOCK_SIZE"] == "64"
     assert os.environ["APC_NUM_BLOCKS"] == "64"
@@ -48,6 +49,22 @@ def test_m3_defaults(monkeypatch, tmp_path):
     assert os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] == "0"
     assert os.environ["GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE"] == "0"
     assert os.environ["GLM53_CACHE_BACKEND"] == "direct"
+
+
+def test_production_materialization_interval_overwrites_user_environment(
+    monkeypatch, tmp_path
+):
+    monkeypatch.setenv("MLX_VLM_BATCH_CACHE_EVAL_INTERVAL", "0")
+    configure_m3_ultra(
+        model=Path("/model"), prefill_step_size=2048, max_tokens=4096,
+        api_key=None, apc=False, apc_blocks=64, apc_disk_path=None,
+        warm_residency=False,
+        experimental_packed_grouped_moe=False,
+        experimental_compact_nope_dsa_cache=False,
+        max_prompt_tokens=256, max_context_tokens=16384,
+    )
+    import os
+    assert os.environ["MLX_VLM_BATCH_CACHE_EVAL_INTERVAL"] == "256"
 
 
 def test_packed_grouped_server_backend_is_explicitly_opt_in():

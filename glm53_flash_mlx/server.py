@@ -23,6 +23,12 @@ from .abi import (
     PACKED_EXPERT_BANK_ABI,
 )
 from .manifest import ManifestError, attest_checkpoint, inspect_checkpoint
+from .materialization import (
+    MATERIALIZATION_INTERVAL_TOKENS,
+    MATERIALIZATION_POLICY,
+    install_bounded_recurrent_materialization_policy,
+    materialization_snapshot,
+)
 from .patch import apply_runtime_patch, patch_status
 
 DEFAULT_SOURCE = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
@@ -150,6 +156,11 @@ def configure_m3_ultra(
     """Set runtime knobs before mlx-vlm imports its server configuration."""
     os.environ["MLX_VLM_PRELOAD_MODEL"] = str(model)
     os.environ["MLX_VLM_MAX_NUM_SEQS"] = "1"
+    # Production policy: do not allow an inherited 0 or oversized value to
+    # disable recurrent-state graph bounding.
+    os.environ["MLX_VLM_BATCH_CACHE_EVAL_INTERVAL"] = str(
+        MATERIALIZATION_INTERVAL_TOKENS
+    )
     os.environ["PREFILL_STEP_SIZE"] = str(prefill_step_size)
     os.environ["MLX_VLM_MAX_TOKENS"] = str(max_tokens)
     os.environ["GLM53_MAX_PROMPT_TOKENS"] = str(max_prompt_tokens)
@@ -195,6 +206,8 @@ def _install_server_loader() -> None:
     from mlx_vlm.server import generation, openai
     from mlx_vlm import apc as mlx_apc
     server_app = importlib.import_module("mlx_vlm.server.app")
+
+    install_bounded_recurrent_materialization_policy()
 
     from .loader import load as direct_load, warm_residency
 
@@ -260,6 +273,15 @@ def _install_server_loader() -> None:
 
     server_app.get_cached_model = get_cached_model_aliased
     openai.get_cached_model = get_cached_model_aliased
+
+    stock_runtime_snapshot = server_app._server_runtime_snapshot
+
+    def runtime_snapshot_with_materialization():
+        snapshot = stock_runtime_snapshot()
+        snapshot["recurrent_state_materialization"] = materialization_snapshot()
+        return snapshot
+
+    server_app._server_runtime_snapshot = runtime_snapshot_with_materialization
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -381,6 +403,11 @@ def main(argv: list[str] | None = None) -> int:
         os.environ["GLM53_MOE_BACKEND"],
         os.environ["GLM53_CACHE_BACKEND"],
         args.max_prompt_tokens,
+    )
+    logging.getLogger(__name__).info(
+        "materialization_policy=%s interval_tokens=%d",
+        MATERIALIZATION_POLICY,
+        MATERIALIZATION_INTERVAL_TOKENS,
     )
 
     import uvicorn

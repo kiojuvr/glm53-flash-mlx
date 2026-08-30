@@ -134,7 +134,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
 
 disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、row-contiguous packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
-`/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
+`/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。production decodeは`nested-cache-eval-clear-v1` policyでrecurrent cacheを256 tokenごとにmaterializeします。環境変数の既存値はserver初期化時に上書きし、CLIで任意値は公開しません。`/v1/metrics`の`server.recurrent_state_materialization`にはconfigured interval、完了回数、前回境界からのdecode step、最終境界step、active/cache/peak memoryを記録します。Metal buffer object数は公開APIがないため報告しません。
 
 ## 現在の境界
 
@@ -189,6 +189,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | recurrent materialization 50 → 256 | warm median 92.044 → 92.163 ms / +0.129% / active drift 4.79 MB @256 |
 | recurrent state 100k soak, interval 256 | 100,000完走 / retention 0.984 / active drift 79.28 MB（64 MiB gate未達） |
 | recurrent state 100k fixed capacity | 100,000完走 / retention 0.985 / active drift 23.7 KB / authoritative drift 0 bytes |
+| production Direct materialization 50 → 256 | 4,096 token完走 / 11.045 → 11.001 tok/s / 0.400%回帰 / 16 boundaries exact |
 
 再測定コマンド:
 
@@ -274,6 +275,10 @@ uv run python scripts/probe_recurrent_state_materialization_frontier.py \
 uv run python scripts/soak_recurrent_state_100k.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-recurrent-state-100k-fixed-capacity-20260830.json
+
+uv run python scripts/probe_bounded_recurrent_materialization.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-bounded-recurrent-materialization-20260831.json
 ```
 
 ### Packed expert bank feasibility
@@ -408,7 +413,15 @@ interval 256、compact NoPE DSA cache、Direct MoEを使い、100,016 tokenを�
 
 fixed-capacity v2 artifactでは、100,016 token設定をlatent 100,096 token、IndexPool 25,024 rowsへ一度だけalignmentし、全11 DSA層・全390 boundaryで同じ物理capacityを維持しました。authoritative cacheは全runで1,354,772,633 bytesのままdrift 0、post-materialization active driftは23,712 bytesです。100,000 token、390 scheduled materialization、leaf 167、NaN/Metal error 0、final evidence materialization、peak 321.099 GBをすべて通過しました。late retentionは0.985、materialization median/p95は1.543/1.657 ms、旧`79e1a60` runの全token/logits checkpoint hashとも一致し、総合`accepted=true`です。
 
-opt-in serverは絶対capacity 4,352で起動し、`/health` HTTP 200を確認しました。この結果によりinterval 256はproduction固定のcorrectness/resource gateを通過しましたが、materialization intervalのCLI・health telemetryへの昇格はこのcapacity修正commitには混ぜていません。
+opt-in serverは絶対capacity 4,352で起動し、`/health` HTTP 200を確認しました。この結果によりinterval 256はproduction固定のcorrectness/resource gateを通過しました。
+
+### Bounded recurrent-state production policy
+
+serverは固定mlx-vlmのgenerator import・生成より前に`MLX_VLM_BATCH_CACHE_EVAL_INTERVAL=256`を強制し、Directとcompactの両backendへ適用します。policy identityは`nested-cache-eval-clear-v1`です。既存のnested cache state評価と`mx.clear_cache()`の演算は変更せず、実generation batchが進んだstepだけを数えます。prefill、startup warmup、idle loop、空batchはcounterやcache stateを進めません。これは実行policyであり、cache表現ではないためcompact cache ABI v4とdisk APC namespaceは変更していません。
+
+既定Direct backendでinterval 50と256を同一token列により各4,096 step連続実行しました。両armとも完走し、step 255/256/257、511/512、4095/4096を含む全記録点のfull-vocab logits hashと全生成token IDが一致しました。production armはstep 256から4,096まで正確に16回materializeし、NaNとMetal errorは0です。end-to-endは11.045から11.001 tok/sで回帰0.400%、2% gate内です。16/128-token既存oracleも全step一致しました。
+
+Direct/compact serverはいずれも`/health` HTTP 200で、startup logにpolicyとintervalを出力します。request前のmetricsは`completed_materializations=0`、`decode_steps_since_materialization=0`であり、startup・idleによるstate mutationがないことを確認しました。compactのfixed-capacity 100k artifactも同じinterval 256でacceptedです。
 
 ### NoPE IndexPool safety gate
 
