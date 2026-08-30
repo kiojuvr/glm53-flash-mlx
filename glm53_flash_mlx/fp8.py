@@ -14,6 +14,11 @@ DECODE_TOP_K = 8
 PREFILL_TILE_ROWS = 8
 
 
+def _metal_input(value: mx.array) -> mx.array:
+    """Enforce the row-major buffer ABI required by custom Metal kernels."""
+    return mx.contiguous(value, allow_col_major=False)
+
+
 def _e4m3_value(byte: int) -> float:
     sign = -1.0 if byte & 0x80 else 1.0
     exponent = (byte >> 3) & 15
@@ -267,7 +272,9 @@ def block_fp8_linear(x: mx.array, weight: mx.array, scale_inv: mx.array) -> mx.a
             f"scale shape {scale_inv.shape} != block128 shape {expected_scales}"
         )
     original_shape = x.shape
-    flat = x.reshape(-1, in_features)
+    flat = _metal_input(x.reshape(-1, in_features))
+    weight = _metal_input(weight)
+    scale_inv = _metal_input(scale_inv)
     batch_rows = flat.shape[0]
     kernel = _fp8_gemv_kernel if batch_rows == 1 else _fp8_gemm_kernel
     tile_rows = 1 if batch_rows == 1 else PREFILL_TILE_ROWS
@@ -398,9 +405,11 @@ def _selected_projection(x, experts, projection: str):
         raise RuntimeError("selected expert path requires Metal")
     modules = [getattr(expert, projection) for expert in experts]
     out_features, in_features = modules[0].weight.shape
-    inputs = [x]
+    inputs = [_metal_input(x)]
     for module in modules:
-        inputs.extend((module.weight, module.weight_scale_inv))
+        inputs.extend(
+            (_metal_input(module.weight), _metal_input(module.weight_scale_inv))
+        )
     return _selected_projection_kernel(
         inputs=inputs,
         template=[
@@ -424,9 +433,11 @@ def _selected_down(hidden, scores, experts):
         raise RuntimeError("selected expert path requires Metal")
     modules = [expert.down_proj for expert in experts]
     out_features, in_features = modules[0].weight.shape
-    inputs = [hidden]
+    inputs = [_metal_input(hidden)]
     for module in modules:
-        inputs.extend((module.weight, module.weight_scale_inv))
+        inputs.extend(
+            (_metal_input(module.weight), _metal_input(module.weight_scale_inv))
+        )
     output = _selected_down_kernel(
         inputs=inputs,
         template=[

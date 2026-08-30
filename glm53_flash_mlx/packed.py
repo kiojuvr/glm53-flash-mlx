@@ -14,6 +14,7 @@ from .fp8 import (
     THREADS,
     DirectFP8MoE,
     _FP8_LUT_HEADER,
+    _metal_input,
     block_fp8_linear,
 )
 
@@ -117,7 +118,12 @@ def _packed_selected_projection(x, expert_ids, bank, *, row_offset: int):
     out_features = bank.intermediate_size
     in_features = x.shape[-1]
     return _packed_selected_kernel(
-        inputs=[x, expert_ids, bank.gate_up_weight, bank.gate_up_scale_inv],
+        inputs=[
+            _metal_input(x),
+            _metal_input(expert_ids),
+            _metal_input(bank.gate_up_weight),
+            _metal_input(bank.gate_up_scale_inv),
+        ],
         template=[
             ("T", x.dtype),
             ("IN_FEATURES", in_features),
@@ -147,7 +153,12 @@ def _packed_selected_down(hidden, scores, expert_ids, bank):
     out_features = bank.down_weight.shape[1]
     in_features = bank.down_weight.shape[2]
     output = _packed_selected_down_kernel(
-        inputs=[hidden, expert_ids, bank.down_weight, bank.down_scale_inv],
+        inputs=[
+            _metal_input(hidden),
+            _metal_input(expert_ids),
+            _metal_input(bank.down_weight),
+            _metal_input(bank.down_scale_inv),
+        ],
         template=[
             ("T", hidden.dtype),
             ("IN_FEATURES", in_features),
@@ -213,10 +224,10 @@ class PackedFP8ExpertBank(nn.Module):
         intermediate_size: int,
     ):
         super().__init__()
-        self.gate_up_weight = gate_up_weight
-        self.gate_up_scale_inv = gate_up_scale_inv
-        self.down_weight = down_weight
-        self.down_scale_inv = down_scale_inv
+        self.gate_up_weight = _metal_input(gate_up_weight)
+        self.gate_up_scale_inv = _metal_input(gate_up_scale_inv)
+        self.down_weight = _metal_input(down_weight)
+        self.down_scale_inv = _metal_input(down_scale_inv)
         self.intermediate_size = int(intermediate_size)
         self.intermediate_scale_rows = math.ceil(intermediate_size / BLOCK_SIZE)
 

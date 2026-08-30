@@ -3,7 +3,7 @@
   "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
   "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
   "checkpoint_layout_digest": "c21cc9b55c8b977434e5932682313a3b84ac87e31c61a12e2768dd57e2954a72",
-  "kernel_abi": "glm53-metal-fp8-v3-tiled8-selected8-lut",
+  "kernel_abi": "glm53-metal-fp8-v4-row-contiguous-tiled8-selected8-lut",
   "prompt": "Reply with exactly: OK",
   "formatted_prompt_sha256": "b9a11acce56d0d3c38ebb9829bff626e730923c78dafbc6985c9ce29ed33746b",
   "prompt_token_count": 17,

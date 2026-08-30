@@ -132,7 +132,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、compact IndexPool v3、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v3`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、compact IndexPool v3、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v3`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、row-contiguous packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。
 
@@ -185,6 +185,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | production compact 2k vs Direct | 11.005 vs 10.920 tok/s / 1.008× |
 | production compact DSA total, 2k → 256k | 13.444 → 19.877 ms |
 | production compact active/peak, 256k | 324.396 / 324.585 GB |
+| Metal v4 contiguous ABI, raw → enforced | 11.302 → 11.213 tok/s / 0.796%回帰 / working peak +0 bytes |
 
 再測定コマンド:
 
@@ -258,6 +259,10 @@ uv run python scripts/probe_compact_authoritative_indexpool_state.py \
 uv run python scripts/probe_compact_nope_dsa_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-compact-nope-dsa-runtime-20260830.json
+
+uv run python scripts/probe_metal_input_layout_abi.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-metal-input-layout-abi-20260830.json
 ```
 
 ### Packed expert bank feasibility

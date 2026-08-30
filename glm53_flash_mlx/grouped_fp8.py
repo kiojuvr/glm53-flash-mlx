@@ -13,6 +13,7 @@ from .abi import (
 from .fp8 import (
     BLOCK_SIZE,
     _FP8_LUT_HEADER,
+    _metal_input,
 )
 from .packed import PackedFP8MoE
 
@@ -233,6 +234,12 @@ def grouped_fp8_linear(x, tile_plan, weight, scale_inv):
             f"scale={scale_inv.shape}, expected_scale={expected_scales}"
         )
     tile_experts, tile_starts, tile_lengths = tile_plan[:3]
+    x = _metal_input(x)
+    tile_experts = _metal_input(tile_experts)
+    tile_starts = _metal_input(tile_starts)
+    tile_lengths = _metal_input(tile_lengths)
+    weight = _metal_input(weight)
+    scale_inv = _metal_input(scale_inv)
     descriptor_slots = tile_experts.shape[0]
     output_tiles = out_features // GROUPED_OUTPUT_COLS
     return _grouped_fp8_kernel(

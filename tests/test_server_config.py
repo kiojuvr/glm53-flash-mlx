@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from glm53_flash_mlx.abi import (
+    KERNEL_ABI_VERSION,
     NOPE_DSA_CACHE_ABI,
     NOPE_DSA_CACHE_ABI_COMPACT,
     NOPE_DSA_CACHE_ABI_DIRECT,
@@ -86,6 +87,8 @@ def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
 
     monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
     direct_descriptor = _disk_cache_descriptor("checkpoint-digest")
+    assert direct_descriptor["metal_kernel_abi"] == KERNEL_ABI_VERSION
+    assert "v4-row-contiguous" in KERNEL_ABI_VERSION
     assert direct_descriptor["attention_cache_abi"] == descriptor[
         "attention_cache_abi"
     ]

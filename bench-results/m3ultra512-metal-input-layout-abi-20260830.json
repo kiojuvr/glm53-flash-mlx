@@ -1,0 +1,87 @@
+{
+  "schema": "glm53-metal-input-layout-abi-v1",
+  "date": "2026-08-30",
+  "machine": "arm64",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "kernel_abi": "glm53-metal-fp8-v4-row-contiguous-tiled8-selected8-lut",
+  "method": {
+    "backend": "default-direct",
+    "input": "single token with fresh cache",
+    "warmups_per_arm": 3,
+    "paired_alternating_samples": 11
+  },
+  "arms": {
+    "raw_contiguous_baseline": {
+      "samples_seconds": [
+        0.08905275003053248,
+        0.08966075000353158,
+        0.08825741591863334,
+        0.08800545905251056,
+        0.08903029095381498,
+        0.09030316595453769,
+        0.08831379096955061,
+        0.08826891600620002,
+        0.08878254191949964,
+        0.08846654195804149,
+        0.08847845892887563
+      ],
+      "median_seconds": 0.08847845892887563,
+      "median_tok_s": 11.302186002175523,
+      "working_peak_bytes": 165999077,
+      "logits_hashes": [
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951"
+      ]
+    },
+    "enforced_row_contiguous": {
+      "samples_seconds": [
+        0.08905745798256248,
+        0.08882733294740319,
+        0.08964424999430776,
+        0.0896562080597505,
+        0.08823566709179431,
+        0.08918304205872118,
+        0.08925495890434831,
+        0.08855695801321417,
+        0.08905141602735966,
+        0.09016966703347862,
+        0.0905332500115037
+      ],
+      "median_seconds": 0.08918304205872118,
+      "median_tok_s": 11.212894031373875,
+      "working_peak_bytes": 165999077,
+      "logits_hashes": [
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951",
+        "af775bf491ee520df259ff4ecb3fb89f50013cad0570b1de991270ac2f388951"
+      ]
+    }
+  },
+  "contiguous_warm_regression": 0.007963329587509449,
+  "working_peak_increase_bytes": 0,
+  "acceptance": {
+    "contiguous_warm_regression_at_most_2_percent": true,
+    "working_peak_increase_at_most_64_mib": true,
+    "all_logits_hashes_identical": true,
+    "accepted": true
+  }
+}
