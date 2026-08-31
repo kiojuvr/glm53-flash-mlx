@@ -183,6 +183,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
+| cumulative hybrid-cache allocation、全4 arm | 各1M physical capacity完走 / cross-arm logits・KDA exact / active drift 311,300 bytes |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
 | kpool4 KV dtype separation, 256k | BF16 268.44 MB / FP8 token 135.27 MB / FP8 group64 142.61 MB / index・mask hash一致 |
 | long-context first decode, 256k | Direct/compact/restore logits・DSA output一致 / leaf 112・167 / peak 331.46 GB |
@@ -237,6 +238,10 @@ uv run python scripts/probe_packed_decode_runtime.py \
 uv run python scripts/probe_row_blocked_vector_kda_prefill.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-row-blocked-vector-kda-prefill-20260831.json
+
+uv run python scripts/soak_cumulative_hybrid_allocation_1m.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-cumulative-hybrid-allocation-1m-20260831.json
 
 uv run python scripts/localize_grouped_fp8_divergence.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -313,6 +318,14 @@ uv run python scripts/probe_bounded_recurrent_materialization.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-bounded-recurrent-materialization-20260831.json
 ```
+
+### Cumulative hybrid-cache allocation soak
+
+Direct/packed-decode MoE × Direct/compact cacheの4 armを、Metal allocatorを共有しない別processで測定しました。fresh cacheへ1 tokenを実forwardし、実際に確保されたDSA physical capacityを累積して各arm 1M以上まで継続しています。Direct cacheは256-token粒度で3,907 cache・1,000,192 capacity、compact cacheは4,352-token粒度で230 cache・1,000,960 capacityでした。
+
+0/100k/500k/1Mの固定prompt final logits、first-decode logits/token、全cache state、KDA/DSA digestは各armのbaselineとexact一致し、cross-armでもlogits/tokenとKDA stateが一致しました。KDA stateは全cycle・全armで147,619,840 bytes、Direct/compactのallocation granularityも同一です。state leafはDirect 112、compact 167で固定、NaN・positive OOB・Metal error・live cache残留は0でした。
+
+全armのpost-clear active driftは311,300 bytes、cache driftは0、peakは最大320.006 GBです。fixed-prompt first-decode latency retentionはDirect/Direct 0.996、packed/Direct 0.983、Direct/compact 0.996、packed/compact 1.013で、全armが0.95 gateを通過しました。これによりpacked-decode＋Direct cacheはdefault昇格候補です。compact cacheはbatch 1制約があるためsingle-session opt-inを維持します。このsoakはprobe-onlyで、既定backend、cache ABI、APC identity、server admissionを変更していません。
 
 ### Packed expert bank feasibility
 
