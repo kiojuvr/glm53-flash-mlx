@@ -30,6 +30,7 @@ def test_m3_defaults(monkeypatch, tmp_path):
         model=Path("/model"), prefill_step_size=2048, max_tokens=4096,
         api_key=None, apc=True, apc_blocks=64, apc_disk_path=tmp_path / "apc",
         warm_residency=True,
+        experimental_packed_decode_moe=False,
         experimental_packed_grouped_moe=False,
         experimental_compact_nope_dsa_cache=False,
         max_prompt_tokens=256, max_context_tokens=16384,
@@ -46,6 +47,7 @@ def test_m3_defaults(monkeypatch, tmp_path):
     assert os.environ["GLM53_COMPACT_CACHE_CAPACITY_TOKENS"] == "4352"
     assert os.environ["MAX_KV_SIZE"] == "16384"
     assert os.environ["GLM53_MOE_BACKEND"] == "direct"
+    assert os.environ["GLM53_EXPERIMENTAL_PACKED_DECODE_MOE"] == "0"
     assert os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] == "0"
     assert os.environ["GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE"] == "0"
     assert os.environ["GLM53_CACHE_BACKEND"] == "direct"
@@ -59,6 +61,7 @@ def test_production_materialization_interval_overwrites_user_environment(
         model=Path("/model"), prefill_step_size=2048, max_tokens=4096,
         api_key=None, apc=False, apc_blocks=64, apc_disk_path=None,
         warm_residency=False,
+        experimental_packed_decode_moe=False,
         experimental_packed_grouped_moe=False,
         experimental_compact_nope_dsa_cache=False,
         max_prompt_tokens=256, max_context_tokens=16384,
@@ -72,6 +75,21 @@ def test_packed_grouped_server_backend_is_explicitly_opt_in():
     assert build_parser().parse_args(
         ["--experimental-packed-grouped-moe"]
     ).experimental_packed_grouped_moe
+
+
+def test_packed_decode_server_backend_is_explicitly_opt_in_and_exclusive():
+    parser = build_parser()
+    assert not parser.parse_args([]).experimental_packed_decode_moe
+    assert parser.parse_args(
+        ["--experimental-packed-decode-moe"]
+    ).experimental_packed_decode_moe
+    with pytest.raises(SystemExit):
+        parser.parse_args(
+            [
+                "--experimental-packed-decode-moe",
+                "--experimental-packed-grouped-moe",
+            ]
+        )
 
 
 def test_compact_nope_dsa_cache_is_explicitly_opt_in():
@@ -111,6 +129,22 @@ def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
         "attention_cache_abi"
     ]
     assert direct_descriptor["cache_backend"] == "direct"
+
+
+def test_disk_cache_identity_separates_packed_decode_without_grouped_abi(monkeypatch):
+    monkeypatch.setenv("GLM53_MOE_BACKEND", "direct")
+    direct = _disk_cache_identity("checkpoint-digest")
+    monkeypatch.setenv("GLM53_MOE_BACKEND", "packed-decode")
+    packed = _disk_cache_identity("checkpoint-digest")
+    descriptor = _disk_cache_descriptor("checkpoint-digest")
+    assert packed != direct
+    assert descriptor["moe_backend"] == "packed-decode"
+    assert descriptor["packed_bank_abi"].startswith("glm53-packed-expert-bank-")
+    assert descriptor["packed_decode_kernel_abi"].startswith(
+        "glm53-packed-selected8-"
+    )
+    assert "grouped_kernel_abi" not in descriptor
+    assert "grouped_min_routes" not in descriptor
 
 
 def test_disk_cache_identity_separates_compact_cache_and_moe_combinations(monkeypatch):

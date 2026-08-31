@@ -47,8 +47,9 @@ def test_selected_top8_moe_matches_explicit_routing_and_scores():
     scores = mx.array([[[0.24, 0.18, 0.15, 0.13, 0.11, 0.08, 0.06, 0.05]]])
 
     class FixedGate(nn.Module):
-        def __call__(self, _):
-            return routes, scores
+        def __call__(self, x):
+            shape = (*x.shape[:-1], 8)
+            return mx.broadcast_to(routes, shape), mx.broadcast_to(scores, shape)
 
     config = SimpleNamespace(
         hidden_size=257,
@@ -94,8 +95,9 @@ def test_packed_expert_bank_preserves_bytes_and_selected_top8_output():
     scores = mx.array([[[0.24, 0.18, 0.15, 0.13, 0.11, 0.08, 0.06, 0.05]]])
 
     class FixedGate(nn.Module):
-        def __call__(self, _):
-            return routes, scores
+        def __call__(self, x):
+            shape = (*x.shape[:-1], 8)
+            return mx.broadcast_to(routes, shape), mx.broadcast_to(scores, shape)
 
     config = SimpleNamespace(
         hidden_size=257,
@@ -141,6 +143,12 @@ def test_packed_expert_bank_preserves_bytes_and_selected_top8_output():
     actual = packed_moe(x)
     mx.eval(expected, actual)
     assert mx.array_equal(actual, expected).item()
+
+    prefill_x = (mx.random.normal(shape=(1, 9, 257)) * 2).astype(mx.bfloat16)
+    expected_prefill = direct(prefill_x)
+    actual_prefill = packed_moe(prefill_x)
+    mx.eval(expected_prefill, actual_prefill)
+    assert mx.array_equal(actual_prefill, expected_prefill).item()
 
 
 def test_sorted_grouped_fp8_moe_matches_direct_prefill_and_keeps_decode_fallback():
@@ -274,3 +282,48 @@ def test_installer_replaces_every_direct_moe_layer_one_at_a_time():
     second = install_packed_grouped_moe(model)
     assert second["converted_count"] == 0
     assert second["remaining_direct_layers"] == []
+
+
+def test_packed_decode_installer_never_installs_grouped_modules():
+    _require_metal()
+    from glm53_flash_mlx.fp8 import DirectFP8MoE
+    from glm53_flash_mlx.grouped_fp8 import SortedGroupedFP8MoE
+    from glm53_flash_mlx.loader import install_packed_decode_moe
+    from glm53_flash_mlx.packed import PackedFP8MoE
+
+    class Gate(nn.Module):
+        def __call__(self, x):
+            shape = (*x.shape[:-1], 2)
+            return mx.zeros(shape, dtype=mx.uint32), mx.ones(shape, dtype=x.dtype)
+
+    config = SimpleNamespace(
+        hidden_size=128,
+        moe_intermediate_size=128,
+        swiglu_limit=3.0,
+        n_routed_experts=2,
+        num_experts_per_tok=2,
+    )
+    layers = []
+    for _ in range(2):
+        layer = SimpleNamespace(
+            mlp=DirectFP8MoE(config, Gate(), None), compile_ffn=True
+        )
+        for expert in layer.mlp.experts:
+            for projection in (expert.gate_proj, expert.up_proj, expert.down_proj):
+                projection.weight = mx.zeros(projection.weight.shape, dtype=mx.uint8)
+        layers.append(layer)
+    model = SimpleNamespace(
+        language_model=SimpleNamespace(model=SimpleNamespace(layers=layers))
+    )
+
+    report = install_packed_decode_moe(model)
+    assert report["backend"] == "packed-decode"
+    assert report["grouped_enabled"] is False
+    assert report["converted_count"] == 2
+    assert report["all_old_expert_modules_detached"]
+    assert all(isinstance(layer.mlp, PackedFP8MoE) for layer in layers)
+    assert all(not isinstance(layer.mlp, SortedGroupedFP8MoE) for layer in layers)
+    assert model._glm53_moe_backend == "packed-decode"
+    assert model._glm53_packed_decode_report is report
+    second = install_packed_decode_moe(model)
+    assert second["converted_count"] == 0

@@ -115,13 +115,18 @@ def _disk_cache_descriptor(content_digest: str) -> dict:
         "quantized_kv_start": os.environ.get("QUANTIZED_KV_START"),
         "moe_backend": os.environ.get("GLM53_MOE_BACKEND", "direct"),
     }
+    if descriptor["moe_backend"] in {"packed-decode", "packed-grouped"}:
+        descriptor.update(
+            {
+                "packed_bank_abi": PACKED_EXPERT_BANK_ABI,
+                "packed_decode_kernel_abi": PACKED_DECODE_KERNEL_ABI,
+            }
+        )
     if descriptor["moe_backend"] == "packed-grouped":
         descriptor.update(
             {
                 "grouped_kernel_abi": GROUPED_KERNEL_ABI,
                 "grouped_min_routes": GROUPED_MIN_ROUTES,
-                "packed_bank_abi": PACKED_EXPERT_BANK_ABI,
-                "packed_decode_kernel_abi": PACKED_DECODE_KERNEL_ABI,
             }
         )
     return descriptor
@@ -148,12 +153,18 @@ def configure_m3_ultra(
     apc_blocks: int,
     apc_disk_path: Path | None,
     warm_residency: bool,
+    experimental_packed_decode_moe: bool,
     experimental_packed_grouped_moe: bool,
     experimental_compact_nope_dsa_cache: bool,
     max_prompt_tokens: int,
     max_context_tokens: int,
 ) -> None:
     """Set runtime knobs before mlx-vlm imports its server configuration."""
+    if experimental_packed_decode_moe and experimental_packed_grouped_moe:
+        raise ValueError(
+            "--experimental-packed-decode-moe and "
+            "--experimental-packed-grouped-moe are mutually exclusive"
+        )
     os.environ["MLX_VLM_PRELOAD_MODEL"] = str(model)
     os.environ["MLX_VLM_MAX_NUM_SEQS"] = "1"
     # Production policy: do not allow an inherited 0 or oversized value to
@@ -177,8 +188,15 @@ def configure_m3_ultra(
     os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] = (
         "1" if experimental_packed_grouped_moe else "0"
     )
+    os.environ["GLM53_EXPERIMENTAL_PACKED_DECODE_MOE"] = (
+        "1" if experimental_packed_decode_moe else "0"
+    )
     os.environ["GLM53_MOE_BACKEND"] = (
-        "packed-grouped" if experimental_packed_grouped_moe else "direct"
+        "packed-decode"
+        if experimental_packed_decode_moe
+        else "packed-grouped"
+        if experimental_packed_grouped_moe
+        else "direct"
     )
     os.environ["GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE"] = (
         "1" if experimental_compact_nope_dsa_cache else "0"
@@ -215,6 +233,9 @@ def _install_server_loader() -> None:
         inspect_checkpoint(path, require_server_ready=True)
         kwargs["experimental_packed_grouped_moe"] = (
             os.environ.get("GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE") == "1"
+        )
+        kwargs["experimental_packed_decode_moe"] = (
+            os.environ.get("GLM53_EXPERIMENTAL_PACKED_DECODE_MOE") == "1"
         )
         kwargs["experimental_compact_nope_dsa_cache"] = (
             os.environ.get("GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE") == "1"
@@ -302,7 +323,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--apc", action=argparse.BooleanOptionalAction, default=False)
     p.add_argument("--apc-blocks", type=int, default=256)
     p.add_argument("--apc-disk-path", type=Path)
-    p.add_argument(
+    moe_group = p.add_mutually_exclusive_group()
+    moe_group.add_argument(
+        "--experimental-packed-decode-moe",
+        action="store_true",
+        help="pack routed experts and use selected top-8 decode without grouped prefill",
+    )
+    moe_group.add_argument(
         "--experimental-packed-grouped-moe",
         action="store_true",
         help="pack all routed experts and enable the grouped prefill kernel",
@@ -364,6 +391,7 @@ def main(argv: list[str] | None = None) -> int:
         apc_blocks=args.apc_blocks,
         apc_disk_path=args.apc_disk_path,
         warm_residency=args.warm_residency,
+        experimental_packed_decode_moe=args.experimental_packed_decode_moe,
         experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
         experimental_compact_nope_dsa_cache=(
             args.experimental_compact_nope_dsa_cache

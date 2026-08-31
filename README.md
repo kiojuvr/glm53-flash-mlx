@@ -1,6 +1,6 @@
 # GLM-5.3-Flash MLX runtime for M3 Ultra 512 GB
 
-`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。全42 MoE層のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。sparse DSA prefillは未実装です。
+`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。exactなpacked decode MoE、correctness未合格のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。sparse DSA prefillは未実装です。
 
 提供する主なendpointは次のとおりです。
 
@@ -51,6 +51,17 @@ uv run glm53 serve \
   --host 127.0.0.1 \
   --port 8080
 ```
+
+batch-1 decodeだけをpacked selected top-8 kernelへ移し、prefillではpacked bank上のDirect演算順を維持するexact backendは次のflagで有効化します。
+
+```bash
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --experimental-packed-decode-moe \
+  --experimental-compact-nope-dsa-cache
+```
+
+`L=1`は連続bankを直接読むgate/up/downの3 kernel、`L>1`はDirectと同じexpert bucket、tiled-GEMM/GEMV、BF16 reduction順を使います。grouped kernelは呼びません。`--experimental-packed-grouped-moe`とは排他的で、どちらも指定しない既定backendはDirectのままです。
 
 全42 routed MoE層を層単位で連続FP8 bankへ移行し、GPU sorted grouped prefillを使う場合だけ次を指定します。公式FP8＋FP32 scaleのままで、BF16 weight copyは作りません。
 
@@ -132,7 +143,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離し、packed-grouped時はgrouped kernel ABI、256-route runtime threshold、row-contiguous packed bank ABI、packed decode ABIを含めます。Direct/compactとDirect/packed-grouped MoEの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
+disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離します。packed-decodeはrow-contiguous packed bank ABIとpacked selected decode ABIを含み、packed-groupedはそれらに加えてgrouped kernel ABIと256-route runtime thresholdを含みます。cache backendと3つのMoE backendの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。production decodeは`nested-cache-eval-clear-v1` policyでrecurrent cacheを256 tokenごとにmaterializeします。環境変数の既存値はserver初期化時に上書きし、CLIで任意値は公開しません。`/v1/metrics`の`server.recurrent_state_materialization`にはconfigured interval、完了回数、前回境界からのdecode step、最終境界step、active/cache/peak memoryを記録します。Metal buffer object数は公開APIがないため報告しません。
 
@@ -142,8 +153,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 - MTPはcorrectnessと追加weight trafficのgateが未完了のため既定offです。
 - text-only runtimeではvision towerをloadしません。
 - 1Mはmodel-native上限にすぎません。server既定はprompt 256、総context 16,384です。OpenCode exampleは安全な総context 4,352（prompt 256 + output 4,096）を広告します。
-- 既定のbatch-1 decodeはtop-8 expertを3個のMetal kernelへ融合しています。opt-in packed backendもbankを直接読む3 kernelを使い、実測13.26 tok/sです。
-- 既定prefillはCPU expert bucketです。opt-in時はGPU route sortとgrouped MMAを全42 MoE層へ適用しますが、DSA full-KV SDPAは残ります。prompt上限256は変更していません。
+- 既定のbatch-1 decodeはtop-8 expertを3個のMetal kernelへ融合しています。packed-decode opt-inは連続bankを直接読み、4,096-token実測で10.87から12.54 tok/sへ向上しました。
+- 既定prefillはCPU expert bucketです。packed-decodeも同じDirect semanticsを維持します。packed-grouped opt-inだけがGPU route sortとgrouped MMAを全42 MoE層へ適用しますが、full-model correctness未合格です。DSA full-KV SDPAは残り、prompt上限256も変更していません。
 - 設計レポートの15 tok/s gateに対し、現在の常駐後実測は11.4 tok/sです。API/runtimeとして利用可能ですが、このperformance gateは未達です。
 
 ## M3 Ultra 512 GB実測
@@ -165,6 +176,10 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |
 | full-model opt-in decode | 11.44 → 13.26 tok/s / 1.159× |
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
+| packed-decode 4,096-token decode | 10.871 → 12.535 tok/s / 1.153× / exact token・logits・final cache state |
+| packed-decode synthetic 2k / 256k | 12.437 / 12.002 tok/s / retention 0.965 / Direct比1.143×・1.137× |
+| packed-decode 256-token prefill | 5.702 → 5.921 s / +3.85% / full-vocab byte-identical / grouped dispatch 0 |
+| packed-decode startup | 178.76 s / peak 327.156 GB / `/health` HTTP 200 |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
 | kpool4 KV dtype separation, 256k | BF16 268.44 MB / FP8 token 135.27 MB / FP8 group64 142.61 MB / index・mask hash一致 |
 | long-context first decode, 256k | Direct/compact/restore logits・DSA output一致 / leaf 112・167 / peak 331.46 GB |
@@ -211,6 +226,10 @@ uv run python scripts/probe_grouped_fp8_moe.py \
 uv run python scripts/probe_packed_grouped_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --tokens 256
+
+uv run python scripts/probe_packed_decode_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-packed-decode-runtime-20260831.json
 
 uv run python scripts/localize_grouped_fp8_divergence.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -295,6 +314,14 @@ GPU MoE prefillの前提確認として、実checkpointのlayer 3だけを4個�
 全model常駐状態のactive memoryは319.706 GB、pack中peakは327.023 GBでした。module参照の切替、旧expert解放、`mx.clear_cache()`後は319.706 GBへ戻り、baselineとの差は4 bytesです。したがって層単位移行で元mmap-backed tensorを解放でき、定常的なexpert bank二重化を避けられることを確認しました。これはfeasibility probeであり、serverとloaderの既定経路はまだ変更していません。
 
 0.202秒は既にresidentなtensorから1層をpackする時間です。attestation、checkpoint load、全weight residencyを含むserver-ready時間とは分離して扱います。
+
+### Opt-in packed decode MoE runtime
+
+`--experimental-packed-decode-moe`は全42 routed MoE層を同じ連続bankへlayerwiseに移行します。batch-1 decodeはbankから選択top-8だけを読む3個のMetal kernelを使い、prefillはfull-bank addressingでDirectと同じGEMV/tiled-GEMM・weighted BF16 reduction順を再現します。expert IDはruntime descriptorなのでexpert数に比例したMetal variantを生成せず、forward中に小さなdescriptor arrayも割り当てません。grouped kernelはどのsequence長でも呼びません。
+
+prompt 1/16/128/256のfull-vocab logits、4,096-token decodeの全tokenと指定step logits、最終KDA/DSA state、RAM APC continuation、256k synthetic-cache continuationはDirectとexact一致しました。4,096-token compact decodeは10.871から12.535 tok/sへ1.153×向上し、materialization 16回、active drift 2.05 MBです。synthetic-cache decodeは2kで12.437 tok/s、256kで12.002 tok/s、retention 0.965でした。256-token prefillは2 warmup＋5 samplesのmedianで5.702から5.921秒、回帰3.85%で5% gate内です。
+
+全層の旧expertは解放され、steady weightはuint8 E4M3＋FP32 scaleの304.480 GB、BF16 weight展開はありません。install peakは327.156 GB、opt-in compact serverは178.76秒でreadyとなり`/health` HTTP 200を返しました。このbackendはexperimental opt-inのままで、既定Direct backend、prompt 256、総context 16,384、compact cache ABIは変更していません。
 
 ### Sorted grouped FP8 MoE feasibility
 

@@ -16,7 +16,7 @@ from mlx.utils import tree_flatten, tree_unflatten
 from .fp8 import BlockFP8Linear, DirectFP8MoE
 from .grouped_fp8 import SortedGroupedFP8MoE
 from .manifest import inspect_checkpoint
-from .packed import PackedFP8ExpertBank
+from .packed import PackedFP8ExpertBank, PackedFP8MoE
 from .patch import apply_runtime_patch
 
 
@@ -138,16 +138,24 @@ def _install_direct_modules(model, weights, config) -> None:
         model.update_modules(tree_unflatten(replacements))
 
 
-def install_packed_grouped_moe(model) -> dict:
-    """Replace routed MoE layers one at a time without a model-sized duplicate."""
+def install_packed_moe(model, *, grouped: bool) -> dict:
+    """Pack routed experts layerwise and select the requested execution policy."""
     logger = logging.getLogger(__name__)
+    module_type = SortedGroupedFP8MoE if grouped else PackedFP8MoE
+    backend = "packed-grouped" if grouped else "packed-decode"
     converted = []
     layers = model.language_model.model.layers
     for layer_id, layer in enumerate(layers):
         direct = layer.mlp
-        if not isinstance(direct, DirectFP8MoE) or isinstance(
-            direct, SortedGroupedFP8MoE
+        if isinstance(direct, module_type) and (
+            grouped or not isinstance(direct, SortedGroupedFP8MoE)
         ):
+            continue
+        if isinstance(direct, PackedFP8MoE):
+            raise ValueError(
+                f"cannot convert existing {type(direct).__name__} to {backend} in place"
+            )
+        if not isinstance(direct, DirectFP8MoE):
             continue
         active_before = mx.get_active_memory()
         bank = PackedFP8ExpertBank.pack(direct.experts)
@@ -155,7 +163,7 @@ def install_packed_grouped_moe(model) -> dict:
         mx.eval(*bank_tensors)
         mx.synchronize()
         active_materialized = mx.get_active_memory()
-        layer.mlp = SortedGroupedFP8MoE(
+        layer.mlp = module_type(
             bank,
             direct.config,
             direct.gate,
@@ -181,7 +189,8 @@ def install_packed_grouped_moe(model) -> dict:
             }
         )
         logger.info(
-            "packed grouped MoE layer=%d active=%.3f GB peak=%.3f GB",
+            "%s MoE layer=%d active=%.3f GB peak=%.3f GB",
+            backend,
             layer_id,
             active_after_clear / 1e9,
             mx.get_peak_memory() / 1e9,
@@ -191,7 +200,7 @@ def install_packed_grouped_moe(model) -> dict:
         layer_id
         for layer_id, layer in enumerate(layers)
         if isinstance(layer.mlp, DirectFP8MoE)
-        and not isinstance(layer.mlp, SortedGroupedFP8MoE)
+        and not isinstance(layer.mlp, PackedFP8MoE)
     ]
     report = {
         "converted_layers": [row["layer"] for row in converted],
@@ -202,20 +211,37 @@ def install_packed_grouped_moe(model) -> dict:
         ),
         "layers": converted,
     }
-    model._glm53_moe_backend = "packed-grouped"
-    model._glm53_packed_grouped_report = report
+    report["backend"] = backend
+    report["grouped_enabled"] = grouped
+    model._glm53_moe_backend = backend
+    setattr(model, f"_glm53_{backend.replace('-', '_')}_report", report)
     return report
+
+
+def install_packed_grouped_moe(model) -> dict:
+    """Install the experimental grouped-prefill policy."""
+    return install_packed_moe(model, grouped=True)
+
+
+def install_packed_decode_moe(model) -> dict:
+    """Install packed selected decode while retaining Direct prefill semantics."""
+    return install_packed_moe(model, grouped=False)
 
 
 def load_model(
     path: str | Path,
     *,
     strict: bool = True,
+    experimental_packed_decode_moe: bool = False,
     experimental_packed_grouped_moe: bool = False,
     experimental_compact_nope_dsa_cache: bool = False,
     compact_cache_capacity_tokens: int = 4352,
 ):
     path = Path(path).expanduser().resolve()
+    if experimental_packed_decode_moe and experimental_packed_grouped_moe:
+        raise ValueError(
+            "packed-decode and packed-grouped MoE backends are mutually exclusive"
+        )
     report = inspect_checkpoint(path, require_server_ready=True)
     if report.source_format != "hf-fp8":
         raise ValueError(f"direct runtime requires the official HF FP8 checkpoint, got {report.source_format}")
@@ -234,7 +260,9 @@ def load_model(
     weights.clear()
     del weight_items, weights
     gc.collect()
-    if experimental_packed_grouped_moe:
+    if experimental_packed_decode_moe:
+        install_packed_decode_moe(model)
+    elif experimental_packed_grouped_moe:
         install_packed_grouped_moe(model)
     else:
         model._glm53_moe_backend = "direct"
@@ -263,6 +291,9 @@ def load(path: str | Path, adapter_path=None, **kwargs):
     model, config = load_model(
         path,
         strict=kwargs.pop("strict", True),
+        experimental_packed_decode_moe=kwargs.pop(
+            "experimental_packed_decode_moe", False
+        ),
         experimental_packed_grouped_moe=kwargs.pop(
             "experimental_packed_grouped_moe", False
         ),

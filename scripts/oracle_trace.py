@@ -33,6 +33,7 @@ def build_trace(
     tokens: int,
     warm: bool,
     experimental_packed_grouped_moe: bool = False,
+    experimental_packed_decode_moe: bool = False,
     experimental_compact_nope_dsa_cache: bool = False,
 ) -> dict:
     report = inspect_checkpoint(model_path, require_server_ready=True)
@@ -41,6 +42,7 @@ def build_trace(
     model, processor = load(
         model_path,
         experimental_packed_grouped_moe=experimental_packed_grouped_moe,
+        experimental_packed_decode_moe=experimental_packed_decode_moe,
         experimental_compact_nope_dsa_cache=experimental_compact_nope_dsa_cache,
     )
     if warm:
@@ -128,6 +130,7 @@ def main() -> int:
     parser.add_argument("--warm-residency", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--expect", type=Path)
     parser.add_argument("--experimental-packed-grouped-moe", action="store_true")
+    parser.add_argument("--experimental-packed-decode-moe", action="store_true")
     parser.add_argument("--experimental-compact-nope-dsa-cache", action="store_true")
     args = parser.parse_args()
     trace = build_trace(
@@ -136,6 +139,7 @@ def main() -> int:
         tokens=args.tokens,
         warm=args.warm_residency,
         experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+        experimental_packed_decode_moe=args.experimental_packed_decode_moe,
         experimental_compact_nope_dsa_cache=(
             args.experimental_compact_nope_dsa_cache
         ),
