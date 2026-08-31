@@ -181,6 +181,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | packed-decode 256-token prefill | 5.702 → 5.921 s / +3.85% / full-vocab byte-identical / grouped dispatch 0 |
 | packed-decode startup | 178.76 s / peak 327.156 GB / `/health` HTTP 200 |
 | fused packed gate+up+SwiGLU decode probe | layer 3/5 exact / MoE 1.199×・1.183× / 2k 1.097× / 4,096 token 13.728 tok/s（runtime gate未達） |
+| residual packed decode MoE fusion probe | A/B/C/D exact / 13.811・13.967・13.998・14.133 tok/s / D 70.754 ms（15 tok/s gate未達） |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
@@ -239,6 +240,10 @@ uv run python scripts/probe_packed_decode_runtime.py \
 uv run python scripts/probe_fused_packed_gate_up_swiglu_decode.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-fused-packed-gate-up-swiglu-decode-20260901.json
+
+uv run python scripts/probe_residual_packed_decode_moe_fusion.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-residual-packed-decode-moe-fusion-20260901.json
 
 uv run python scripts/probe_row_blocked_vector_kda_prefill.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -355,6 +360,14 @@ packed batch-1 decodeのgate投影とup投影を同じMetal dispatchで計算し
 公式checkpointのlayer 3/5ではrouter ID・score、gate、up、activated hidden、down、weighted route、routed output、shared加算後の最終MoE outputがすべてbyte-identicalでした。full-model synthetic 2kの全logits hash、4,096-tokenの全生成token、指定stepのfull-vocab logits hash、最終KDA/DSA stateも既存packed pathとexact一致し、materializationは両armとも16回です。
 
 一方、selected routed MoE speedupはlayer 3/5で1.199×・1.183×となり、最小1.20× gateへ届きませんでした。full-model 2kは1.097×、4,096-token decodeは12.566から13.728 tok/s（1.093×）で、1.12×および14 tok/s gateも未達です。したがってこれはexact correctness anchorとして保存しますが、runtime、kernel ABI、server、APC identity、admissionには導入しません。
+
+### Residual packed decode MoE fusion probe
+
+d99fのexact gate+up+SwiGLU融合を全armの非production baselineとし、残るdown集約とshared expertを直交分離しました。Aは既存down集約＋既存shared、Bはcustom down集約、Cはshared gate+up+SwiGLU融合、DはB+Cです。down集約は、既存BF16 downを読むB1と、down kernel内でFP32 score乗算まで行うB2を先に比較しました。両方ともraw down、weighted FP32、reduced FP32、final BF16がexactで、代表層の合計medianが短いB1をfull-model armへ採用しました。
+
+layer 3/5ではB1/B2の全集約境界、shared gate/up/activated hidden/down、A/B/C/Dの最終MoE出力がbyte-identicalです。2k full-model logits hash、4,096-tokenの全生成token、全evidence logits hash、最終KDA/DSA stateも全armでAとexact一致し、materializationは各16回、NaNとMetal errorは0でした。
+
+4,096-token medianはA 72.407 ms / 13.811 tok/s、B 71.597 ms / 13.967 tok/s、C 71.438 ms / 13.998 tok/s、D 70.754 ms / 14.133 tok/sです。B1はA比1.011×、shared融合は1.014×、組合せDは1.023×でした。代表層のshared単体は0.361〜0.364 msから0.316〜0.319 msへの1.129〜1.149×であり、以前のrouted+shared差分から推定した0.12〜0.13 ms/layerはshared単独critical-path costを過大評価していました。Dは15 tok/sの66.667 msまで4.087 ms残すため、runtime、kernel ABI、server、APC identity、admissionへは導入しません。今後の性能probeではDをexactな非production baselineとして使います。
 
 ### Row-blocked vector KDA prefill probe
 
