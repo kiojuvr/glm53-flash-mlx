@@ -180,6 +180,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | packed-decode synthetic 2k / 256k | 12.437 / 12.002 tok/s / retention 0.965 / Direct比1.143×・1.137× |
 | packed-decode 256-token prefill | 5.702 → 5.921 s / +3.85% / full-vocab byte-identical / grouped dispatch 0 |
 | packed-decode startup | 178.76 s / peak 327.156 GB / `/health` HTTP 200 |
+| fused packed gate+up+SwiGLU decode probe | layer 3/5 exact / MoE 1.199×・1.183× / 2k 1.097× / 4,096 token 13.728 tok/s（runtime gate未達） |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
@@ -234,6 +235,10 @@ uv run python scripts/probe_packed_grouped_runtime.py \
 uv run python scripts/probe_packed_decode_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-packed-decode-runtime-20260831.json
+
+uv run python scripts/probe_fused_packed_gate_up_swiglu_decode.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-fused-packed-gate-up-swiglu-decode-20260901.json
 
 uv run python scripts/probe_row_blocked_vector_kda_prefill.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -342,6 +347,14 @@ GPU MoE prefillの前提確認として、実checkpointのlayer 3だけを4個�
 prompt 1/16/128/256のfull-vocab logits、4,096-token decodeの全tokenと指定step logits、最終KDA/DSA state、RAM APC continuation、256k synthetic-cache continuationはDirectとexact一致しました。4,096-token compact decodeは10.871から12.535 tok/sへ1.153×向上し、materialization 16回、active drift 2.05 MBです。synthetic-cache decodeは2kで12.437 tok/s、256kで12.002 tok/s、retention 0.965でした。256-token prefillは2 warmup＋5 samplesのmedianで5.702から5.921秒、回帰3.85%で5% gate内です。
 
 全層の旧expertは解放され、steady weightはuint8 E4M3＋FP32 scaleの304.480 GB、BF16 weight展開はありません。install peakは327.156 GB、opt-in compact serverは178.76秒でreadyとなり`/health` HTTP 200を返しました。このbackendはexperimental opt-inのままで、既定Direct backend、prompt 256、総context 16,384、compact cache ABIは変更していません。
+
+### Fused packed gate+up+SwiGLU decode probe
+
+packed batch-1 decodeのgate投影とup投影を同じMetal dispatchで計算し、SwiGLUまでkernel内で完了するprobeを追加しました。down投影は既存packed kernelを使うため、routed expert部分は3 projection dispatchから2 dispatchになります。MLX v0.32.2のSigmoidと同じ`abs(x)`＋符号分岐の安定化式、BF16 projection store境界、BF16 activation演算木を再現しています。weightはpacked uint8 E4M3、scaleはFP32のままで、BF16 weight展開はありません。
+
+公式checkpointのlayer 3/5ではrouter ID・score、gate、up、activated hidden、down、weighted route、routed output、shared加算後の最終MoE outputがすべてbyte-identicalでした。full-model synthetic 2kの全logits hash、4,096-tokenの全生成token、指定stepのfull-vocab logits hash、最終KDA/DSA stateも既存packed pathとexact一致し、materializationは両armとも16回です。
+
+一方、selected routed MoE speedupはlayer 3/5で1.199×・1.183×となり、最小1.20× gateへ届きませんでした。full-model 2kは1.097×、4,096-token decodeは12.566から13.728 tok/s（1.093×）で、1.12×および14 tok/s gateも未達です。したがってこれはexact correctness anchorとして保存しますが、runtime、kernel ABI、server、APC identity、admissionには導入しません。
 
 ### Row-blocked vector KDA prefill probe
 
