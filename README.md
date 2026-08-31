@@ -159,7 +159,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 
 ## M3 Ultra 512 GB実測
 
-2026-08-28〜29、このリポジトリの公式checkpointで測定した値です。
+2026-08-28〜31、このリポジトリの公式checkpointで測定した値です。
 
 | 項目 | 実測 |
 |---|---:|
@@ -180,6 +180,9 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | packed-decode synthetic 2k / 256k | 12.437 / 12.002 tok/s / retention 0.965 / Direct比1.143×・1.137× |
 | packed-decode 256-token prefill | 5.702 → 5.921 s / +3.85% / full-vocab byte-identical / grouped dispatch 0 |
 | packed-decode startup | 178.76 s / peak 327.156 GB / `/health` HTTP 200 |
+| row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
+| row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
+| row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
 | kpool4 KV dtype separation, 256k | BF16 268.44 MB / FP8 token 135.27 MB / FP8 group64 142.61 MB / index・mask hash一致 |
 | long-context first decode, 256k | Direct/compact/restore logits・DSA output一致 / leaf 112・167 / peak 331.46 GB |
@@ -230,6 +233,10 @@ uv run python scripts/probe_packed_grouped_runtime.py \
 uv run python scripts/probe_packed_decode_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-packed-decode-runtime-20260831.json
+
+uv run python scripts/probe_row_blocked_vector_kda_prefill.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-row-blocked-vector-kda-prefill-20260831.json
 
 uv run python scripts/localize_grouped_fp8_divergence.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -322,6 +329,18 @@ GPU MoE prefillの前提確認として、実checkpointのlayer 3だけを4個�
 prompt 1/16/128/256のfull-vocab logits、4,096-token decodeの全tokenと指定step logits、最終KDA/DSA state、RAM APC continuation、256k synthetic-cache continuationはDirectとexact一致しました。4,096-token compact decodeは10.871から12.535 tok/sへ1.153×向上し、materialization 16回、active drift 2.05 MBです。synthetic-cache decodeは2kで12.437 tok/s、256kで12.002 tok/s、retention 0.965でした。256-token prefillは2 warmup＋5 samplesのmedianで5.702から5.921秒、回帰3.85%で5% gate内です。
 
 全層の旧expertは解放され、steady weightはuint8 E4M3＋FP32 scaleの304.480 GB、BF16 weight展開はありません。install peakは327.156 GB、opt-in compact serverは178.76秒でreadyとなり`/health` HTTP 200を返しました。このbackendはexperimental opt-inのままで、既定Direct backend、prompt 256、総context 16,384、compact cache ABIは変更していません。
+
+### Row-blocked vector KDA prefill probe
+
+GLM-5.3のvector gate KDAについて、Dv行を1/2/4/8行ずつ1 SIMD groupで処理するprobe専用Metal kernelを比較しました。q/k、vector-g、betaを行間で共有しながら、各行のrecurrence、`simd_sum`、BF16 output store、FP32 final stateは現行kernelと同じ順序です。公式shape `H=64, Dk=Dv=128`の128〜16,384 tokensで2 warmup＋5 samplesを測り、4K以上のR=1比geomean 3.172×となったR=4を勝者に選びました。R=4のR=1比は4K/8K/16Kで3.063×/2.977×/3.500×、現行kernel比は1.638×/1.704×/1.999×です。
+
+zero/nonzero initial state、maskなし/tail/internal gap、token mod 0/1/2/3、interleaved strided inputは全Rでoutputとfinal stateがbyte-identicalでした。early/middle/late layer 0/20/44の128-tokenと全34 KDA層もoutput、conv state、recurrent stateがexact一致し、R=4を通した公式16/128-token greedy oracleも全tokenと全step full-vocab logits hashが一致しました。working peak増加は0 bytesです。
+
+NoPE fixtureは全11 DSA層で`use_nope=True`、`qk_rope_head_dim=0`、`rotary_emb`不在をassertし、Direct/compactのprefill/decode中の`nn.RoPE`と`mx.fast.rope`呼出しは0でした。一方、IndexPoolのtoken position処理は維持され、2049-token synthetic stateの全selected index/output hashはDirect/compactで一致しています。「位置indexがない」のではなく、「位置埋め込み演算がない」という契約です。
+
+ただしpacked-decode MoE＋Direct cacheのwhole-model prefillは、productionと同じ2048-token chunkで2Kが46.008→45.954秒、4Kが91.305→91.198秒、どちらも1.00118×に留まり、1.02× gateへ届きませんでした。decodeもexactですが76.394→76.613 ms（+0.286%）です。4K one-shotは既存FP8 projectionの1D gridが2^32 threadsへ達するため使わず、serverと同じ2×2048 chunkで測定しました。条件に従い8K/16K whole-modelは未実行です。
+
+したがってR=4はexact KDA correctness/performance anchorとしてartifactへ保存しますが、runtime kernel、ABI、server、admission、既定backendへは導入しません。次はpacked-decode＋compact候補の累積allocation 1M soakであり、KDA単体最適化を15 tok/s経路とは扱いません。
 
 ### Sorted grouped FP8 MoE feasibility
 
