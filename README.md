@@ -167,6 +167,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
 | kpool4 KV dtype separation, 256k | BF16 268.44 MB / FP8 token 135.27 MB / FP8 group64 142.61 MB / index・mask hash一致 |
+| long-context first decode, 256k | Direct/compact/restore logits・DSA output一致 / leaf 112・167 / peak 331.46 GB |
 | layer 3 grouped route amplification | local 0.00408 → final 0.18605 / route固定 0.02034（9.15×縮小） |
 | layer 5 grouped route amplification | local 0.00426 → final 0.20199 / route固定 0.01830（11.04×縮小） |
 | suffix sweep最速screening通過 c=29 | warm median 4.573 s / Direct比1.241× / L2 0.01958 / KL 3.37e-4 |
@@ -443,6 +444,16 @@ fixtureはvalid pool数7/512/513、tail mod 0/1/2/3、2,047/2,048/2,049 bypass�
 
 256k synthetic latent storageはBF16 268,435,456 bytes、per-token FP8 135,266,304 bytes、group64 FP8 142,606,336 bytesでした。gather＋dequantize medianは0.255 / 0.264 / 0.267 msです。FP8 outputのBF16比はper-tokenがrelative L2 0.00516、KL 8.70e-6、group64がL2 0.00564、KL 1.00e-5で、いずれもargmax一致・top-10 overlap 10/10でした。これは品質昇格gateではなくdtypeからの選択意味論分離probeです。IndexPool stateはBF16/int64/boolのまま、FP8 latent backendは未登録で、runtime/server/APC/cache ABIは変更していません。
 
+### Long-context first-decode state ABI
+
+Tier 1ではDirect/compactの両production cacheについてprompt 16/128/255/256を実prefillし、RAM APC snapshotからresident、restore、interval-256 materialization境界を通るfirst decodeを比較しました。全8 caseでfirst tokenとfull-vocab logits、resident/restore post-stateがbyte-identicalです。snapshotはdecode後も不変で、全11 DSA層のlatent/IndexPool offsetは正確に1進み、NaN、Metal error、予期しないcapacity growthはありません。materializationの非境界0回・境界1回も期待値と一致しました。
+
+Tier 2ではcold prefillを実行せず、16k/64k/128kと262143〜262147 tokenのcanonical synthetic stateを全45層へ構築しました。34 KDA層はcontext非依存shape/dtypeとcanonical row-major layoutを持つ非ゼロconv/recurrent state、11 DSA層はlatent、contiguous IndexPool、最大19-token raw rollback stateです。Directは112 state leaves、compact/restoreは167で全context一定でした。全stateをmaterializeし、`context + 1`を256境界へ事前予約してからfirst decodeしています。
+
+全8 context × 11 DSA層でDirect/compactのselected indexとattention outputがbyte-identicalです。全indexは`-1`または`[0, Kv)`、selected幅は最大2051で、Direct/compact full-model first logits、compact resident/restore post-stateも一致しました。262145/262144 first-decode latency比はDirect 1.010、compact resident 1.006、restore 0.968で1.5 gate内です。256k peakは331.456 GB、OOM・NaN・Metal errorはありません。
+
+この結果が検証するのは「256k resident/RAM restore stateからfirst decodeへ遷移できること」です。256k cold prefillはunsupportedかつunvalidatedです。16k以上のcold promptはproduction admissionでfail closedし、拒否前後のcache hashも不変でした。prompt上限256、総context上限16,384、runtime/server/APC/cache ABIは変更していません。
+
 ## 検証
 
 ```bash
@@ -462,6 +473,10 @@ uv run python scripts/oracle_trace.py \
 uv run python scripts/oracle_trace.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --tokens 128 --expect oracles/glm53-official-greedy-128.json
+
+uv run python scripts/probe_long_context_first_decode_boundary.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-long-context-first-decode-boundary-20260831.json
 ```
 
 実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completion、`index_topk=2048`境界以降のIndexPool sentinel/rangeとchunked/incremental集合parityを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parityとselected-KV sparse DSA性能はまだ追加gateです。
