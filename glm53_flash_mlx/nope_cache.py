@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import mlx.core as mx
 
-from .indexpool import INDEXPOOL_SENTINEL, sanitize_indexpool_indices
+from .indexpool import INDEXPOOL_SENTINEL, expand_selected_pools
 
 DEFAULT_CACHE_STEP = 256
 DEFAULT_ROLLBACK_WINDOW = 16
@@ -450,59 +450,30 @@ class CompactIndexPoolCache:
         order = mx.argsort(-index_scores, axis=-1)
         selected = order[..., :select_k]
         selected_valid = mx.take_along_axis(valid_candidates, selected, axis=-1)
-        source = mx.broadcast_to(
-            pool_indices[:, None],
-            (1, 1, pool_count, self.index_kpool),
+        active = self.active_tail_count
+        tail_positions = (
+            self.raw_positions[:, -active:]
+            if active
+            else mx.zeros((1, 0), dtype=mx.int64)
         )
-        selected_expanded = mx.broadcast_to(
-            selected[..., None],
-            (1, 1, select_k, self.index_kpool),
+        tail_valid = (
+            self.raw_valid[:, -active:]
+            if active
+            else mx.zeros((1, 0), dtype=mx.bool_)
         )
-        chosen = mx.take_along_axis(source, selected_expanded, axis=2)
-        topk = chosen.reshape(1, 1, select_k * self.index_kpool)
-        chosen_valid = mx.broadcast_to(
-            selected_valid[..., None],
-            (1, 1, select_k, self.index_kpool),
-        ).reshape(1, 1, select_k * self.index_kpool)
-        topk = mx.where(chosen_valid, topk, INDEXPOOL_SENTINEL)
-        if self.always_select_tail and self.index_kpool > 1:
-            active = self.active_tail_count
-            tail_positions = self.raw_positions[:, -active:] if active else mx.zeros((1, 0), dtype=mx.int64)
-            tail_valid = self.raw_valid[:, -active:] if active else mx.zeros((1, 0), dtype=mx.bool_)
-            tail = mx.where(tail_valid, tail_positions, INDEXPOOL_SENTINEL)
-            missing = self.index_kpool - 1 - active
-            if missing > 0:
-                tail = mx.concatenate(
-                    [
-                        tail,
-                        mx.full(
-                            (1, missing),
-                            INDEXPOOL_SENTINEL,
-                            dtype=mx.int64,
-                        ),
-                    ],
-                    axis=-1,
-                )
-            topk = mx.concatenate([topk, tail[:, None]], axis=-1)
-        width = self.index_topk + (
-            self.index_kpool - 1 if self.always_select_tail else 0
+        topk, valid = expand_selected_pools(
+            selected,
+            pool_indices,
+            selected_valid,
+            kv_len=self.total_tokens,
+            index_topk=self.index_topk,
+            index_kpool=self.index_kpool,
+            tail_positions=tail_positions,
+            tail_valid=tail_valid,
+            always_select_tail=self.always_select_tail,
         )
-        if topk.shape[-1] < width:
-            topk = mx.concatenate(
-                [
-                    topk,
-                    mx.full(
-                        (1, 1, width - topk.shape[-1]),
-                        INDEXPOOL_SENTINEL,
-                        dtype=topk.dtype,
-                    ),
-                ],
-                axis=-1,
-            )
-        topk = mx.where(valid_cur[..., None], topk, INDEXPOOL_SENTINEL)
-        return sanitize_indexpool_indices(
-            topk[..., :width][:, None].astype(mx.int32), self.total_tokens
-        )
+        valid = valid & valid_cur[..., None]
+        return mx.where(valid, topk, INDEXPOOL_SENTINEL)[:, None]
 
     def update(self, indexer, x: mx.array, qr: mx.array, mask=None):
         length = int(x.shape[1])

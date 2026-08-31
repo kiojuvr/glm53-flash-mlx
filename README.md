@@ -166,6 +166,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model opt-in decode | 11.44 → 13.26 tok/s / 1.159× |
 | full-model opt-in startup memory | peak 319.742 GB / steady 319.708 GB |
 | layer 3 NoPE IndexPool, T=2049 | shape 1×1×2049×2051 / unused 2,102,274 / out-of-range 0 |
+| kpool4 KV dtype separation, 256k | BF16 268.44 MB / FP8 token 135.27 MB / FP8 group64 142.61 MB / index・mask hash一致 |
 | layer 3 grouped route amplification | local 0.00408 → final 0.18605 / route固定 0.02034（9.15×縮小） |
 | layer 5 grouped route amplification | local 0.00426 → final 0.20199 / route固定 0.01830（11.04×縮小） |
 | suffix sweep最速screening通過 c=29 | warm median 4.573 s / Direct比1.241× / L2 0.01958 / KL 3.37e-4 |
@@ -219,6 +220,11 @@ uv run python scripts/probe_nope_indexpool_safety.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --layer 3 \
   --output bench-results/m3ultra512-nope-indexpool-safety-20260828.json
+
+uv run python scripts/probe_kpool4_kv_dtype_separation.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --layer 3 \
+  --output bench-results/m3ultra512-kpool4-kv-dtype-separation-20260831.json
 
 uv run python scripts/trace_grouped_fp8_route_amplification.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -428,6 +434,14 @@ Direct/compact serverはいずれも`/health` HTTP 200で、startup logにpolicy
 GLM-5.3-FlashのDSA cacheを`qk_rope_head_dim=0`、`mla_use_nope=true`、`kv_lora_rank=512`の独立したNoPE ABIとして監査します。Indexerの最終returnとattention gatherの両方で、indexが`-1`または`0 <= index < Kv`であることをGPU上で検査します。無効な正数をclipして実KVへ変換しません。
 
 公式checkpointのlayer 3では、`index_topk=2048`に対してT=2047/2048のshort bypassとT=2049の実IndexPool経路を確認しました。T=2049の出力は`[1,1,2049,2051]`、unused slotは2,102,274、valid indexは0–2048、範囲外indexとNaNは0です。31/32/33、511/512/513、zero-valid、left-padding、partial final pool、one-shot/chunked/incrementalの有効index集合一致、反復hash一致にも合格しました。これはstate/sentinel correctness gateであり、sparse DSA kernelやprompt上限は変更していません。
+
+### kpool4 expansion / KV dtype separation
+
+`CompactIndexPoolCache`のpool selection後処理をpureな`expand_selected_pools()`へ抽出しました。入力はselected pool row、BF16のIndexPool token indices、独立bool validity、partial tailだけで、latent KV tensor・dtype・scaleを参照しません。返すtoken indexは常に`-1`または`[0, kv_len)`で、独立valid maskを併記します。productionのslot順、最終sanitize、attention gather側のrange再検査は維持しています。GLM-5.3の最大幅は2,048＋3 = 2,051で、16k–256kまで一定です。
+
+fixtureはvalid pool数7/512/513、tail mod 0/1/2/3、2,047/2,048/2,049 bypass境界、4,351/4,352 server境界、16k/64k/128k/256k、正のOOB、invalid KV poison、repeat/restoreを通過しました。BF16、E4M3＋per-token/per-head FP32 scale、E4M3＋group64 FP32 scaleの全armでselected pool・token index・valid mask hashがbyte-identicalです。invalid slotをpoisonしてもlayer 3 attention出力は全armで不変です。
+
+256k synthetic latent storageはBF16 268,435,456 bytes、per-token FP8 135,266,304 bytes、group64 FP8 142,606,336 bytesでした。gather＋dequantize medianは0.255 / 0.264 / 0.267 msです。FP8 outputのBF16比はper-tokenがrelative L2 0.00516、KL 8.70e-6、group64がL2 0.00564、KL 1.00e-5で、いずれもargmax一致・top-10 overlap 10/10でした。これは品質昇格gateではなくdtypeからの選択意味論分離probeです。IndexPool stateはBF16/int64/boolのまま、FP8 latent backendは未登録で、runtime/server/APC/cache ABIは変更していません。
 
 ## 検証
 

@@ -101,6 +101,177 @@ def test_sanitize_and_attention_gather_reject_positive_out_of_range_indices():
     assert mx.array_equal(expected, actual).item()
 
 
+@pytest.mark.parametrize("tail_count", [0, 1, 2, 3])
+def test_expand_selected_pools_keeps_tail_and_validity_independent(tail_count):
+    _require_metal()
+    from glm53_flash_mlx.indexpool import expand_selected_pools
+
+    kv_len = 8 + tail_count
+    selected = mx.array([[[0, 1]]], dtype=mx.int32)
+    pool_indices = mx.arange(8, dtype=mx.int64).reshape(1, 2, 4)
+    selected_valid = mx.ones((1, 1, 2), dtype=mx.bool_)
+    tail_positions = mx.arange(8, kv_len, dtype=mx.int64)[None]
+    tail_valid = mx.ones((1, tail_count), dtype=mx.bool_)
+    indices, valid = expand_selected_pools(
+        selected,
+        pool_indices,
+        selected_valid,
+        kv_len=kv_len,
+        index_topk=16,
+        index_kpool=4,
+        tail_positions=tail_positions,
+        tail_valid=tail_valid,
+        always_select_tail=True,
+    )
+    values = _array(indices)
+    validity = _array(valid)
+    assert values.shape == validity.shape == (1, 1, 19)
+    assert values[validity].tolist() == list(range(kv_len))
+    assert np.all(values[~validity] == -1)
+    assert int(validity.sum()) == kv_len
+
+
+@pytest.mark.parametrize("valid_pools", [7, 512, 513])
+def test_expand_selected_pools_handles_below_at_and_above_512(valid_pools):
+    _require_metal()
+    from glm53_flash_mlx.indexpool import expand_selected_pools
+
+    pool_indices = mx.arange(valid_pools * 4, dtype=mx.int64).reshape(
+        1, valid_pools, 4
+    )
+    selected_count = min(valid_pools, 512)
+    selected = mx.arange(
+        valid_pools - selected_count, valid_pools, dtype=mx.int32
+    ).reshape(1, 1, selected_count)
+    indices, valid = expand_selected_pools(
+        selected,
+        pool_indices,
+        mx.ones(selected.shape, dtype=mx.bool_),
+        kv_len=valid_pools * 4,
+        index_topk=2048,
+        index_kpool=4,
+        tail_positions=mx.zeros((1, 0), dtype=mx.int64),
+        tail_valid=mx.zeros((1, 0), dtype=mx.bool_),
+        always_select_tail=True,
+    )
+    values = _array(indices)
+    validity = _array(valid)
+    assert values.shape == validity.shape == (1, 1, 2051)
+    assert np.all(values[~validity] == -1)
+    assert int(validity.sum()) == selected_count * 4
+    if valid_pools == 512:
+        assert values[validity].tolist() == list(range(2048))
+    if valid_pools > 512:
+        assert set(values[validity].tolist()) == set(range(4, 2052))
+
+
+def test_expand_selected_pools_sentinelizes_token_and_pool_oob():
+    _require_metal()
+    from glm53_flash_mlx.indexpool import expand_selected_pools
+
+    indices, valid = expand_selected_pools(
+        mx.array([[[0, 9]]], dtype=mx.int32),
+        mx.array([[[-1, 0, 7, 15]]], dtype=mx.int64),
+        mx.ones((1, 1, 2), dtype=mx.bool_),
+        kv_len=8,
+        index_topk=8,
+        index_kpool=4,
+        tail_positions=mx.array([[8, 3]], dtype=mx.int64),
+        tail_valid=mx.ones((1, 2), dtype=mx.bool_),
+        always_select_tail=True,
+    )
+    values = _array(indices).reshape(-1)
+    validity = _array(valid).reshape(-1)
+    assert values.tolist() == [-1, 0, 7, -1, -1, -1, -1, -1, -1, 3, -1]
+    assert validity.tolist() == [
+        False, True, True, False, False, False, False, False, False, True, False
+    ]
+
+
+@pytest.mark.parametrize("kv_len", [4351, 4352, 16384, 65536, 131072, 262144])
+def test_expand_selected_pools_width_is_bounded_at_long_context(kv_len):
+    _require_metal()
+    from glm53_flash_mlx.indexpool import expand_selected_pools
+
+    complete = kv_len // 4
+    selected_count = min(complete, 512)
+    start = complete - selected_count
+    selected = mx.arange(start, complete, dtype=mx.int32).reshape(
+        1, 1, selected_count
+    )
+    pool_indices = mx.arange(complete * 4, dtype=mx.int64).reshape(1, complete, 4)
+    tail_count = kv_len % 4
+    tail = mx.arange(complete * 4, kv_len, dtype=mx.int64)[None]
+    indices, valid = expand_selected_pools(
+        selected,
+        pool_indices,
+        mx.ones(selected.shape, dtype=mx.bool_),
+        kv_len=kv_len,
+        index_topk=2048,
+        index_kpool=4,
+        tail_positions=tail,
+        tail_valid=mx.ones((1, tail_count), dtype=mx.bool_),
+        always_select_tail=True,
+    )
+    values = _assert_sentinel_contract(indices, kv_len)
+    assert values.shape == _array(valid).shape == (1, 1, 2051)
+    assert int(_array(valid).sum()) == selected_count * 4 + tail_count
+
+
+def test_expand_selected_pools_repeats_byte_identically():
+    _require_metal()
+    from glm53_flash_mlx.indexpool import expand_selected_pools
+
+    args = (
+        mx.array([[[1, 0]]], dtype=mx.int32),
+        mx.arange(8, dtype=mx.int64).reshape(1, 2, 4),
+        mx.array([[[True, False]]]),
+    )
+    kwargs = {
+        "kv_len": 9,
+        "index_topk": 8,
+        "index_kpool": 4,
+        "tail_positions": mx.array([[8]], dtype=mx.int64),
+        "tail_valid": mx.array([[True]]),
+        "always_select_tail": True,
+    }
+    first = tuple(_array(value) for value in expand_selected_pools(*args, **kwargs))
+    restored = tuple(
+        _array(value)
+        for value in expand_selected_pools(
+            *(mx.array(_array(value)) for value in args), **kwargs
+        )
+    )
+    assert all(np.array_equal(left, right) for left, right in zip(first, restored))
+
+
+@pytest.mark.parametrize("tokens", [2047, 2048, 2049])
+def test_compact_indexpool_preserves_2048_sparse_bypass_boundary(tokens):
+    _require_metal()
+    from glm53_flash_mlx.nope_cache import CompactIndexPoolCache
+
+    indexer = _make_indexer(topk=2048, kpool=4, bypass_short=True)
+    cache = CompactIndexPoolCache(indexer, capacity_tokens=2049)
+    x, qr = _inputs(tokens)
+    if tokens <= 2048:
+        output = indexer(
+            x, qr, mx.ones((1, tokens), dtype=mx.bool_), cache=cache
+        )
+        assert output is None
+    else:
+        assert indexer(
+            x[:, :2048],
+            qr[:, :2048],
+            mx.ones((1, 2048), dtype=mx.bool_),
+            cache=cache,
+        ) is None
+        output = indexer(
+            x[:, 2048:], qr[:, 2048:], mx.ones((1, 1), dtype=mx.bool_), cache=cache
+        )
+        values = _assert_sentinel_contract(output, tokens)
+        assert values.shape == (1, 1, 1, 2051)
+
+
 @pytest.mark.parametrize("tokens", [31, 32, 33])
 def test_indexpool_topk_and_partial_pool_boundaries(tokens):
     indexer = _make_indexer(topk=32, kpool=4, bypass_short=True)
