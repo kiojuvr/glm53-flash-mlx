@@ -182,6 +182,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | packed-decode startup | 178.76 s / peak 327.156 GB / `/health` HTTP 200 |
 | fused packed gate+up+SwiGLU decode probe | layer 3/5 exact / MoE 1.199×・1.183× / 2k 1.097× / 4,096 token 13.728 tok/s（runtime gate未達） |
 | residual packed decode MoE fusion probe | A/B/C/D exact / 13.811・13.967・13.998・14.133 tok/s / D 70.754 ms（15 tok/s gate未達） |
+| compiled packed FFN / FP32 router screen | isolated A/B/C/D 14.158・14.407・14.168・14.358 tok/s / Bのみ14.4 screen通過 / 15 tok/s候補なし |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
@@ -244,6 +245,10 @@ uv run python scripts/probe_fused_packed_gate_up_swiglu_decode.py \
 uv run python scripts/probe_residual_packed_decode_moe_fusion.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-residual-packed-decode-moe-fusion-20260901.json
+
+uv run python scripts/probe_compiled_packed_ffn_fp32_router.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-compiled-packed-ffn-fp32-router-20260901.json
 
 uv run python scripts/probe_row_blocked_vector_kda_prefill.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -368,6 +373,14 @@ d99fのexact gate+up+SwiGLU融合を全armの非production baselineとし、残�
 layer 3/5ではB1/B2の全集約境界、shared gate/up/activated hidden/down、A/B/C/Dの最終MoE出力がbyte-identicalです。2k full-model logits hash、4,096-tokenの全生成token、全evidence logits hash、最終KDA/DSA stateも全armでAとexact一致し、materializationは各16回、NaNとMetal errorは0でした。
 
 4,096-token medianはA 72.407 ms / 13.811 tok/s、B 71.597 ms / 13.967 tok/s、C 71.438 ms / 13.998 tok/s、D 70.754 ms / 14.133 tok/sです。B1はA比1.011×、shared融合は1.014×、組合せDは1.023×でした。代表層のshared単体は0.361〜0.364 msから0.316〜0.319 msへの1.129〜1.149×であり、以前のrouted+shared差分から推定した0.12〜0.13 ms/layerはshared単独critical-path costを過大評価していました。Dは15 tok/sの66.667 msまで4.087 ms残すため、runtime、kernel ABI、server、APC identity、admissionへは導入しません。今後の性能probeではDをexactな非production baselineとして使います。
+
+### Compiled packed FFN and resident FP32 router probe
+
+aad32b1-DのMoE内部を固定し、A=eager FFN＋BF16 router、B=compiled FFN＋BF16 router、C=eager FFN＋resident FP32 router、D=compiled FFN＋resident FP32 routerを、それぞれMetal allocatorと`mx.compile` cacheを共有しない4つのprocessで測定しました。compiled armはmodel loadとD path確定後に42 sparse layerの`_ffn_c`をresetし、one-token warm forwardで全42層をcompileしてから2k synthetic-cache screenへ進みます。
+
+layer 3/5のrouter raw logits、selected indices、routing scores、compiled MoE output、HC expand outputは全armでbyte-identicalです。2k full-vocab logits hashも4 processで一致し、NaNはありません。screenはA 14.158、B 14.407、C 14.168、D 14.358 tok/sでした。BはA比1.0175×で14.4候補保持ラインを通過しましたが、Cは1.0007×でrouter cast除去の実効利益がありません。Dも1.0141×に留まり、resident FP32 routerとの正の相乗効果は見られませんでした。
+
+42層のcompiled warmupはB 75.3 ms、D 74.2 msで、compiled graphのsteady active増分は152,587,911 bytesです。resident routerは42層合計99,090,432 bytesのBF16を198,180,864 bytesのFP32へ置換し、active増分は91,977,436 bytesでした。15 tok/sを超えるarmがなかったため、設計どおり4,096-token、256k synthetic continuation、late/early retentionのqualificationは実行していません。Bは次のMetal captureで比較するprofiling候補として保持しますが、runtime、kernel ABI、server、APC identity、admissionへは導入せず、exact nonproduction baselineはaad32b1-Dのままです。
 
 ### Row-blocked vector KDA prefill probe
 

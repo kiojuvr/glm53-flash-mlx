@@ -1,0 +1,1136 @@
+{
+  "accepted_arms": [],
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "complete": true,
+  "date": "2026-09-01",
+  "decision": "retain B as a profiling candidate and aad32b1-D as the exact nonproduction baseline; no isolated arm qualified at 15 tok/s",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+  "probe_only": true,
+  "process_isolation": true,
+  "qualification_candidates": [],
+  "qualification_correctness": {},
+  "qualification_performance": {},
+  "qualifications": {},
+  "retained_screen_candidates": [
+    "B"
+  ],
+  "residual_moe_baseline_commit": "aad32b1",
+  "runtime_candidate_accepted": false,
+  "runtime_changes": {
+    "admission": false,
+    "apc": false,
+    "kernel_abi": false,
+    "packed_runtime": false,
+    "server": false
+  },
+  "schema": "glm53-compiled-packed-ffn-fp32-router-v1",
+  "screen_2k_speedup_vs_A": {
+    "A": 1.0,
+    "B": 1.0175400503104597,
+    "C": 1.0006759335099022,
+    "D": 1.0141370687645201
+  },
+  "screen_2k_tokens_per_second": {
+    "A": 14.15827715246898,
+    "B": 14.406614046032717,
+    "C": 14.167847206438816,
+    "D": 14.358433690160567
+  },
+  "screen_performance": {
+    "B_at_least_14_4_tps": true,
+    "C_at_least_14_4_tps": false,
+    "D_at_least_15_tps": false,
+    "D_median_at_most_66_667_ms": false
+  },
+  "screen_correctness": {
+    "all_2k_full_vocab_hashes_exact": true,
+    "all_child_correctness_gates": true,
+    "four_distinct_processes": true
+  },
+  "screens": {
+    "A": {
+      "arm": "A",
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "compile_stage_parity": {
+        "3": {
+          "hc_output": {
+            "actual_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        },
+        "5": {
+          "hc_output": {
+            "actual_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        }
+      },
+      "compile_warmup": {
+        "active_after_bytes": 319706201360,
+        "active_before_bytes": 319706201360,
+        "compiled_layers": 0,
+        "enabled": false,
+        "peak_bytes": 319894260409,
+        "warmup_seconds": 0.0
+      },
+      "complete": true,
+      "complete_memory": {
+        "active_bytes": 319706201360,
+        "cache_bytes": 311300,
+        "peak_bytes": 319969876414
+      },
+      "configuration": {
+        "compile_ffn": false,
+        "resident_fp32_router": false
+      },
+      "correctness": {
+        "layer_3_5_compiled_moe_and_hc_output_exact": true,
+        "router_raw_logits_indices_scores_exact": true,
+        "screen_2k_nan_zero": true
+      },
+      "load_seconds": 42.442176500102505,
+      "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+      "mode": "screen",
+      "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+      "pid": 80253,
+      "qualification_4096": null,
+      "residual_moe_baseline_commit": "aad32b1",
+      "returncode": 0,
+      "router_parity": {
+        "3": {
+          "raw_logits": {
+            "actual_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        },
+        "5": {
+          "raw_logits": {
+            "actual_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        }
+      },
+      "router_storage": {
+        "active_after_bytes": 319715678340,
+        "active_before_bytes": 319715678340,
+        "active_delta_bytes": 0,
+        "all_after_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "all_before_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "conversion_seconds": 8.33999365568161e-07,
+        "resident_fp32_requested": false,
+        "weight_bytes_after": 99090432,
+        "weight_bytes_before": 99090432,
+        "weight_bytes_delta": 0
+      },
+      "schema": "glm53-compiled-packed-ffn-fp32-router-child-v1",
+      "screen_2k": {
+        "active_memory_bytes": 319923089773,
+        "cache_backend": "direct",
+        "context_tokens": 2049,
+        "logits_hashes": [
+          "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+          "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+          "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+          "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+          "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+          "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+          "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+          "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+          "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+          "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+          "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+          "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+          "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+          "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+          "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+          "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+          "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+          "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+        ],
+        "median_ms": 70.63006248790771,
+        "nan_count": 0,
+        "peak_memory_bytes": 319969876414,
+        "samples": 16,
+        "samples_ms": [
+          70.21995796822011,
+          70.74820902198553,
+          70.89512492530048,
+          70.83395915105939,
+          70.75458415783942,
+          70.63454203307629,
+          70.56695898063481,
+          70.88945806026459,
+          70.8164582028985,
+          70.47587493434548,
+          70.88079117238522,
+          70.38154196925461,
+          70.62558294273913,
+          70.4667919781059,
+          70.28691587038338,
+          70.44175011105835
+        ],
+        "tokens_per_second": 14.15827715246898,
+        "warmups": 2
+      },
+      "screen_2k_hashes_exact_vs_A": true,
+      "screen_2k_logits_hashes": [
+        "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+        "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+        "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+        "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+        "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+        "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+        "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+        "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+        "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+        "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+        "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+        "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+        "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+        "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+        "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+        "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+        "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+        "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+      ],
+      "screen_2k_tokens_per_second": 14.15827715246898,
+      "steady_after_setup": {
+        "active_bytes": 319706201360,
+        "cache_bytes": 81944,
+        "peak_bytes": 319894260409
+      },
+      "steady_before_setup": {
+        "active_bytes": 319706119424,
+        "cache_bytes": 34340864,
+        "peak_bytes": 319740067072
+      },
+      "synthetic_256k": null,
+      "warm_residency_seconds": 2.2006047919858247
+    },
+    "B": {
+      "arm": "B",
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "compile_stage_parity": {
+        "3": {
+          "hc_output": {
+            "actual_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        },
+        "5": {
+          "hc_output": {
+            "actual_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        }
+      },
+      "compile_warmup": {
+        "active_after_bytes": 319858789263,
+        "active_before_bytes": 319706201352,
+        "active_delta_bytes": 152587911,
+        "compiled_layers": 42,
+        "enabled": true,
+        "peak_bytes": 319894269085,
+        "warmup_seconds": 0.07526695798151195
+      },
+      "complete": true,
+      "complete_memory": {
+        "active_bytes": 319706201856,
+        "cache_bytes": 311300,
+        "peak_bytes": 319970707390
+      },
+      "configuration": {
+        "compile_ffn": true,
+        "resident_fp32_router": false
+      },
+      "correctness": {
+        "layer_3_5_compiled_moe_and_hc_output_exact": true,
+        "router_raw_logits_indices_scores_exact": true,
+        "screen_2k_nan_zero": true
+      },
+      "load_seconds": 42.38374566612765,
+      "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+      "mode": "screen",
+      "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+      "pid": 80254,
+      "qualification_4096": null,
+      "residual_moe_baseline_commit": "aad32b1",
+      "returncode": 0,
+      "router_parity": {
+        "3": {
+          "raw_logits": {
+            "actual_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        },
+        "5": {
+          "raw_logits": {
+            "actual_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        }
+      },
+      "router_storage": {
+        "active_after_bytes": 319715678340,
+        "active_before_bytes": 319715678340,
+        "active_delta_bytes": 0,
+        "all_after_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "all_before_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "conversion_seconds": 9.578652679920197e-07,
+        "resident_fp32_requested": false,
+        "weight_bytes_after": 99090432,
+        "weight_bytes_before": 99090432,
+        "weight_bytes_delta": 0
+      },
+      "schema": "glm53-compiled-packed-ffn-fp32-router-child-v1",
+      "screen_2k": {
+        "active_memory_bytes": 319923123037,
+        "cache_backend": "direct",
+        "context_tokens": 2049,
+        "logits_hashes": [
+          "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+          "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+          "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+          "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+          "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+          "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+          "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+          "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+          "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+          "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+          "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+          "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+          "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+          "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+          "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+          "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+          "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+          "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+        ],
+        "median_ms": 69.4125626469031,
+        "nan_count": 0,
+        "peak_memory_bytes": 319970707390,
+        "samples": 16,
+        "samples_ms": [
+          68.98820796050131,
+          69.23291692510247,
+          69.39950003288686,
+          69.48850001208484,
+          69.50099999085069,
+          69.25666681490839,
+          69.58795804530382,
+          69.41133411601186,
+          69.54520917497575,
+          69.44258394651115,
+          69.65183396823704,
+          69.2888330668211,
+          69.57645900547504,
+          69.18545789085329,
+          69.41379117779434,
+          69.35266708023846
+        ],
+        "tokens_per_second": 14.406614046032717,
+        "warmups": 2
+      },
+      "screen_2k_hashes_exact_vs_A": true,
+      "screen_2k_logits_hashes": [
+        "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+        "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+        "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+        "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+        "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+        "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+        "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+        "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+        "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+        "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+        "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+        "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+        "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+        "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+        "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+        "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+        "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+        "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+      ],
+      "screen_2k_tokens_per_second": 14.406614046032717,
+      "steady_after_setup": {
+        "active_bytes": 319706201856,
+        "cache_bytes": 311296,
+        "peak_bytes": 319894269085
+      },
+      "steady_before_setup": {
+        "active_bytes": 319706119424,
+        "cache_bytes": 34340864,
+        "peak_bytes": 319740067072
+      },
+      "synthetic_256k": null,
+      "warm_residency_seconds": 2.2106170831248164
+    },
+    "C": {
+      "arm": "C",
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "compile_stage_parity": {
+        "3": {
+          "hc_output": {
+            "actual_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        },
+        "5": {
+          "hc_output": {
+            "actual_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        }
+      },
+      "compile_warmup": {
+        "active_after_bytes": 319805291792,
+        "active_before_bytes": 319805291792,
+        "compiled_layers": 0,
+        "enabled": false,
+        "peak_bytes": 319894246269,
+        "warmup_seconds": 0.0
+      },
+      "complete": true,
+      "complete_memory": {
+        "active_bytes": 319805291792,
+        "cache_bytes": 311300,
+        "peak_bytes": 320055601082
+      },
+      "configuration": {
+        "compile_ffn": false,
+        "resident_fp32_router": true
+      },
+      "correctness": {
+        "layer_3_5_compiled_moe_and_hc_output_exact": true,
+        "router_raw_logits_indices_scores_exact": true,
+        "screen_2k_nan_zero": true
+      },
+      "load_seconds": 42.41949141700752,
+      "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+      "mode": "screen",
+      "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+      "pid": 80257,
+      "qualification_4096": null,
+      "residual_moe_baseline_commit": "aad32b1",
+      "returncode": 0,
+      "router_parity": {
+        "3": {
+          "raw_logits": {
+            "actual_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        },
+        "5": {
+          "raw_logits": {
+            "actual_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        }
+      },
+      "router_storage": {
+        "active_after_bytes": 319807655776,
+        "active_before_bytes": 319715678340,
+        "active_delta_bytes": 91977436,
+        "all_after_dtypes": [
+          "mlx.core.float32"
+        ],
+        "all_before_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "conversion_seconds": 0.030433540930971503,
+        "resident_fp32_requested": true,
+        "weight_bytes_after": 198180864,
+        "weight_bytes_before": 99090432,
+        "weight_bytes_delta": 99090432
+      },
+      "schema": "glm53-compiled-packed-ffn-fp32-router-child-v1",
+      "screen_2k": {
+        "active_memory_bytes": 320022180205,
+        "cache_backend": "direct",
+        "context_tokens": 2049,
+        "logits_hashes": [
+          "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+          "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+          "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+          "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+          "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+          "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+          "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+          "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+          "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+          "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+          "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+          "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+          "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+          "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+          "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+          "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+          "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+          "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+        ],
+        "median_ms": 70.58235350996256,
+        "nan_count": 0,
+        "peak_memory_bytes": 320055601082,
+        "samples": 16,
+        "samples_ms": [
+          70.63354109413922,
+          70.34308300353587,
+          70.80212514847517,
+          70.73283311910927,
+          70.51316718570888,
+          70.45399979688227,
+          70.83162502385676,
+          70.8487092051655,
+          70.69458393380046,
+          70.5311659257859,
+          70.83112490363419,
+          70.50087489187717,
+          70.48979215323925,
+          70.52695797756314,
+          70.84133406169713,
+          70.52429113537073
+        ],
+        "tokens_per_second": 14.167847206438816,
+        "warmups": 2
+      },
+      "screen_2k_hashes_exact_vs_A": true,
+      "screen_2k_logits_hashes": [
+        "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+        "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+        "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+        "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+        "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+        "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+        "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+        "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+        "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+        "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+        "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+        "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+        "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+        "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+        "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+        "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+        "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+        "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+      ],
+      "screen_2k_tokens_per_second": 14.167847206438816,
+      "steady_after_setup": {
+        "active_bytes": 319805291792,
+        "cache_bytes": 81936,
+        "peak_bytes": 319894246269
+      },
+      "steady_before_setup": {
+        "active_bytes": 319706119424,
+        "cache_bytes": 34340864,
+        "peak_bytes": 319740067072
+      },
+      "synthetic_256k": null,
+      "warm_residency_seconds": 2.2029379170853645
+    },
+    "D": {
+      "arm": "D",
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "compile_stage_parity": {
+        "3": {
+          "hc_output": {
+            "actual_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a71c26c3c0788ed777be517745b8aba278d830875c2f5d51ca2d7aa8d63da8d8",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f35ea459be4c8282d4829e8b27124e8858c2e5de04655ce108ebded8e0684e83",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        },
+        "5": {
+          "hc_output": {
+            "actual_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "1f67f5cbf1ed6029267be3058a5c4acddf4909f199ee67747a04847cf6c3f866",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4,
+              4096
+            ]
+          },
+          "moe_output": {
+            "actual_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "bfd467b5e41419540621ca5bdcd656dc8673a5741e4b5cb464d55b6e2b6024d3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          }
+        }
+      },
+      "compile_warmup": {
+        "active_after_bytes": 319957879695,
+        "active_before_bytes": 319805291784,
+        "active_delta_bytes": 152587911,
+        "compiled_layers": 42,
+        "enabled": true,
+        "peak_bytes": 319979203741,
+        "warmup_seconds": 0.07415129197761416
+      },
+      "complete": true,
+      "complete_memory": {
+        "active_bytes": 319805292288,
+        "cache_bytes": 311300,
+        "peak_bytes": 320055606581
+      },
+      "configuration": {
+        "compile_ffn": true,
+        "resident_fp32_router": true
+      },
+      "correctness": {
+        "layer_3_5_compiled_moe_and_hc_output_exact": true,
+        "router_raw_logits_indices_scores_exact": true,
+        "screen_2k_nan_zero": true
+      },
+      "load_seconds": 42.653049582848325,
+      "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+      "mode": "screen",
+      "packed_decode_kernel_abi": "glm53-packed-selected8-fp8-v1",
+      "pid": 80260,
+      "qualification_4096": null,
+      "residual_moe_baseline_commit": "aad32b1",
+      "returncode": 0,
+      "router_parity": {
+        "3": {
+          "raw_logits": {
+            "actual_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "f7ab1fe5ad65a8045fb8a0ed404f9f1767040911f007adb55653fa32df034b98",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ed5598028641fa23a767cc291dfaaff99b2dbdf162fd408aa823d1bbb55780ae",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "0d82a8e1d7b2fffa59ac7cee6fd62fb2748626855963d5d3f60ac232c1d696e1",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        },
+        "5": {
+          "raw_logits": {
+            "actual_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "356c18bd4a374ad382bd3f00dfab12efa99c4cf6ca58111939cdc0775d711c34",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              288
+            ]
+          },
+          "routing_scores": {
+            "actual_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "ba677e20a3589c9f108f6a4818aa8b774a1f6333b5c4e4e3f5445069b5451d29",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          },
+          "selected_indices": {
+            "actual_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "a499a12ab34d3d4d8dc7e69de079bcae222098e6ac3287c9d4612aa04969ab6f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              8
+            ]
+          }
+        }
+      },
+      "router_storage": {
+        "active_after_bytes": 319807655776,
+        "active_before_bytes": 319715678340,
+        "active_delta_bytes": 91977436,
+        "all_after_dtypes": [
+          "mlx.core.float32"
+        ],
+        "all_before_dtypes": [
+          "mlx.core.bfloat16"
+        ],
+        "conversion_seconds": 0.03070783312432468,
+        "resident_fp32_requested": true,
+        "weight_bytes_after": 198180864,
+        "weight_bytes_before": 99090432,
+        "weight_bytes_delta": 99090432
+      },
+      "schema": "glm53-compiled-packed-ffn-fp32-router-child-v1",
+      "screen_2k": {
+        "active_memory_bytes": 320022180578,
+        "cache_backend": "direct",
+        "context_tokens": 2049,
+        "logits_hashes": [
+          "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+          "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+          "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+          "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+          "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+          "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+          "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+          "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+          "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+          "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+          "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+          "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+          "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+          "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+          "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+          "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+          "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+          "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+        ],
+        "median_ms": 69.64547955431044,
+        "nan_count": 0,
+        "peak_memory_bytes": 320055606581,
+        "samples": 16,
+        "samples_ms": [
+          69.8260001372546,
+          69.56583308055997,
+          69.74225002340972,
+          69.65162511914968,
+          69.59412503056228,
+          69.44058299995959,
+          69.58370795473456,
+          69.45962505415082,
+          69.73666697740555,
+          69.47074993513525,
+          69.6393339894712,
+          69.73991706036031,
+          69.80274990200996,
+          69.34566702693701,
+          69.71716717816889,
+          69.82004106976092
+        ],
+        "tokens_per_second": 14.358433690160567,
+        "warmups": 2
+      },
+      "screen_2k_hashes_exact_vs_A": true,
+      "screen_2k_logits_hashes": [
+        "3973e6a756350eadb66b168697d991f49e53adfa99fce48254cc5125f7161ac6",
+        "6d8f44451041c378fe248c0d10df422590efd5f773ffeae8348be43e2d761e99",
+        "18ea8007b702ba623f11aaae31e7d1cc5bde65f5b2f5df093898a3bd2392aea6",
+        "52a17d3c83928ef966db4ee681bfc847425fde2e57d8dd5751d306be04da2bb3",
+        "0ec40d99f7b35f655c4c394fc6f1d47b1afecacd80bf9f7d85af09836820d710",
+        "42ee7009414caa93a1a2b3e6c46d2b2c6ac9397faf7825bbce69d12c49841855",
+        "21d0afcac94023469e1a430015aebf40fc3cddc03fbffb36f0a07937f9c28552",
+        "ecc39b46d773637781b3385c964abaa74def8e20d636a6ec86273234a8b17133",
+        "1d1a07d8c3fe44cd98519139b32dc92d84e4a0527e3819ff49167ad53e13c266",
+        "ff6c616daf6dc6b7694b24643a44e7b4cebe1ab3bb893b766ae42cfb1cf68559",
+        "95a8acc253fa7ce437c03c15f024320f902ef827ec27b0ecbd2021575f05b6ff",
+        "a6524844cde99cf9f1c9a86b07f6c74c3993211ac8ecd4e5af67d6ccc6f91e07",
+        "898865e922eb3746f7bc21961f79f0be1a7cf73665bd1cb45e0abab12bab2ac9",
+        "e412577d6d87814eb2f89eabe978e6b6f4e3c0a02aab770817deff0033a8dba1",
+        "5611c7f6cd6b43c4b5cc246fb2519c0deb6ab5d5305ab992c0cc1a2aa5384732",
+        "742639fd112348f9efcb21370020232a5bd2cbbd1744d06c3e4f62c060515d8a",
+        "7925dfc66f943d7f2998f642d05418cb93ea8b1506264e7176d896dec8867540",
+        "e068f876939c9c09ae9d349cae08bd6ccf9c41be9c34b12abb3b5f0b53d474cd"
+      ],
+      "screen_2k_tokens_per_second": 14.358433690160567,
+      "steady_after_setup": {
+        "active_bytes": 319805292288,
+        "cache_bytes": 311296,
+        "peak_bytes": 319979203741
+      },
+      "steady_before_setup": {
+        "active_bytes": 319706119424,
+        "cache_bytes": 34340864,
+        "peak_bytes": 319740067072
+      },
+      "synthetic_256k": null,
+      "warm_residency_seconds": 2.2031611250713468
+    }
+  }
+}
