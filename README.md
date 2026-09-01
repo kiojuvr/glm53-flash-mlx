@@ -186,6 +186,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | full-model replayable Metal capture feasibility | 57分時点130 GiB・resource収集中 / standard decode解析から棄却 / 15分・32 GiB budget固定 |
 | bounded Metal System Trace A/B | exact / GPU busy 63.961→63.895 ms/token / idle 7.334→6.044 ms/token / submission -54/16 token |
 | stateless decode compile envelope sweep | A/B/C/D exact / 14.401・14.392・14.381・14.398 tok/s / B/C/Dすべてscreen棄却 |
+| dynamic GPU idle attribution | idle再構成誤差0% / readback→次tokenがidleの96.5%・95.3% / compile差分の102.6%を帰属 |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -426,7 +427,21 @@ A/Bの全生成token、step 1/16/256/272 full-vocab hash、post-cache stateはex
 
 生成token、step 1/16/255/256/257/272のfull-vocab logits、最終cache stateは全arm exactです。Direct/compact cacheの固定3-token differentialも一致し、NaN/Metal errorは0、step 256 materialization、capacity、state leaf、idle時state不変、64 MiB drift、512 MiB working peakの各gateも合格しました。xctrace attach直後のlatencyは約2.9–3.1秒の観測overheadを含むためfirst-token evidenceに使わず、attach前のsynthetic restore first decode 76.4–77.1 msを別記録しています。MLXにはcompile-cache/retrace数の公開APIがないため回数は推定せず、固定shape signature `[1,1]`とfresh-cache warmup hash一致だけを保存します。
 
-従ってB/C/Dはexact診断anchorとして保存し、E/F、4096-token、256k、prefill qualificationへは進めません。現行FFN compileより広いlayer-local envelopeでは残り2.74 ms/tokenを回収できないことが確定しました。次はLM head/readbackを混ぜずに、bounded telemetryのapplication/driver intervalをstage attributionし、残る約6.1 msのidleが層間submission、attention stateful boundary、lm_head、argmax readbackのどこにあるかを一つずつ分けます。
+従ってB/C/Dはexact診断anchorとして保存し、E/F、4096-token、256k、prefill qualificationへは進めません。現行FFN compileより広いlayer-local envelopeでは残り2.74 ms/tokenを回収できないことが確定しました。そこで、次節では新しいtraceを取らずに、bounded telemetryのapplication/driver intervalを動的な境界へ帰属します。
+
+### Dynamic GPU idle boundary attribution
+
+新しいfull-model traceは取得せず、bounded telemetryの正本A/Bを再解析しました。`metal-gpu-intervals`のcommand-buffer IDを`metal-application-command-buffer-submissions`へjoinし、各gapを「前GPU interval終了から次commitまで」のapplication/runtime starvationと、「commit済みから次GPU開始まで」のdriver/dependencyへ分離しています。重複GPU intervalをmergeした再構成idleはA 117,345,521 ns、B 96,697,006 nsで、既存System Trace集計との差は両armとも0%です。
+
+| dynamic boundary | A app ms/token | A driver ms/token | A total ms/token | B app ms/token | B driver ms/token | B total ms/token |
+|---|---:|---:|---:|---:|---:|---:|
+| argmax/readback → next-token submission | 6.323 | 0.758 | 7.080 | 5.048 | 0.709 | 5.757 |
+| within-token unclassified | 0.000 | 0.222 | 0.222 | 0.000 | 0.258 | 0.258 |
+| capture startup / queue fill | 0.000 | 0.032 | 0.032 | 0.000 | 0.029 | 0.029 |
+
+16 tokenには15個の周期的な長いtoken境界があり、A/B idleの96.54%/95.25%を占めます。この境界はA→Bで1.3235 ms/token短縮し、全idle短縮1.2905 ms/tokenの102.6%を説明します。100%を超えるのは、Bの小さなwithin-token gapが約0.033 ms/token悪化したためです。短縮のうち約1.2745 ms/tokenはapplication starvation、約0.0489 ms/tokenはdriver/dependencyです。従ってcompiled FFNの利益はGPU算術の短縮ではなく、CPU readback後に次token graphがMetalへ到達するまでの待ち時間短縮です。
+
+このSystem Traceにはdynamic command-buffer/frame IDはありますが、shader dispatch intervalは記録されていません。static metallib inventoryは実dispatchの証拠に使わず、KDA/DSA、attention→FFN、LM head→argmaxの内部境界は推測していません。明示的なwithin-token unclassified budgetはA 3.03%、B 4.27%で10% gate内です。次の性能候補は一般的なcompile envelope拡大ではなく、token IDをdevice-residentのまま次forwardへ渡し、streaming用CPU readbackを遅延・集約する独立probeです。runtime、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 

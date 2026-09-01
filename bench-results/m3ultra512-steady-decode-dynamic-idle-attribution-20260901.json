@@ -1,0 +1,3547 @@
+{
+  "acceptance": {
+    "A_idle_reconstruction_within_5pct": true,
+    "A_token_boundary_count_15": true,
+    "A_unclassified_idle_le_10pct": true,
+    "B_idle_reconstruction_within_5pct": true,
+    "B_token_boundary_count_15": true,
+    "B_unclassified_idle_le_10pct": true,
+    "compiled_idle_delta_attributed_ge_80pct": true,
+    "static_labels_used_for_stage_assignment": false
+  },
+  "arms": {
+    "A": {
+      "coverage": {
+        "application_commit_ids": 5952,
+        "application_submission_rows": 5952,
+        "commit_sources": {
+          "application_submission": 3103,
+          "start_latency": 1
+        },
+        "gpu_event_rows": 3104
+      },
+      "dynamic_boundaries": {
+        "capture_startup_or_queue_fill": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 1,
+          "driver_or_dependency_ms_per_token": 0.0316198125,
+          "driver_or_dependency_ns": 505917,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 505917,
+              "next_commit_ns": 1052256291,
+              "next_frame": 2,
+              "next_start_ns": 3758129750,
+              "previous_end_ns": 3757623833,
+              "previous_frame": 1,
+              "total_ns": 505917
+            }
+          ],
+          "dynamic_evidence_count": 1,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 1,
+              "total_ns": 505917
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.004311344784944966,
+          "total_ms_per_token": 0.0316198125,
+          "total_ns": 505917
+        },
+        "readback_to_next_token": {
+          "application_starvation_ms_per_token": 6.322552,
+          "application_starvation_ns": 101160832,
+          "count": 15,
+          "driver_or_dependency_ms_per_token": 0.75750525,
+          "driver_or_dependency_ns": 12120084,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 8294666,
+              "driver_or_dependency_ns": 946167,
+              "next_commit_ns": 4189569541,
+              "next_frame": 2236,
+              "next_start_ns": 4190515708,
+              "previous_end_ns": 4181274875,
+              "previous_frame": 2234,
+              "total_ns": 9240833
+            },
+            {
+              "application_starvation_ns": 7573333,
+              "driver_or_dependency_ns": 913417,
+              "next_commit_ns": 4403963041,
+              "next_frame": 3354,
+              "next_start_ns": 4404876458,
+              "previous_end_ns": 4396389708,
+              "previous_frame": 3352,
+              "total_ns": 8486750
+            },
+            {
+              "application_starvation_ns": 7022667,
+              "driver_or_dependency_ns": 1045708,
+              "next_commit_ns": 4618076375,
+              "next_frame": 4461,
+              "next_start_ns": 4619122083,
+              "previous_end_ns": 4611053708,
+              "previous_frame": 4459,
+              "total_ns": 8068375
+            },
+            {
+              "application_starvation_ns": 6990542,
+              "driver_or_dependency_ns": 905958,
+              "next_commit_ns": 4116436708,
+              "next_frame": 1862,
+              "next_start_ns": 4117342666,
+              "previous_end_ns": 4109446166,
+              "previous_frame": 1860,
+              "total_ns": 7896500
+            },
+            {
+              "application_starvation_ns": 6575916,
+              "driver_or_dependency_ns": 1044375,
+              "next_commit_ns": 4260868666,
+              "next_frame": 2610,
+              "next_start_ns": 4261913041,
+              "previous_end_ns": 4254292750,
+              "previous_frame": 2608,
+              "total_ns": 7620291
+            },
+            {
+              "application_starvation_ns": 6687500,
+              "driver_or_dependency_ns": 913792,
+              "next_commit_ns": 3972886083,
+              "next_frame": 1117,
+              "next_start_ns": 3973799875,
+              "previous_end_ns": 3966198583,
+              "previous_frame": 1115,
+              "total_ns": 7601292
+            },
+            {
+              "application_starvation_ns": 6469916,
+              "driver_or_dependency_ns": 1028334,
+              "next_commit_ns": 4689517541,
+              "next_frame": 4836,
+              "next_start_ns": 4690545875,
+              "previous_end_ns": 4683047625,
+              "previous_frame": 4834,
+              "total_ns": 7498250
+            },
+            {
+              "application_starvation_ns": 6352042,
+              "driver_or_dependency_ns": 1054416,
+              "next_commit_ns": 3830586500,
+              "next_frame": 378,
+              "next_start_ns": 3831640916,
+              "previous_end_ns": 3824234458,
+              "previous_frame": 376,
+              "total_ns": 7406458
+            },
+            {
+              "application_starvation_ns": 6419542,
+              "driver_or_dependency_ns": 922667,
+              "next_commit_ns": 4832505958,
+              "next_frame": 5582,
+              "next_start_ns": 4833428625,
+              "previous_end_ns": 4826086416,
+              "previous_frame": 5580,
+              "total_ns": 7342209
+            },
+            {
+              "application_starvation_ns": 6375125,
+              "driver_or_dependency_ns": 955083,
+              "next_commit_ns": 4546120125,
+              "next_frame": 4089,
+              "next_start_ns": 4547075208,
+              "previous_end_ns": 4539745000,
+              "previous_frame": 4087,
+              "total_ns": 7330208
+            },
+            {
+              "application_starvation_ns": 6292834,
+              "driver_or_dependency_ns": 1032125,
+              "next_commit_ns": 4760795000,
+              "next_frame": 5208,
+              "next_start_ns": 4761827125,
+              "previous_end_ns": 4754502166,
+              "previous_frame": 5206,
+              "total_ns": 7324959
+            },
+            {
+              "application_starvation_ns": 6337916,
+              "driver_or_dependency_ns": 940709,
+              "next_commit_ns": 4044327666,
+              "next_frame": 1487,
+              "next_start_ns": 4045268375,
+              "previous_end_ns": 4037989750,
+              "previous_frame": 1485,
+              "total_ns": 7278625
+            },
+            {
+              "application_starvation_ns": 6667666,
+              "driver_or_dependency_ns": 143750,
+              "next_commit_ns": 3902182166,
+              "next_frame": 745,
+              "next_start_ns": 3902325916,
+              "previous_end_ns": 3895514500,
+              "previous_frame": 743,
+              "total_ns": 6811416
+            },
+            {
+              "application_starvation_ns": 6656875,
+              "driver_or_dependency_ns": 134708,
+              "next_commit_ns": 4332673625,
+              "next_frame": 2981,
+              "next_start_ns": 4332808333,
+              "previous_end_ns": 4326016750,
+              "previous_frame": 2979,
+              "total_ns": 6791583
+            },
+            {
+              "application_starvation_ns": 6444292,
+              "driver_or_dependency_ns": 138875,
+              "next_commit_ns": 4475320750,
+              "next_frame": 3722,
+              "next_start_ns": 4475459625,
+              "previous_end_ns": 4468876458,
+              "previous_frame": 3720,
+              "total_ns": 6583167
+            }
+          ],
+          "dynamic_evidence_count": 15,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 15,
+              "total_ns": 113280916
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.9653620780293779,
+          "total_ms_per_token": 7.08005725,
+          "total_ns": 113280916
+        },
+        "within_token_unclassified": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 3087,
+          "driver_or_dependency_ms_per_token": 0.222418,
+          "driver_or_dependency_ns": 3558688,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 49292,
+              "next_commit_ns": 1052079875,
+              "next_frame": 1,
+              "next_start_ns": 3757247500,
+              "previous_end_ns": 3757198208,
+              "previous_frame": null,
+              "total_ns": 49292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 8750,
+              "next_commit_ns": 4260921041,
+              "next_frame": 2611,
+              "next_start_ns": 4261928625,
+              "previous_end_ns": 4261919875,
+              "previous_frame": 2610,
+              "total_ns": 8750
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 8541,
+              "next_commit_ns": 3902242541,
+              "next_frame": 746,
+              "next_start_ns": 3902340416,
+              "previous_end_ns": 3902331875,
+              "previous_frame": 745,
+              "total_ns": 8541
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6542,
+              "next_commit_ns": 3762489375,
+              "next_frame": 40,
+              "next_start_ns": 3767031083,
+              "previous_end_ns": 3767024541,
+              "previous_frame": 38,
+              "total_ns": 6542
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6459,
+              "next_commit_ns": 3843702541,
+              "next_frame": 457,
+              "next_start_ns": 3846710125,
+              "previous_end_ns": 3846703666,
+              "previous_frame": 455,
+              "total_ns": 6459
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 3959224958,
+              "next_frame": 1101,
+              "next_start_ns": 3962209791,
+              "previous_end_ns": 3962203333,
+              "previous_frame": 1100,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 4592653208,
+              "next_frame": 4378,
+              "next_start_ns": 4595661166,
+              "previous_end_ns": 4595654708,
+              "previous_frame": 4376,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4274034416,
+              "next_frame": 2700,
+              "next_start_ns": 4277017625,
+              "previous_end_ns": 4277011208,
+              "previous_frame": 2698,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4819123291,
+              "next_frame": 5566,
+              "next_start_ns": 4822089750,
+              "previous_end_ns": 4822083333,
+              "previous_frame": 5564,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 4559236625,
+              "next_frame": 4176,
+              "next_start_ns": 4562222416,
+              "previous_end_ns": 4562216083,
+              "previous_frame": 4175,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 3936824208,
+              "next_frame": 966,
+              "next_start_ns": 3939819000,
+              "previous_end_ns": 3939812708,
+              "previous_frame": 964,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4162745291,
+              "next_frame": 2152,
+              "next_start_ns": 4165778583,
+              "previous_end_ns": 4165772291,
+              "previous_frame": 2150,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4230592541,
+              "next_frame": 2492,
+              "next_start_ns": 4233576000,
+              "previous_end_ns": 4233569708,
+              "previous_frame": 2491,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4648140541,
+              "next_frame": 4651,
+              "next_start_ns": 4651144083,
+              "previous_end_ns": 4651137791,
+              "previous_frame": 4649,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 3953616291,
+              "next_frame": 1068,
+              "next_start_ns": 3956616916,
+              "previous_end_ns": 3956610666,
+              "previous_frame": 1066,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 4135024333,
+              "next_frame": 1984,
+              "next_start_ns": 4138007416,
+              "previous_end_ns": 4138001166,
+              "previous_frame": 1982,
+              "total_ns": 6250
+            }
+          ],
+          "dynamic_evidence_count": 16,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 1,
+              "total_ns": 49292
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 3086,
+              "total_ns": 3509396
+            }
+          },
+          "idle_fraction": 0.030326577185677158,
+          "total_ms_per_token": 0.222418,
+          "total_ns": 3558688
+        }
+      },
+      "idle_reconstruction_relative_error": 0.0,
+      "pid": 81620,
+      "reconstruction": {
+        "gpu_busy_ns": 1023381229,
+        "gpu_idle_ns": 117345521,
+        "gpu_span_ns": 1140726750,
+        "merged_interval_count": 3104,
+        "reconstructed_gap_ns": 117345521
+      },
+      "recorded_gpu_idle_ns": 117345521,
+      "requested_boundary_table": {
+        "attention_to_ffn": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "capture_startup_or_queue_fill": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 1,
+          "driver_or_dependency_ms_per_token": 0.0316198125,
+          "driver_or_dependency_ns": 505917,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 505917,
+              "next_commit_ns": 1052256291,
+              "next_frame": 2,
+              "next_start_ns": 3758129750,
+              "previous_end_ns": 3757623833,
+              "previous_frame": 1,
+              "total_ns": 505917
+            }
+          ],
+          "dynamic_evidence_count": 1,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 1,
+              "total_ns": 505917
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.004311344784944966,
+          "measured": true,
+          "total_ms_per_token": 0.0316198125,
+          "total_ns": 505917
+        },
+        "ffn_to_next_layer": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "final_norm_to_lm_head": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "layer_to_dsa": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "layer_to_kda": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "lm_head_to_argmax": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "materialization": {
+          "measured": false,
+          "reason": "the bounded trace covers steps 1-16; step 256 is outside it"
+        },
+        "readback_to_next_token": {
+          "application_starvation_ms_per_token": 6.322552,
+          "application_starvation_ns": 101160832,
+          "count": 15,
+          "driver_or_dependency_ms_per_token": 0.75750525,
+          "driver_or_dependency_ns": 12120084,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 8294666,
+              "driver_or_dependency_ns": 946167,
+              "next_commit_ns": 4189569541,
+              "next_frame": 2236,
+              "next_start_ns": 4190515708,
+              "previous_end_ns": 4181274875,
+              "previous_frame": 2234,
+              "total_ns": 9240833
+            },
+            {
+              "application_starvation_ns": 7573333,
+              "driver_or_dependency_ns": 913417,
+              "next_commit_ns": 4403963041,
+              "next_frame": 3354,
+              "next_start_ns": 4404876458,
+              "previous_end_ns": 4396389708,
+              "previous_frame": 3352,
+              "total_ns": 8486750
+            },
+            {
+              "application_starvation_ns": 7022667,
+              "driver_or_dependency_ns": 1045708,
+              "next_commit_ns": 4618076375,
+              "next_frame": 4461,
+              "next_start_ns": 4619122083,
+              "previous_end_ns": 4611053708,
+              "previous_frame": 4459,
+              "total_ns": 8068375
+            },
+            {
+              "application_starvation_ns": 6990542,
+              "driver_or_dependency_ns": 905958,
+              "next_commit_ns": 4116436708,
+              "next_frame": 1862,
+              "next_start_ns": 4117342666,
+              "previous_end_ns": 4109446166,
+              "previous_frame": 1860,
+              "total_ns": 7896500
+            },
+            {
+              "application_starvation_ns": 6575916,
+              "driver_or_dependency_ns": 1044375,
+              "next_commit_ns": 4260868666,
+              "next_frame": 2610,
+              "next_start_ns": 4261913041,
+              "previous_end_ns": 4254292750,
+              "previous_frame": 2608,
+              "total_ns": 7620291
+            },
+            {
+              "application_starvation_ns": 6687500,
+              "driver_or_dependency_ns": 913792,
+              "next_commit_ns": 3972886083,
+              "next_frame": 1117,
+              "next_start_ns": 3973799875,
+              "previous_end_ns": 3966198583,
+              "previous_frame": 1115,
+              "total_ns": 7601292
+            },
+            {
+              "application_starvation_ns": 6469916,
+              "driver_or_dependency_ns": 1028334,
+              "next_commit_ns": 4689517541,
+              "next_frame": 4836,
+              "next_start_ns": 4690545875,
+              "previous_end_ns": 4683047625,
+              "previous_frame": 4834,
+              "total_ns": 7498250
+            },
+            {
+              "application_starvation_ns": 6352042,
+              "driver_or_dependency_ns": 1054416,
+              "next_commit_ns": 3830586500,
+              "next_frame": 378,
+              "next_start_ns": 3831640916,
+              "previous_end_ns": 3824234458,
+              "previous_frame": 376,
+              "total_ns": 7406458
+            },
+            {
+              "application_starvation_ns": 6419542,
+              "driver_or_dependency_ns": 922667,
+              "next_commit_ns": 4832505958,
+              "next_frame": 5582,
+              "next_start_ns": 4833428625,
+              "previous_end_ns": 4826086416,
+              "previous_frame": 5580,
+              "total_ns": 7342209
+            },
+            {
+              "application_starvation_ns": 6375125,
+              "driver_or_dependency_ns": 955083,
+              "next_commit_ns": 4546120125,
+              "next_frame": 4089,
+              "next_start_ns": 4547075208,
+              "previous_end_ns": 4539745000,
+              "previous_frame": 4087,
+              "total_ns": 7330208
+            },
+            {
+              "application_starvation_ns": 6292834,
+              "driver_or_dependency_ns": 1032125,
+              "next_commit_ns": 4760795000,
+              "next_frame": 5208,
+              "next_start_ns": 4761827125,
+              "previous_end_ns": 4754502166,
+              "previous_frame": 5206,
+              "total_ns": 7324959
+            },
+            {
+              "application_starvation_ns": 6337916,
+              "driver_or_dependency_ns": 940709,
+              "next_commit_ns": 4044327666,
+              "next_frame": 1487,
+              "next_start_ns": 4045268375,
+              "previous_end_ns": 4037989750,
+              "previous_frame": 1485,
+              "total_ns": 7278625
+            },
+            {
+              "application_starvation_ns": 6667666,
+              "driver_or_dependency_ns": 143750,
+              "next_commit_ns": 3902182166,
+              "next_frame": 745,
+              "next_start_ns": 3902325916,
+              "previous_end_ns": 3895514500,
+              "previous_frame": 743,
+              "total_ns": 6811416
+            },
+            {
+              "application_starvation_ns": 6656875,
+              "driver_or_dependency_ns": 134708,
+              "next_commit_ns": 4332673625,
+              "next_frame": 2981,
+              "next_start_ns": 4332808333,
+              "previous_end_ns": 4326016750,
+              "previous_frame": 2979,
+              "total_ns": 6791583
+            },
+            {
+              "application_starvation_ns": 6444292,
+              "driver_or_dependency_ns": 138875,
+              "next_commit_ns": 4475320750,
+              "next_frame": 3722,
+              "next_start_ns": 4475459625,
+              "previous_end_ns": 4468876458,
+              "previous_frame": 3720,
+              "total_ns": 6583167
+            }
+          ],
+          "dynamic_evidence_count": 15,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 15,
+              "total_ns": 113280916
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.9653620780293779,
+          "measured": true,
+          "total_ms_per_token": 7.08005725,
+          "total_ns": 113280916
+        },
+        "within_token_unclassified": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 3087,
+          "driver_or_dependency_ms_per_token": 0.222418,
+          "driver_or_dependency_ns": 3558688,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 49292,
+              "next_commit_ns": 1052079875,
+              "next_frame": 1,
+              "next_start_ns": 3757247500,
+              "previous_end_ns": 3757198208,
+              "previous_frame": null,
+              "total_ns": 49292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 8750,
+              "next_commit_ns": 4260921041,
+              "next_frame": 2611,
+              "next_start_ns": 4261928625,
+              "previous_end_ns": 4261919875,
+              "previous_frame": 2610,
+              "total_ns": 8750
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 8541,
+              "next_commit_ns": 3902242541,
+              "next_frame": 746,
+              "next_start_ns": 3902340416,
+              "previous_end_ns": 3902331875,
+              "previous_frame": 745,
+              "total_ns": 8541
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6542,
+              "next_commit_ns": 3762489375,
+              "next_frame": 40,
+              "next_start_ns": 3767031083,
+              "previous_end_ns": 3767024541,
+              "previous_frame": 38,
+              "total_ns": 6542
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6459,
+              "next_commit_ns": 3843702541,
+              "next_frame": 457,
+              "next_start_ns": 3846710125,
+              "previous_end_ns": 3846703666,
+              "previous_frame": 455,
+              "total_ns": 6459
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 3959224958,
+              "next_frame": 1101,
+              "next_start_ns": 3962209791,
+              "previous_end_ns": 3962203333,
+              "previous_frame": 1100,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 4592653208,
+              "next_frame": 4378,
+              "next_start_ns": 4595661166,
+              "previous_end_ns": 4595654708,
+              "previous_frame": 4376,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4274034416,
+              "next_frame": 2700,
+              "next_start_ns": 4277017625,
+              "previous_end_ns": 4277011208,
+              "previous_frame": 2698,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4819123291,
+              "next_frame": 5566,
+              "next_start_ns": 4822089750,
+              "previous_end_ns": 4822083333,
+              "previous_frame": 5564,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 4559236625,
+              "next_frame": 4176,
+              "next_start_ns": 4562222416,
+              "previous_end_ns": 4562216083,
+              "previous_frame": 4175,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 3936824208,
+              "next_frame": 966,
+              "next_start_ns": 3939819000,
+              "previous_end_ns": 3939812708,
+              "previous_frame": 964,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4162745291,
+              "next_frame": 2152,
+              "next_start_ns": 4165778583,
+              "previous_end_ns": 4165772291,
+              "previous_frame": 2150,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4230592541,
+              "next_frame": 2492,
+              "next_start_ns": 4233576000,
+              "previous_end_ns": 4233569708,
+              "previous_frame": 2491,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4648140541,
+              "next_frame": 4651,
+              "next_start_ns": 4651144083,
+              "previous_end_ns": 4651137791,
+              "previous_frame": 4649,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 3953616291,
+              "next_frame": 1068,
+              "next_start_ns": 3956616916,
+              "previous_end_ns": 3956610666,
+              "previous_frame": 1066,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 4135024333,
+              "next_frame": 1984,
+              "next_start_ns": 4138007416,
+              "previous_end_ns": 4138001166,
+              "previous_frame": 1982,
+              "total_ns": 6250
+            }
+          ],
+          "dynamic_evidence_count": 16,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 1,
+              "total_ns": 49292
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 3086,
+              "total_ns": 3509396
+            }
+          },
+          "idle_fraction": 0.030326577185677158,
+          "measured": true,
+          "total_ms_per_token": 0.222418,
+          "total_ns": 3558688
+        }
+      },
+      "trace": {
+        "bytes": 59816627,
+        "file_count": 579,
+        "kind": "bundle-directory",
+        "sha256": "28561e60d39c6f0a8d5c9a6368c79b3bfcbace86a972c70789c87fd1afee7526"
+      },
+      "unclassified_gap_summary": {
+        "application_starvation_ns": 101160832,
+        "bins": {
+          "100_to_500us": {
+            "count": 0,
+            "total_ns": 0
+          },
+          "25_to_100us": {
+            "count": 1,
+            "total_ns": 49292
+          },
+          "ge_500us": {
+            "count": 16,
+            "total_ns": 113786833
+          },
+          "lt_25us": {
+            "count": 3086,
+            "total_ns": 3509396
+          }
+        },
+        "driver_or_dependency_ns": 16184689,
+        "gap_count": 3103,
+        "top_gaps": [
+          {
+            "application_starvation_ns": 8294666,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 946167,
+            "next_commit_ns": 4189569541,
+            "next_frame": 2236,
+            "next_stage": "unclassified",
+            "next_start_ns": 4190515708,
+            "previous_end_ns": 4181274875,
+            "previous_frame": 2234,
+            "previous_stage": "unclassified",
+            "total_ns": 9240833
+          },
+          {
+            "application_starvation_ns": 7573333,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 913417,
+            "next_commit_ns": 4403963041,
+            "next_frame": 3354,
+            "next_stage": "unclassified",
+            "next_start_ns": 4404876458,
+            "previous_end_ns": 4396389708,
+            "previous_frame": 3352,
+            "previous_stage": "unclassified",
+            "total_ns": 8486750
+          },
+          {
+            "application_starvation_ns": 7022667,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1045708,
+            "next_commit_ns": 4618076375,
+            "next_frame": 4461,
+            "next_stage": "unclassified",
+            "next_start_ns": 4619122083,
+            "previous_end_ns": 4611053708,
+            "previous_frame": 4459,
+            "previous_stage": "unclassified",
+            "total_ns": 8068375
+          },
+          {
+            "application_starvation_ns": 6990542,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 905958,
+            "next_commit_ns": 4116436708,
+            "next_frame": 1862,
+            "next_stage": "unclassified",
+            "next_start_ns": 4117342666,
+            "previous_end_ns": 4109446166,
+            "previous_frame": 1860,
+            "previous_stage": "unclassified",
+            "total_ns": 7896500
+          },
+          {
+            "application_starvation_ns": 6575916,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1044375,
+            "next_commit_ns": 4260868666,
+            "next_frame": 2610,
+            "next_stage": "unclassified",
+            "next_start_ns": 4261913041,
+            "previous_end_ns": 4254292750,
+            "previous_frame": 2608,
+            "previous_stage": "unclassified",
+            "total_ns": 7620291
+          },
+          {
+            "application_starvation_ns": 6687500,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 913792,
+            "next_commit_ns": 3972886083,
+            "next_frame": 1117,
+            "next_stage": "unclassified",
+            "next_start_ns": 3973799875,
+            "previous_end_ns": 3966198583,
+            "previous_frame": 1115,
+            "previous_stage": "unclassified",
+            "total_ns": 7601292
+          },
+          {
+            "application_starvation_ns": 6469916,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1028334,
+            "next_commit_ns": 4689517541,
+            "next_frame": 4836,
+            "next_stage": "unclassified",
+            "next_start_ns": 4690545875,
+            "previous_end_ns": 4683047625,
+            "previous_frame": 4834,
+            "previous_stage": "unclassified",
+            "total_ns": 7498250
+          },
+          {
+            "application_starvation_ns": 6352042,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1054416,
+            "next_commit_ns": 3830586500,
+            "next_frame": 378,
+            "next_stage": "unclassified",
+            "next_start_ns": 3831640916,
+            "previous_end_ns": 3824234458,
+            "previous_frame": 376,
+            "previous_stage": "unclassified",
+            "total_ns": 7406458
+          },
+          {
+            "application_starvation_ns": 6419542,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 922667,
+            "next_commit_ns": 4832505958,
+            "next_frame": 5582,
+            "next_stage": "unclassified",
+            "next_start_ns": 4833428625,
+            "previous_end_ns": 4826086416,
+            "previous_frame": 5580,
+            "previous_stage": "unclassified",
+            "total_ns": 7342209
+          },
+          {
+            "application_starvation_ns": 6375125,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 955083,
+            "next_commit_ns": 4546120125,
+            "next_frame": 4089,
+            "next_stage": "unclassified",
+            "next_start_ns": 4547075208,
+            "previous_end_ns": 4539745000,
+            "previous_frame": 4087,
+            "previous_stage": "unclassified",
+            "total_ns": 7330208
+          },
+          {
+            "application_starvation_ns": 6292834,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1032125,
+            "next_commit_ns": 4760795000,
+            "next_frame": 5208,
+            "next_stage": "unclassified",
+            "next_start_ns": 4761827125,
+            "previous_end_ns": 4754502166,
+            "previous_frame": 5206,
+            "previous_stage": "unclassified",
+            "total_ns": 7324959
+          },
+          {
+            "application_starvation_ns": 6337916,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 940709,
+            "next_commit_ns": 4044327666,
+            "next_frame": 1487,
+            "next_stage": "unclassified",
+            "next_start_ns": 4045268375,
+            "previous_end_ns": 4037989750,
+            "previous_frame": 1485,
+            "previous_stage": "unclassified",
+            "total_ns": 7278625
+          },
+          {
+            "application_starvation_ns": 6667666,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 143750,
+            "next_commit_ns": 3902182166,
+            "next_frame": 745,
+            "next_stage": "unclassified",
+            "next_start_ns": 3902325916,
+            "previous_end_ns": 3895514500,
+            "previous_frame": 743,
+            "previous_stage": "unclassified",
+            "total_ns": 6811416
+          },
+          {
+            "application_starvation_ns": 6656875,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 134708,
+            "next_commit_ns": 4332673625,
+            "next_frame": 2981,
+            "next_stage": "unclassified",
+            "next_start_ns": 4332808333,
+            "previous_end_ns": 4326016750,
+            "previous_frame": 2979,
+            "previous_stage": "unclassified",
+            "total_ns": 6791583
+          },
+          {
+            "application_starvation_ns": 6444292,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 138875,
+            "next_commit_ns": 4475320750,
+            "next_frame": 3722,
+            "next_stage": "unclassified",
+            "next_start_ns": 4475459625,
+            "previous_end_ns": 4468876458,
+            "previous_frame": 3720,
+            "previous_stage": "unclassified",
+            "total_ns": 6583167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 505917,
+            "next_commit_ns": 1052256291,
+            "next_frame": 2,
+            "next_stage": "unclassified",
+            "next_start_ns": 3758129750,
+            "previous_end_ns": 3757623833,
+            "previous_frame": 1,
+            "previous_stage": "unclassified",
+            "total_ns": 505917
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 49292,
+            "next_commit_ns": 1052079875,
+            "next_frame": 1,
+            "next_stage": "unclassified",
+            "next_start_ns": 3757247500,
+            "previous_end_ns": 3757198208,
+            "previous_frame": null,
+            "previous_stage": "unclassified",
+            "total_ns": 49292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 8750,
+            "next_commit_ns": 4260921041,
+            "next_frame": 2611,
+            "next_stage": "unclassified",
+            "next_start_ns": 4261928625,
+            "previous_end_ns": 4261919875,
+            "previous_frame": 2610,
+            "previous_stage": "unclassified",
+            "total_ns": 8750
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 8541,
+            "next_commit_ns": 3902242541,
+            "next_frame": 746,
+            "next_stage": "unclassified",
+            "next_start_ns": 3902340416,
+            "previous_end_ns": 3902331875,
+            "previous_frame": 745,
+            "previous_stage": "unclassified",
+            "total_ns": 8541
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6542,
+            "next_commit_ns": 3762489375,
+            "next_frame": 40,
+            "next_stage": "unclassified",
+            "next_start_ns": 3767031083,
+            "previous_end_ns": 3767024541,
+            "previous_frame": 38,
+            "previous_stage": "unclassified",
+            "total_ns": 6542
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6459,
+            "next_commit_ns": 3843702541,
+            "next_frame": 457,
+            "next_stage": "unclassified",
+            "next_start_ns": 3846710125,
+            "previous_end_ns": 3846703666,
+            "previous_frame": 455,
+            "previous_stage": "unclassified",
+            "total_ns": 6459
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6458,
+            "next_commit_ns": 3959224958,
+            "next_frame": 1101,
+            "next_stage": "unclassified",
+            "next_start_ns": 3962209791,
+            "previous_end_ns": 3962203333,
+            "previous_frame": 1100,
+            "previous_stage": "unclassified",
+            "total_ns": 6458
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6458,
+            "next_commit_ns": 4592653208,
+            "next_frame": 4378,
+            "next_stage": "unclassified",
+            "next_start_ns": 4595661166,
+            "previous_end_ns": 4595654708,
+            "previous_frame": 4376,
+            "previous_stage": "unclassified",
+            "total_ns": 6458
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6417,
+            "next_commit_ns": 4274034416,
+            "next_frame": 2700,
+            "next_stage": "unclassified",
+            "next_start_ns": 4277017625,
+            "previous_end_ns": 4277011208,
+            "previous_frame": 2698,
+            "previous_stage": "unclassified",
+            "total_ns": 6417
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6417,
+            "next_commit_ns": 4819123291,
+            "next_frame": 5566,
+            "next_stage": "unclassified",
+            "next_start_ns": 4822089750,
+            "previous_end_ns": 4822083333,
+            "previous_frame": 5564,
+            "previous_stage": "unclassified",
+            "total_ns": 6417
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6333,
+            "next_commit_ns": 4559236625,
+            "next_frame": 4176,
+            "next_stage": "unclassified",
+            "next_start_ns": 4562222416,
+            "previous_end_ns": 4562216083,
+            "previous_frame": 4175,
+            "previous_stage": "unclassified",
+            "total_ns": 6333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6292,
+            "next_commit_ns": 3936824208,
+            "next_frame": 966,
+            "next_stage": "unclassified",
+            "next_start_ns": 3939819000,
+            "previous_end_ns": 3939812708,
+            "previous_frame": 964,
+            "previous_stage": "unclassified",
+            "total_ns": 6292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6292,
+            "next_commit_ns": 4162745291,
+            "next_frame": 2152,
+            "next_stage": "unclassified",
+            "next_start_ns": 4165778583,
+            "previous_end_ns": 4165772291,
+            "previous_frame": 2150,
+            "previous_stage": "unclassified",
+            "total_ns": 6292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6292,
+            "next_commit_ns": 4230592541,
+            "next_frame": 2492,
+            "next_stage": "unclassified",
+            "next_start_ns": 4233576000,
+            "previous_end_ns": 4233569708,
+            "previous_frame": 2491,
+            "previous_stage": "unclassified",
+            "total_ns": 6292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6292,
+            "next_commit_ns": 4648140541,
+            "next_frame": 4651,
+            "next_stage": "unclassified",
+            "next_start_ns": 4651144083,
+            "previous_end_ns": 4651137791,
+            "previous_frame": 4649,
+            "previous_stage": "unclassified",
+            "total_ns": 6292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6250,
+            "next_commit_ns": 3953616291,
+            "next_frame": 1068,
+            "next_stage": "unclassified",
+            "next_start_ns": 3956616916,
+            "previous_end_ns": 3956610666,
+            "previous_frame": 1066,
+            "previous_stage": "unclassified",
+            "total_ns": 6250
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6250,
+            "next_commit_ns": 4135024333,
+            "next_frame": 1984,
+            "next_stage": "unclassified",
+            "next_start_ns": 4138007416,
+            "previous_end_ns": 4138001166,
+            "previous_frame": 1982,
+            "previous_stage": "unclassified",
+            "total_ns": 6250
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6208,
+            "next_commit_ns": 4279568750,
+            "next_frame": 2733,
+            "next_stage": "unclassified",
+            "next_start_ns": 4282591791,
+            "previous_end_ns": 4282585583,
+            "previous_frame": 2731,
+            "previous_stage": "unclassified",
+            "total_ns": 6208
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6208,
+            "next_commit_ns": 4862272041,
+            "next_frame": 5771,
+            "next_stage": "unclassified",
+            "next_start_ns": 4865303208,
+            "previous_end_ns": 4865297000,
+            "previous_frame": 5769,
+            "previous_stage": "unclassified",
+            "total_ns": 6208
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6167,
+            "next_commit_ns": 3942374375,
+            "next_frame": 1000,
+            "next_stage": "unclassified",
+            "next_start_ns": 3945384333,
+            "previous_end_ns": 3945378166,
+            "previous_frame": 998,
+            "previous_stage": "unclassified",
+            "total_ns": 6167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6167,
+            "next_commit_ns": 4025439458,
+            "next_frame": 1437,
+            "next_stage": "unclassified",
+            "next_start_ns": 4028432833,
+            "previous_end_ns": 4028426666,
+            "previous_frame": 1435,
+            "previous_stage": "unclassified",
+            "total_ns": 6167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6167,
+            "next_commit_ns": 4241717500,
+            "next_frame": 2560,
+            "next_stage": "unclassified",
+            "next_start_ns": 4244731083,
+            "previous_end_ns": 4244724916,
+            "previous_frame": 2558,
+            "previous_stage": "unclassified",
+            "total_ns": 6167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6167,
+            "next_commit_ns": 4741923208,
+            "next_frame": 5158,
+            "next_stage": "unclassified",
+            "next_start_ns": 4744921000,
+            "previous_end_ns": 4744914833,
+            "previous_frame": 5156,
+            "previous_stage": "unclassified",
+            "total_ns": 6167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6166,
+            "next_commit_ns": 4487570583,
+            "next_frame": 3806,
+            "next_stage": "unclassified",
+            "next_start_ns": 4490590416,
+            "previous_end_ns": 4490584250,
+            "previous_frame": 3804,
+            "previous_stage": "unclassified",
+            "total_ns": 6166
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6125,
+            "next_commit_ns": 4074101916,
+            "next_frame": 1678,
+            "next_stage": "unclassified",
+            "next_start_ns": 4077106875,
+            "previous_end_ns": 4077100750,
+            "previous_frame": 1676,
+            "previous_stage": "unclassified",
+            "total_ns": 6125
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6084,
+            "next_commit_ns": 4434391791,
+            "next_frame": 3541,
+            "next_stage": "unclassified",
+            "next_start_ns": 4437083250,
+            "previous_end_ns": 4437077166,
+            "previous_frame": 3539,
+            "previous_stage": "unclassified",
+            "total_ns": 6084
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6084,
+            "next_commit_ns": 4587058208,
+            "next_frame": 4345,
+            "next_stage": "unclassified",
+            "next_start_ns": 4590091250,
+            "previous_end_ns": 4590085166,
+            "previous_frame": 4343,
+            "previous_stage": "unclassified",
+            "total_ns": 6084
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6042,
+            "next_commit_ns": 3766343666,
+            "next_frame": 56,
+            "next_stage": "unclassified",
+            "next_start_ns": 3770046375,
+            "previous_end_ns": 3770040333,
+            "previous_frame": 54,
+            "previous_stage": "unclassified",
+            "total_ns": 6042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6042,
+            "next_commit_ns": 4085221500,
+            "next_frame": 1746,
+            "next_stage": "unclassified",
+            "next_start_ns": 4088248375,
+            "previous_end_ns": 4088242333,
+            "previous_frame": 1744,
+            "previous_stage": "unclassified",
+            "total_ns": 6042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6042,
+            "next_commit_ns": 4856718916,
+            "next_frame": 5737,
+            "next_stage": "unclassified",
+            "next_start_ns": 4859728125,
+            "previous_end_ns": 4859722083,
+            "previous_frame": 5735,
+            "previous_stage": "unclassified",
+            "total_ns": 6042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6000,
+            "next_commit_ns": 4213839666,
+            "next_frame": 2392,
+            "next_stage": "unclassified",
+            "next_start_ns": 4216838250,
+            "previous_end_ns": 4216832250,
+            "previous_frame": 2390,
+            "previous_stage": "unclassified",
+            "total_ns": 6000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5959,
+            "next_commit_ns": 3838186625,
+            "next_frame": 424,
+            "next_stage": "unclassified",
+            "next_start_ns": 3841162750,
+            "previous_end_ns": 3841156791,
+            "previous_frame": 422,
+            "previous_stage": "unclassified",
+            "total_ns": 5959
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5958,
+            "next_commit_ns": 3890856500,
+            "next_frame": 743,
+            "next_stage": "unclassified",
+            "next_start_ns": 3895478666,
+            "previous_end_ns": 3895472708,
+            "previous_frame": 741,
+            "previous_stage": "unclassified",
+            "total_ns": 5958
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5916,
+            "next_commit_ns": 3811643833,
+            "next_frame": 328,
+            "next_stage": "unclassified",
+            "next_start_ns": 3814647166,
+            "previous_end_ns": 3814641250,
+            "previous_frame": 326,
+            "previous_stage": "unclassified",
+            "total_ns": 5916
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5750,
+            "next_commit_ns": 3760073750,
+            "next_frame": 24,
+            "next_stage": "unclassified",
+            "next_start_ns": 3763565875,
+            "previous_end_ns": 3763560125,
+            "previous_frame": 22,
+            "previous_stage": "unclassified",
+            "total_ns": 5750
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5750,
+            "next_commit_ns": 4068544416,
+            "next_frame": 1644,
+            "next_stage": "unclassified",
+            "next_start_ns": 4071527375,
+            "previous_end_ns": 4071521625,
+            "previous_frame": 1642,
+            "previous_stage": "unclassified",
+            "total_ns": 5750
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5583,
+            "next_commit_ns": 3759835000,
+            "next_frame": 22,
+            "next_stage": "unclassified",
+            "next_start_ns": 3762969791,
+            "previous_end_ns": 3762964208,
+            "previous_frame": 20,
+            "previous_stage": "unclassified",
+            "total_ns": 5583
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5583,
+            "next_commit_ns": 4332725708,
+            "next_frame": 2982,
+            "next_stage": "unclassified",
+            "next_start_ns": 4332820083,
+            "previous_end_ns": 4332814500,
+            "previous_frame": 2981,
+            "previous_stage": "unclassified",
+            "total_ns": 5583
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5542,
+            "next_commit_ns": 4475374500,
+            "next_frame": 3723,
+            "next_stage": "unclassified",
+            "next_start_ns": 4475470625,
+            "previous_end_ns": 4475465083,
+            "previous_frame": 3722,
+            "previous_stage": "unclassified",
+            "total_ns": 5542
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5500,
+            "next_commit_ns": 4014210125,
+            "next_frame": 1369,
+            "next_stage": "unclassified",
+            "next_start_ns": 4017244083,
+            "previous_end_ns": 4017238583,
+            "previous_frame": 1367,
+            "previous_stage": "unclassified",
+            "total_ns": 5500
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5417,
+            "next_commit_ns": 3920074416,
+            "next_frame": 866,
+            "next_stage": "unclassified",
+            "next_start_ns": 3923066458,
+            "previous_end_ns": 3923061041,
+            "previous_frame": 864,
+            "previous_stage": "unclassified",
+            "total_ns": 5417
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5375,
+            "next_commit_ns": 4321341458,
+            "next_frame": 2979,
+            "next_stage": "unclassified",
+            "next_start_ns": 4325980416,
+            "previous_end_ns": 4325975041,
+            "previous_frame": 2977,
+            "previous_stage": "unclassified",
+            "total_ns": 5375
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5333,
+            "next_commit_ns": 4659262791,
+            "next_frame": 4719,
+            "next_stage": "unclassified",
+            "next_start_ns": 4662311916,
+            "previous_end_ns": 4662306583,
+            "previous_frame": 4717,
+            "previous_stage": "unclassified",
+            "total_ns": 5333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5166,
+            "next_commit_ns": 4062963625,
+            "next_frame": 1610,
+            "next_stage": "unclassified",
+            "next_start_ns": 4065952791,
+            "previous_end_ns": 4065947625,
+            "previous_frame": 1608,
+            "previous_stage": "unclassified",
+            "total_ns": 5166
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5125,
+            "next_commit_ns": 4570411750,
+            "next_frame": 4243,
+            "next_stage": "unclassified",
+            "next_start_ns": 4573353583,
+            "previous_end_ns": 4573348458,
+            "previous_frame": 4242,
+            "previous_stage": "unclassified",
+            "total_ns": 5125
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5084,
+            "next_commit_ns": 4445244541,
+            "next_frame": 3606,
+            "next_stage": "unclassified",
+            "next_start_ns": 4448222125,
+            "previous_end_ns": 4448217041,
+            "previous_frame": 3604,
+            "previous_stage": "unclassified",
+            "total_ns": 5084
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5084,
+            "next_commit_ns": 4493135625,
+            "next_frame": 3840,
+            "next_stage": "unclassified",
+            "next_start_ns": 4496162000,
+            "previous_end_ns": 4496156916,
+            "previous_frame": 3838,
+            "previous_stage": "unclassified",
+            "total_ns": 5084
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5083,
+            "next_commit_ns": 3909050333,
+            "next_frame": 798,
+            "next_stage": "unclassified",
+            "next_start_ns": 3911925916,
+            "previous_end_ns": 3911920833,
+            "previous_frame": 796,
+            "previous_stage": "unclassified",
+            "total_ns": 5083
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5083,
+            "next_commit_ns": 3914542166,
+            "next_frame": 832,
+            "next_stage": "unclassified",
+            "next_start_ns": 3917508791,
+            "previous_end_ns": 3917503708,
+            "previous_frame": 830,
+            "previous_stage": "unclassified",
+            "total_ns": 5083
+          }
+        ]
+      },
+      "within_token_unclassified_idle_fraction": 0.030326577185677158
+    },
+    "B": {
+      "coverage": {
+        "application_commit_ids": 5898,
+        "application_submission_rows": 5898,
+        "commit_sources": {
+          "application_submission": 3103,
+          "start_latency": 1
+        },
+        "gpu_event_rows": 3104
+      },
+      "dynamic_boundaries": {
+        "capture_startup_or_queue_fill": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 2,
+          "driver_or_dependency_ms_per_token": 0.028653625,
+          "driver_or_dependency_ns": 458458,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 324125,
+              "next_commit_ns": 1079990541,
+              "next_frame": 1,
+              "next_start_ns": 3842470541,
+              "previous_end_ns": 3842146416,
+              "previous_frame": null,
+              "total_ns": 324125
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 134333,
+              "next_commit_ns": 1080166083,
+              "next_frame": 2,
+              "next_start_ns": 3842992458,
+              "previous_end_ns": 3842858125,
+              "previous_frame": 1,
+              "total_ns": 134333
+            }
+          ],
+          "dynamic_evidence_count": 2,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 2,
+              "total_ns": 458458
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.004741180921361722,
+          "total_ms_per_token": 0.028653625,
+          "total_ns": 458458
+        },
+        "readback_to_next_token": {
+          "application_starvation_ms_per_token": 5.0480104375,
+          "application_starvation_ns": 80768167,
+          "count": 15,
+          "driver_or_dependency_ms_per_token": 0.7085625,
+          "driver_or_dependency_ns": 11337000,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 6978791,
+              "driver_or_dependency_ns": 142625,
+              "next_commit_ns": 4405998166,
+              "next_frame": 2948,
+              "next_start_ns": 4406140791,
+              "previous_end_ns": 4399019375,
+              "previous_frame": 2946,
+              "total_ns": 7121416
+            },
+            {
+              "application_starvation_ns": 6536334,
+              "driver_or_dependency_ns": 144958,
+              "next_commit_ns": 4897258750,
+              "next_frame": 5530,
+              "next_start_ns": 4897403708,
+              "previous_end_ns": 4890722416,
+              "previous_frame": 5528,
+              "total_ns": 6681292
+            },
+            {
+              "application_starvation_ns": 5425041,
+              "driver_or_dependency_ns": 896917,
+              "next_commit_ns": 4124287791,
+              "next_frame": 1473,
+              "next_start_ns": 4125184708,
+              "previous_end_ns": 4118862750,
+              "previous_frame": 1471,
+              "total_ns": 6321958
+            },
+            {
+              "application_starvation_ns": 5246459,
+              "driver_or_dependency_ns": 928250,
+              "next_commit_ns": 4475554000,
+              "next_frame": 3307,
+              "next_start_ns": 4476482250,
+              "previous_end_ns": 4470307541,
+              "previous_frame": 3305,
+              "total_ns": 6174709
+            },
+            {
+              "application_starvation_ns": 5233083,
+              "driver_or_dependency_ns": 928292,
+              "next_commit_ns": 3913988333,
+              "next_frame": 371,
+              "next_start_ns": 3914916625,
+              "previous_end_ns": 3908755250,
+              "previous_frame": 369,
+              "total_ns": 6161375
+            },
+            {
+              "application_starvation_ns": 5237667,
+              "driver_or_dependency_ns": 904666,
+              "next_commit_ns": 4825594875,
+              "next_frame": 5158,
+              "next_start_ns": 4826499541,
+              "previous_end_ns": 4820357208,
+              "previous_frame": 5156,
+              "total_ns": 6142333
+            },
+            {
+              "application_starvation_ns": 5450042,
+              "driver_or_dependency_ns": 690500,
+              "next_commit_ns": 4334731625,
+              "next_frame": 2579,
+              "next_start_ns": 4335422125,
+              "previous_end_ns": 4329281583,
+              "previous_frame": 2577,
+              "total_ns": 6140542
+            },
+            {
+              "application_starvation_ns": 5169458,
+              "driver_or_dependency_ns": 923875,
+              "next_commit_ns": 4264087583,
+              "next_frame": 2211,
+              "next_start_ns": 4265011458,
+              "previous_end_ns": 4258918125,
+              "previous_frame": 2209,
+              "total_ns": 6093333
+            },
+            {
+              "application_starvation_ns": 5115792,
+              "driver_or_dependency_ns": 942875,
+              "next_commit_ns": 4545742708,
+              "next_frame": 3678,
+              "next_start_ns": 4546685583,
+              "previous_end_ns": 4540626916,
+              "previous_frame": 3676,
+              "total_ns": 6058667
+            },
+            {
+              "application_starvation_ns": 5122334,
+              "driver_or_dependency_ns": 911708,
+              "next_commit_ns": 4616063375,
+              "next_frame": 4043,
+              "next_start_ns": 4616975083,
+              "previous_end_ns": 4610941041,
+              "previous_frame": 4041,
+              "total_ns": 6034042
+            },
+            {
+              "application_starvation_ns": 4974250,
+              "driver_or_dependency_ns": 1025792,
+              "next_commit_ns": 3983452458,
+              "next_frame": 734,
+              "next_start_ns": 3984478250,
+              "previous_end_ns": 3978478208,
+              "previous_frame": 732,
+              "total_ns": 6000042
+            },
+            {
+              "application_starvation_ns": 5046333,
+              "driver_or_dependency_ns": 940250,
+              "next_commit_ns": 4755468166,
+              "next_frame": 4784,
+              "next_start_ns": 4756408416,
+              "previous_end_ns": 4750421833,
+              "previous_frame": 4782,
+              "total_ns": 5986583
+            },
+            {
+              "application_starvation_ns": 4984250,
+              "driver_or_dependency_ns": 922209,
+              "next_commit_ns": 4053530416,
+              "next_frame": 1105,
+              "next_start_ns": 4054452625,
+              "previous_end_ns": 4048546166,
+              "previous_frame": 1103,
+              "total_ns": 5906459
+            },
+            {
+              "application_starvation_ns": 4981083,
+              "driver_or_dependency_ns": 899583,
+              "next_commit_ns": 4193892708,
+              "next_frame": 1845,
+              "next_start_ns": 4194792291,
+              "previous_end_ns": 4188911625,
+              "previous_frame": 1843,
+              "total_ns": 5880666
+            },
+            {
+              "application_starvation_ns": 5267250,
+              "driver_or_dependency_ns": 134500,
+              "next_commit_ns": 4686493916,
+              "next_frame": 4416,
+              "next_start_ns": 4686628416,
+              "previous_end_ns": 4681226666,
+              "previous_frame": 4414,
+              "total_ns": 5401750
+            }
+          ],
+          "dynamic_evidence_count": 15,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 15,
+              "total_ns": 92105167
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.9525131212438988,
+          "total_ms_per_token": 5.7565729375,
+          "total_ns": 92105167
+        },
+        "within_token_unclassified": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 3084,
+          "driver_or_dependency_ms_per_token": 0.2583363125,
+          "driver_or_dependency_ns": 4133381,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 406375,
+              "next_commit_ns": 4913911750,
+              "next_frame": 5640,
+              "next_start_ns": 4916884333,
+              "previous_end_ns": 4916477958,
+              "previous_frame": 5636,
+              "total_ns": 406375
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 304875,
+              "next_commit_ns": 4005117250,
+              "next_frame": 870,
+              "next_start_ns": 4007856583,
+              "previous_end_ns": 4007551708,
+              "previous_frame": 866,
+              "total_ns": 304875
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 35500,
+              "next_commit_ns": 4406075166,
+              "next_frame": 2949,
+              "next_start_ns": 4406182958,
+              "previous_end_ns": 4406147458,
+              "previous_frame": 2948,
+              "total_ns": 35500
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 18833,
+              "next_commit_ns": 4334790416,
+              "next_frame": 2580,
+              "next_start_ns": 4335448041,
+              "previous_end_ns": 4335429208,
+              "previous_frame": 2579,
+              "total_ns": 18833
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6750,
+              "next_commit_ns": 4686547125,
+              "next_frame": 4417,
+              "next_start_ns": 4686639750,
+              "previous_end_ns": 4686633000,
+              "previous_frame": 4416,
+              "total_ns": 6750
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6625,
+              "next_commit_ns": 4463338583,
+              "next_frame": 3291,
+              "next_start_ns": 4466325125,
+              "previous_end_ns": 4466318500,
+              "previous_frame": 3289,
+              "total_ns": 6625
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 4137313000,
+              "next_frame": 1561,
+              "next_start_ns": 4140318083,
+              "previous_end_ns": 4140311625,
+              "previous_frame": 1559,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 3847323166,
+              "next_frame": 40,
+              "next_start_ns": 3851925083,
+              "previous_end_ns": 3851918666,
+              "previous_frame": 38,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4533609291,
+              "next_frame": 3662,
+              "next_start_ns": 4536617708,
+              "previous_end_ns": 4536611291,
+              "previous_frame": 3660,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 3927058833,
+              "next_frame": 451,
+              "next_start_ns": 3929991083,
+              "previous_end_ns": 3929984750,
+              "previous_frame": 449,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 3971477458,
+              "next_frame": 718,
+              "next_start_ns": 3974493958,
+              "previous_end_ns": 3974487625,
+              "previous_frame": 716,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4640307291,
+              "next_frame": 4199,
+              "next_start_ns": 4643303958,
+              "previous_end_ns": 4643297666,
+              "previous_frame": 4197,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 3960359333,
+              "next_frame": 650,
+              "next_start_ns": 3963360291,
+              "previous_end_ns": 3963354041,
+              "previous_frame": 648,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 4235290916,
+              "next_frame": 2095,
+              "next_start_ns": 4238264000,
+              "previous_end_ns": 4238257750,
+              "previous_frame": 2093,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6208,
+              "next_commit_ns": 3884933500,
+              "next_frame": 255,
+              "next_start_ns": 3887948583,
+              "previous_end_ns": 3887942375,
+              "previous_frame": 253,
+              "total_ns": 6208
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6166,
+              "next_commit_ns": 4061000166,
+              "next_frame": 1161,
+              "next_start_ns": 4064022291,
+              "previous_end_ns": 4064016125,
+              "previous_frame": 1159,
+              "total_ns": 6166
+            }
+          ],
+          "dynamic_evidence_count": 16,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 2,
+              "total_ns": 711250
+            },
+            "25_to_100us": {
+              "count": 1,
+              "total_ns": 35500
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 3081,
+              "total_ns": 3386631
+            }
+          },
+          "idle_fraction": 0.042745697834739575,
+          "total_ms_per_token": 0.2583363125,
+          "total_ns": 4133381
+        }
+      },
+      "idle_reconstruction_relative_error": 0.0,
+      "pid": 81633,
+      "reconstruction": {
+        "gpu_busy_ns": 1022317536,
+        "gpu_idle_ns": 96697006,
+        "gpu_span_ns": 1119014542,
+        "merged_interval_count": 3102,
+        "reconstructed_gap_ns": 96697006
+      },
+      "recorded_gpu_idle_ns": 96697006,
+      "requested_boundary_table": {
+        "attention_to_ffn": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "capture_startup_or_queue_fill": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 2,
+          "driver_or_dependency_ms_per_token": 0.028653625,
+          "driver_or_dependency_ns": 458458,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 324125,
+              "next_commit_ns": 1079990541,
+              "next_frame": 1,
+              "next_start_ns": 3842470541,
+              "previous_end_ns": 3842146416,
+              "previous_frame": null,
+              "total_ns": 324125
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 134333,
+              "next_commit_ns": 1080166083,
+              "next_frame": 2,
+              "next_start_ns": 3842992458,
+              "previous_end_ns": 3842858125,
+              "previous_frame": 1,
+              "total_ns": 134333
+            }
+          ],
+          "dynamic_evidence_count": 2,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 2,
+              "total_ns": 458458
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.004741180921361722,
+          "measured": true,
+          "total_ms_per_token": 0.028653625,
+          "total_ns": 458458
+        },
+        "ffn_to_next_layer": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "final_norm_to_lm_head": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "layer_to_dsa": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "layer_to_kda": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "lm_head_to_argmax": {
+          "measured": false,
+          "reason": "the bounded System Trace has dynamic command-buffer/frame IDs but no shader-dispatch intervals; this boundary remains inside the explicit within-token unclassified budget"
+        },
+        "materialization": {
+          "measured": false,
+          "reason": "the bounded trace covers steps 1-16; step 256 is outside it"
+        },
+        "readback_to_next_token": {
+          "application_starvation_ms_per_token": 5.0480104375,
+          "application_starvation_ns": 80768167,
+          "count": 15,
+          "driver_or_dependency_ms_per_token": 0.7085625,
+          "driver_or_dependency_ns": 11337000,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 6978791,
+              "driver_or_dependency_ns": 142625,
+              "next_commit_ns": 4405998166,
+              "next_frame": 2948,
+              "next_start_ns": 4406140791,
+              "previous_end_ns": 4399019375,
+              "previous_frame": 2946,
+              "total_ns": 7121416
+            },
+            {
+              "application_starvation_ns": 6536334,
+              "driver_or_dependency_ns": 144958,
+              "next_commit_ns": 4897258750,
+              "next_frame": 5530,
+              "next_start_ns": 4897403708,
+              "previous_end_ns": 4890722416,
+              "previous_frame": 5528,
+              "total_ns": 6681292
+            },
+            {
+              "application_starvation_ns": 5425041,
+              "driver_or_dependency_ns": 896917,
+              "next_commit_ns": 4124287791,
+              "next_frame": 1473,
+              "next_start_ns": 4125184708,
+              "previous_end_ns": 4118862750,
+              "previous_frame": 1471,
+              "total_ns": 6321958
+            },
+            {
+              "application_starvation_ns": 5246459,
+              "driver_or_dependency_ns": 928250,
+              "next_commit_ns": 4475554000,
+              "next_frame": 3307,
+              "next_start_ns": 4476482250,
+              "previous_end_ns": 4470307541,
+              "previous_frame": 3305,
+              "total_ns": 6174709
+            },
+            {
+              "application_starvation_ns": 5233083,
+              "driver_or_dependency_ns": 928292,
+              "next_commit_ns": 3913988333,
+              "next_frame": 371,
+              "next_start_ns": 3914916625,
+              "previous_end_ns": 3908755250,
+              "previous_frame": 369,
+              "total_ns": 6161375
+            },
+            {
+              "application_starvation_ns": 5237667,
+              "driver_or_dependency_ns": 904666,
+              "next_commit_ns": 4825594875,
+              "next_frame": 5158,
+              "next_start_ns": 4826499541,
+              "previous_end_ns": 4820357208,
+              "previous_frame": 5156,
+              "total_ns": 6142333
+            },
+            {
+              "application_starvation_ns": 5450042,
+              "driver_or_dependency_ns": 690500,
+              "next_commit_ns": 4334731625,
+              "next_frame": 2579,
+              "next_start_ns": 4335422125,
+              "previous_end_ns": 4329281583,
+              "previous_frame": 2577,
+              "total_ns": 6140542
+            },
+            {
+              "application_starvation_ns": 5169458,
+              "driver_or_dependency_ns": 923875,
+              "next_commit_ns": 4264087583,
+              "next_frame": 2211,
+              "next_start_ns": 4265011458,
+              "previous_end_ns": 4258918125,
+              "previous_frame": 2209,
+              "total_ns": 6093333
+            },
+            {
+              "application_starvation_ns": 5115792,
+              "driver_or_dependency_ns": 942875,
+              "next_commit_ns": 4545742708,
+              "next_frame": 3678,
+              "next_start_ns": 4546685583,
+              "previous_end_ns": 4540626916,
+              "previous_frame": 3676,
+              "total_ns": 6058667
+            },
+            {
+              "application_starvation_ns": 5122334,
+              "driver_or_dependency_ns": 911708,
+              "next_commit_ns": 4616063375,
+              "next_frame": 4043,
+              "next_start_ns": 4616975083,
+              "previous_end_ns": 4610941041,
+              "previous_frame": 4041,
+              "total_ns": 6034042
+            },
+            {
+              "application_starvation_ns": 4974250,
+              "driver_or_dependency_ns": 1025792,
+              "next_commit_ns": 3983452458,
+              "next_frame": 734,
+              "next_start_ns": 3984478250,
+              "previous_end_ns": 3978478208,
+              "previous_frame": 732,
+              "total_ns": 6000042
+            },
+            {
+              "application_starvation_ns": 5046333,
+              "driver_or_dependency_ns": 940250,
+              "next_commit_ns": 4755468166,
+              "next_frame": 4784,
+              "next_start_ns": 4756408416,
+              "previous_end_ns": 4750421833,
+              "previous_frame": 4782,
+              "total_ns": 5986583
+            },
+            {
+              "application_starvation_ns": 4984250,
+              "driver_or_dependency_ns": 922209,
+              "next_commit_ns": 4053530416,
+              "next_frame": 1105,
+              "next_start_ns": 4054452625,
+              "previous_end_ns": 4048546166,
+              "previous_frame": 1103,
+              "total_ns": 5906459
+            },
+            {
+              "application_starvation_ns": 4981083,
+              "driver_or_dependency_ns": 899583,
+              "next_commit_ns": 4193892708,
+              "next_frame": 1845,
+              "next_start_ns": 4194792291,
+              "previous_end_ns": 4188911625,
+              "previous_frame": 1843,
+              "total_ns": 5880666
+            },
+            {
+              "application_starvation_ns": 5267250,
+              "driver_or_dependency_ns": 134500,
+              "next_commit_ns": 4686493916,
+              "next_frame": 4416,
+              "next_start_ns": 4686628416,
+              "previous_end_ns": 4681226666,
+              "previous_frame": 4414,
+              "total_ns": 5401750
+            }
+          ],
+          "dynamic_evidence_count": 15,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "25_to_100us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "ge_500us": {
+              "count": 15,
+              "total_ns": 92105167
+            },
+            "lt_25us": {
+              "count": 0,
+              "total_ns": 0
+            }
+          },
+          "idle_fraction": 0.9525131212438988,
+          "measured": true,
+          "total_ms_per_token": 5.7565729375,
+          "total_ns": 92105167
+        },
+        "within_token_unclassified": {
+          "application_starvation_ms_per_token": 0.0,
+          "application_starvation_ns": 0,
+          "count": 3084,
+          "driver_or_dependency_ms_per_token": 0.2583363125,
+          "driver_or_dependency_ns": 4133381,
+          "dynamic_evidence": [
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 406375,
+              "next_commit_ns": 4913911750,
+              "next_frame": 5640,
+              "next_start_ns": 4916884333,
+              "previous_end_ns": 4916477958,
+              "previous_frame": 5636,
+              "total_ns": 406375
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 304875,
+              "next_commit_ns": 4005117250,
+              "next_frame": 870,
+              "next_start_ns": 4007856583,
+              "previous_end_ns": 4007551708,
+              "previous_frame": 866,
+              "total_ns": 304875
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 35500,
+              "next_commit_ns": 4406075166,
+              "next_frame": 2949,
+              "next_start_ns": 4406182958,
+              "previous_end_ns": 4406147458,
+              "previous_frame": 2948,
+              "total_ns": 35500
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 18833,
+              "next_commit_ns": 4334790416,
+              "next_frame": 2580,
+              "next_start_ns": 4335448041,
+              "previous_end_ns": 4335429208,
+              "previous_frame": 2579,
+              "total_ns": 18833
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6750,
+              "next_commit_ns": 4686547125,
+              "next_frame": 4417,
+              "next_start_ns": 4686639750,
+              "previous_end_ns": 4686633000,
+              "previous_frame": 4416,
+              "total_ns": 6750
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6625,
+              "next_commit_ns": 4463338583,
+              "next_frame": 3291,
+              "next_start_ns": 4466325125,
+              "previous_end_ns": 4466318500,
+              "previous_frame": 3289,
+              "total_ns": 6625
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6458,
+              "next_commit_ns": 4137313000,
+              "next_frame": 1561,
+              "next_start_ns": 4140318083,
+              "previous_end_ns": 4140311625,
+              "previous_frame": 1559,
+              "total_ns": 6458
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 3847323166,
+              "next_frame": 40,
+              "next_start_ns": 3851925083,
+              "previous_end_ns": 3851918666,
+              "previous_frame": 38,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6417,
+              "next_commit_ns": 4533609291,
+              "next_frame": 3662,
+              "next_start_ns": 4536617708,
+              "previous_end_ns": 4536611291,
+              "previous_frame": 3660,
+              "total_ns": 6417
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 3927058833,
+              "next_frame": 451,
+              "next_start_ns": 3929991083,
+              "previous_end_ns": 3929984750,
+              "previous_frame": 449,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6333,
+              "next_commit_ns": 3971477458,
+              "next_frame": 718,
+              "next_start_ns": 3974493958,
+              "previous_end_ns": 3974487625,
+              "previous_frame": 716,
+              "total_ns": 6333
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6292,
+              "next_commit_ns": 4640307291,
+              "next_frame": 4199,
+              "next_start_ns": 4643303958,
+              "previous_end_ns": 4643297666,
+              "previous_frame": 4197,
+              "total_ns": 6292
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 3960359333,
+              "next_frame": 650,
+              "next_start_ns": 3963360291,
+              "previous_end_ns": 3963354041,
+              "previous_frame": 648,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6250,
+              "next_commit_ns": 4235290916,
+              "next_frame": 2095,
+              "next_start_ns": 4238264000,
+              "previous_end_ns": 4238257750,
+              "previous_frame": 2093,
+              "total_ns": 6250
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6208,
+              "next_commit_ns": 3884933500,
+              "next_frame": 255,
+              "next_start_ns": 3887948583,
+              "previous_end_ns": 3887942375,
+              "previous_frame": 253,
+              "total_ns": 6208
+            },
+            {
+              "application_starvation_ns": 0,
+              "driver_or_dependency_ns": 6166,
+              "next_commit_ns": 4061000166,
+              "next_frame": 1161,
+              "next_start_ns": 4064022291,
+              "previous_end_ns": 4064016125,
+              "previous_frame": 1159,
+              "total_ns": 6166
+            }
+          ],
+          "dynamic_evidence_count": 16,
+          "gap_bins": {
+            "100_to_500us": {
+              "count": 2,
+              "total_ns": 711250
+            },
+            "25_to_100us": {
+              "count": 1,
+              "total_ns": 35500
+            },
+            "ge_500us": {
+              "count": 0,
+              "total_ns": 0
+            },
+            "lt_25us": {
+              "count": 3081,
+              "total_ns": 3386631
+            }
+          },
+          "idle_fraction": 0.042745697834739575,
+          "measured": true,
+          "total_ms_per_token": 0.2583363125,
+          "total_ns": 4133381
+        }
+      },
+      "trace": {
+        "bytes": 61047931,
+        "file_count": 576,
+        "kind": "bundle-directory",
+        "sha256": "31e91f0367289e00b45738fb5a1f0effa6ebb85496b15b7140f44835666a1810"
+      },
+      "unclassified_gap_summary": {
+        "application_starvation_ns": 80768167,
+        "bins": {
+          "100_to_500us": {
+            "count": 4,
+            "total_ns": 1169708
+          },
+          "25_to_100us": {
+            "count": 1,
+            "total_ns": 35500
+          },
+          "ge_500us": {
+            "count": 15,
+            "total_ns": 92105167
+          },
+          "lt_25us": {
+            "count": 3081,
+            "total_ns": 3386631
+          }
+        },
+        "driver_or_dependency_ns": 15928839,
+        "gap_count": 3101,
+        "top_gaps": [
+          {
+            "application_starvation_ns": 6978791,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 142625,
+            "next_commit_ns": 4405998166,
+            "next_frame": 2948,
+            "next_stage": "unclassified",
+            "next_start_ns": 4406140791,
+            "previous_end_ns": 4399019375,
+            "previous_frame": 2946,
+            "previous_stage": "unclassified",
+            "total_ns": 7121416
+          },
+          {
+            "application_starvation_ns": 6536334,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 144958,
+            "next_commit_ns": 4897258750,
+            "next_frame": 5530,
+            "next_stage": "unclassified",
+            "next_start_ns": 4897403708,
+            "previous_end_ns": 4890722416,
+            "previous_frame": 5528,
+            "previous_stage": "unclassified",
+            "total_ns": 6681292
+          },
+          {
+            "application_starvation_ns": 5425041,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 896917,
+            "next_commit_ns": 4124287791,
+            "next_frame": 1473,
+            "next_stage": "unclassified",
+            "next_start_ns": 4125184708,
+            "previous_end_ns": 4118862750,
+            "previous_frame": 1471,
+            "previous_stage": "unclassified",
+            "total_ns": 6321958
+          },
+          {
+            "application_starvation_ns": 5246459,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 928250,
+            "next_commit_ns": 4475554000,
+            "next_frame": 3307,
+            "next_stage": "unclassified",
+            "next_start_ns": 4476482250,
+            "previous_end_ns": 4470307541,
+            "previous_frame": 3305,
+            "previous_stage": "unclassified",
+            "total_ns": 6174709
+          },
+          {
+            "application_starvation_ns": 5233083,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 928292,
+            "next_commit_ns": 3913988333,
+            "next_frame": 371,
+            "next_stage": "unclassified",
+            "next_start_ns": 3914916625,
+            "previous_end_ns": 3908755250,
+            "previous_frame": 369,
+            "previous_stage": "unclassified",
+            "total_ns": 6161375
+          },
+          {
+            "application_starvation_ns": 5237667,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 904666,
+            "next_commit_ns": 4825594875,
+            "next_frame": 5158,
+            "next_stage": "unclassified",
+            "next_start_ns": 4826499541,
+            "previous_end_ns": 4820357208,
+            "previous_frame": 5156,
+            "previous_stage": "unclassified",
+            "total_ns": 6142333
+          },
+          {
+            "application_starvation_ns": 5450042,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 690500,
+            "next_commit_ns": 4334731625,
+            "next_frame": 2579,
+            "next_stage": "unclassified",
+            "next_start_ns": 4335422125,
+            "previous_end_ns": 4329281583,
+            "previous_frame": 2577,
+            "previous_stage": "unclassified",
+            "total_ns": 6140542
+          },
+          {
+            "application_starvation_ns": 5169458,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 923875,
+            "next_commit_ns": 4264087583,
+            "next_frame": 2211,
+            "next_stage": "unclassified",
+            "next_start_ns": 4265011458,
+            "previous_end_ns": 4258918125,
+            "previous_frame": 2209,
+            "previous_stage": "unclassified",
+            "total_ns": 6093333
+          },
+          {
+            "application_starvation_ns": 5115792,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 942875,
+            "next_commit_ns": 4545742708,
+            "next_frame": 3678,
+            "next_stage": "unclassified",
+            "next_start_ns": 4546685583,
+            "previous_end_ns": 4540626916,
+            "previous_frame": 3676,
+            "previous_stage": "unclassified",
+            "total_ns": 6058667
+          },
+          {
+            "application_starvation_ns": 5122334,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 911708,
+            "next_commit_ns": 4616063375,
+            "next_frame": 4043,
+            "next_stage": "unclassified",
+            "next_start_ns": 4616975083,
+            "previous_end_ns": 4610941041,
+            "previous_frame": 4041,
+            "previous_stage": "unclassified",
+            "total_ns": 6034042
+          },
+          {
+            "application_starvation_ns": 4974250,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 1025792,
+            "next_commit_ns": 3983452458,
+            "next_frame": 734,
+            "next_stage": "unclassified",
+            "next_start_ns": 3984478250,
+            "previous_end_ns": 3978478208,
+            "previous_frame": 732,
+            "previous_stage": "unclassified",
+            "total_ns": 6000042
+          },
+          {
+            "application_starvation_ns": 5046333,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 940250,
+            "next_commit_ns": 4755468166,
+            "next_frame": 4784,
+            "next_stage": "unclassified",
+            "next_start_ns": 4756408416,
+            "previous_end_ns": 4750421833,
+            "previous_frame": 4782,
+            "previous_stage": "unclassified",
+            "total_ns": 5986583
+          },
+          {
+            "application_starvation_ns": 4984250,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 922209,
+            "next_commit_ns": 4053530416,
+            "next_frame": 1105,
+            "next_stage": "unclassified",
+            "next_start_ns": 4054452625,
+            "previous_end_ns": 4048546166,
+            "previous_frame": 1103,
+            "previous_stage": "unclassified",
+            "total_ns": 5906459
+          },
+          {
+            "application_starvation_ns": 4981083,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 899583,
+            "next_commit_ns": 4193892708,
+            "next_frame": 1845,
+            "next_stage": "unclassified",
+            "next_start_ns": 4194792291,
+            "previous_end_ns": 4188911625,
+            "previous_frame": 1843,
+            "previous_stage": "unclassified",
+            "total_ns": 5880666
+          },
+          {
+            "application_starvation_ns": 5267250,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 134500,
+            "next_commit_ns": 4686493916,
+            "next_frame": 4416,
+            "next_stage": "unclassified",
+            "next_start_ns": 4686628416,
+            "previous_end_ns": 4681226666,
+            "previous_frame": 4414,
+            "previous_stage": "unclassified",
+            "total_ns": 5401750
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 406375,
+            "next_commit_ns": 4913911750,
+            "next_frame": 5640,
+            "next_stage": "unclassified",
+            "next_start_ns": 4916884333,
+            "previous_end_ns": 4916477958,
+            "previous_frame": 5636,
+            "previous_stage": "unclassified",
+            "total_ns": 406375
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 324125,
+            "next_commit_ns": 1079990541,
+            "next_frame": 1,
+            "next_stage": "unclassified",
+            "next_start_ns": 3842470541,
+            "previous_end_ns": 3842146416,
+            "previous_frame": null,
+            "previous_stage": "unclassified",
+            "total_ns": 324125
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 304875,
+            "next_commit_ns": 4005117250,
+            "next_frame": 870,
+            "next_stage": "unclassified",
+            "next_start_ns": 4007856583,
+            "previous_end_ns": 4007551708,
+            "previous_frame": 866,
+            "previous_stage": "unclassified",
+            "total_ns": 304875
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 134333,
+            "next_commit_ns": 1080166083,
+            "next_frame": 2,
+            "next_stage": "unclassified",
+            "next_start_ns": 3842992458,
+            "previous_end_ns": 3842858125,
+            "previous_frame": 1,
+            "previous_stage": "unclassified",
+            "total_ns": 134333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 35500,
+            "next_commit_ns": 4406075166,
+            "next_frame": 2949,
+            "next_stage": "unclassified",
+            "next_start_ns": 4406182958,
+            "previous_end_ns": 4406147458,
+            "previous_frame": 2948,
+            "previous_stage": "unclassified",
+            "total_ns": 35500
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 18833,
+            "next_commit_ns": 4334790416,
+            "next_frame": 2580,
+            "next_stage": "unclassified",
+            "next_start_ns": 4335448041,
+            "previous_end_ns": 4335429208,
+            "previous_frame": 2579,
+            "previous_stage": "unclassified",
+            "total_ns": 18833
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6750,
+            "next_commit_ns": 4686547125,
+            "next_frame": 4417,
+            "next_stage": "unclassified",
+            "next_start_ns": 4686639750,
+            "previous_end_ns": 4686633000,
+            "previous_frame": 4416,
+            "previous_stage": "unclassified",
+            "total_ns": 6750
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6625,
+            "next_commit_ns": 4463338583,
+            "next_frame": 3291,
+            "next_stage": "unclassified",
+            "next_start_ns": 4466325125,
+            "previous_end_ns": 4466318500,
+            "previous_frame": 3289,
+            "previous_stage": "unclassified",
+            "total_ns": 6625
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6458,
+            "next_commit_ns": 4137313000,
+            "next_frame": 1561,
+            "next_stage": "unclassified",
+            "next_start_ns": 4140318083,
+            "previous_end_ns": 4140311625,
+            "previous_frame": 1559,
+            "previous_stage": "unclassified",
+            "total_ns": 6458
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6417,
+            "next_commit_ns": 3847323166,
+            "next_frame": 40,
+            "next_stage": "unclassified",
+            "next_start_ns": 3851925083,
+            "previous_end_ns": 3851918666,
+            "previous_frame": 38,
+            "previous_stage": "unclassified",
+            "total_ns": 6417
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6417,
+            "next_commit_ns": 4533609291,
+            "next_frame": 3662,
+            "next_stage": "unclassified",
+            "next_start_ns": 4536617708,
+            "previous_end_ns": 4536611291,
+            "previous_frame": 3660,
+            "previous_stage": "unclassified",
+            "total_ns": 6417
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6333,
+            "next_commit_ns": 3927058833,
+            "next_frame": 451,
+            "next_stage": "unclassified",
+            "next_start_ns": 3929991083,
+            "previous_end_ns": 3929984750,
+            "previous_frame": 449,
+            "previous_stage": "unclassified",
+            "total_ns": 6333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6333,
+            "next_commit_ns": 3971477458,
+            "next_frame": 718,
+            "next_stage": "unclassified",
+            "next_start_ns": 3974493958,
+            "previous_end_ns": 3974487625,
+            "previous_frame": 716,
+            "previous_stage": "unclassified",
+            "total_ns": 6333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6292,
+            "next_commit_ns": 4640307291,
+            "next_frame": 4199,
+            "next_stage": "unclassified",
+            "next_start_ns": 4643303958,
+            "previous_end_ns": 4643297666,
+            "previous_frame": 4197,
+            "previous_stage": "unclassified",
+            "total_ns": 6292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6250,
+            "next_commit_ns": 3960359333,
+            "next_frame": 650,
+            "next_stage": "unclassified",
+            "next_start_ns": 3963360291,
+            "previous_end_ns": 3963354041,
+            "previous_frame": 648,
+            "previous_stage": "unclassified",
+            "total_ns": 6250
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6250,
+            "next_commit_ns": 4235290916,
+            "next_frame": 2095,
+            "next_stage": "unclassified",
+            "next_start_ns": 4238264000,
+            "previous_end_ns": 4238257750,
+            "previous_frame": 2093,
+            "previous_stage": "unclassified",
+            "total_ns": 6250
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6208,
+            "next_commit_ns": 3884933500,
+            "next_frame": 255,
+            "next_stage": "unclassified",
+            "next_start_ns": 3887948583,
+            "previous_end_ns": 3887942375,
+            "previous_frame": 253,
+            "previous_stage": "unclassified",
+            "total_ns": 6208
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6166,
+            "next_commit_ns": 4061000166,
+            "next_frame": 1161,
+            "next_stage": "unclassified",
+            "next_start_ns": 4064022291,
+            "previous_end_ns": 4064016125,
+            "previous_frame": 1159,
+            "previous_stage": "unclassified",
+            "total_ns": 6166
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6125,
+            "next_commit_ns": 4176335583,
+            "next_frame": 1795,
+            "next_stage": "unclassified",
+            "next_start_ns": 4179354166,
+            "previous_end_ns": 4179348041,
+            "previous_frame": 1793,
+            "previous_stage": "unclassified",
+            "total_ns": 6125
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 6041,
+            "next_commit_ns": 4148481125,
+            "next_frame": 1628,
+            "next_stage": "unclassified",
+            "next_start_ns": 4151476041,
+            "previous_end_ns": 4151470000,
+            "previous_frame": 1626,
+            "previous_stage": "unclassified",
+            "total_ns": 6041
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5916,
+            "next_commit_ns": 4634754500,
+            "next_frame": 4166,
+            "next_stage": "unclassified",
+            "next_start_ns": 4637750041,
+            "previous_end_ns": 4637744125,
+            "previous_frame": 4164,
+            "previous_stage": "unclassified",
+            "total_ns": 5916
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5792,
+            "next_commit_ns": 4762877583,
+            "next_frame": 4839,
+            "next_stage": "unclassified",
+            "next_start_ns": 4765932125,
+            "previous_end_ns": 4765926333,
+            "previous_frame": 4837,
+            "previous_stage": "unclassified",
+            "total_ns": 5792
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5584,
+            "next_commit_ns": 3943671708,
+            "next_frame": 551,
+            "next_stage": "unclassified",
+            "next_start_ns": 3946663625,
+            "previous_end_ns": 3946658041,
+            "previous_frame": 549,
+            "previous_stage": "unclassified",
+            "total_ns": 5584
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5583,
+            "next_commit_ns": 3873811458,
+            "next_frame": 188,
+            "next_stage": "unclassified",
+            "next_start_ns": 3876818833,
+            "previous_end_ns": 3876813250,
+            "previous_frame": 186,
+            "previous_stage": "unclassified",
+            "total_ns": 5583
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5333,
+            "next_commit_ns": 4726628250,
+            "next_frame": 4668,
+            "next_stage": "unclassified",
+            "next_start_ns": 4729637208,
+            "previous_end_ns": 4729631875,
+            "previous_frame": 4666,
+            "previous_stage": "unclassified",
+            "total_ns": 5333
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5292,
+            "next_commit_ns": 4833042666,
+            "next_frame": 5214,
+            "next_stage": "unclassified",
+            "next_start_ns": 4836057958,
+            "previous_end_ns": 4836052666,
+            "previous_frame": 5212,
+            "previous_stage": "unclassified",
+            "total_ns": 5292
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5208,
+            "next_commit_ns": 4282702000,
+            "next_frame": 2331,
+            "next_stage": "unclassified",
+            "next_start_ns": 4285710083,
+            "previous_end_ns": 4285704875,
+            "previous_frame": 2330,
+            "previous_stage": "unclassified",
+            "total_ns": 5208
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5167,
+            "next_commit_ns": 4897331375,
+            "next_frame": 5531,
+            "next_stage": "unclassified",
+            "next_start_ns": 4897413875,
+            "previous_end_ns": 4897408708,
+            "previous_frame": 5530,
+            "previous_stage": "unclassified",
+            "total_ns": 5167
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5125,
+            "next_commit_ns": 4072174083,
+            "next_frame": 1227,
+            "next_stage": "unclassified",
+            "next_start_ns": 4075202875,
+            "previous_end_ns": 4075197750,
+            "previous_frame": 1225,
+            "previous_stage": "unclassified",
+            "total_ns": 5125
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5083,
+            "next_commit_ns": 3851201083,
+            "next_frame": 56,
+            "next_stage": "unclassified",
+            "next_start_ns": 3854558916,
+            "previous_end_ns": 3854553833,
+            "previous_frame": 54,
+            "previous_stage": "unclassified",
+            "total_ns": 5083
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5083,
+            "next_commit_ns": 3879378916,
+            "next_frame": 221,
+            "next_stage": "unclassified",
+            "next_start_ns": 3882377666,
+            "previous_end_ns": 3882372583,
+            "previous_frame": 219,
+            "previous_stage": "unclassified",
+            "total_ns": 5083
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5042,
+            "next_commit_ns": 4066611416,
+            "next_frame": 1193,
+            "next_stage": "unclassified",
+            "next_start_ns": 4069610500,
+            "previous_end_ns": 4069605458,
+            "previous_frame": 1191,
+            "previous_stage": "unclassified",
+            "total_ns": 5042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5042,
+            "next_commit_ns": 4181928166,
+            "next_frame": 1829,
+            "next_stage": "unclassified",
+            "next_start_ns": 4184919625,
+            "previous_end_ns": 4184914583,
+            "previous_frame": 1827,
+            "previous_stage": "unclassified",
+            "total_ns": 5042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5042,
+            "next_commit_ns": 4855372666,
+            "next_frame": 5347,
+            "next_stage": "unclassified",
+            "next_start_ns": 4858409750,
+            "previous_end_ns": 4858404708,
+            "previous_frame": 5345,
+            "previous_stage": "unclassified",
+            "total_ns": 5042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5042,
+            "next_commit_ns": 4926379208,
+            "next_frame": 5714,
+            "next_stage": "unclassified",
+            "next_start_ns": 4929240500,
+            "previous_end_ns": 4929235458,
+            "previous_frame": 5712,
+            "previous_stage": "unclassified",
+            "total_ns": 5042
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5041,
+            "next_commit_ns": 4768485791,
+            "next_frame": 4872,
+            "next_stage": "unclassified",
+            "next_start_ns": 4771481666,
+            "previous_end_ns": 4771476625,
+            "previous_frame": 4870,
+            "previous_stage": "unclassified",
+            "total_ns": 5041
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5000,
+            "next_commit_ns": 4088927625,
+            "next_frame": 1326,
+            "next_stage": "unclassified",
+            "next_start_ns": 4091910500,
+            "previous_end_ns": 4091905500,
+            "previous_frame": 1324,
+            "previous_stage": "unclassified",
+            "total_ns": 5000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5000,
+            "next_commit_ns": 4170749666,
+            "next_frame": 1762,
+            "next_stage": "unclassified",
+            "next_start_ns": 4173775875,
+            "previous_end_ns": 4173770875,
+            "previous_frame": 1760,
+            "previous_stage": "unclassified",
+            "total_ns": 5000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5000,
+            "next_commit_ns": 4435379666,
+            "next_frame": 3126,
+            "next_stage": "unclassified",
+            "next_start_ns": 4438390708,
+            "previous_end_ns": 4438385708,
+            "previous_frame": 3124,
+            "previous_stage": "unclassified",
+            "total_ns": 5000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5000,
+            "next_commit_ns": 4488616958,
+            "next_frame": 3395,
+            "next_stage": "unclassified",
+            "next_start_ns": 4491582458,
+            "previous_end_ns": 4491577458,
+            "previous_frame": 3393,
+            "previous_stage": "unclassified",
+            "total_ns": 5000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 5000,
+            "next_commit_ns": 4629204375,
+            "next_frame": 4132,
+            "next_stage": "unclassified",
+            "next_start_ns": 4632182000,
+            "previous_end_ns": 4632177000,
+            "previous_frame": 4130,
+            "previous_stage": "unclassified",
+            "total_ns": 5000
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4958,
+            "next_commit_ns": 3965925583,
+            "next_frame": 684,
+            "next_stage": "unclassified",
+            "next_start_ns": 3968933541,
+            "previous_end_ns": 3968928583,
+            "previous_frame": 682,
+            "previous_stage": "unclassified",
+            "total_ns": 4958
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4916,
+            "next_commit_ns": 4721077541,
+            "next_frame": 4634,
+            "next_stage": "unclassified",
+            "next_start_ns": 4724066291,
+            "previous_end_ns": 4724061375,
+            "previous_frame": 4632,
+            "previous_stage": "unclassified",
+            "total_ns": 4916
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4875,
+            "next_commit_ns": 3862695083,
+            "next_frame": 122,
+            "next_stage": "unclassified",
+            "next_start_ns": 3865677666,
+            "previous_end_ns": 3865672791,
+            "previous_frame": 121,
+            "previous_stage": "unclassified",
+            "total_ns": 4875
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4875,
+            "next_commit_ns": 4860993208,
+            "next_frame": 5380,
+            "next_stage": "unclassified",
+            "next_start_ns": 4863990666,
+            "previous_end_ns": 4863985791,
+            "previous_frame": 5378,
+            "previous_stage": "unclassified",
+            "total_ns": 4875
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4875,
+            "next_commit_ns": 4948553208,
+            "next_frame": 5849,
+            "next_stage": "unclassified",
+            "next_start_ns": 4951564250,
+            "previous_end_ns": 4951559375,
+            "previous_frame": 5847,
+            "previous_stage": "unclassified",
+            "total_ns": 4875
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4834,
+            "next_commit_ns": 4077758041,
+            "next_frame": 1260,
+            "next_stage": "unclassified",
+            "next_start_ns": 4080759000,
+            "previous_end_ns": 4080754166,
+            "previous_frame": 1258,
+            "previous_stage": "unclassified",
+            "total_ns": 4834
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4833,
+            "next_commit_ns": 4452152208,
+            "next_frame": 3225,
+            "next_stage": "unclassified",
+            "next_start_ns": 4455155208,
+            "previous_end_ns": 4455150375,
+            "previous_frame": 3223,
+            "previous_stage": "unclassified",
+            "total_ns": 4833
+          },
+          {
+            "application_starvation_ns": 0,
+            "commit_source": "application_submission",
+            "driver_or_dependency_ns": 4792,
+            "next_commit_ns": 3949341625,
+            "next_frame": 584,
+            "next_stage": "unclassified",
+            "next_start_ns": 3952255625,
+            "previous_end_ns": 3952250833,
+            "previous_frame": 582,
+            "previous_stage": "unclassified",
+            "total_ns": 4792
+          }
+        ]
+      },
+      "within_token_unclassified_idle_fraction": 0.042745697834739575
+    }
+  },
+  "compiled_vs_eager": {
+    "application_starvation_reduction_ns": 20392665,
+    "driver_or_dependency_reduction_ns": 783084,
+    "interpretation": "compiled FFN changes when the next token graph reaches Metal; the arithmetic GPU busy path is unchanged",
+    "readback_boundary_attribution_fraction": 1.0255337490371583,
+    "readback_boundary_reduction_ms_per_token": 1.3234843125,
+    "readback_boundary_reduction_ns": 21175749,
+    "total_idle_reduction_ms_per_token": 1.2905321875,
+    "total_idle_reduction_ns": 20648515
+  },
+  "complete": true,
+  "operator_microcapture_artifact": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-packed-decode-operator-microcapture-20260901.json",
+  "operator_microcapture_artifact_sha256": "b690a7e478aeaf9e14e5e9e2169a61e5f8bdb455e415d45d51036690abd8a361",
+  "schema": "glm53-steady-decode-dynamic-idle-attribution-v1",
+  "source_artifact": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-packed-decode-bounded-telemetry-20260901.json",
+  "stage_assignment_contract": {
+    "dynamic_command_buffer_and_frame_ids_required": true,
+    "microcapture_role": "operator-stage vocabulary and kernel inventory only; no stage is assigned without a dynamic System Trace boundary",
+    "static_kernel_labels_used": false
+  },
+  "traced_tokens": 16
+}
