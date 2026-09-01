@@ -1,0 +1,245 @@
+{
+  "acceptance": {
+    "runtime_unchanged": true,
+    "tier0_state_invariants": true,
+    "tier1_host_build_reduction_gate": true,
+    "tier1_output_byte_identical": false,
+    "tier1_runtime_tensor_offsets": true,
+    "tier1_single_compile_signature": true,
+    "tier1_state_byte_identical": true,
+    "tier2_not_loaded_after_tier1_failure": true
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "cold_compile_budget_seconds": 900,
+  "complete": true,
+  "date": "2026-09-02",
+  "decision": "reject_functional_stateful_decode_at_kda_exactness",
+  "elapsed_seconds": 1.3218307495117188,
+  "evidence_complete": true,
+  "failure_condition": "mx.compile changes the eager gated-RMSNorm numerical boundary",
+  "max_tier_requested": 4,
+  "memory_after": {
+    "active_bytes": 275482124,
+    "cache_bytes": 81896364,
+    "peak_bytes": 353063804
+  },
+  "memory_before": {
+    "active_bytes": 0,
+    "cache_bytes": 0,
+    "peak_bytes": 0
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-functional-stateful-decode-executable-v1",
+  "tiers": {
+    "tier0_state_schema": {
+      "invalid_state_cases": 3,
+      "invalid_state_cases_rejected": 3,
+      "passed": true,
+      "prefill_to_decode_conv_exact": true,
+      "prefill_to_decode_output_exact": true,
+      "prefill_to_decode_recurrent_exact": true,
+      "prefill_tokens": 4,
+      "rejected_state_unchanged": true,
+      "state_schema": {
+        "conv_dtype": "mlx.core.bfloat16",
+        "conv_shape": [
+          1,
+          3,
+          24576
+        ],
+        "leaf_count": 2,
+        "recurrent_dtype": "mlx.core.float32",
+        "recurrent_shape": [
+          1,
+          64,
+          128,
+          128
+        ]
+      },
+      "transition_exact": true
+    },
+    "tier1_kda": {
+      "all_step_outputs_byte_identical": false,
+      "compile_trace_calls": 1,
+      "compiled_host_build_median_ms": 0.016,
+      "compiled_repeated_execution_byte_identical": true,
+      "compiler_persistent_cache_cleared": false,
+      "conv_state_hash": "6033f1c7d27e0a3bd5b3c8e2c5a9a7bff3981855694235ae6d672b32e3bcce43",
+      "eager_host_build_median_ms": 0.0356665,
+      "eager_repeated_execution_byte_identical": true,
+      "executed": true,
+      "explicit_boundary_anchor": {
+        "all_conv_states_byte_identical": true,
+        "all_recurrent_states_byte_identical": true,
+        "all_step_outputs_byte_identical": false,
+        "first_conv_divergence": null,
+        "first_divergent_stage_metrics": {
+          "final_projection_output": {
+            "byte_identical": false,
+            "compiled_hash": "85abb37408eca6c449dc98acd210e5ab5a6e01e821ad2bdeb81b18c43f54edbd",
+            "different_elements": 1,
+            "elements": 4096,
+            "max_abs": 2.9802322387695312e-08,
+            "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+            "relative_l2": 3.600461440100844e-08
+          },
+          "gated_norm_output": {
+            "byte_identical": false,
+            "compiled_hash": "43c8c52d1b086575cb5d90cd3aa5ffa8295d7b00656e3521b849f82a32afb77d",
+            "different_elements": 1,
+            "elements": 8192,
+            "max_abs": 2.384185791015625e-07,
+            "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+            "relative_l2": 4.034441190015059e-07
+          },
+          "recurrent_output": {
+            "byte_identical": true,
+            "compiled_hash": "c123f37028ec878546dfebd3cf017b4bc17ccbd5c44b911ca273279ce63e32dd",
+            "different_elements": 0,
+            "elements": 8192,
+            "max_abs": 0.0,
+            "reference_hash": "c123f37028ec878546dfebd3cf017b4bc17ccbd5c44b911ca273279ce63e32dd",
+            "relative_l2": 0.0
+          }
+        },
+        "first_output_divergence": 7,
+        "first_recurrent_divergence": null,
+        "returned_auxiliary_tensors": [
+          "recurrent_output",
+          "gated_norm_output"
+        ]
+      },
+      "final_conv_state_byte_identical": true,
+      "final_recurrent_state_byte_identical": true,
+      "final_state_byte_identical": true,
+      "first_divergent_conv_state_step": null,
+      "first_divergent_output_metrics": {
+        "byte_identical": false,
+        "compiled_hash": "85abb37408eca6c449dc98acd210e5ab5a6e01e821ad2bdeb81b18c43f54edbd",
+        "different_elements": 1,
+        "elements": 4096,
+        "max_abs": 2.9802322387695312e-08,
+        "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+        "relative_l2": 3.600461440100844e-08
+      },
+      "first_divergent_output_step": 7,
+      "first_divergent_recurrent_state_step": null,
+      "first_step_stage_metrics": {
+        "final_projection_output": {
+          "byte_identical": true,
+          "compiled_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "different_elements": 0,
+          "elements": 4096,
+          "max_abs": 0.0,
+          "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "relative_l2": 0.0
+        },
+        "gated_norm_output": {
+          "byte_identical": true,
+          "compiled_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+          "different_elements": 0,
+          "elements": 8192,
+          "max_abs": 0.0,
+          "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+          "relative_l2": 0.0
+        },
+        "next_conv_state": {
+          "byte_identical": true,
+          "compiled_hash": "11a8cbdf8bc02e425493b56a6e6da128afc69fd988c4889fcb33424e0ef97ce0",
+          "different_elements": 0,
+          "elements": 73728,
+          "max_abs": 0.0,
+          "reference_hash": "11a8cbdf8bc02e425493b56a6e6da128afc69fd988c4889fcb33424e0ef97ce0",
+          "relative_l2": 0.0
+        },
+        "next_recurrent_state": {
+          "byte_identical": true,
+          "compiled_hash": "96e854cc76d7943ee851c5cec7630080daba2711622d1700fa483fc9ea36dc01",
+          "different_elements": 0,
+          "elements": 1048576,
+          "max_abs": 0.0,
+          "reference_hash": "96e854cc76d7943ee851c5cec7630080daba2711622d1700fa483fc9ea36dc01",
+          "relative_l2": 0.0
+        },
+        "recurrent_output": {
+          "byte_identical": true,
+          "compiled_hash": "4641a64c20bde8039239c7006fd6a3ea4b6eb24d99c9d892e207f533fd8a0eba",
+          "different_elements": 0,
+          "elements": 8192,
+          "max_abs": 0.0,
+          "reference_hash": "4641a64c20bde8039239c7006fd6a3ea4b6eb24d99c9d892e207f533fd8a0eba",
+          "relative_l2": 0.0
+        }
+      },
+      "fixed_signature": true,
+      "host_build_reduction": 0.551399772896135,
+      "host_build_reduction_gate": 0.5,
+      "layer": 0,
+      "offset_fixtures": [
+        {
+          "offset": 0,
+          "output_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "position_after": 1,
+          "trace_calls_after": 1
+        },
+        {
+          "offset": 1,
+          "output_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "position_after": 2,
+          "trace_calls_after": 1
+        },
+        {
+          "offset": 255,
+          "output_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "position_after": 256,
+          "trace_calls_after": 1
+        },
+        {
+          "offset": 256,
+          "output_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "position_after": 257,
+          "trace_calls_after": 1
+        },
+        {
+          "offset": 2048,
+          "output_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+          "position_after": 2049,
+          "trace_calls_after": 1
+        }
+      ],
+      "offset_updates_exact": true,
+      "output_dtype": "mlx.core.bfloat16",
+      "output_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+      "passed": false,
+      "process_first_compile_seconds": 0.0036996249109506607,
+      "recurrent_state_hash": "bc653f31a4bac5e525a094f548abeae567ee03ca492376e5a11bfd5302942c5e",
+      "state_leaf_count": 2,
+      "steps": 64,
+      "strided_contiguous_byte_identical": true
+    },
+    "tier2_dsa": {
+      "correctness_claim": false,
+      "executed": false,
+      "passed": false,
+      "performance_claim": false,
+      "reason": "Tier 1 KDA gate failed; DSA was not loaded"
+    },
+    "tier3_complete_layer": {
+      "correctness_claim": false,
+      "executed": false,
+      "passed": false,
+      "performance_claim": false,
+      "reason": "Tier 2 did not pass"
+    },
+    "tier4_full_executable": {
+      "correctness_claim": false,
+      "executed": false,
+      "passed": false,
+      "performance_claim": false,
+      "reason": "Tier 1-3 did not all pass"
+    }
+  }
+}

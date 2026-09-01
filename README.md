@@ -190,6 +190,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | device-resident greedy chain N=1/2/4/8 | exact / 14.191・14.379・14.421・14.348 tok/s / N=4で飽和 / 15 tok/s未達 |
 | device-resident greedy chain N=16 | 64-token screenが300秒budget超過 / partial trace削除 / correctness claimなし |
 | async_eval readback scope | A-only 7.303 ms / A+B後のA read 12.322 ms / B残り0.236 ms / stream-wide同期 |
+| functional stateful decode executable | Tier 0合格 / KDA trace 1回・state exact・host build -55.1% / step 7 gated RMSNorm非exactでTier 1棄却 |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -470,6 +471,16 @@ full-model lookaheadの前提となるMLX readback契約を、独立したBF16 4
 host中央値はA-only wait 7.303 ms、A/B submit後のA readback wait 12.322 ms、直後のB remaining wait 0.236 msでした。A readbackはcontrolの1.687×を待ち、Bに残るのはcontrolの3.23%だけです。Traceには5組すべてでA/Bの2 GPU frameがあり、A-only GPU busy中央値6.069 msに対してA+Bは11.455 ms（1.888×）、B frameはA frameより中央値0.289 ms後に終了しています。従って`a.item()`はA固有eventだけでなく、同じstreamへ後から投入済みのB完了まで待つstream-wide同期です。
 
 Tier 1がevent-scoped gateを満たさないため、full-model async_eval arm、in-flight cache version、stop rollback、performance測定は実行していません。この条件ではone-step lookaheadを先にsubmitしても現在tokenのreadbackが未来tokenまで待ち、通常stream cadenceを維持できません。MLX Python schedulingによるchain/lookahead探索はここで終了し、次工程は45-layer forward＋state update＋LM head＋argmaxを再利用可能なfunctional stateful decode executableへ固定できるかのfeasibility gateです。runtime、server、APC、cache ABI、admissionは変更していません。
+
+### Functional stateful decode executable feasibility
+
+full modelをcompileする前に、公式checkpointのlayer 0 KDAだけを該当shardから選択loadし、state schema、prefill→decode transition、fixed-signature compileを段階評価しました。Tier 0ではconv `[1,3,24576]` BF16とrecurrent `[1,64,128,128]` FP32を明示入力・出力にし、不正leaf数・conv shape・recurrent shapeの3 caseをstate不変のままfail closedしました。4-token prefill後のeager decodeとfunctional decodeはoutput、conv、recurrent stateがbyte-identicalです。
+
+Tier 1ではlogical positionをint32 runtime tensorとして渡し、offset 0/1/255/256/2048の全点で同一compile signatureのまま正確に+1しました。Python trace counterは1回、64-stepのconv/recurrent stateは全step exact、strided/contiguous入力も一致し、warm host graph-build中央値はeager比で55.1%減りました。process-first compile callは1秒未満でしたが、MLXのpersistent compiler cacheは消去していないため完全cold値とは主張しません。active/peakは約0.28/0.35 GBで、full model、DSA、MoE bankはロードしていません。
+
+しかしfull KDA outputはstep 7で初めてbyte identityを失いました。recurrence outputと次stateはexactですが、gated RMSNormの8,192要素中1要素が`2.384e-7`、最終projectionの4,096要素中1要素が`2.980e-8`異なります。gated normとrecurrenceを明示auxiliary outputにしても差は残りました。eager同士とcompiled同士はそれぞれ全64 step byte-identicalなので、Metal recurrenceの不定性ではなく`mx.compile`がeagerのgated-RMSNorm演算境界を変えたsystematic differenceです。
+
+これは事前定義した「compile fusionで数値境界が変わる」停止条件です。誤差許容値を後から緩めずTier 1を棄却し、Tier 2 DSA、complete layer、full token→argmax executableはロード・実行していません。従ってMLX-native full stateful executableで15 tok/sを狙う経路はここで終了し、次候補は阻害境界だけをnative primitive化するか、MLX C++ extension/独自executorへ移す工程です。runtime、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 
