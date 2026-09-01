@@ -189,6 +189,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | dynamic GPU idle attribution | idle再構成誤差0% / readback→次tokenがidleの96.5%・95.3% / compile差分の102.6%を帰属 |
 | device-resident greedy chain N=1/2/4/8 | exact / 14.191・14.379・14.421・14.348 tok/s / N=4で飽和 / 15 tok/s未達 |
 | device-resident greedy chain N=16 | 64-token screenが300秒budget超過 / partial trace削除 / correctness claimなし |
+| async_eval readback scope | A-only 7.303 ms / A+B後のA read 12.322 ms / B残り0.236 ms / stream-wide同期 |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -461,6 +462,14 @@ N=1–8の64 step全生成token、全step full-vocab logits、最終cache state�
 長いapplication starvation gapの個数は64/32/16/8でreadback回数と一致しますが、総application starvationは5.712/5.240/5.083/5.117 ms/tokenとほぼ残りました。chainを広げるほど一つのgap中に次chunkのPython/MLX graph構築時間が集約されるため、driver/readback部分だけが減り、submission starvationの本体は消えません。従って前節の`argmax/readback → next-token submission`は「readback専用コスト」ではなく、readbackと次forward graph構築を合わせた動的境界だったと厳密化します。
 
 N=16は64-token bounded screenが300秒を超えたためprocess groupを停止し、不完全な430 MB traceを削除しました。correctness/performance claimは行わず、full-model lazy dependency graphのresource frontierというnegative evidenceだけを保存しています。N=2が15 tok/s gateを通らなかったため4,096-token、256k continuation、RAM APC/server streaming qualificationには進めず、全chain armをruntimeへ昇格しません。次の候補はreadback遅延ではなく、約5.1 ms/token残るPython/MLX autoregressive graph constructionをC++/Metal側のstateful実行単位へ移すか、MLX command submissionを非同期に重ねる独立probeです。runtime、server、APC、cache ABI、admissionは変更していません。
+
+### Asynchronous autoregressive submission gate
+
+full-model lookaheadの前提となるMLX readback契約を、独立したBF16 4096×4096 GEMM A/Bと5-sample Metal System Traceで検証しました。Aだけを`async_eval`してreadbackするcontrolと、A、Bの順に`async_eval`してからA、Bをreadbackするpairを同じdefault Metal streamで比較しています。
+
+host中央値はA-only wait 7.303 ms、A/B submit後のA readback wait 12.322 ms、直後のB remaining wait 0.236 msでした。A readbackはcontrolの1.687×を待ち、Bに残るのはcontrolの3.23%だけです。Traceには5組すべてでA/Bの2 GPU frameがあり、A-only GPU busy中央値6.069 msに対してA+Bは11.455 ms（1.888×）、B frameはA frameより中央値0.289 ms後に終了しています。従って`a.item()`はA固有eventだけでなく、同じstreamへ後から投入済みのB完了まで待つstream-wide同期です。
+
+Tier 1がevent-scoped gateを満たさないため、full-model async_eval arm、in-flight cache version、stop rollback、performance測定は実行していません。この条件ではone-step lookaheadを先にsubmitしても現在tokenのreadbackが未来tokenまで待ち、通常stream cadenceを維持できません。MLX Python schedulingによるchain/lookahead探索はここで終了し、次工程は45-layer forward＋state update＋LM head＋argmaxを再利用可能なfunctional stateful decode executableへ固定できるかのfeasibility gateです。runtime、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 

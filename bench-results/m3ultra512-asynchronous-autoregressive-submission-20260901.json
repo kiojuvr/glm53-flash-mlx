@@ -1,0 +1,359 @@
+{
+  "cache_or_apc_abi_changes": false,
+  "complete": true,
+  "date": "2026-09-01",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-asynchronous-autoregressive-submission-v1",
+  "server_changes": false,
+  "tier1": {
+    "acceptance": {
+      "a_results_exact": true,
+      "event_scoped_readback": false,
+      "metal_error_zero": true,
+      "nan_zero": true,
+      "readback_scope_decisive": true,
+      "stream_wide_readback_observed": true,
+      "tier1_samples_complete": true,
+      "trace_bursts_complete": true,
+      "trace_pair_contains_two_gpu_frames": true
+    },
+    "child": {
+      "all_a_values_exact": true,
+      "complete": true,
+      "event_scoped": false,
+      "medians": {
+        "a_only_submit_ms": 0.122541,
+        "a_only_wait_ms": 7.302708,
+        "pair_a_readback_wait_ms": 12.32225,
+        "pair_a_submit_ms": 0.1365,
+        "pair_b_remaining_wait_ms": 0.236083,
+        "pair_b_submit_ms": 0.074292
+      },
+      "metal_error": null,
+      "nan_count": 0,
+      "readback_scope": "stream_wide",
+      "samples": [
+        {
+          "a_only_submit_ms": 0.224125,
+          "a_only_wait_ms": 17.017959,
+          "a_value": 17179869184.0,
+          "a_values_exact": true,
+          "pair_a_readback_wait_ms": 11.885333,
+          "pair_a_submit_ms": 0.1365,
+          "pair_a_value": 17179869184.0,
+          "pair_b_remaining_wait_ms": 0.236792,
+          "pair_b_submit_ms": 0.081958,
+          "pair_b_value": 17179869184.0,
+          "sample": 0
+        },
+        {
+          "a_only_submit_ms": 0.122541,
+          "a_only_wait_ms": 7.182375,
+          "a_value": 17179869184.0,
+          "a_values_exact": true,
+          "pair_a_readback_wait_ms": 12.32225,
+          "pair_a_submit_ms": 0.112666,
+          "pair_a_value": 17179869184.0,
+          "pair_b_remaining_wait_ms": 0.174167,
+          "pair_b_submit_ms": 0.074292,
+          "pair_b_value": 17179869184.0,
+          "sample": 1
+        },
+        {
+          "a_only_submit_ms": 0.090792,
+          "a_only_wait_ms": 7.208875,
+          "a_value": 17179869184.0,
+          "a_values_exact": true,
+          "pair_a_readback_wait_ms": 12.287667,
+          "pair_a_submit_ms": 0.083334,
+          "pair_a_value": 17179869184.0,
+          "pair_b_remaining_wait_ms": 0.248208,
+          "pair_b_submit_ms": 0.061666,
+          "pair_b_value": 17179869184.0,
+          "sample": 2
+        },
+        {
+          "a_only_submit_ms": 0.198125,
+          "a_only_wait_ms": 7.443709,
+          "a_value": 17179869184.0,
+          "a_values_exact": true,
+          "pair_a_readback_wait_ms": 12.684083,
+          "pair_a_submit_ms": 0.31025,
+          "pair_a_value": 17179869184.0,
+          "pair_b_remaining_wait_ms": 0.236083,
+          "pair_b_submit_ms": 0.09625,
+          "pair_b_value": 17179869184.0,
+          "sample": 3
+        },
+        {
+          "a_only_submit_ms": 0.102834,
+          "a_only_wait_ms": 7.302708,
+          "a_value": 17179869184.0,
+          "a_values_exact": true,
+          "pair_a_readback_wait_ms": 13.129084,
+          "pair_a_submit_ms": 0.21075,
+          "pair_a_value": 17179869184.0,
+          "pair_b_remaining_wait_ms": 0.213083,
+          "pair_b_submit_ms": 0.072666,
+          "pair_b_value": 17179869184.0,
+          "sample": 4
+        }
+      ],
+      "schema": "glm53-async-readback-scope-child-v1"
+    },
+    "decision": "reject_MLX_Python_async_lookahead",
+    "derived": {
+      "a_item_waits_until_b_completion": true,
+      "a_only_gpu_busy_median_ms": 6.068584,
+      "a_then_b_gpu_busy_median_ms": 11.454916,
+      "a_then_b_gpu_busy_ratio": 1.8875764099170416,
+      "b_frame_end_after_a_median_ms": 0.28925,
+      "pair_a_wait_ratio_vs_a_only": 1.687353513244676,
+      "pair_b_remaining_ratio_vs_a_only": 0.032328144573218594
+    },
+    "gpu_timeline": {
+      "burst_gap_threshold_ms": 10.0,
+      "bursts": [
+        {
+          "busy_ns": 8208041,
+          "end_ns": 941446083,
+          "expected_stage": "A-only",
+          "frame_ranges": {
+            "1": {
+              "end_ns": 941446083,
+              "start_ns": 933148583
+            }
+          },
+          "merged_interval_count": 2,
+          "sample": 0,
+          "span_ns": 8297500,
+          "start_ns": 933148583
+        },
+        {
+          "busy_ns": 11046958,
+          "end_ns": 974925666,
+          "expected_stage": "A-then-B",
+          "frame_ranges": {
+            "2": {
+              "end_ns": 974643125,
+              "start_ns": 963878708
+            },
+            "3": {
+              "end_ns": 974925666,
+              "start_ns": 964339458
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 0,
+          "span_ns": 11046958,
+          "start_ns": 963878708
+        },
+        {
+          "busy_ns": 5747917,
+          "end_ns": 1005098125,
+          "expected_stage": "A-only",
+          "frame_ranges": {
+            "5": {
+              "end_ns": 1005098125,
+              "start_ns": 999350208
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 1,
+          "span_ns": 5747917,
+          "start_ns": 999350208
+        },
+        {
+          "busy_ns": 11330541,
+          "end_ns": 1042853916,
+          "expected_stage": "A-then-B",
+          "frame_ranges": {
+            "6": {
+              "end_ns": 1042564666,
+              "start_ns": 1031431625
+            },
+            "7": {
+              "end_ns": 1042853916,
+              "start_ns": 1031440708
+            }
+          },
+          "merged_interval_count": 2,
+          "sample": 1,
+          "span_ns": 11422291,
+          "start_ns": 1031431625
+        },
+        {
+          "busy_ns": 5876166,
+          "end_ns": 1075263666,
+          "expected_stage": "A-only",
+          "frame_ranges": {
+            "9": {
+              "end_ns": 1075263666,
+              "start_ns": 1069387500
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 2,
+          "span_ns": 5876166,
+          "start_ns": 1069387500
+        },
+        {
+          "busy_ns": 11454916,
+          "end_ns": 1113015291,
+          "expected_stage": "A-then-B",
+          "frame_ranges": {
+            "10": {
+              "end_ns": 1112719375,
+              "start_ns": 1101560375
+            },
+            "11": {
+              "end_ns": 1113015291,
+              "start_ns": 1101570333
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 2,
+          "span_ns": 11454916,
+          "start_ns": 1101560375
+        },
+        {
+          "busy_ns": 6068584,
+          "end_ns": 1145778125,
+          "expected_stage": "A-only",
+          "frame_ranges": {
+            "13": {
+              "end_ns": 1145778125,
+              "start_ns": 1139709541
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 3,
+          "span_ns": 6068584,
+          "start_ns": 1139709541
+        },
+        {
+          "busy_ns": 11812958,
+          "end_ns": 1183218583,
+          "expected_stage": "A-then-B",
+          "frame_ranges": {
+            "14": {
+              "end_ns": 1182908791,
+              "start_ns": 1171405625
+            },
+            "15": {
+              "end_ns": 1183218583,
+              "start_ns": 1171415250
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 3,
+          "span_ns": 11812958,
+          "start_ns": 1171405625
+        },
+        {
+          "busy_ns": 6081833,
+          "end_ns": 1215714333,
+          "expected_stage": "A-only",
+          "frame_ranges": {
+            "17": {
+              "end_ns": 1215714333,
+              "start_ns": 1209632500
+            }
+          },
+          "merged_interval_count": 1,
+          "sample": 4,
+          "span_ns": 6081833,
+          "start_ns": 1209632500
+        },
+        {
+          "busy_ns": 11942833,
+          "end_ns": 1254486291,
+          "expected_stage": "A-then-B",
+          "frame_ranges": {
+            "18": {
+              "end_ns": 1254246875,
+              "start_ns": 1242449375
+            },
+            "19": {
+              "end_ns": 1254486291,
+              "start_ns": 1242458083
+            }
+          },
+          "merged_interval_count": 2,
+          "sample": 4,
+          "span_ns": 12036916,
+          "start_ns": 1242449375
+        }
+      ],
+      "complete": true,
+      "coverage": {
+        "application_commit_ids": 19,
+        "application_submission_rows": 19,
+        "commit_sources": {
+          "application_submission": 20,
+          "start_latency": 0
+        },
+        "gpu_event_rows": 20
+      },
+      "expected_burst_count": 10,
+      "minimum_busy_ms": 1.0,
+      "observed_burst_count": 10
+    },
+    "operator": {
+      "dtype": "bfloat16",
+      "independent_A_and_B": true,
+      "matrix_size": 4096,
+      "same_default_Metal_stream": true,
+      "samples": 5
+    },
+    "telemetry": {
+      "application_label_examples": [
+        "Command Buffer 0  (Frame  1 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  10 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  11 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  12 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  13 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  14 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  15 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  16 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  17 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  18 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  19 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  2 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  3 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  4 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  5 ) ( python (83670) )",
+        "Command Buffer 0  (Frame  6 ) ( python (83670) )"
+      ],
+      "command_buffer_submission_rows": 19,
+      "compute_or_command_interval_count": 34,
+      "cpu_inter_submission_p50_ms": 16.057271,
+      "cpu_inter_submission_p95_ms": 38.212291,
+      "gpu_busy_ms": 89.570747,
+      "gpu_busy_ratio": 0.27874334312485977,
+      "gpu_gap_p50_ms": 25.9621045,
+      "gpu_gap_p95_ms": 26.735042,
+      "gpu_idle_gap_ms": 231.766961,
+      "gpu_interval_count": 20,
+      "metal_application_interval_rows": 34,
+      "metal_driver_interval_rows": 35,
+      "resource_allocation_rows": 0
+    },
+    "trace": {
+      "bytes": 29125194,
+      "file_count": 568,
+      "kind": "bundle-directory",
+      "path": "/private/tmp/glm53-async-submission-tier1-20260901.trace",
+      "sha256": "8ced75932e996220f9c16458041262f8f9d3f9e3e5c4f3d34fa7aa7dc86eefda",
+      "stored_in_repository": false
+    },
+    "trace_pid": 83670
+  },
+  "tier2": {
+    "correctness_claim": false,
+    "executed": false,
+    "performance_claim": false,
+    "reason": "a.item() drains the queued B work on the same Metal stream"
+  }
+}
