@@ -187,6 +187,8 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | bounded Metal System Trace A/B | exact / GPU busy 63.961→63.895 ms/token / idle 7.334→6.044 ms/token / submission -54/16 token |
 | stateless decode compile envelope sweep | A/B/C/D exact / 14.401・14.392・14.381・14.398 tok/s / B/C/Dすべてscreen棄却 |
 | dynamic GPU idle attribution | idle再構成誤差0% / readback→次tokenがidleの96.5%・95.3% / compile差分の102.6%を帰属 |
+| device-resident greedy chain N=1/2/4/8 | exact / 14.191・14.379・14.421・14.348 tok/s / N=4で飽和 / 15 tok/s未達 |
+| device-resident greedy chain N=16 | 64-token screenが300秒budget超過 / partial trace削除 / correctness claimなし |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -442,6 +444,23 @@ A/Bの全生成token、step 1/16/256/272 full-vocab hash、post-cache stateはex
 16 tokenには15個の周期的な長いtoken境界があり、A/B idleの96.54%/95.25%を占めます。この境界はA→Bで1.3235 ms/token短縮し、全idle短縮1.2905 ms/tokenの102.6%を説明します。100%を超えるのは、Bの小さなwithin-token gapが約0.033 ms/token悪化したためです。短縮のうち約1.2745 ms/tokenはapplication starvation、約0.0489 ms/tokenはdriver/dependencyです。従ってcompiled FFNの利益はGPU算術の短縮ではなく、CPU readback後に次token graphがMetalへ到達するまでの待ち時間短縮です。
 
 このSystem Traceにはdynamic command-buffer/frame IDはありますが、shader dispatch intervalは記録されていません。static metallib inventoryは実dispatchの証拠に使わず、KDA/DSA、attention→FFN、LM head→argmaxの内部境界は推測していません。明示的なwithin-token unclassified budgetはA 3.03%、B 4.27%で10% gate内です。次の性能候補は一般的なcompile envelope拡大ではなく、token IDをdevice-residentのまま次forwardへ渡し、streaming用CPU readbackを遅延・集約する独立probeです。runtime、server、APC、cache ABI、admissionは変更していません。
+
+### Device-resident greedy token chain probe
+
+前節の周期境界を介入実験で分解しました。exact packed residual-D＋compiled sparse FFNを固定し、argmax tensorをPython整数へ変換せず次のembedding入力へ渡すautoregressive chainをN=1/2/4/8で別process測定しました。CPU readbackはchain末尾のstack一回だけで、64 tokenあたり64/32/16/8回です。これはspeculative decodingではなく、各stepでtarget modelのexact greedy tokenを使う通常のautoregressive unrollです。
+
+| chain | tok/s | wall ms/token | GPU busy | GPU idle | app starvation | driver/dependency | readbacks | stream silence p95 |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 14.191 | 70.469 | 64.014 | 6.743 | 5.712 | 0.832 | 64 | 72.3 ms |
+| 2 | 14.379 | 69.545 | 63.756 | 5.915 | 5.240 | 0.457 | 32 | 142.7 ms |
+| 4 | 14.421 | 69.344 | 63.853 | 5.547 | 5.083 | 0.245 | 16 | 291.3 ms |
+| 8 | 14.348 | 69.696 | 63.936 | 5.468 | 5.117 | 0.133 | 8 | 580.0 ms |
+
+N=1–8の64 step全生成token、全step full-vocab logits、最終cache stateはexactです。Direct/compact differential、255/256/257 materialization境界、capacity、state leaf、NaN/Metal errorも合格しました。N=2/4は全stop位置についてRAM APC snapshotを不変のまま保持し、EOS、stop token、multi-token stop、cancel、generation/context cap後にrestore＋accepted prefix replayしたcacheがN=1 oracleとexact一致します。N=2のworking peakは61.4 MB、active driftは-1.69 MB、stream silence p95は142.7 msです。
+
+長いapplication starvation gapの個数は64/32/16/8でreadback回数と一致しますが、総application starvationは5.712/5.240/5.083/5.117 ms/tokenとほぼ残りました。chainを広げるほど一つのgap中に次chunkのPython/MLX graph構築時間が集約されるため、driver/readback部分だけが減り、submission starvationの本体は消えません。従って前節の`argmax/readback → next-token submission`は「readback専用コスト」ではなく、readbackと次forward graph構築を合わせた動的境界だったと厳密化します。
+
+N=16は64-token bounded screenが300秒を超えたためprocess groupを停止し、不完全な430 MB traceを削除しました。correctness/performance claimは行わず、full-model lazy dependency graphのresource frontierというnegative evidenceだけを保存しています。N=2が15 tok/s gateを通らなかったため4,096-token、256k continuation、RAM APC/server streaming qualificationには進めず、全chain armをruntimeへ昇格しません。次の候補はreadback遅延ではなく、約5.1 ms/token残るPython/MLX autoregressive graph constructionをC++/Metal側のstateful実行単位へ移すか、MLX command submissionを非同期に重ねる独立probeです。runtime、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 
