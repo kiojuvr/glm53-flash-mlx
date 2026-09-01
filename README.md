@@ -191,6 +191,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | device-resident greedy chain N=16 | 64-token screenが300秒budget超過 / partial trace削除 / correctness claimなし |
 | async_eval readback scope | A-only 7.303 ms / A+B後のA read 12.322 ms / B残り0.236 ms / stream-wide同期 |
 | functional stateful decode executable | Tier 0合格 / KDA trace 1回・state exact・host build -55.1% / step 7 gated RMSNorm非exactでTier 1棄却 |
+| compiled KDA numerical barrier | A/C/E 64/64 exact / B/D 62/64 exact / 最初のbit差はcompiled sigmoid FP32 2 ULP / projection独立差なし |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -481,6 +482,14 @@ Tier 1ではlogical positionをint32 runtime tensorとして渡し、offset 0/1/
 しかしfull KDA outputはstep 7で初めてbyte identityを失いました。recurrence outputと次stateはexactですが、gated RMSNormの8,192要素中1要素が`2.384e-7`、最終projectionの4,096要素中1要素が`2.980e-8`異なります。gated normとrecurrenceを明示auxiliary outputにしても差は残りました。eager同士とcompiled同士はそれぞれ全64 step byte-identicalなので、Metal recurrenceの不定性ではなく`mx.compile`がeagerのgated-RMSNorm演算境界を変えたsystematic differenceです。
 
 これは事前定義した「compile fusionで数値境界が変わる」停止条件です。誤差許容値を後から緩めずTier 1を棄却し、Tier 2 DSA、complete layer、full token→argmax executableはロード・実行していません。従ってMLX-native full stateful executableで15 tok/sを狙う経路はここで終了し、次候補は阻害境界だけをnative primitive化するか、MLX C++ extension/独自executorへ移す工程です。runtime、server、APC、cache ABI、admissionは変更していません。
+
+### Compiled KDA numerical barrier localization
+
+同じ公式layer 0 KDA recurrenceを64 step進め、そのpost-state出力だけをA=eager norm＋eager projection、B=compiled norm＋compiled projection、C=materialized eager norm＋compiled projection、D=materialized compiled norm＋eager projection、E=materialized eager norm＋eager projectionへ分けました。A/C/Eはnormとfinal projectionが64/64 byte-identicalです。B/Dだけが62/64 exactで、zero-based step 6から同じ2 stepで分岐しました。CがexactでDが分岐するため、final projectionは独立blockerではなく、compiled gated RMSNormの差を下流へ伝えているだけです。full compiled KDAのconv/recurrent stateは引き続き64 step exact、全compiled callableのPython trace countは1です。
+
+gated RMSNormをinput FP32、square、mean reduction、rsqrt、normalize、weight、gate FP32、sigmoid、FP32 gate multiply、BF16 roundingへ分解しました。square/reduction/rsqrt/weightまでは全fixtureでexactです。最初のbit差はstep 0から`sigmoid_gate`にあり、compiled値はeagerから最大2 FP32 ULP、続くFP32 gate multiplyも最大2 ULP異なります。多くのstepではBF16 castで吸収されますが、zero-based step 6では8,192要素中1要素が1 BF16 ULP境界を越え、final projectionの4,096要素中1要素へ伝播しました。step 0/1/6/7/8/63についてreference/compiledの値、raw bit pattern、ULP距離をartifactへ保存しています。
+
+従って観測blocker数は1で、次の候補はeagerと同じsigmoid順序を含むopaqueなexact gated RMSNorm primitiveです。primitive実装前の因果分離だけを行ったcommitであり、runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 

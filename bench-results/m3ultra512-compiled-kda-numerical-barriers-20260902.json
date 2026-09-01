@@ -1,0 +1,2388 @@
+{
+  "acceptance": {
+    "A_control_exact": true,
+    "B_reproduces_known_divergence": true,
+    "C_eager_norm_anchor_exact": true,
+    "D_compiled_norm_remains_divergent": true,
+    "E_control_exact": true,
+    "all_compile_signatures_single_trace": true,
+    "full_compiled_state_exact": true,
+    "runtime_unchanged": true
+  },
+  "arm_abi": {
+    "A": {
+      "final_projection": "eager",
+      "gated_rmsnorm": "eager"
+    },
+    "B": {
+      "final_projection": "compiled",
+      "gated_rmsnorm": "compiled"
+    },
+    "C": {
+      "final_projection": "compiled",
+      "gated_rmsnorm": "eager-materialized"
+    },
+    "D": {
+      "final_projection": "eager",
+      "gated_rmsnorm": "compiled-materialized"
+    },
+    "E": {
+      "final_projection": "eager",
+      "gated_rmsnorm": "eager-materialized"
+    }
+  },
+  "bit_pattern_steps_zero_based": [
+    0,
+    1,
+    6,
+    7,
+    8,
+    63
+  ],
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "complete": true,
+  "date": "2026-09-02",
+  "decision": {
+    "final_projection_is_independent_blocker": false,
+    "first_numerical_barrier": {
+      "stage": "sigmoid_gate",
+      "step": 0
+    },
+    "gated_rmsnorm_is_only_observed_blocker": true,
+    "minimum_observed_blocker_count": 1,
+    "next_step": "implement_probe_exact_gated_rmsnorm_primitive_with_eager_sigmoid_order",
+    "unobserved_third_blocker": false
+  },
+  "elapsed_seconds": 1.757209062576294,
+  "final_eager_state": {
+    "conv_hash": "6033f1c7d27e0a3bd5b3c8e2c5a9a7bff3981855694235ae6d672b32e3bcce43",
+    "per_step_hash_count": 64,
+    "recurrent_hash": "bc653f31a4bac5e525a094f548abeae567ee03ca492376e5a11bfd5302942c5e"
+  },
+  "full_compiled_confirmation": {
+    "compile_trace_calls": 1,
+    "final_conv_state_byte_identical": true,
+    "final_recurrent_state_byte_identical": true,
+    "first_conv_divergence_step_zero_based": null,
+    "first_output_divergence_step_zero_based": 6,
+    "first_recurrent_divergence_step_zero_based": null
+  },
+  "layer": 0,
+  "localization": {
+    "arms": {
+      "A": {
+        "all_final_projection_byte_identical": true,
+        "all_norm_byte_identical": true,
+        "divergent_final_steps_zero_based": [],
+        "divergent_norm_steps_zero_based": [],
+        "exact_final_steps": 64,
+        "exact_norm_steps": 64,
+        "final_projection": "eager",
+        "first_final_divergence_step_zero_based": null,
+        "first_norm_divergence_step_zero_based": null,
+        "gated_rmsnorm": "eager",
+        "steps": 64
+      },
+      "B": {
+        "all_final_projection_byte_identical": false,
+        "all_norm_byte_identical": false,
+        "divergent_final_steps_zero_based": [
+          6,
+          31
+        ],
+        "divergent_norm_steps_zero_based": [
+          6,
+          31
+        ],
+        "exact_final_steps": 62,
+        "exact_norm_steps": 62,
+        "final_projection": "compiled",
+        "first_final_divergence_step_zero_based": 6,
+        "first_norm_divergence_step_zero_based": 6,
+        "gated_rmsnorm": "compiled",
+        "steps": 64
+      },
+      "C": {
+        "all_final_projection_byte_identical": true,
+        "all_norm_byte_identical": true,
+        "divergent_final_steps_zero_based": [],
+        "divergent_norm_steps_zero_based": [],
+        "exact_final_steps": 64,
+        "exact_norm_steps": 64,
+        "final_projection": "compiled",
+        "first_final_divergence_step_zero_based": null,
+        "first_norm_divergence_step_zero_based": null,
+        "gated_rmsnorm": "eager-materialized",
+        "steps": 64
+      },
+      "D": {
+        "all_final_projection_byte_identical": false,
+        "all_norm_byte_identical": false,
+        "divergent_final_steps_zero_based": [
+          6,
+          31
+        ],
+        "divergent_norm_steps_zero_based": [
+          6,
+          31
+        ],
+        "exact_final_steps": 62,
+        "exact_norm_steps": 62,
+        "final_projection": "eager",
+        "first_final_divergence_step_zero_based": 6,
+        "first_norm_divergence_step_zero_based": 6,
+        "gated_rmsnorm": "compiled-materialized",
+        "steps": 64
+      },
+      "E": {
+        "all_final_projection_byte_identical": true,
+        "all_norm_byte_identical": true,
+        "divergent_final_steps_zero_based": [],
+        "divergent_norm_steps_zero_based": [],
+        "exact_final_steps": 64,
+        "exact_norm_steps": 64,
+        "final_projection": "eager",
+        "first_final_divergence_step_zero_based": null,
+        "first_norm_divergence_step_zero_based": null,
+        "gated_rmsnorm": "eager-materialized",
+        "steps": 64
+      }
+    },
+    "bit_pattern_fixtures": {
+      "0": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b542b9be1da59f5c663761a9340c4eb8080f45d71f851aa8f57fcd3dd2c6367b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "7b90702adea4de7ee7fa5ced08db0cb64082c98cd28c31d577e0c903aae5d859",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "fe38491a313456fffd18896b77efe3918b9fba0921a81d931befba4adb624939",
+            "byte_identical": false,
+            "different_elements": 223,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x390accd4",
+              "actual_value_f32": 0.00013237009989097714,
+              "flat_index": 74,
+              "reference_bits": "0x390accd3",
+              "reference_value_f32": 0.00013237008533906192,
+              "ulp_distance": 1
+            },
+            "max_abs": 2.3283064365386963e-10,
+            "reference_hash": "564e2be0c7c251e07656f1a230a3124d4905319f4731f687855152f9f5a052ec",
+            "relative_l2": 2.9379894073144897e-09,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "4641a64c20bde8039239c7006fd6a3ea4b6eb24d99c9d892e207f533fd8a0eba",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "4641a64c20bde8039239c7006fd6a3ea4b6eb24d99c9d892e207f533fd8a0eba",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "3fffeae1ff7bb0869a6cf45db7c225f9e47eaf4b31e5c307db9ea64540a4a2bc",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "3fffeae1ff7bb0869a6cf45db7c225f9e47eaf4b31e5c307db9ea64540a4a2bc",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "c8df5ff44092408443778d69018d9e5ac46b741248a95812f5c7b966a6d330ab",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "c8df5ff44092408443778d69018d9e5ac46b741248a95812f5c7b966a6d330ab",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "d18c620e25cd301a5940151ffd40de27221d5087f714139bd8ab9cd629a657d0",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "d18c620e25cd301a5940151ffd40de27221d5087f714139bd8ab9cd629a657d0",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "7d6f4779546cd37c744818b049e586757de74a7b79227590c14527a22082e856",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "7d6f4779546cd37c744818b049e586757de74a7b79227590c14527a22082e856",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "8403700564cce70cae29716f2ec9f074c400fd1cfa45b4370d1411c8d307fad3",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "8403700564cce70cae29716f2ec9f074c400fd1cfa45b4370d1411c8d307fad3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "4641a64c20bde8039239c7006fd6a3ea4b6eb24d99c9d892e207f533fd8a0eba"
+      },
+      "1": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea1345498d87c5402db03a5166bd99197c530c2ace3a425ee9cf1cdcf7720ab6",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "400c8673a22ed175c0dce52922ad6a1b629f02c8ba917d43f6e959f3edaabde4",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "9c386845c6b3eaf4df6ebaf7676fa185ea981f6eb86f67a89c806cc83dde77f5",
+            "byte_identical": false,
+            "different_elements": 221,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3b5b81cf",
+              "actual_value_f32": 0.0033494119998067617,
+              "flat_index": 74,
+              "reference_bits": "0x3b5b81cd",
+              "reference_value_f32": 0.0033494115341454744,
+              "ulp_distance": 2
+            },
+            "max_abs": 3.725290298461914e-09,
+            "reference_hash": "ff6419187482d8b0de348da93c84edfb959b3d7c5967aa9494c433fbb41c0617",
+            "relative_l2": 1.4395643788134294e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "2a7d524fdc54c6b132a5558f6f5a9449aba8f13b678c4d62fb44443444ce1de7",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "2a7d524fdc54c6b132a5558f6f5a9449aba8f13b678c4d62fb44443444ce1de7",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "68db5099313aaed09f6222741a0aa01b8d758562df02fea01b507014d962cd8a",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "68db5099313aaed09f6222741a0aa01b8d758562df02fea01b507014d962cd8a",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "ded2440bb4b8e119da27cb0524fd8a9c1857d8c70a7c097a1380e6b58e67a642",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "ded2440bb4b8e119da27cb0524fd8a9c1857d8c70a7c097a1380e6b58e67a642",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "3f89b8cfd2641c442cad1471829da3aba4bb6eda780b7bd990a960816172706f",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "3f89b8cfd2641c442cad1471829da3aba4bb6eda780b7bd990a960816172706f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "f766bd6e8c2420e4eb34f12fd303a659c65fa9e895f0d29f62a99aa2a50104a6",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "f766bd6e8c2420e4eb34f12fd303a659c65fa9e895f0d29f62a99aa2a50104a6",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "4b4732f7c91d408a0f7566cd7fb40df8451d138df045b51e67a2590c0e85ce08",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "4b4732f7c91d408a0f7566cd7fb40df8451d138df045b51e67a2590c0e85ce08",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "2a7d524fdc54c6b132a5558f6f5a9449aba8f13b678c4d62fb44443444ce1de7"
+      },
+      "6": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "85abb37408eca6c449dc98acd210e5ab5a6e01e821ad2bdeb81b18c43f54edbd",
+              "byte_identical": false,
+              "different_elements": 1,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": {
+                "actual_bits": "0xb68e",
+                "actual_value_f32": -4.231929779052734e-06,
+                "flat_index": 671,
+                "reference_bits": "0xb68f",
+                "reference_value_f32": -4.26173210144043e-06,
+                "ulp_distance": 1
+              },
+              "max_abs": 2.9802322387695312e-08,
+              "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "relative_l2": 3.600461440100844e-08,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "43c8c52d1b086575cb5d90cd3aa5ffa8295d7b00656e3521b849f82a32afb77d",
+              "byte_identical": false,
+              "different_elements": 1,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": {
+                "actual_bits": "0xb83e",
+                "actual_value_f32": -4.5299530029296875e-05,
+                "flat_index": 6020,
+                "reference_bits": "0xb83d",
+                "reference_value_f32": -4.506111145019531e-05,
+                "ulp_distance": 1
+              },
+              "max_abs": 2.384185791015625e-07,
+              "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "relative_l2": 4.034441190015059e-07,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "85abb37408eca6c449dc98acd210e5ab5a6e01e821ad2bdeb81b18c43f54edbd",
+              "byte_identical": false,
+              "different_elements": 1,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": {
+                "actual_bits": "0xb68e",
+                "actual_value_f32": -4.231929779052734e-06,
+                "flat_index": 671,
+                "reference_bits": "0xb68f",
+                "reference_value_f32": -4.26173210144043e-06,
+                "ulp_distance": 1
+              },
+              "max_abs": 2.9802322387695312e-08,
+              "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "relative_l2": 3.600461440100844e-08,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "43c8c52d1b086575cb5d90cd3aa5ffa8295d7b00656e3521b849f82a32afb77d",
+              "byte_identical": false,
+              "different_elements": 1,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": {
+                "actual_bits": "0xb83e",
+                "actual_value_f32": -4.5299530029296875e-05,
+                "flat_index": 6020,
+                "reference_bits": "0xb83d",
+                "reference_value_f32": -4.506111145019531e-05,
+                "ulp_distance": 1
+              },
+              "max_abs": 2.384185791015625e-07,
+              "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "relative_l2": 4.034441190015059e-07,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "b39a15d7a33362018293ad847b3338088f9e3400ff10aeec840e0cd759b04ff0",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "43c8c52d1b086575cb5d90cd3aa5ffa8295d7b00656e3521b849f82a32afb77d",
+            "byte_identical": false,
+            "different_elements": 1,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0xb83e",
+              "actual_value_f32": -4.5299530029296875e-05,
+              "flat_index": 6020,
+              "reference_bits": "0xb83d",
+              "reference_value_f32": -4.506111145019531e-05,
+              "ulp_distance": 1
+            },
+            "max_abs": 2.384185791015625e-07,
+            "reference_hash": "61a3729c2940acf1ad7b3cf4661a40811ffc15dec47974116ad4f51824de7a29",
+            "relative_l2": 4.034441190015059e-07,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "090992e1265ed60e5cae966fd4a9f11c1ce165647835bca53bc5577fd6887624",
+            "byte_identical": false,
+            "different_elements": 228,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3bc89488",
+              "actual_value_f32": 0.0061212219297885895,
+              "flat_index": 74,
+              "reference_bits": "0x3bc89486",
+              "reference_value_f32": 0.006121220998466015,
+              "ulp_distance": 2
+            },
+            "max_abs": 3.725290298461914e-09,
+            "reference_hash": "f472be64efec1f24d7760c7f97ba9b8ee6e30a23efa053aedabffa44fc939a86",
+            "relative_l2": 1.0421087992540379e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "c123f37028ec878546dfebd3cf017b4bc17ccbd5c44b911ca273279ce63e32dd",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "c123f37028ec878546dfebd3cf017b4bc17ccbd5c44b911ca273279ce63e32dd",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "aa741fc25a9ef28e6cb476342bdfb4d2b19778d96564292eb0e8234cfe4d923b",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "aa741fc25a9ef28e6cb476342bdfb4d2b19778d96564292eb0e8234cfe4d923b",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "b8020fa48ed3bd1cb1efb40bd3b512d7357ca6db73a32908f99ba4cf2485bb7f",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "b8020fa48ed3bd1cb1efb40bd3b512d7357ca6db73a32908f99ba4cf2485bb7f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "a628a663550a2945b108d809d9829ed4d47844357196494f24f1c7a42d57232f",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "a628a663550a2945b108d809d9829ed4d47844357196494f24f1c7a42d57232f",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "1f2a8710b5546cec35478bfd040741f1468d9c3a24896c669976cc0c3d7abb86",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "1f2a8710b5546cec35478bfd040741f1468d9c3a24896c669976cc0c3d7abb86",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "19a0e6cc3326435957d61fb3180bb33d4c272364ad6062377baa83feddf4b87b",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "19a0e6cc3326435957d61fb3180bb33d4c272364ad6062377baa83feddf4b87b",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "c123f37028ec878546dfebd3cf017b4bc17ccbd5c44b911ca273279ce63e32dd"
+      },
+      "63": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "f94003190406a5cb217f765c4568bb575f49315c342ae1b476c5651c6727b37f",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "ea5d9b8d4459e498b739d3bdd3f0b1ff3e930c5a0a2db1994fbbc250c949b063",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "6149bf02cd1ef04a1b2fe41864949d5160dccbe2f8cc25b855434ce0195da36f",
+            "byte_identical": false,
+            "different_elements": 218,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3bf86f7f",
+              "actual_value_f32": 0.007581650745123625,
+              "flat_index": 74,
+              "reference_bits": "0x3bf86f7d",
+              "reference_value_f32": 0.00758164981380105,
+              "ulp_distance": 2
+            },
+            "max_abs": 7.450580596923828e-09,
+            "reference_hash": "165932485aa9c119873ecdd0af2679b0f47c30fa313b83e131932ffcc34813df",
+            "relative_l2": 1.733539356507663e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "eaa6067493ff928927086739cc6c060eddcf042da015360c74e2cdf9b2cc34cb",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "eaa6067493ff928927086739cc6c060eddcf042da015360c74e2cdf9b2cc34cb",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "1c84edb392fc840308e237cdc7d46835875d88f8d5006ba7806e9fba96964d2a",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "1c84edb392fc840308e237cdc7d46835875d88f8d5006ba7806e9fba96964d2a",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "0cc168a2d80391cd0aaaa14d5e86b90fd18ae910e2fcf16f330d09b4209b09dd",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "0cc168a2d80391cd0aaaa14d5e86b90fd18ae910e2fcf16f330d09b4209b09dd",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "85d470fc6253172ca4ca1d489e41f21dd8f9c6a8c0a43c7398bf3dcfe8624b41",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "85d470fc6253172ca4ca1d489e41f21dd8f9c6a8c0a43c7398bf3dcfe8624b41",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "183e6ab4b84f025c4530186e99611a4a43b6340dab65a6fc44ca17eec5ff5fe7",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "183e6ab4b84f025c4530186e99611a4a43b6340dab65a6fc44ca17eec5ff5fe7",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "afe2dc08354ac8303521ffb53ef7433b811716db0ce1d805b30a852413165862",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "afe2dc08354ac8303521ffb53ef7433b811716db0ce1d805b30a852413165862",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "eaa6067493ff928927086739cc6c060eddcf042da015360c74e2cdf9b2cc34cb"
+      },
+      "7": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "3b62f44fcf6a7de981d8c309e1294c44f9e456eb83c9fbee69b2b5f7e09ce786",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "1cd79477fc7b0bf3ffc607048d4a0bee6dfe08d58a588c0f047bc79705d2eaca",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "cf6b801a46bd8ce44e04e7a94b0b544b8fd4f6902da7deaa20e92fd165f088f9",
+            "byte_identical": false,
+            "different_elements": 222,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3bcf0b2e",
+              "actual_value_f32": 0.006318471394479275,
+              "flat_index": 74,
+              "reference_bits": "0x3bcf0b2c",
+              "reference_value_f32": 0.0063184704631567,
+              "ulp_distance": 2
+            },
+            "max_abs": 7.450580596923828e-09,
+            "reference_hash": "2da8c192e75c0a2ce34ee3d0b26d614f2d05bcc90c79cd0f1080b8ed3e5ee279",
+            "relative_l2": 2.0312164394908905e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "9c9253584689ce0909991bfc45c4f6a60c8c0e9c81bd4374a2b713df173f4e47",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "9c9253584689ce0909991bfc45c4f6a60c8c0e9c81bd4374a2b713df173f4e47",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "ae5c7aa6b41b77b0e33553e02583c1e749d08e95963f121c7683a99a13a356ab",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "ae5c7aa6b41b77b0e33553e02583c1e749d08e95963f121c7683a99a13a356ab",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "670707fd905f97a84a014b15767fd94d7d8656b2f01ca1664575a1fc277ace87",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "670707fd905f97a84a014b15767fd94d7d8656b2f01ca1664575a1fc277ace87",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "eea59c846a721b942bdf80f78585752921b10e65794d84c68f990d5de9b4ca94",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "eea59c846a721b942bdf80f78585752921b10e65794d84c68f990d5de9b4ca94",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "216f0f7077daf6c21d0740fd5284ed9b5e800bf2e75ffa94ed7a874c7cf14383",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "216f0f7077daf6c21d0740fd5284ed9b5e800bf2e75ffa94ed7a874c7cf14383",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "7782d2c5bc39cc2105418a5ffc30a2161d6d920b57bb4c25e51cd7cd78208a5e",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "7782d2c5bc39cc2105418a5ffc30a2161d6d920b57bb4c25e51cd7cd78208a5e",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "9c9253584689ce0909991bfc45c4f6a60c8c0e9c81bd4374a2b713df173f4e47"
+      },
+      "8": {
+        "arms": {
+          "A": {
+            "final_projection": {
+              "actual_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "B": {
+            "final_projection": {
+              "actual_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "C": {
+            "final_projection": {
+              "actual_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "D": {
+            "final_projection": {
+              "actual_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          },
+          "E": {
+            "final_projection": {
+              "actual_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 4096,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "2e6cac666626e06bd8b5f047288ede6ad7c8ad70ae704f7eb0d78be7c4c5d48b",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                4096
+              ]
+            },
+            "norm": {
+              "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "byte_identical": true,
+              "different_elements": 0,
+              "dtype": "mlx.core.bfloat16",
+              "elements": 8192,
+              "first_difference": null,
+              "max_abs": 0.0,
+              "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+              "relative_l2": 0.0,
+              "shape": [
+                1,
+                1,
+                8192
+              ]
+            }
+          }
+        },
+        "first_divergent_norm_stage": "sigmoid_gate",
+        "gate_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+        "gated_rmsnorm_stages": {
+          "dtype_rounding": {
+            "actual_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.bfloat16",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "4dd9b439d6f15d903ca2815f7d96d5ae44cc07b9a9c1320da3122f980afd6b17",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gate_f32": {
+            "actual_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "bdbc748a5cd7050a10a29b25ef21b75e0f378dfef478622e1ea60db3308f4b85",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "gated_f32": {
+            "actual_hash": "190bcc23b444e9cd62c8b4ae99cc5662574dfb16885e98213f094b0e6baa05f5",
+            "byte_identical": false,
+            "different_elements": 219,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3bd34f25",
+              "actual_value_f32": 0.006448643747717142,
+              "flat_index": 74,
+              "reference_bits": "0x3bd34f23",
+              "reference_value_f32": 0.0064486428163945675,
+              "ulp_distance": 2
+            },
+            "max_abs": 7.450580596923828e-09,
+            "reference_hash": "49169232dcc4b2e3caf9d8c67415aec2c334010843c7eb313c5b65d5a32da2a4",
+            "relative_l2": 1.934078852627863e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "input_f32": {
+            "actual_hash": "82a0ad1e315def8994d38a716e6f2e12b0c2b9f26e481a9ec8849b008c8d1100",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "82a0ad1e315def8994d38a716e6f2e12b0c2b9f26e481a9ec8849b008c8d1100",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "inverse_rms": {
+            "actual_hash": "fa791ca44e0714251a71939ccaa15382c73143c01b4091d4e5bea27b0f30001d",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "fa791ca44e0714251a71939ccaa15382c73143c01b4091d4e5bea27b0f30001d",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "mean_square": {
+            "actual_hash": "12f0e7fa48b65b3e995bc6f7356144474eba2cb52890000ed515883ec40438a6",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 64,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "12f0e7fa48b65b3e995bc6f7356144474eba2cb52890000ed515883ec40438a6",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              1
+            ]
+          },
+          "normalized": {
+            "actual_hash": "b068519620f5a7d9b35505f8eac5b7ac2ff9c2d45121847bd2682c84a31f49a3",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "b068519620f5a7d9b35505f8eac5b7ac2ff9c2d45121847bd2682c84a31f49a3",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "sigmoid_gate": {
+            "actual_hash": "f956707db14432c3f9dded07e675aa16fca9ea5d1f3b0048b8a0e967a6f42b50",
+            "byte_identical": false,
+            "different_elements": 239,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": {
+              "actual_bits": "0x3e4ad156",
+              "actual_value_f32": 0.1980641782283783,
+              "flat_index": 74,
+              "reference_bits": "0x3e4ad154",
+              "reference_value_f32": 0.1980641484260559,
+              "ulp_distance": 2
+            },
+            "max_abs": 5.960464477539063e-08,
+            "reference_hash": "3bef826f8192447cf11c8ed6e1746acf3c3dd423fe35717ce4e896f67d797d7b",
+            "relative_l2": 1.1285775869396275e-08,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "square": {
+            "actual_hash": "6f7bdee4df935754c5cf6f3b1cd48a94fc08bbd2358445218243c35b0d871498",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "6f7bdee4df935754c5cf6f3b1cd48a94fc08bbd2358445218243c35b0d871498",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          },
+          "weighted": {
+            "actual_hash": "585acaaccf22326d61f3f7c7ad9a490696ea0bfee3b3eb85e956ecce0e620078",
+            "byte_identical": true,
+            "different_elements": 0,
+            "dtype": "mlx.core.float32",
+            "elements": 8192,
+            "first_difference": null,
+            "max_abs": 0.0,
+            "reference_hash": "585acaaccf22326d61f3f7c7ad9a490696ea0bfee3b3eb85e956ecce0e620078",
+            "relative_l2": 0.0,
+            "shape": [
+              1,
+              1,
+              64,
+              128
+            ]
+          }
+        },
+        "recurrent_output_hash": "82a0ad1e315def8994d38a716e6f2e12b0c2b9f26e481a9ec8849b008c8d1100"
+      }
+    },
+    "compile_trace_calls": {
+      "composite": 1,
+      "norm": 1,
+      "projection": 1,
+      "stages": 1
+    },
+    "first_compiled_norm_stage_divergence": {
+      "stage": "sigmoid_gate",
+      "step": 0
+    }
+  },
+  "memory": {
+    "active_bytes": 280897036,
+    "cache_bytes": 20438572,
+    "peak_bytes": 299774796
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-compiled-kda-numerical-barriers-v1",
+  "steps": 64
+}
