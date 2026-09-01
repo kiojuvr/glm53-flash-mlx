@@ -183,6 +183,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | fused packed gate+up+SwiGLU decode probe | layer 3/5 exact / MoE 1.199×・1.183× / 2k 1.097× / 4,096 token 13.728 tok/s（runtime gate未達） |
 | residual packed decode MoE fusion probe | A/B/C/D exact / 13.811・13.967・13.998・14.133 tok/s / D 70.754 ms（15 tok/s gate未達） |
 | compiled packed FFN / FP32 router screen | isolated A/B/C/D 14.158・14.407・14.168・14.358 tok/s / Bのみ14.4 screen通過 / 15 tok/s候補なし |
+| steady packed decode Metal capture | A=eager / B=compiled、2049 Direct cache、2 warmup＋8-token capture / user-side background実行待ち |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
@@ -381,6 +382,28 @@ aad32b1-DのMoE内部を固定し、A=eager FFN＋BF16 router、B=compiled FFN�
 layer 3/5のrouter raw logits、selected indices、routing scores、compiled MoE output、HC expand outputは全armでbyte-identicalです。2k full-vocab logits hashも4 processで一致し、NaNはありません。screenはA 14.158、B 14.407、C 14.168、D 14.358 tok/sでした。BはA比1.0175×で14.4候補保持ラインを通過しましたが、Cは1.0007×でrouter cast除去の実効利益がありません。Dも1.0141×に留まり、resident FP32 routerとの正の相乗効果は見られませんでした。
 
 42層のcompiled warmupはB 75.3 ms、D 74.2 msで、compiled graphのsteady active増分は152,587,911 bytesです。resident routerは42層合計99,090,432 bytesのBF16を198,180,864 bytesのFP32へ置換し、active増分は91,977,436 bytesでした。15 tok/sを超えるarmがなかったため、設計どおり4,096-token、256k synthetic continuation、late/early retentionのqualificationは実行していません。Bは次のMetal captureで比較するprofiling候補として保持しますが、runtime、kernel ABI、server、APC identity、admissionへは導入せず、exact nonproduction baselineはaad32b1-Dのままです。
+
+### Steady packed decode Metal capture
+
+aad32b1-DをMoE内部のexact nonproduction baselineとして固定し、A=eager sparse FFN shell、B=`mx.compile(_ffn_block)` sparse FFN shellだけを比較するcapture scriptを追加しました。FP32 routerは含めません。各armは別processで公式checkpointをloadし、2049-token Direct synthetic cache、2 greedy warmupの後、実agent経路と同じfull-vocab logits、argmax、CPU readback、次token構築を含む8 tokenをcaptureします。`mx.clear_cache()`、256-token materialization、hash、memory probe、loggingはcapture区間外です。開始時の物理capacityは2304 tokenなので、2051→2059のcapture中にcache growthはありません。
+
+`.gputrace`はrepo外の新規pathへだけ書け、既存pathとrepo内pathをfail closedで拒否します。Xcode bundleは相対path、file size、全file内容をcanonical SHA-256化し、repoにはidentity、full-vocab hash、post-cache state hash、capacity不変証拠、手動Dependencies解析欄だけを残します。A/B両方が別PIDで完走し、token、logits、cache stateがexact一致した場合だけartifactをcompleteにします。
+
+この320B all-resident modelではGPUToolsが再生用Metal bufferをdownload/content-address化する固定費が大きく、Aの初回試行は57分時点で130GBに達しても最初のcapture evalを処理中でした。interactive turn内では停止し、再生不能なpartial bundleを削除しました。したがって100k/1M soakと同じくuser-side background実行対象です。capture processのwall latencyにはGPUTools overheadが入るため性能値には使わず、A/BのGPU busy/idleと各bucketはXcode Dependencies viewのevent durationから記入します。
+
+```bash
+MTL_CAPTURE_ENABLED=1 uv run python \
+  scripts/capture_steady_packed_decode_critical_path.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --arm A \
+  --trace /private/tmp/glm53-steady-packed-decode-A-20260901.gputrace
+
+MTL_CAPTURE_ENABLED=1 uv run python \
+  scripts/capture_steady_packed_decode_critical_path.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --arm B \
+  --trace /private/tmp/glm53-steady-packed-decode-B-20260901.gputrace
+```
 
 ### Row-blocked vector KDA prefill probe
 

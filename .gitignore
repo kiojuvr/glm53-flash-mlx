@@ -6,6 +6,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+*.gputrace
 .DS_Store
 conversion-progress.json
 model-*.safetensors
