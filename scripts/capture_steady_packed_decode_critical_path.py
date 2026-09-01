@@ -24,6 +24,9 @@ import traceback
 from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent))
+from capture_budget import CaptureBudget, supervise_capture
+
 
 ARMS = {
     "A": {"compile_ffn": False, "router_weight_dtype": "bfloat16"},
@@ -39,6 +42,11 @@ DEFAULT_OUTPUT = (
     REPOSITORY
     / "bench-results"
     / "m3ultra512-steady-packed-decode-critical-path-20260901.json"
+)
+DEFAULT_NEGATIVE_OUTPUT = (
+    REPOSITORY
+    / "bench-results"
+    / "m3ultra512-full-model-gputrace-negative-evidence-20260901.json"
 )
 
 
@@ -450,7 +458,49 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--wired-limit-gb", type=float, default=440.0)
     parser.add_argument("--cache-limit-gb", type=float, default=32.0)
+    parser.add_argument("--capture-child", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--negative-output", type=Path, default=DEFAULT_NEGATIVE_OUTPUT
+    )
+    parser.add_argument("--max-elapsed-s", type=float, default=900.0)
+    parser.add_argument("--max-trace-gib", type=float, default=32.0)
+    parser.add_argument("--min-free-gib", type=float, default=64.0)
     args = parser.parse_args()
+    if not args.capture_child:
+        if os.environ.get("MTL_CAPTURE_ENABLED") != "1":
+            raise RuntimeError("set MTL_CAPTURE_ENABLED=1 before starting capture")
+        trace_path = _validate_trace_path(args.trace)
+        command = [
+            sys.executable,
+            str(Path(__file__).resolve()),
+            str(args.model),
+            "--arm",
+            args.arm,
+            "--trace",
+            str(trace_path),
+            "--output",
+            str(args.output),
+            "--wired-limit-gb",
+            str(args.wired_limit_gb),
+            "--cache-limit-gb",
+            str(args.cache_limit_gb),
+            "--capture-child",
+        ]
+        return supervise_capture(
+            command,
+            trace_path=trace_path,
+            evidence_path=args.negative_output,
+            budget=CaptureBudget(
+                max_elapsed_s=args.max_elapsed_s,
+                max_trace_bytes=int(args.max_trace_gib * (1 << 30)),
+                min_free_bytes=int(args.min_free_gib * (1 << 30)),
+            ),
+            metadata={
+                "arm": args.arm,
+                "capture_kind": "full-model-replayable-gputrace",
+                "trace_path": str(trace_path),
+            },
+        )
     try:
         checkpoint, result = _run_capture(args)
     except Exception as exc:

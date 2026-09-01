@@ -1,0 +1,866 @@
+{
+  "cases": {
+    "layer-24:ffn-add": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8585973749868572,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 24,
+      "output_hashes": [
+        "ddc5c5596c63227df21d79a156567014bfd881981d895776ca04e896829f8e01"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+      "router_scores_hash": "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "ffn-add",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171269427,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-24-ffn-add.gputrace",
+        "sha256": "28f3a6ea36954c207f55cd4a95553849bd56a82c4d705b441b23050515967c3b",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36128291,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-24:full-ffn": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8886971659958363,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 24,
+      "output_hashes": [
+        "ddc5c5596c63227df21d79a156567014bfd881981d895776ca04e896829f8e01"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+      "router_scores_hash": "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "full-ffn",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228476199,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-24-full-ffn.gputrace",
+        "sha256": "82cc5fdc1ffbd591182d56e90c3d9cd39b64e2d136208719280e6062dc28b85d",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93335063,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-24:routed": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8677429999224842,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 24,
+      "output_hashes": [
+        "ef2daa1db7cb4fb6577897dbbe65a6e643e7770495fb24d9afc9e9f3ad21d670"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+      "router_scores_hash": "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "routed",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228434605,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-24-routed.gputrace",
+        "sha256": "fb484d4d001338bdb985de4a28541e977696c84c9103479a8d527ff6a62c4f66",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93293469,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-24:router": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9031403339467943,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 24,
+      "output_hashes": [
+        "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+        "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+      "router_scores_hash": "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "router",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171268720,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-24-router.gputrace",
+        "sha256": "0b64f1506bae638c953d89ee0cb5f535787477794e429d60adbc1daa08230a30",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36127584,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-24:shared": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9015951668843627,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 24,
+      "output_hashes": [
+        "26ac685b8a7d35523cc684f5b07c7cb7cc6c62598a6985c70a3ef03dcc1e3eaa"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "3df4dcd745bd0438ed4256aed35d6ca32530fec0f9f4181dd86888574f1e70bc",
+      "router_scores_hash": "ae6d3e5d54435bfa216988076533b2677c9937c6e0750990dba7e501839036a2",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "shared",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171267520,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-24-shared.gputrace",
+        "sha256": "d99e552d5c5f685f71bfdde0a9fe404f145a147dfaf7950a6e57d03efa267e8a",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36126384,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-3:ffn-add": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9493807498365641,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 3,
+      "output_hashes": [
+        "d0aed4e76adc97e16e32877480571924f739a1b15d98649f0b2f0a0b89c0331c"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+      "router_scores_hash": "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "ffn-add",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171270163,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-3-ffn-add.gputrace",
+        "sha256": "bcad5a82d435ac0e58a42b945c96e7708258802c07b86fe4eb5c82fd9de59d6f",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36129027,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-3:full-ffn": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 1.8701744168065488,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 3,
+      "output_hashes": [
+        "d0aed4e76adc97e16e32877480571924f739a1b15d98649f0b2f0a0b89c0331c"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+      "router_scores_hash": "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "full-ffn",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228476922,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-layer3-full-ffn-20260901.gputrace",
+        "sha256": "986e553bfb6a5e77cff875192273a41cc09eb598da92f47fb596f82792bea9c2",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93335786,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-3:routed": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9602855409029871,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 3,
+      "output_hashes": [
+        "9b871bfbd483ab793a9d54560c55aaa17a762eb2640ee0012060bbaf2fe4f522"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+      "router_scores_hash": "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "routed",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228433799,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-3-routed.gputrace",
+        "sha256": "a66fa6ae0542584ab8f8a445a3e30e205eb5d88f1ad93155ec2c22972372e6e2",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93292663,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-3:router": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.966223584022373,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 3,
+      "output_hashes": [
+        "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+        "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+      "router_scores_hash": "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "router",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171269471,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-3-router.gputrace",
+        "sha256": "b3294eb072d435899a9a573be398678a00aa6bf3f24d23824b47926c698ce5f8",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36128335,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-3:shared": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9365627500228584,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 3,
+      "output_hashes": [
+        "f0d54505694edf425fd8fe8f86c467787a70b5edd85e4e6466309e71e2027881"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "faf5d1e5758b4c65fbb8633308946879720e07baa1546256dd218a97e582df15",
+      "router_scores_hash": "d4cb08f524b3e74121072a68a1c1cb0550f83019611da40937bfdae130b12920",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "shared",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171266720,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-3-shared.gputrace",
+        "sha256": "b13637595a5c8983d50759fc0e115b8a976df6edc6b4a6cf1f56f327667caca8",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36125584,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-44:ffn-add": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8656789159867913,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 44,
+      "output_hashes": [
+        "2f78ce6cf1173f4654f6e050898ac5ea5f9c3008cb83d01bc1368a3d5895c773"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+      "router_scores_hash": "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "ffn-add",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171270776,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-44-ffn-add.gputrace",
+        "sha256": "96c0f1ff139899cbd60df79958401d5f06334896f3a1585c1f16680a9bb5c372",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36129640,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-44:full-ffn": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8758270831312984,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 44,
+      "output_hashes": [
+        "2f78ce6cf1173f4654f6e050898ac5ea5f9c3008cb83d01bc1368a3d5895c773"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+      "router_scores_hash": "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "full-ffn",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228476752,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-44-full-ffn.gputrace",
+        "sha256": "dc34693b6fbc82847a5c6a3415f23ee67622de3b1707aac99ed86944dadef370",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93335616,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-44:routed": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.9135614158585668,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 44,
+      "output_hashes": [
+        "ae424dd66f084425496d2f395d28ff00e4c6c1134572654291f3eb66db522de8"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+      "router_scores_hash": "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "routed",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3228434433,
+        "file_count": 45,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-44-routed.gputrace",
+        "sha256": "8765dc0e57b67d0fb441a52fd2c88109962c7b7da5a0cb49f3464378be3c070c",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 93293297,
+        "scanned_files": 42,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-44:router": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8755529168993235,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 44,
+      "output_hashes": [
+        "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+        "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+      "router_scores_hash": "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "router",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171270097,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-44-router.gputrace",
+        "sha256": "ae20675ce6184ef1cb052ac80139eee8626bbf920268de3ff04923651f3743e9",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36128961,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    },
+    "layer-44:shared": {
+      "activation": {
+        "dtype": "mlx.core.bfloat16",
+        "shape": [
+          1,
+          1,
+          4096
+        ],
+        "source": "deterministic-checkpoint-native-layout"
+      },
+      "bank_bytes": 7249526784,
+      "canonical_storage": {
+        "scale": "mlx.core.float32",
+        "weight": "mlx.core.uint8"
+      },
+      "capture_process_wall_is_performance_metric": false,
+      "capture_process_wall_seconds": 0.8880718750879169,
+      "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+      "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+      "complete": true,
+      "full_model_payload_resident": false,
+      "layer": 44,
+      "output_hashes": [
+        "90f8dcb3de201771a3734ac636be8797bd89a62a1a38e67daf3cad42179886cb"
+      ],
+      "peak_bytes": 14526587016,
+      "resident_payload_scope": "one packed MoE layer only",
+      "router_indices_hash": "7aa09e48b4dcf66b0f487ecf8245d0fb0a01a0aa0754239fa95c9712ff6b7dc8",
+      "router_scores_hash": "64bc3da83945d83c563b01865132cdfb85fce4eab09381bdede851367d6d6add",
+      "schema": "glm53-packed-decode-operator-microcapture-case-v1",
+      "stage": "shared",
+      "steady_active_bytes": 7277060232,
+      "trace": {
+        "bytes": 3171267357,
+        "file_count": 35,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-packed-operator-matrix-20260901/layer-44-shared.gputrace",
+        "sha256": "8f5b552ecbc51c979fc8f3e1866000f09cbbedbedf9d0477d241c6670b6809c8",
+        "stored_in_repository": false
+      },
+      "trace_static_analysis": {
+        "custom_kernel_labels": [
+          "custom_kernel_glm53_block128_e4m3_gemv__bfloat16_t_2048_4096_1_16_128_256_1_bfloat16_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_packed_selected8_fp8_down__bfloat16_t_2048_4096_8_32_16_128_256_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_packed_selected8_gate_up_swiglu__bfloat16_t_4096_2048_4096_32_16_32_8_128_256_10_bfloat16_t_uint32_t_uint8_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_selected8_weighted_reduction__bfloat16_t_float_4096_8_bfloat16_t_float_bfloat16_t",
+          "custom_kernel_glm53_probe_shared_gate_up_swiglu__bfloat16_t_4096_2048_32_128_256_10_bfloat16_t_uint8_t_float_uint8_t_float_bfloat16_t"
+        ],
+        "dispatch_count_requires_xcode_event_view": true,
+        "scanned_bytes": 36126221,
+        "scanned_files": 32,
+        "unique_custom_kernel_label_count": 5
+      }
+    }
+  },
+  "coverage_complete": true,
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-packed-decode-operator-microcapture-v1",
+  "static_trace_analysis": {
+    "all_full_outputs_equal_ffn_add": true,
+    "all_static_inventories_identical_across_stages": true,
+    "labels_prove_dispatch": false,
+    "layers": {
+      "24": {
+        "full_output_equals_ffn_add": true,
+        "standalone_custom_clamp_or_swiglu_kernel": false,
+        "static_custom_kernel_inventory_counts": {
+          "ffn-add": 5,
+          "full-ffn": 5,
+          "routed": 5,
+          "router": 5,
+          "shared": 5
+        },
+        "static_inventory_identical_across_stages": true
+      },
+      "3": {
+        "full_output_equals_ffn_add": true,
+        "standalone_custom_clamp_or_swiglu_kernel": false,
+        "static_custom_kernel_inventory_counts": {
+          "ffn-add": 5,
+          "full-ffn": 5,
+          "routed": 5,
+          "router": 5,
+          "shared": 5
+        },
+        "static_inventory_identical_across_stages": true
+      },
+      "44": {
+        "full_output_equals_ffn_add": true,
+        "standalone_custom_clamp_or_swiglu_kernel": false,
+        "static_custom_kernel_inventory_counts": {
+          "ffn-add": 5,
+          "full-ffn": 5,
+          "routed": 5,
+          "router": 5,
+          "shared": 5
+        },
+        "static_inventory_identical_across_stages": true
+      }
+    },
+    "scope": "static resident metallib inventory only; stage dispatch counts, intermediate allocations, and gaps require Xcode event view",
+    "standalone_custom_clamp_or_swiglu_in_static_glm53_inventory": false
+  }
+}

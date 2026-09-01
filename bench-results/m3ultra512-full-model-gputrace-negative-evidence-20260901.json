@@ -1,0 +1,16 @@
+{
+  "budget_now_enforced": {
+    "max_elapsed_s": 900.0,
+    "max_trace_bytes": 34359738368,
+    "min_free_bytes": 68719476736
+  },
+  "capture_complete": false,
+  "correctness_claim": false,
+  "elapsed_seconds": 3420.0,
+  "observed_trace_bytes": 139586437120,
+  "partial_trace_deleted": true,
+  "probe_commit": "63e652e",
+  "schema": "glm53-capture-resource-budget-negative-v1",
+  "status": "aborted_manual_after_budget_overrun",
+  "trace_kind": "full-model-replayable-gputrace"
+}

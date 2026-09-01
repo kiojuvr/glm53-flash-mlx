@@ -183,7 +183,9 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | fused packed gate+up+SwiGLU decode probe | layer 3/5 exact / MoE 1.199×・1.183× / 2k 1.097× / 4,096 token 13.728 tok/s（runtime gate未達） |
 | residual packed decode MoE fusion probe | A/B/C/D exact / 13.811・13.967・13.998・14.133 tok/s / D 70.754 ms（15 tok/s gate未達） |
 | compiled packed FFN / FP32 router screen | isolated A/B/C/D 14.158・14.407・14.168・14.358 tok/s / Bのみ14.4 screen通過 / 15 tok/s候補なし |
-| steady packed decode Metal capture | A=eager / B=compiled、2049 Direct cache、2 warmup＋8-token capture / user-side background実行待ち |
+| full-model replayable Metal capture feasibility | 57分時点130 GiB・resource収集中 / standard decode解析から棄却 / 15分・32 GiB budget固定 |
+| bounded Metal System Trace A/B | exact / GPU busy 63.961→63.895 ms/token / idle 7.334→6.044 ms/token / submission -54/16 token |
+| layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
 | row-blocked KDA decode | 76.394→76.613 ms / +0.286% / logits・final state exact |
@@ -389,7 +391,9 @@ aad32b1-DをMoE内部のexact nonproduction baselineとして固定し、A=eager
 
 `.gputrace`はrepo外の新規pathへだけ書け、既存pathとrepo内pathをfail closedで拒否します。Xcode bundleは相対path、file size、全file内容をcanonical SHA-256化し、repoにはidentity、full-vocab hash、post-cache state hash、capacity不変証拠、手動Dependencies解析欄だけを残します。A/B両方が別PIDで完走し、token、logits、cache stateがexact一致した場合だけartifactをcompleteにします。
 
-この320B all-resident modelではGPUToolsが再生用Metal bufferをdownload/content-address化する固定費が大きく、Aの初回試行は57分時点で130GBに達しても最初のcapture evalを処理中でした。interactive turn内では停止し、再生不能なpartial bundleを削除しました。したがって100k/1M soakと同じくuser-side background実行対象です。capture processのwall latencyにはGPUTools overheadが入るため性能値には使わず、A/BのGPU busy/idleと各bucketはXcode Dependencies viewのevent durationから記入します。
+この320B all-resident modelではGPUToolsが再生用Metal bufferをdownload/content-address化する固定費が大きく、Aの初回試行は57分時点で130 GiBに達しても最初のcapture evalを処理中でした。interactive turn内では停止し、再生不能なpartial bundleを削除しました。この結果をfull-model replayable `.gputrace`方式のnegative feasibility evidenceとし、A/B完走は行いません。capture processのwall latencyにはGPUTools overheadが入るため性能値には使えません。
+
+同じ事故を防ぐため、full-model captureには外部supervisorを追加しました。既定budgetは15分、trace 32 GiB、空き64 GiBです。main processがblocking `mx.eval`内でもprocess groupを監視し、超過時はTERM/KILL、partial trace削除、`capture_complete=false`・`correctness_claim=false`の小さなnegative JSON保存を行います。今回の57分・130 GiB結果も`m3ultra512-full-model-gputrace-negative-evidence-20260901.json`へ固定しました。
 
 ```bash
 MTL_CAPTURE_ENABLED=1 uv run python \
@@ -404,6 +408,22 @@ MTL_CAPTURE_ENABLED=1 uv run python \
   --arm B \
   --trace /private/tmp/glm53-steady-packed-decode-B-20260901.gputrace
 ```
+
+### Bounded packed decode telemetry
+
+whole-modelは再生用resourceを保存しないXcode `Metal System Trace`へ切り替えました。A=eager FFN shell、B=compiled FFN shellを別processでloadし、2049-token Direct synthetic cache＋2 warmupから16 tokenだけを8秒System Traceへ記録します。その後traceを停止して同じchildで272 tokenまで継続し、step 256のmaterialization、p50/p95、full-vocab hash、最終cache stateを取得します。DSA physical capacityは事前に2560 tokenへ予約し、capacity growthを測定から除外しています。
+
+A/Bの全生成token、step 1/16/256/272 full-vocab hash、post-cache stateはexact一致し、capacityも不変でした。Aはp50 70.628 ms、Bは69.458 msです。16-token System TraceではAのGPU busy/idleが63.961/7.334 ms/token、Bが63.895/6.044 ms/tokenでした。GPU intervalは両方3104件で不変、command-buffer submissionは5952から5898へ54件減りました。したがって`mx.compile(_ffn_block)`の約1.29 ms/tokenの利益は算術kernel短縮ではなく、command submissionとGPU idle削減です。BのGPU busyは既に63.895 ms/tokenなので15 tok/sの66.667 msまで算術上の余白はありますが、idle 6.044 ms/tokenの約半分をさらに消す必要があります。
+
+非再生traceはA 59,816,627 bytes、B 61,047,931 bytesで、full-model replayable captureの130 GiBより約2,200分の1です。trace本体はrepo外に置き、canonical SHA-256とXML export集計だけを`m3ultra512-packed-decode-bounded-telemetry-20260901.json`へ保存しています。
+
+### Packed decode operator microcaptures
+
+再生可能captureは代表layer 3/24/44へ縮小しました。`load_model()`のlazy mappingから対象MoE層だけをpack/materializeし、full model payloadをresident化しません。各層についてrouter、routed expert、shared expert、最終加算、full FFNの5 stageを別processでcaptureし、15/15 caseが32 GiB・15分budget内で完走しました。
+
+各caseのbankは7,249,526,784 bytes、steady activeは7,277,060,232 bytes、peakは14,526,587,016 bytesです。traceは3.171–3.228 GB、15本合計47,912,152,961 bytesで、capture finalizeは0.859–1.870秒でした。全3層で`ffn-add`と`full-ffn`のoutput hashが一致します。static scanでは5個のGLM custom kernel labelを回収できますが、全stageのresident metallib inventoryが同じため実dispatch本数の証拠には使いません。kernel dispatch、intermediate allocation、stage間gapはrepo外`.gputrace`をXcode event viewで確認する契約です。
+
+この結果から次の最適化対象はweight readそのものではなく、compiled範囲外に残るpure graph/command boundaryです。decoder layer全体のstateful compileには進まず、attention後処理、FFN HC/norm/residual、LM head/readbackを個別にbounded telemetryへ追加し、GPU idleを最も削れる境界だけを選びます。runtime、server、APC、cache ABI、admissionは変更していません。
 
 ### Row-blocked vector KDA prefill probe
 
