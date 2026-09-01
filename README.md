@@ -185,6 +185,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | compiled packed FFN / FP32 router screen | isolated A/B/C/D 14.158・14.407・14.168・14.358 tok/s / Bのみ14.4 screen通過 / 15 tok/s候補なし |
 | full-model replayable Metal capture feasibility | 57分時点130 GiB・resource収集中 / standard decode解析から棄却 / 15分・32 GiB budget固定 |
 | bounded Metal System Trace A/B | exact / GPU busy 63.961→63.895 ms/token / idle 7.334→6.044 ms/token / submission -54/16 token |
+| stateless decode compile envelope sweep | A/B/C/D exact / 14.401・14.392・14.381・14.398 tok/s / B/C/Dすべてscreen棄却 |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -416,6 +417,16 @@ whole-modelは再生用resourceを保存しないXcode `Metal System Trace`へ�
 A/Bの全生成token、step 1/16/256/272 full-vocab hash、post-cache stateはexact一致し、capacityも不変でした。Aはp50 70.628 ms、Bは69.458 msです。16-token System TraceではAのGPU busy/idleが63.961/7.334 ms/token、Bが63.895/6.044 ms/tokenでした。GPU intervalは両方3104件で不変、command-buffer submissionは5952から5898へ54件減りました。したがって`mx.compile(_ffn_block)`の約1.29 ms/tokenの利益は算術kernel短縮ではなく、command submissionとGPU idle削減です。BのGPU busyは既に63.895 ms/tokenなので15 tok/sの66.667 msまで算術上の余白はありますが、idle 6.044 ms/tokenの約半分をさらに消す必要があります。
 
 非再生traceはA 59,816,627 bytes、B 61,047,931 bytesで、full-model replayable captureの130 GiBより約2,200分の1です。trace本体はrepo外に置き、canonical SHA-256とXML export集計だけを`m3ultra512-packed-decode-bounded-telemetry-20260901.json`へ保存しています。
+
+### Stateless decode compilation envelope sweep
+
+現行compiled sparse FFNをAとし、cache-free tensor graphだけを広げるB/C/Dを別processで比較しました。Bはattention出力から現層FFN完了まで、Cは現層FFNから次層attentionのHC collapse＋input normまで、Dは両者を単一compiled callableへ含めます。KDA/DSA attention本体、cache object、logical offset、materialization counter、APC stateは全armでcompile外です。dense layer 0–2も既定eagerのままです。
+
+2049-context Direct cache、2 warmup、16-token bounded System Trace、272-token continuationで、A/B/C/Dのp50は69.439/69.485/69.539/69.456 ms、14.401/14.392/14.381/14.398 tok/sでした。GPU busyは63.776/64.010/64.049/63.879 ms/token、idleは6.147/6.057/6.229/6.061 ms/tokenです。最大のcommand-buffer削減はDの1.438件/token、idle削減はBの0.090 ms/tokenで、0.75 ms・2件/token gateには全arm届きませんでした。
+
+生成token、step 1/16/255/256/257/272のfull-vocab logits、最終cache stateは全arm exactです。Direct/compact cacheの固定3-token differentialも一致し、NaN/Metal errorは0、step 256 materialization、capacity、state leaf、idle時state不変、64 MiB drift、512 MiB working peakの各gateも合格しました。xctrace attach直後のlatencyは約2.9–3.1秒の観測overheadを含むためfirst-token evidenceに使わず、attach前のsynthetic restore first decode 76.4–77.1 msを別記録しています。MLXにはcompile-cache/retrace数の公開APIがないため回数は推定せず、固定shape signature `[1,1]`とfresh-cache warmup hash一致だけを保存します。
+
+従ってB/C/Dはexact診断anchorとして保存し、E/F、4096-token、256k、prefill qualificationへは進めません。現行FFN compileより広いlayer-local envelopeでは残り2.74 ms/tokenを回収できないことが確定しました。次はLM head/readbackを混ぜずに、bounded telemetryのapplication/driver intervalをstage attributionし、残る約6.1 msのidleが層間submission、attention stateful boundary、lm_head、argmax readbackのどこにあるかを一つずつ分けます。
 
 ### Packed decode operator microcaptures
 
