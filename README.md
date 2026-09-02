@@ -557,7 +557,11 @@ screenは同じteacher-forced token列をA=uninterrupted、B=RAM APC/rollback付
 
 observerを同じstateへ反復してもtensor binding、counter、lifecycle accountingは不変で、surviving active allocationは0 bytesでした。256 cadenceのlayerwise診断を無効にしたdecode時間に対する償却overheadはA 0.546%、B 0.544%で1% gate内です。lifecycle accountingは実cache nbytesと全checkpointで一致し、cumulative allocationは2,002,196,730 bytes / 43,520 physical token slots、anonymous allocationは0です。このscreenは100k qualificationの代用ではありません。
 
-100kと256kは数時間のoperator-runなので、同じatomic artifact scriptをユーザー側で実行します。100kが全gateを通過した場合だけ256kへ進みます。process再開やdisk cache resumeは主張せず、中断時も最後の4,096-token milestoneと`complete=false`を残します。
+100k qualificationは100,000 logical token（A/B合計200,050 model forward）を完走しました。390回のproduction materialization、396 checkpoint、34/34 KDA層のconv/recurrent/index digest、全step logits、最終logitsは全てexactで、first divergence、NaN、invalid index、Metal errorは0です。Bは24回のRAM APC save/load、rollback/replay 1/8/16 tokenを各2回、17-token fail-closedを含み、全eventでsnapshot/state/logitsがexactでした。
+
+authoritative stateはfirst materialization以降1,354,772,633 bytes/armでdrift 0、state leafは167で固定、anonymous allocationは0です。active-memory boundednessは初期lazy residencyを含むtoken 1ではなく、最初のproduction materialization（token 256）以降で評価し、全393観測点の幅は357,456 bytes、peakは325.300 GBでした。observer overheadはA 0.476%、B 0.479%です。したがって100k qualificationは全gate合格で、256k extended soakへ進めます。
+
+100kと256kは数時間のoperator-runなので、同じatomic artifact scriptをユーザー側で実行します。100kは合格済みです。process再開やdisk cache resumeは主張せず、中断時も最後の4,096-token milestoneと`complete=false`を残します。
 
 ```bash
 uv run python scripts/soak_layerwise_kda_state_digests.py \

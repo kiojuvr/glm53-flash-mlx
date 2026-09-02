@@ -40,6 +40,7 @@ from glm53_flash_mlx.kda_digest import (
     layerwise_kda_digests,
     observation_steps,
     rollback_events,
+    steady_active_memory_drift,
 )
 from glm53_flash_mlx.kda_state import KDAStateIndexError, rollback_restore_state
 from glm53_flash_mlx.loader import load, warm_residency
@@ -757,8 +758,11 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
 
         final_memory = _memory()
         rows = [artifact["checkpoints"][step] for step in artifact["checkpoints"] if step != "0"]
-        active_values = [row["memory"]["active_bytes"] for row in rows]
         steady_rows = [row for row in rows if int(row["step"]) >= 256]
+        active_memory_drift = steady_active_memory_drift(
+            artifact["checkpoints"],
+            first_steady_step=MATERIALIZATION_INTERVAL_TOKENS,
+        )
         authoritative = [
             row["uninterrupted"]["authoritative_cache_bytes"]
             + row["eventful"]["authoritative_cache_bytes"]
@@ -834,8 +838,7 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                 if int(row["step"]) > 0
                 for observation in (row["uninterrupted"], row["eventful"])
             ),
-            "resident_memory_bounded": max(active_values) - min(active_values)
-            <= MAX_ACTIVE_DRIFT,
+            "resident_memory_bounded": active_memory_drift <= MAX_ACTIVE_DRIFT,
             "lifecycle_anonymous_allocation_zero": accounting.snapshot()[
                 "anonymous_allocation_count"
             ]
@@ -880,7 +883,10 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                     "authoritative_cache_bytes"
                 ]
             ),
-            "active_memory_drift_bytes": max(active_values) - min(active_values),
+            "active_memory_drift_bytes": active_memory_drift,
+            "active_memory_drift_window": (
+                "first-production-materialization-through-final-checkpoint"
+            ),
             "peak_memory_bytes": final_memory["peak_bytes"],
             "state_leaf_counts": sorted(
                 {

@@ -11,6 +11,11 @@ ARTIFACT = (
     / "bench-results"
     / "m3ultra512-layerwise-kda-state-digest-screen-20260902.json"
 )
+QUALIFICATION_ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-layerwise-kda-state-digest-100k-20260902.json"
+)
 
 
 def test_soak_script_defines_staged_tiers_events_and_failure_localization():
@@ -97,3 +102,30 @@ def test_screen_exercises_all_event_classes_and_allocation_accounting():
     assert lifecycle["by_lifecycle"]["draft-transient"]["resident_bytes"] == 0
     assert lifecycle["by_lifecycle"]["snapshot-state"]["resident_bytes"] == 0
 
+
+def test_100k_qualification_is_exact_and_steady_memory_is_bounded():
+    artifact = json.loads(QUALIFICATION_ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["tier"] == "qualification"
+    assert artifact["steps"] == artifact["last_completed_step"] == 100_000
+    assert all(artifact["acceptance"].values())
+    assert artifact["first_divergence"] is None
+    assert artifact["nan_count"] == 0
+    assert artifact["metal_error"] is None
+
+    summary = artifact["summary"]
+    assert summary["checkpoint_count"] == 396
+    assert summary["periodic_256_checkpoint_count"] == 390
+    assert summary["materialization_count"] == 390
+    assert summary["authoritative_state_drift_bytes"] == 0
+    assert summary["active_memory_drift_bytes"] == 357_456
+    assert summary["active_memory_drift_bytes"] <= 64 * 2**20
+    assert summary["active_memory_drift_window"] == (
+        "first-production-materialization-through-final-checkpoint"
+    )
+    assert summary["state_leaf_counts"] == [167]
+    assert summary["lifecycle"]["anonymous_allocation_count"] == 0
+    assert artifact["actual_model_forwards"] == {
+        "uninterrupted": 100_000,
+        "eventful": 100_050,
+    }

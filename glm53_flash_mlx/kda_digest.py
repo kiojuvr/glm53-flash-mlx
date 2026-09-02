@@ -21,6 +21,29 @@ from .kda_state import (
 LAYERWISE_KDA_DIGEST_SCHEMA = "glm53-layerwise-kda-state-digest-v1"
 
 
+def steady_active_memory_drift(
+    checkpoints: Mapping[str, Mapping],
+    *,
+    first_steady_step: int = 256,
+) -> int:
+    """Return the active-memory range after residency initialization.
+
+    Token 1 is an intentional observation boundary, but it precedes the first
+    production materialization and may still create lazy graph/residency state.
+    Long-run boundedness is therefore measured from the first materialization
+    onward.  Raw initialization observations remain in the artifact.
+    """
+
+    values = [
+        int(row["memory"]["active_bytes"])
+        for row in checkpoints.values()
+        if int(row["step"]) >= first_steady_step
+    ]
+    if not values:
+        raise ValueError("no steady-state memory checkpoints")
+    return max(values) - min(values)
+
+
 def observation_steps(steps: int, *, interval: int = 256) -> tuple[int, ...]:
     if steps < 1 or interval < 1:
         raise ValueError("steps and interval must be positive")

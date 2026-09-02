@@ -13,6 +13,7 @@ from glm53_flash_mlx.kda_digest import (
     layerwise_kda_digests,
     observation_steps,
     rollback_events,
+    steady_active_memory_drift,
 )
 
 
@@ -57,6 +58,24 @@ def test_observation_schedule_covers_materialization_and_extra_boundaries():
     ) == 390
     assert apc_event_steps(4_096) == (2_048,)
     assert rollback_events(4_096) == ((1_024, 1), (2_048, 8), (3_072, 16))
+
+
+def test_steady_memory_drift_excludes_initial_residency_observations():
+    checkpoints = {
+        "1": {"step": 1, "memory": {"active_bytes": 1_000}},
+        "255": {"step": 255, "memory": {"active_bytes": 1_090}},
+        "256": {"step": 256, "memory": {"active_bytes": 1_100}},
+        "257": {"step": 257, "memory": {"active_bytes": 1_104}},
+        "512": {"step": 512, "memory": {"active_bytes": 1_098}},
+    }
+    assert steady_active_memory_drift(checkpoints) == 6
+
+
+def test_steady_memory_drift_requires_a_materialized_observation():
+    with pytest.raises(ValueError, match="no steady-state"):
+        steady_active_memory_drift(
+            {"1": {"step": 1, "memory": {"active_bytes": 1_000}}}
+        )
 
 
 def test_layerwise_conv_recurrent_and_index_digests_are_independent():
