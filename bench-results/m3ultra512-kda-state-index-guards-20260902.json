@@ -1,0 +1,374 @@
+{
+  "acceptance": {
+    "all_kda_read_write_sites_guarded": true,
+    "direct_and_compact_all_34_kda_guarded": true,
+    "index_dtype_contract_exact": true,
+    "last_valid_slot_read_write": true,
+    "lower_and_upper_bounds_rejected_atomically": true,
+    "materialized_state_replacement_atomic": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "ram_apc_continuation_exact": true,
+    "ram_apc_invalid_restore_atomic": true,
+    "rollback_17_fail_closed": true,
+    "rollback_1_through_16_exact": true,
+    "runtime_abi_backend_admission_unchanged": true,
+    "sentinel_is_no_access_no_mutation": true
+  },
+  "boundary_matrix": {
+    "dtypes": [
+      {
+        "accepted": true,
+        "dtype": "python-int",
+        "error": null,
+        "expected_accept": true,
+        "normalized": 1
+      },
+      {
+        "accepted": true,
+        "dtype": "numpy-int32",
+        "error": null,
+        "expected_accept": true,
+        "normalized": 1
+      },
+      {
+        "accepted": true,
+        "dtype": "numpy-int64",
+        "error": null,
+        "expected_accept": true,
+        "normalized": 1
+      },
+      {
+        "accepted": true,
+        "dtype": "mlx-int32",
+        "error": null,
+        "expected_accept": true,
+        "normalized": 1
+      },
+      {
+        "accepted": true,
+        "dtype": "mlx-int64",
+        "error": null,
+        "expected_accept": true,
+        "normalized": 1
+      },
+      {
+        "accepted": false,
+        "dtype": "python-bool",
+        "error": "KDAStateTypeError",
+        "expected_accept": false,
+        "normalized": null
+      },
+      {
+        "accepted": false,
+        "dtype": "python-float",
+        "error": "KDAStateTypeError",
+        "expected_accept": false,
+        "normalized": null
+      },
+      {
+        "accepted": false,
+        "dtype": "nan",
+        "error": "KDAStateTypeError",
+        "expected_accept": false,
+        "normalized": null
+      },
+      {
+        "accepted": false,
+        "dtype": "inf",
+        "error": "KDAStateTypeError",
+        "expected_accept": false,
+        "normalized": null
+      },
+      {
+        "accepted": false,
+        "dtype": "mlx-float32",
+        "error": "KDAStateTypeError",
+        "expected_accept": false,
+        "normalized": null
+      }
+    ],
+    "invalid": [
+      {
+        "error": "KDAStateIndexError",
+        "index": "-2",
+        "operation": "read",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "2",
+        "operation": "read",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "3",
+        "operation": "read",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "-2",
+        "operation": "write",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "2",
+        "operation": "write",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "3",
+        "operation": "write",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "-2",
+        "operation": "materialization_source",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "2",
+        "operation": "materialization_source",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "3",
+        "operation": "materialization_source",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "-2",
+        "operation": "restore_destination",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "2",
+        "operation": "restore_destination",
+        "rejected": true,
+        "state_unchanged": true
+      },
+      {
+        "error": "KDAStateIndexError",
+        "index": "3",
+        "operation": "restore_destination",
+        "rejected": true,
+        "state_unchanged": true
+      }
+    ],
+    "last_valid": {
+      "changed_from_original": true,
+      "index": 1,
+      "read_after_write_exact": true
+    },
+    "materialized_state_replacement": [
+      {
+        "rejected": true,
+        "replacement_size": 1,
+        "state_unchanged": true
+      },
+      {
+        "rejected": true,
+        "replacement_size": 3,
+        "state_unchanged": true
+      }
+    ],
+    "production_state_dtypes": [
+      "bfloat16",
+      "float32"
+    ],
+    "rollback": [
+      {
+        "restored_exact": true,
+        "tokens": 1
+      },
+      {
+        "restored_exact": true,
+        "tokens": 2
+      },
+      {
+        "restored_exact": true,
+        "tokens": 3
+      },
+      {
+        "restored_exact": true,
+        "tokens": 4
+      },
+      {
+        "restored_exact": true,
+        "tokens": 8
+      },
+      {
+        "restored_exact": true,
+        "tokens": 15
+      },
+      {
+        "restored_exact": true,
+        "tokens": 16
+      }
+    ],
+    "rollback_17_rejected_atomically": true,
+    "sentinel": [
+      {
+        "no_access": true,
+        "operation": "read",
+        "state_unchanged": true
+      },
+      {
+        "no_access": true,
+        "operation": "write",
+        "state_unchanged": true
+      },
+      {
+        "no_access": true,
+        "operation": "materialization_source",
+        "state_unchanged": true
+      },
+      {
+        "no_access": true,
+        "operation": "restore_destination",
+        "state_unchanged": true
+      }
+    ],
+    "strided_source_fixture": true
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "contract": {
+    "identity": "glm53-kda-state-index-v1-sentinel-minus1",
+    "invalid": "index < -1 or index >= capacity",
+    "rollback_window": 16,
+    "sentinel": -1,
+    "valid": "0 <= index < capacity"
+  },
+  "date": "2026-09-02",
+  "decision": "kda_state_index_boundaries_guarded",
+  "existing_runtime_identity": {
+    "cache_identity_schema": "glm53-hybrid-state-v1",
+    "compact_attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
+    "patch_status": {
+      "applied": true,
+      "fixes": [
+        "clamped_swiglu",
+        "float32_router",
+        "mla_rms_epsilon",
+        "indexer_layernorm_epsilon",
+        "indexpool_sentinel_and_range",
+        "attention_gather_range_recheck",
+        "compact_nope_dsa_cache_dispatch",
+        "compact_nope_dsa_atomic_transitions",
+        "kda_state_index_load_store_guards",
+        "mhc_kda_float32_storage"
+      ],
+      "source": "PipeNetwork/glm53-flash-mlx@b6665e8"
+    }
+  },
+  "full_model": {
+    "cache_layout": {
+      "all_kda_entries_guarded": true,
+      "all_kda_slot_capacities_two": true,
+      "compact_kda_arrays_cache_count": 34,
+      "direct_kda_arrays_cache_count": 34
+    },
+    "executed": true,
+    "load_seconds": 38.43650041683577,
+    "official_oracle": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 9.689887457992882,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "ram_apc": {
+      "all_logits_hashes_match": true,
+      "post_state_exact": true,
+      "snapshot_immutable": true,
+      "steps": 16
+    },
+    "warm_residency_seconds": 2.119813249912113
+  },
+  "materialization_telemetry_after": {
+    "completed_materializations": 0,
+    "configured_interval_tokens": 256,
+    "decode_steps_since_materialization": 0,
+    "last_boundary_active_bytes": null,
+    "last_boundary_cache_bytes": null,
+    "last_boundary_peak_bytes": null,
+    "last_materialization_step": null,
+    "metal_buffer_count_api_available": false,
+    "policy": "nested-cache-eval-clear-v1"
+  },
+  "materialization_telemetry_before": {
+    "completed_materializations": 0,
+    "configured_interval_tokens": 256,
+    "decode_steps_since_materialization": 0,
+    "last_boundary_active_bytes": null,
+    "last_boundary_cache_bytes": null,
+    "last_boundary_peak_bytes": null,
+    "last_materialization_step": null,
+    "metal_buffer_count_api_available": false,
+    "policy": "nested-cache-eval-clear-v1"
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "ram_apc_guard": {
+    "clone_type_schema_unchanged": true,
+    "invalid_restore_rejected": true,
+    "live_state_unchanged": true,
+    "snapshot_exact": true,
+    "snapshot_state_unchanged": true
+  },
+  "runtime_changes": {
+    "abi": false,
+    "admission": false,
+    "apc_namespace": false,
+    "backend": false,
+    "server": false
+  },
+  "schema": "glm53-kda-state-index-load-store-guards-v1",
+  "site_audit": {
+    "arrays_cache_guard_installed": true,
+    "contract": "glm53-kda-state-index-v1-sentinel-minus1",
+    "dynamic_index_clip_or_modulo": false,
+    "fixed_slots": {
+      "capacity": 2,
+      "conv": 0,
+      "recurrent": 1
+    },
+    "sites": {
+      "apc_restore_destination": true,
+      "conv_read": true,
+      "conv_write": true,
+      "materialization_source": true,
+      "materialized_state_replacement": true,
+      "recurrent_read": true,
+      "recurrent_write": true,
+      "rollback_restore_destination": true,
+      "rollback_restore_source": true
+    },
+    "state_property_guarded": true
+  }
+}

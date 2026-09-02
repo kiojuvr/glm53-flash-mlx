@@ -198,6 +198,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
 | resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
+| KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -539,6 +540,14 @@ Snapshot captureはcaller/active storageからowned copyを作り、restoreもsn
 
 Prefix reuse identityにはmodel revision、checkpoint fingerprint、backend policy、attention cache ABI、KDA state ABI、IndexPool ABI、token digestを明示します。同一token列でも前6項目のどれかが異なれば全てmissとなり、accidental sharingはありません。class別にresident/peak bytes、allocation/eviction count、cumulative allocated bytesを記録し、anonymous allocationは0です。このcommitはpolicy/simulatorだけで、DFlash、物理pool、runtime cache implementation、APC namespace、ABI、admission、serverは変更していません。
 
+### KDA state index load/store guards
+
+KDAのconv state slot 0とrecurrent state slot 1について、`0 <= index < capacity`だけをアクセス可能とし、`-1`をunused/no-access sentinelへ固定しました。`index < -1`、`index >= capacity`、bool、float、NaN/Inf、暗黙castはstate tensorへ触れる前に拒否します。固定mlx-vlmの`ArraysCache`型とserialized state schemaは変えず、read/writeと`state` materialization/restore propertyへ同じ`KDAStateIndexContract`を適用するため、RAM/disk APCから復元された同型cacheにもguardが残ります。
+
+read、write、materialization source、restore destinationの各境界で`-2`、capacity、capacity+1を注入し、conv/recurrent digest、state index metadata、decode/materialization counter、lifecycle accounting、APC-visible snapshotが完全不変であることを確認しました。`-1`はread/write/allocation/counter mutationなし、capacity-1は正常にread/writeできます。Python int、NumPy int32/int64、MLX int32/int64 scalarだけを受理し、clip、modulo、負index aliasはありません。
+
+rollback 1/2/3/4/8/15/16はsnapshotへexact restoreし、17-token要求とmalformed destinationは全destinationのpreflight後にfail closedします。実checkpointではDirect/compact双方の34/34 KDA層が同じ2-slot guard下にあり、RAM APC 16-step continuationと公式16/128-token全vocab oracleがbyte-exactでした。cache ABI、APC namespace、backend、server admissionは変更していません。次のlong soakではこの契約上でlayer別KDA state digestを記録します。
+
 ### Packed decode operator microcaptures
 
 再生可能captureは代表layer 3/24/44へ縮小しました。`load_model()`のlazy mappingから対象MoE層だけをpack/materializeし、full model payloadをresident化しません。各層についてrouter、routed expert、shared expert、最終加算、full FFNの5 stageを別processでcaptureし、15/15 caseが32 GiB・15分budget内で完走しました。
@@ -745,6 +754,9 @@ uv run python scripts/probe_resident_tensor_ownership.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 
 uv run python scripts/probe_cache_state_lifecycle.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+
+uv run python scripts/probe_kda_state_index_guards.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 

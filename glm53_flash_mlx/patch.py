@@ -24,7 +24,7 @@ def apply_runtime_patch() -> None:
         import mlx.core as mx
         import mlx.nn as nn
         from mlx_vlm.models import switch_layers
-        from mlx_vlm.models.cache import CacheList
+        from mlx_vlm.models.cache import ArraysCache, CacheList
         from mlx_vlm.models.deepseek_v32 import language as dsv32
         from mlx_vlm.models.glm5_next import language as glm
 
@@ -34,10 +34,16 @@ def apply_runtime_patch() -> None:
             prepare_decode_indexpool_gather,
             sanitize_indexpool_indices,
         )
+        from .kda_state import install_kda_state_index_guards
         from .nope_cache import (
             CompactIndexPoolCache,
             make_compact_nope_dsa_cache,
         )
+
+        # Keep ArraysCache's class/state schema unchanged while making every
+        # KDA conv/recurrent load, store, materialization and APC restore use a
+        # common fail-closed index contract.
+        install_kda_state_index_guards(ArraysCache)
 
         original_cache_list_trim = CacheList.trim
 
@@ -271,8 +277,6 @@ def apply_runtime_patch() -> None:
         def make_cache(self):
             if getattr(self, "_glm53_cache_backend", "direct") != "compact-nope-dsa":
                 return original_make_cache(self)
-            from mlx_vlm.models.cache import ArraysCache
-
             capacity_tokens = int(
                 getattr(self, "_glm53_compact_cache_capacity_tokens", 4352)
             )
@@ -306,6 +310,7 @@ def patch_status() -> dict:
             "attention_gather_range_recheck",
             "compact_nope_dsa_cache_dispatch",
             "compact_nope_dsa_atomic_transitions",
+            "kda_state_index_load_store_guards",
             "mhc_kda_float32_storage",
         ],
     }
