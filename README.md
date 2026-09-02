@@ -193,6 +193,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | functional stateful decode executable | Tier 0合格 / KDA trace 1回・state exact・host build -55.1% / step 7 gated RMSNorm非exactでTier 1棄却 |
 | compiled KDA numerical barrier | A/C/E 64/64 exact / B/D 62/64 exact / 最初のbit差はcompiled sigmoid FP32 2 ULP / projection独立差なし |
 | compiled KDA recurrent readout localization | layer 10/22/25/42を再現 / recurrence・state・tail exact / 最初の差はQ scale FP32 1 ULP |
+| exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -505,6 +506,16 @@ gated RMSNormをinput FP32、square、mean reduction、rsqrt、normalize、weigh
 Q経路をprojection、FP32 cast、square、sum、rsqrt、L2 normalize、head-dim scale、BF16 roundingへ分解すると、4層すべてで最初の差は`q_l2normalized * 128**-0.5`でした。L2 normalizeまではbyte-identicalですが、scale後の8,192 FP32要素の大部分が最大1 ULPずれ、そのうち1–2要素がBF16境界を越えてrecurrent token outputへ伝播します。最初の分岐はzero-based step 3（layer 10/22/25）とstep 1（layer 42）です。compiled callableは各1 trace、host graph-build削減は全対象で40% gateを維持しました。
 
 従って次候補はrecurrent readout primitiveではなく、FP32定数bit `0x3db504f3`とeagerの乗算・BF16丸め順をopaqueに固定する最小Q-scale barrierです。このcommitは局在化だけを行い、新primitive、runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。公式oracleとfull-token性能は34層exact候補がないためfail closedで未実行です。
+
+### Exact compiled KDA Q-scale final gate
+
+Q normalization後のscaleをA=eager、B=compiled Python定数、C=bit固定FP32 runtime scalar入力、D=opaque Metal FP32 multiply、E=opaque Metal multiply＋BF16 roundの順で比較しました。基準値は式から再生成せずIEEE binary32 bit pattern `0x3db504f3`として渡します。既知failure layer 10/22/25/42とcontrol layer 0では、Bが保存済みの1 ULP差を再現する一方、C/D/EはいずれもQ-scale FP32、BF16 Q、recurrent output、全step state、gated norm、final projectionまで64/64 step byte-identicalです。最小候補Cを選んだため、新しいMetal primitiveやcommand bufferは不要です。
+
+Cを全34 KDA層へ展開すると34/34層×64/64 stepがbyte-identicalで、各compiled callableのtraceは1回、既知5層のrepeatとstrided/contiguous入力もexactでした。第3のnumerical blockerはありません。host graph-build削減は最小56.8%、中央値58.4%でhard floor 40%を通過しましたが、preferred 60%には届きません。局所working peak増分は最大19.5 MBです。
+
+この結果で公式gateを解除し、packed-decode full modelについてbaseline/candidate双方の16/128-token full-vocab oracleを実行しました。全token、全step logits hashが一致し、34 compiled layerは各1 traceです。さらにexact residual-D、compiled sparse FFN、packed decodeを同時に有効化した2049-context 64-step screenでは、baseline 14.367 tok/sに対してcandidateは14.632 tok/s（1.0185×）、全64 logitsと最終KDA/DSA cacheがexact、working peak増分39.6 MB、NaN 0でした。
+
+ただし事前固定した14.7 tok/s gateへ0.46%届きません。gateを緩めず、bounded System Trace、4,096-token、RAM APC、compact NoPE、256k qualificationには進めません。数値的にはMLX compile方式が成立することを証明しましたが、性能経済性のhard stopによりproduction候補へ昇格せず、この方式の追加opaque barrier探索も終了します。runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
 
 ### Packed decode operator microcaptures
 
