@@ -491,6 +491,12 @@ gated RMSNormをinput FP32、square、mean reduction、rsqrt、normalize、weigh
 
 従って観測blocker数は1で、次の候補はeagerと同じsigmoid順序を含むopaqueなexact gated RMSNorm primitiveです。primitive実装前の因果分離だけを行ったcommitであり、runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
 
+### Exact sigmoid gate Metal barrier probe
+
+公式MLX v0.32.2のsigmoid演算順をcustom Metalへ移し、B=sigmoidだけをopaque化、C=gated RMSNorm全体を融合する2候補を比較しました。custom JITの既定`metal::exp`では正本と最大2 FP32 ULPずれましたが、同じsign-tail式を`metal::precise::exp`へ固定すると、layer 0の実gate 8,192要素と±0、subnormal、BF16境界近傍を含むsynthetic fixtureの全bitが`mx.sigmoid`と一致しました。B/Cともlayer 0の64-step output、conv/recurrent state、zero-based step 6/31、offset 0/1/255/256/2048、strided入力がexactです。Bのhost graph-build削減は57.0%、Cは59.0%、working peak増分は約4.8 MB / 0 bytesでした。
+
+しかし全34 KDA層へ展開すると、B/Cとも30層だけが64/64 exactで、layer 10/22/25/42が同じstepで分岐しました。失敗4層の最初の差はgated RMSNormより前の`gated_delta_update` recurrent outputにあり、B/Cで同一です。各層の最終conv/recurrent stateは引き続きexactで、eager normをcompiled final projectionへ与えるanchorも全件exactでした。従ってlayer 0での「compiled sigmoidだけがblocker」という結論は全層へ一般化できず、sigmoid-only barrierとfused gated RMSNormはいずれも全KDA exactness gateで棄却します。代表layer 0/20/44のnonzero stateとsnapshot→restore/replayはexactですが、公式16/128-token oracleとfull-token性能はfail-closedで未実行です。runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
+
 ### Packed decode operator microcaptures
 
 再生可能captureは代表layer 3/24/44へ縮小しました。`load_model()`のlazy mappingから対象MoE層だけをpack/materializeし、full model payloadをresident化しません。各層についてrouter、routed expert、shared expert、最終加算、full FFNの5 stageを別processでcaptureし、15/15 caseが32 GiB・15分budget内で完走しました。
