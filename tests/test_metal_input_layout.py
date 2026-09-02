@@ -132,22 +132,38 @@ def test_selected_top8_projection_and_down_accept_strided_buffers():
 
 
 def _packed_bank_from_strided_inputs():
+    from glm53_flash_mlx.ownership import owned_tensor
+
     return PackedFP8ExpertBank(
-        _strided_weight(8, WIDTH * 2, WIDTH),
-        _strided_scale(8, 2, 1),
-        _strided_weight(8, WIDTH, WIDTH),
-        _strided_scale(8, 1, 1),
+        owned_tensor(_strided_weight(8, WIDTH * 2, WIDTH)),
+        owned_tensor(_strided_scale(8, 2, 1)),
+        owned_tensor(_strided_weight(8, WIDTH, WIDTH)),
+        owned_tensor(_strided_scale(8, 1, 1)),
         intermediate_size=WIDTH,
     )
 
 
 def test_packed_selected_top8_normalizes_bank_activation_and_expert_ids():
+    from glm53_flash_mlx.ownership import TensorLayout, owned_tensor
+
     bank = _packed_bank_from_strided_inputs()
     contiguous_bank = PackedFP8ExpertBank(
-        _metal_input(bank.gate_up_weight),
-        _metal_input(bank.gate_up_scale_inv),
-        _metal_input(bank.down_weight),
-        _metal_input(bank.down_scale_inv),
+        owned_tensor(
+            _metal_input(bank.gate_up_weight),
+            layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+        ),
+        owned_tensor(
+            _metal_input(bank.gate_up_scale_inv),
+            layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+        ),
+        owned_tensor(
+            _metal_input(bank.down_weight),
+            layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+        ),
+        owned_tensor(
+            _metal_input(bank.down_scale_inv),
+            layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+        ),
         intermediate_size=WIDTH,
     )
     expert_ids = _strided_descriptor([7, 1, 5, 0, 3, 6, 2, 4])

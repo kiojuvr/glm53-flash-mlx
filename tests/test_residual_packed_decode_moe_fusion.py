@@ -57,6 +57,7 @@ def _load_probe():
 def test_custom_down_aggregation_is_exact_on_metal():
     probe, mx = _load_probe()
     from glm53_flash_mlx.packed import PackedFP8ExpertBank
+    from glm53_flash_mlx.ownership import TensorLayout, owned_tensor
 
     experts = 8
     hidden_size = 128
@@ -70,10 +71,10 @@ def test_custom_down_aggregation_is_exact_on_metal():
     ).astype(mx.uint8).reshape(experts, hidden_size, intermediate)
     down_scale = mx.full((experts, 1, 1), 0.0078125, dtype=mx.float32)
     bank = PackedFP8ExpertBank(
-        gate_up,
-        gate_up_scale,
-        down,
-        down_scale,
+        owned_tensor(gate_up, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(gate_up_scale, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(down, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(down_scale, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
         intermediate_size=intermediate,
     )
     activated = (

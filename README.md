@@ -43,6 +43,8 @@ weight_scale_inv  FP32       [ceil(out/128), ceil(in/128)]
 
 Metal kernelが128×128 block scaleを参照し、weightをregister/threadgroupへloadした時だけFP32へdecodeします。weight全体をBF16 bufferへ展開しません。MoE expertも288個をstackせず、公式checkpointの個別tensorを参照してrouter結果ごとにbucketします。
 
+永続tensorではlayoutとstorage lifetimeを別契約として扱います。`row-major-contiguous`はownershipを意味しません。checkpointのread-only mmapはownerを保持する`borrowed-stable`、runtimeが作るfused projectionとpacked expert bankは`owned`です。再利用されるloader staging/scratchは`borrowed-ephemeral`であり、明示的に`materialize_owned()`しない限りresident境界を越えられません。
+
 ## 3. OpenAI互換serverを起動する
 
 ```bash
@@ -194,6 +196,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | compiled KDA numerical barrier | A/C/E 64/64 exact / B/D 62/64 exact / 最初のbit差はcompiled sigmoid FP32 2 ULP / projection独立差なし |
 | compiled KDA recurrent readout localization | layer 10/22/25/42を再現 / recurrence・state・tail exact / 最初の差はQ scale FP32 1 ULP |
 | exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
+| resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -517,6 +520,14 @@ Cを全34 KDA層へ展開すると34/34層×64/64 stepがbyte-identicalで、各
 
 ただし事前固定した14.7 tok/s gateへ0.46%届きません。gateを緩めず、bounded System Trace、4,096-token、RAM APC、compact NoPE、256k qualificationには進めません。数値的にはMLX compile方式が成立することを証明しましたが、性能経済性のhard stopによりproduction候補へ昇格せず、この方式の追加opaque barrier探索も終了します。runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
 
+### Resident tensor ownership boundaries
+
+外部loaderの再利用staging bufferから得たviewを後段のfusionまで保持すると、次tensorのloadで既存weightが静かに上書きされ得ます。このfailure modeを直接再現するfixtureを追加し、`OWNED`、ownerをresident lifetimeまで保持する`BORROWED_STABLE`、次load後の内容を保証しない`BORROWED_EPHEMERAL`を明示しました。layoutは独立した契約で、row-contiguousなephemeral tensorもresident structureへ直接渡すとfail closedします。
+
+q/kv projection風の同一staging viewでは未所有aliasが上書き後の値へ変わることを再現した一方、明示materializeしたq/kvとfused outputはsource全面上書き・owner解放後もbyte-exactでした。Packed Expert Bankでもuint8 FP8 weightとFP32 scaleを同じ方法で順次上書きし、全4 resident bufferとselected top-8 outputが不変です。bare arrayまたはephemeral leaseをbank constructorへ渡す経路は拒否します。
+
+公式checkpointのpacked-decode実機gateでは42/42 bankの4 bufferすべてが`owned + row-major-contiguous`で、16/128-tokenの全step full-vocab oracleが一致しました。load＋residencyは43.38秒、startup peakは319,706,119,424 bytesで、既存340 GB gateと旧packed startup peak比64 MiB非回帰gateを通過しています。公式mmap parameterは配列自身をownerとして保持するstable borrow、derived q/k/v fusionとNoPE projection viewはowned materializationです。checkpoint attestationはsource integrity、このfixtureはload後のlifetime integrityを検証し、runtime ABI、backend policy、APC、admission、serverは変更していません。
+
 ### Packed decode operator microcaptures
 
 再生可能captureは代表layer 3/24/44へ縮小しました。`load_model()`のlazy mappingから対象MoE層だけをpack/materializeし、full model payloadをresident化しません。各層についてrouter、routed expert、shared expert、最終加算、full FFNの5 stageを別processでcaptureし、15/15 caseが32 GiB・15分budget内で完走しました。
@@ -718,6 +729,9 @@ uv run python scripts/oracle_trace.py \
 uv run python scripts/probe_long_context_first_decode_boundary.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-long-context-first-decode-boundary-20260831.json
+
+uv run python scripts/probe_resident_tensor_ownership.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
 実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completion、`index_topk=2048`境界以降のIndexPool sentinel/rangeとchunked/incremental集合parityを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parityとselected-KV sparse DSA性能はまだ追加gateです。

@@ -17,6 +17,16 @@ from .fp8 import (
     _FP8_LUT_HEADER,
     _metal_input,
 )
+from .ownership import (
+    ResidentTensor,
+    TensorLease,
+    TensorLayout,
+    borrowed_stable_tensor,
+    owned_tensor,
+    require_resident,
+    resident_concatenate,
+    storage_descriptor,
+)
 
 _PACKED_SELECTED_SOURCE = r"""
     uint tid = thread_position_in_threadgroup.x;
@@ -442,22 +452,34 @@ class PackedFP8ExpertBank(nn.Module):
 
     def __init__(
         self,
-        gate_up_weight: mx.array,
-        gate_up_scale_inv: mx.array,
-        down_weight: mx.array,
-        down_scale_inv: mx.array,
+        gate_up_weight: TensorLease | ResidentTensor,
+        gate_up_scale_inv: TensorLease | ResidentTensor,
+        down_weight: TensorLease | ResidentTensor,
+        down_scale_inv: TensorLease | ResidentTensor,
         *,
         intermediate_size: int,
     ):
         super().__init__()
-        self.gate_up_weight = _metal_input(gate_up_weight)
-        self.gate_up_scale_inv = _metal_input(gate_up_scale_inv)
-        self.down_weight = _metal_input(down_weight)
-        self.down_scale_inv = _metal_input(down_scale_inv)
+        resident = {
+            "gate_up_weight": require_resident(gate_up_weight),
+            "gate_up_scale_inv": require_resident(gate_up_scale_inv),
+            "down_weight": require_resident(down_weight),
+            "down_scale_inv": require_resident(down_scale_inv),
+        }
+        self.gate_up_weight = resident["gate_up_weight"].value
+        self.gate_up_scale_inv = resident["gate_up_scale_inv"].value
+        self.down_weight = resident["down_weight"].value
+        self.down_scale_inv = resident["down_scale_inv"].value
+        self.storage_contracts = {
+            name: storage_descriptor(value) for name, value in resident.items()
+        }
+        self._storage_owners = tuple(
+            value.owner for value in resident.values() if value.owner is not None
+        )
         self.intermediate_size = int(intermediate_size)
         self.intermediate_scale_rows = math.ceil(intermediate_size / BLOCK_SIZE)
         self._expert_ids = mx.arange(
-            gate_up_weight.shape[0], dtype=mx.uint32
+            self.gate_up_weight.shape[0], dtype=mx.uint32
         )
 
     @classmethod
@@ -485,33 +507,48 @@ class PackedFP8ExpertBank(nn.Module):
                 if projection.weight_scale_inv.dtype != mx.float32:
                     raise ValueError("packed expert scales must remain float32")
 
-        gate_up_weight = mx.concatenate(
+        def stable(projection, name: str):
+            return borrowed_stable_tensor(
+                getattr(projection, name),
+                owner=projection,
+                layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+            )
+
+        gate_up_weight = resident_concatenate(
             [
-                projection.weight
+                stable(projection, "weight")
                 for expert in experts
                 for projection in (expert.gate_proj, expert.up_proj)
             ],
             axis=0,
-        ).reshape(expert_count, 2 * intermediate_size, hidden_size)
-        gate_up_scale_inv = mx.concatenate(
+        ).value.reshape(expert_count, 2 * intermediate_size, hidden_size)
+        gate_up_scale_inv = resident_concatenate(
             [
-                projection.weight_scale_inv
+                stable(projection, "weight_scale_inv")
                 for expert in experts
                 for projection in (expert.gate_proj, expert.up_proj)
             ],
             axis=0,
-        ).reshape(expert_count, 2 * scale_rows, hidden_scale_rows)
-        down_weight = mx.concatenate(
-            [expert.down_proj.weight for expert in experts], axis=0
-        ).reshape(expert_count, hidden_size, intermediate_size)
-        down_scale_inv = mx.concatenate(
-            [expert.down_proj.weight_scale_inv for expert in experts], axis=0
-        ).reshape(expert_count, hidden_scale_rows, scale_rows)
+        ).value.reshape(expert_count, 2 * scale_rows, hidden_scale_rows)
+        down_weight = resident_concatenate(
+            [stable(expert.down_proj, "weight") for expert in experts],
+            axis=0,
+        ).value.reshape(expert_count, hidden_size, intermediate_size)
+        down_scale_inv = resident_concatenate(
+            [stable(expert.down_proj, "weight_scale_inv") for expert in experts],
+            axis=0,
+        ).value.reshape(expert_count, hidden_scale_rows, scale_rows)
         return cls(
-            gate_up_weight,
-            gate_up_scale_inv,
-            down_weight,
-            down_scale_inv,
+            owned_tensor(
+                gate_up_weight, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS
+            ),
+            owned_tensor(
+                gate_up_scale_inv, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS
+            ),
+            owned_tensor(down_weight, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+            owned_tensor(
+                down_scale_inv, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS
+            ),
             intermediate_size=intermediate_size,
         )
 

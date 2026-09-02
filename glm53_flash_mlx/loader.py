@@ -1,4 +1,4 @@
-"""Zero-copy loader for the official GLM-5.3 block-FP8 checkpoint."""
+"""Lifetime-safe loader for the official GLM-5.3 block-FP8 checkpoint."""
 
 from __future__ import annotations
 
@@ -18,6 +18,14 @@ from .grouped_fp8 import SortedGroupedFP8MoE
 from .manifest import inspect_checkpoint
 from .packed import PackedFP8ExpertBank, PackedFP8MoE
 from .patch import apply_runtime_patch
+from .ownership import (
+    TensorLayout,
+    borrowed_stable_tensor,
+    materialize_owned,
+    owned_tensor,
+    require_resident,
+    resident_concatenate,
+)
 
 
 def _make_config(raw: dict):
@@ -87,10 +95,22 @@ def _remap_language(weights: dict, config) -> dict:
     for prefix, parts in conv_parts.items():
         if set(parts) != {"q", "k", "v"}:
             raise ValueError(f"incomplete q/k/v conv bundle at {prefix}")
-        value = mx.concatenate([parts["q"], parts["k"], parts["v"]], axis=0)
+        value = resident_concatenate(
+            [
+                borrowed_stable_tensor(
+                    parts[name],
+                    owner=parts[name],
+                    layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+                )
+                for name in ("q", "k", "v")
+            ],
+            axis=0,
+        ).value
         if value.ndim == 3 and value.shape[-1] != 1:
             value = value.moveaxis(2, 1)
-        remapped[prefix + "conv1d.weight"] = value
+        remapped[prefix + "conv1d.weight"] = materialize_owned(
+            owned_tensor(value)
+        ).value
 
     # Absorbed NoPE MLA uses two views derived from the BF16 kv_b projection.
     tc = config.text_config
@@ -104,12 +124,18 @@ def _remap_language(weights: dict, config) -> dict:
             raise ValueError("FP8 kv_b_proj requires a dedicated absorbed FP8 kernel")
         head_width = tc.qk_nope_head_dim + tc.v_head_dim
         value = value.reshape(tc.num_attention_heads, head_width, -1)
-        remapped[prefix + ".embed_q.weight"] = mx.contiguous(
-            value[:, : tc.qk_nope_head_dim, :].swapaxes(-1, -2)
-        )
-        remapped[prefix + ".unembed_out.weight"] = mx.contiguous(
-            value[:, tc.qk_nope_head_dim :, :]
-        )
+        remapped[prefix + ".embed_q.weight"] = materialize_owned(
+            borrowed_stable_tensor(
+                value[:, : tc.qk_nope_head_dim, :].swapaxes(-1, -2),
+                owner=value,
+            )
+        ).value
+        remapped[prefix + ".unembed_out.weight"] = materialize_owned(
+            borrowed_stable_tensor(
+                value[:, tc.qk_nope_head_dim :, :],
+                owner=value,
+            )
+        ).value
     return remapped
 
 
@@ -254,8 +280,35 @@ def load_model(
     weights = _remap_language(_load_raw(path), config)
     _install_direct_modules(model, weights, config)
     model.vision_model = None
-    weight_items = list(weights.items())
+    # Every persistent model parameter crosses an explicit stable-borrow
+    # boundary.  mx.load arrays own/pin their read-only mmap storage, and the
+    # model retains each array after this temporary dictionary is released.
+    weight_items = [
+        (
+            name,
+            require_resident(
+                borrowed_stable_tensor(
+                    value,
+                    owner=value,
+                    layout=TensorLayout.ROW_MAJOR_CONTIGUOUS,
+                )
+            ).value,
+        )
+        for name, value in weights.items()
+    ]
     model.load_weights(weight_items, strict=strict)
+    model._glm53_tensor_storage_contract = {
+        "canonical_checkpoint_parameters": {
+            "ownership": "borrowed-stable",
+            "owner": "mlx-load-array-pinned-read-only-mmap",
+        },
+        "derived_fused_parameters": {
+            "ownership": "owned",
+            "layout": "row-major-contiguous",
+        },
+        "ownership_layout_independent": True,
+        "ephemeral_resident_promotion": "explicit-materialize-owned-only",
+    }
     weight_items.clear()
     weights.clear()
     del weight_items, weights

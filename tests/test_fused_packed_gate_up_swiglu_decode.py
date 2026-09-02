@@ -59,6 +59,7 @@ def _load_probe():
 def test_fused_diagnostic_matches_existing_projection_on_metal():
     probe, mx = _load_probe()
     from glm53_flash_mlx.packed import PackedFP8ExpertBank
+    from glm53_flash_mlx.ownership import TensorLayout, owned_tensor
 
     experts = 8
     hidden = 128
@@ -70,10 +71,10 @@ def test_fused_diagnostic_matches_existing_projection_on_metal():
     down = mx.zeros((experts, hidden, intermediate), dtype=mx.uint8)
     down_scales = mx.ones((experts, 1, 1), dtype=mx.float32)
     bank = PackedFP8ExpertBank(
-        weights,
-        scales,
-        down,
-        down_scales,
+        owned_tensor(weights, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(scales, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(down, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
+        owned_tensor(down_scales, layout=TensorLayout.ROW_MAJOR_CONTIGUOUS),
         intermediate_size=intermediate,
     )
     x = (mx.sin(mx.arange(hidden, dtype=mx.float32) * 0.03125) * 0.25).astype(

@@ -1,0 +1,106 @@
+{
+  "acceptance": {
+    "all_42_packed_banks_owned_row_major": true,
+    "ephemeral_source_overwrite_invariant": true,
+    "fused_projection_byte_exact": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "packed_fp8_weight_and_scale_byte_exact": true,
+    "packed_selected_output_byte_exact": true,
+    "ready_time_at_most_190_seconds": true,
+    "reusable_staging_corruption_reproduced": true,
+    "source_lifetime_end_safe": true,
+    "startup_peak_at_most_340gb": true,
+    "startup_peak_regression_at_most_64mib": true
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "date": "2026-09-02",
+  "full_model": {
+    "all_packed_bank_contracts_owned_row_major": true,
+    "backend": "packed-decode",
+    "executed": true,
+    "layerwise_install_peak_bytes": 312105436168,
+    "load_seconds": 41.25677433400415,
+    "model_storage_contract": {
+      "canonical_checkpoint_parameters": {
+        "owner": "mlx-load-array-pinned-read-only-mmap",
+        "ownership": "borrowed-stable"
+      },
+      "derived_fused_parameters": {
+        "layout": "row-major-contiguous",
+        "ownership": "owned"
+      },
+      "ephemeral_resident_promotion": "explicit-materialize-owned-only",
+      "ownership_layout_independent": true
+    },
+    "official_oracle": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 9.697039875201881,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "packed_bank_count": 42,
+    "ready_seconds": 43.37573604192585,
+    "resident_bytes": 319706118392,
+    "startup_active_bytes": 319706119424,
+    "startup_peak_bytes": 319706119424,
+    "warm_residency_seconds": 2.1189617079216987
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "ownership_layout_independent": true,
+  "packed_fp8_fixture": {
+    "down_scale_byte_exact": true,
+    "down_weight_byte_exact": true,
+    "gate_up_scale_byte_exact": true,
+    "gate_up_weight_byte_exact": true,
+    "scale_dtype": "float32",
+    "selected_output_byte_exact": true,
+    "selected_output_sha256": "64c4ccdd2c8a05c689940db97e9615e13f1e9617f86cffaea263cf00bb98b992",
+    "storage_contracts": {
+      "down_scale_inv": {
+        "layout": "row-major-contiguous",
+        "ownership": "owned"
+      },
+      "down_weight": {
+        "layout": "row-major-contiguous",
+        "ownership": "owned"
+      },
+      "gate_up_scale_inv": {
+        "layout": "row-major-contiguous",
+        "ownership": "owned"
+      },
+      "gate_up_weight": {
+        "layout": "row-major-contiguous",
+        "ownership": "owned"
+      }
+    },
+    "weight_dtype": "uint8"
+  },
+  "reference_packed_startup_peak_bytes": 327156121396,
+  "runtime_changes": {
+    "abi": false,
+    "admission": false,
+    "backend_policy": false,
+    "cache": false,
+    "server": false
+  },
+  "schema": "glm53-resident-tensor-ownership-v1",
+  "staging_fixture": {
+    "fused_projection_byte_exact": true,
+    "q_source_overwrite_invariant": true,
+    "resident_contract": {
+      "layout": "row-major-contiguous",
+      "ownership": "owned"
+    },
+    "source_lifetime_end_safe": true,
+    "unsafe_alias_mutation_reproduced": true
+  },
+  "startup_peak_delta_bytes": -7450001972
+}
