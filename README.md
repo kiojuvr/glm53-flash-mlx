@@ -192,6 +192,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | async_eval readback scope | A-only 7.303 ms / A+B後のA read 12.322 ms / B残り0.236 ms / stream-wide同期 |
 | functional stateful decode executable | Tier 0合格 / KDA trace 1回・state exact・host build -55.1% / step 7 gated RMSNorm非exactでTier 1棄却 |
 | compiled KDA numerical barrier | A/C/E 64/64 exact / B/D 62/64 exact / 最初のbit差はcompiled sigmoid FP32 2 ULP / projection独立差なし |
+| compiled KDA recurrent readout localization | layer 10/22/25/42を再現 / recurrence・state・tail exact / 最初の差はQ scale FP32 1 ULP |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -496,6 +497,14 @@ gated RMSNormをinput FP32、square、mean reduction、rsqrt、normalize、weigh
 公式MLX v0.32.2のsigmoid演算順をcustom Metalへ移し、B=sigmoidだけをopaque化、C=gated RMSNorm全体を融合する2候補を比較しました。custom JITの既定`metal::exp`では正本と最大2 FP32 ULPずれましたが、同じsign-tail式を`metal::precise::exp`へ固定すると、layer 0の実gate 8,192要素と±0、subnormal、BF16境界近傍を含むsynthetic fixtureの全bitが`mx.sigmoid`と一致しました。B/Cともlayer 0の64-step output、conv/recurrent state、zero-based step 6/31、offset 0/1/255/256/2048、strided入力がexactです。Bのhost graph-build削減は57.0%、Cは59.0%、working peak増分は約4.8 MB / 0 bytesでした。
 
 しかし全34 KDA層へ展開すると、B/Cとも30層だけが64/64 exactで、layer 10/22/25/42が同じstepで分岐しました。失敗4層の最初の差はgated RMSNormより前の`gated_delta_update` recurrent outputにあり、B/Cで同一です。各層の最終conv/recurrent stateは引き続きexactで、eager normをcompiled final projectionへ与えるanchorも全件exactでした。従ってlayer 0での「compiled sigmoidだけがblocker」という結論は全層へ一般化できず、sigmoid-only barrierとfused gated RMSNormはいずれも全KDA exactness gateで棄却します。代表layer 0/20/44のnonzero stateとsnapshot→restore/replayはexactですが、公式16/128-token oracleとfull-token性能はfail-closedで未実行です。runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。
+
+### Compiled KDA recurrent readout localization
+
+前節で分岐したlayer 10/22/25/42とexact対照layer 0/20/44を64 stepずつ再実行し、A=eager、B=full compiled、C=compiled prefixをmaterializeしてeager recurrence/tail、D=eager prefixをcompiled recurrence wrapperへ入力、E=eager recurrenceをmaterializeしてcompiled exact-sigmoid tailへ入力する5 armで因果を分離しました。失敗4層ではB/Cだけが同じstepで分岐し、D/Eは全64 step exactです。全armの最終conv/recurrent state hashも一致しました。従ってrecurrent Metal kernel、state transition、readout、exact-sigmoid tailは、入力がexactなら独立blockerではありません。compiled prefixをmaterializeするidentity barrierだけでも差は消えません。
+
+Q経路をprojection、FP32 cast、square、sum、rsqrt、L2 normalize、head-dim scale、BF16 roundingへ分解すると、4層すべてで最初の差は`q_l2normalized * 128**-0.5`でした。L2 normalizeまではbyte-identicalですが、scale後の8,192 FP32要素の大部分が最大1 ULPずれ、そのうち1–2要素がBF16境界を越えてrecurrent token outputへ伝播します。最初の分岐はzero-based step 3（layer 10/22/25）とstep 1（layer 42）です。compiled callableは各1 trace、host graph-build削減は全対象で40% gateを維持しました。
+
+従って次候補はrecurrent readout primitiveではなく、FP32定数bit `0x3db504f3`とeagerの乗算・BF16丸め順をopaqueに固定する最小Q-scale barrierです。このcommitは局在化だけを行い、新primitive、runtime、kernel ABI、server、APC、cache ABI、admissionは変更していません。公式oracleとfull-token性能は34層exact候補がないためfail closedで未実行です。
 
 ### Packed decode operator microcaptures
 
