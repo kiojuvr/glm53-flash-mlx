@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import statistics
 from dataclasses import dataclass
 from typing import Mapping, Sequence
 
@@ -42,6 +43,53 @@ def steady_active_memory_drift(
     if not values:
         raise ValueError("no steady-state memory checkpoints")
     return max(values) - min(values)
+
+
+def decode_throughput_retention(
+    latencies_seconds: Sequence[float],
+    *,
+    warmup_tokens: int = 256,
+    window_tokens: int = 10_000,
+) -> dict[str, float | int]:
+    """Compare equal, non-overlapping early and late steady decode windows."""
+
+    available = len(latencies_seconds) - warmup_tokens
+    width = min(window_tokens, available // 2)
+    if width < 1:
+        raise ValueError("not enough decode samples for throughput retention")
+    early = latencies_seconds[warmup_tokens : warmup_tokens + width]
+    late = latencies_seconds[-width:]
+    early_ms = statistics.median(early) * 1000.0
+    late_ms = statistics.median(late) * 1000.0
+    return {
+        "warmup_tokens_excluded": warmup_tokens,
+        "window_tokens": width,
+        "early_median_ms": early_ms,
+        "late_median_ms": late_ms,
+        "early_tokens_per_second": 1000.0 / early_ms,
+        "late_tokens_per_second": 1000.0 / late_ms,
+        "late_throughput_retention": early_ms / late_ms,
+    }
+
+
+def lifecycle_accounting_delta(start: Mapping, end: Mapping) -> dict:
+    """Return per-class cumulative accounting changes between two snapshots."""
+
+    delta = {}
+    for lifecycle, start_row in start["by_lifecycle"].items():
+        end_row = end["by_lifecycle"][lifecycle]
+        delta[lifecycle] = {
+            key: int(end_row[key]) - int(start_row[key])
+            for key in (
+                "resident_bytes",
+                "peak_bytes",
+                "cumulative_allocated_bytes",
+                "cumulative_allocated_tokens",
+                "allocation_count",
+                "eviction_count",
+            )
+        }
+    return delta
 
 
 def observation_steps(steps: int, *, interval: int = 256) -> tuple[int, ...]:

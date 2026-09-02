@@ -563,6 +563,8 @@ authoritative stateはfirst materialization以降1,354,772,633 bytes/armでdrift
 
 100kと256kは数時間のoperator-runなので、同じatomic artifact scriptをユーザー側で実行します。100kは合格済みです。process再開やdisk cache resumeは主張せず、中断時も最後の4,096-token milestoneと`complete=false`を残します。
 
+256k extended artifactでは1000回のmaterializationと全event件数を明示gateにし、最初と最後の10,000-token steady windowからlate throughput retentionを記録します。lifecycle accountingはTARGET_PREFIX / ACTIVE_RECURRENT / SNAPSHOT_STATE / DRAFT_TRANSIENTごとにstart/end/deltaを保存し、resident/peakだけでなくcumulative allocated bytes/tokens、allocation/eviction countを最終summaryへ固定します。256-token進捗行にはelapsed、logical steps/s、推定残時間も出力します。
+
 ```bash
 uv run python scripts/soak_layerwise_kda_state_digests.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \

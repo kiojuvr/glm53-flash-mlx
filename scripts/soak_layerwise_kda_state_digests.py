@@ -36,8 +36,10 @@ from glm53_flash_mlx.kda_digest import (
     aggregate_layer_digest,
     apc_event_steps,
     compare_layerwise_digests,
+    decode_throughput_retention,
     first_kda_state_difference,
     layerwise_kda_digests,
+    lifecycle_accounting_delta,
     observation_steps,
     rollback_events,
     steady_active_memory_drift,
@@ -468,6 +470,7 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
     latencies_b = []
     final_logits_a = final_logits_b = None
     mx.reset_peak_memory()
+    soak_started = time.perf_counter()
 
     # Empty state is the authoritative token-0 baseline.
     _record_checkpoint(
@@ -719,6 +722,8 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                 "eventful": counters_b["actual_model_forwards"],
             }
             if step % 256 == 0:
+                elapsed_seconds = time.perf_counter() - soak_started
+                logical_steps_per_second = step / elapsed_seconds
                 print(
                     json.dumps(
                         {
@@ -728,6 +733,12 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                             "aggregate": artifact["checkpoints"][str(step)][
                                 "uninterrupted"
                             ]["aggregate_digest"],
+                            "elapsed_seconds": elapsed_seconds,
+                            "logical_steps_per_second": logical_steps_per_second,
+                            "estimated_remaining_seconds": (
+                                steps - step
+                            )
+                            / logical_steps_per_second,
                         }
                     ),
                     flush=True,
@@ -775,6 +786,10 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
         overhead_a = observer_a / base_decode_ms_a
         overhead_b = observer_b / base_decode_ms_b
         event_rows = artifact["events"]
+        expected_event_count = len(rollback_plan) + len(apc_steps) + 1
+        lifecycle_start = artifact["checkpoints"]["0"]["lifecycle"]
+        lifecycle_end = accounting.snapshot()
+        elapsed_seconds = time.perf_counter() - soak_started
         acceptance = {
             "completed_requested_steps": artifact["last_completed_step"] == steps,
             "all_34_kda_layers_observed": all(
@@ -829,6 +844,9 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                 and row.get("source_snapshot_immutable", True)
                 and row.get("snapshot_immutable_after_next_decode", True)
                 for row in event_rows
+            ),
+            "apc_and_rollback_event_count_exact": (
+                len(event_rows) == expected_event_count
             ),
             "final_logits_hash_exact": final_logits_a == final_logits_b,
             "authoritative_state_drift_zero": max(authoritative) == min(authoritative),
@@ -906,8 +924,27 @@ def run_soak(model, *, artifact: dict, output: Path, vocab: int) -> None:
                     "eventful": base_decode_ms_b,
                 },
             },
-            "lifecycle": accounting.snapshot(),
+            "throughput_retention": {
+                "uninterrupted": decode_throughput_retention(latencies_a),
+                "eventful": decode_throughput_retention(latencies_b),
+            },
+            "elapsed_seconds": elapsed_seconds,
+            "logical_steps_per_second": steps / elapsed_seconds,
+            "model_forwards_per_second": (
+                counters_a["actual_model_forwards"]
+                + counters_b["actual_model_forwards"]
+            )
+            / elapsed_seconds,
+            "lifecycle": lifecycle_end,
+            "lifecycle_accounting": {
+                "start": lifecycle_start,
+                "end": lifecycle_end,
+                "delta_by_lifecycle": lifecycle_accounting_delta(
+                    lifecycle_start, lifecycle_end
+                ),
+            },
             "event_count": len(event_rows),
+            "expected_event_count": expected_event_count,
         }
         artifact["acceptance"] = {
             **acceptance,

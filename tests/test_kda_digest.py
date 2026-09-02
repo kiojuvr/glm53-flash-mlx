@@ -9,8 +9,10 @@ from glm53_flash_mlx.kda_digest import (
     aggregate_layer_digest,
     apc_event_steps,
     compare_layerwise_digests,
+    decode_throughput_retention,
     first_kda_state_difference,
     layerwise_kda_digests,
+    lifecycle_accounting_delta,
     observation_steps,
     rollback_events,
     steady_active_memory_drift,
@@ -58,6 +60,9 @@ def test_observation_schedule_covers_materialization_and_extra_boundaries():
     ) == 390
     assert apc_event_steps(4_096) == (2_048,)
     assert rollback_events(4_096) == ((1_024, 1), (2_048, 8), (3_072, 16))
+    assert len(apc_event_steps(256_000)) == 62
+    assert len(rollback_events(256_000)) == 6
+    assert len(apc_event_steps(256_000)) + len(rollback_events(256_000)) + 1 == 69
 
 
 def test_steady_memory_drift_excludes_initial_residency_observations():
@@ -76,6 +81,52 @@ def test_steady_memory_drift_requires_a_materialized_observation():
         steady_active_memory_drift(
             {"1": {"step": 1, "memory": {"active_bytes": 1_000}}}
         )
+
+
+def test_decode_throughput_retention_uses_disjoint_steady_windows():
+    latencies = [9.0, 9.0, 1.0, 1.2, 1.4, 2.0, 2.2, 2.4]
+    result = decode_throughput_retention(
+        latencies, warmup_tokens=2, window_tokens=3
+    )
+    assert result["window_tokens"] == 3
+    assert result["early_median_ms"] == pytest.approx(1_200.0)
+    assert result["late_median_ms"] == pytest.approx(2_200.0)
+    assert result["late_throughput_retention"] == pytest.approx(1.2 / 2.2)
+
+
+def test_lifecycle_accounting_delta_is_reported_per_class():
+    start = {
+        "by_lifecycle": {
+            "target-prefix": {
+                "resident_bytes": 10,
+                "peak_bytes": 10,
+                "cumulative_allocated_bytes": 10,
+                "cumulative_allocated_tokens": 4,
+                "allocation_count": 1,
+                "eviction_count": 0,
+            }
+        }
+    }
+    end = {
+        "by_lifecycle": {
+            "target-prefix": {
+                "resident_bytes": 12,
+                "peak_bytes": 14,
+                "cumulative_allocated_bytes": 20,
+                "cumulative_allocated_tokens": 8,
+                "allocation_count": 3,
+                "eviction_count": 1,
+            }
+        }
+    }
+    assert lifecycle_accounting_delta(start, end)["target-prefix"] == {
+        "resident_bytes": 2,
+        "peak_bytes": 4,
+        "cumulative_allocated_bytes": 10,
+        "cumulative_allocated_tokens": 4,
+        "allocation_count": 2,
+        "eviction_count": 1,
+    }
 
 
 def test_layerwise_conv_recurrent_and_index_digests_are_independent():

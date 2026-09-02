@@ -39,6 +39,15 @@ def test_soak_script_defines_staged_tiers_events_and_failure_localization():
         assert failure_field in source
     assert "server_admission_bypassed_inside_probe_only" in source
     assert '"process_resume_supported": False' in source
+    for progress_field in (
+        "elapsed_seconds",
+        "logical_steps_per_second",
+        "estimated_remaining_seconds",
+    ):
+        assert progress_field in source
+    assert "apc_and_rollback_event_count_exact" in source
+    assert "lifecycle_accounting_delta" in source
+    assert "throughput_retention" in source
 
 
 def test_screen_artifact_has_exact_layerwise_authoritative_evidence():
