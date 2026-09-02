@@ -1,0 +1,197 @@
+{
+  "acceptance": {
+    "active_recurrent_is_request_pinned": true,
+    "all_policy_audits_exact": true,
+    "class_accounting_complete": true,
+    "draft_pressure_does_not_evict_target": true,
+    "draft_resident_is_bounded": true,
+    "four_lifecycle_classes_explicit": true,
+    "lifecycle_physical_storage_separated": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "prefix_identity_fields_isolate_reuse": true,
+    "ram_apc_continuation_exact": true,
+    "snapshot_storage_is_independent": true
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "date": "2026-09-02",
+  "decision": "lifecycle_contract_ready_for_state_safety_integration",
+  "existing_runtime_identity": {
+    "cache_identity_schema": "glm53-hybrid-state-v1",
+    "compact_attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1"
+  },
+  "full_model": {
+    "executed": true,
+    "load_seconds": 40.534652249887586,
+    "moe_backend": "packed-decode",
+    "official_oracle": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 9.686960167018697,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "ram_apc": {
+      "all_logits_hashes_match": true,
+      "post_state_exact": true,
+      "snapshot_immutable": true,
+      "steps": 16
+    },
+    "warm_residency_seconds": 2.116891250014305
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "probe_only": true,
+  "runtime_changes": {
+    "abi": false,
+    "admission": false,
+    "apc_namespace": false,
+    "backend": false,
+    "cache_implementation": false,
+    "server": false
+  },
+  "schema": "glm53-cache-state-lifecycle-v1",
+  "simulation": {
+    "accounting_fields": [
+      "resident_bytes",
+      "peak_bytes",
+      "allocation_count",
+      "eviction_count",
+      "cumulative_allocated_bytes"
+    ],
+    "active_recurrent_pinning": {
+      "active_lru_entry_ids": [],
+      "audit": {
+        "accounting_exact": true,
+        "active_recurrent_absent_from_all_lru": true,
+        "anonymous_entry_count": 0,
+        "no_anonymous_entries": true,
+        "prefix_index_exact": true,
+        "unique_physical_storage": true,
+        "within_dedicated_budgets": true
+      },
+      "forbidden_evictions_rejected": 2,
+      "prefix_lru_entry_ids": [
+        "pressure-prefix-2",
+        "pressure-prefix-3"
+      ],
+      "state_digest_unchanged": true,
+      "storage_identity_unchanged": true
+    },
+    "classes": {
+      "active-recurrent": {
+        "contents": [
+          "kda-conv-state",
+          "kda-recurrent-state"
+        ],
+        "eviction_domain": "request-complete-only",
+        "owner_scope": "active-request",
+        "retention": "pinned-request"
+      },
+      "draft-transient": {
+        "contents": [
+          "draft-sliding-window-kv",
+          "draft-mutable-state"
+        ],
+        "eviction_domain": "draft-pressure-only",
+        "owner_scope": "draft-session",
+        "retention": "short-bounded"
+      },
+      "snapshot-state": {
+        "contents": [
+          "apc-kda-state",
+          "apc-indexpool-state",
+          "apc-kv-state"
+        ],
+        "eviction_domain": "apc-policy-only",
+        "owner_scope": "apc-snapshot",
+        "retention": "snapshot-owned"
+      },
+      "target-prefix": {
+        "contents": [
+          "dsa-latent-kv",
+          "indexpool-prefix-state"
+        ],
+        "eviction_domain": "target-pressure-only",
+        "owner_scope": "prefix-identity",
+        "retention": "long-reuse"
+      }
+    },
+    "draft_pressure_isolation": {
+      "audit": {
+        "accounting_exact": true,
+        "active_recurrent_absent_from_all_lru": true,
+        "anonymous_entry_count": 0,
+        "no_anonymous_entries": true,
+        "prefix_index_exact": true,
+        "unique_physical_storage": true,
+        "within_dedicated_budgets": true
+      },
+      "draft_budget_bytes": 32,
+      "draft_cumulative_allocated_bytes": 4096,
+      "draft_evictions": 4064,
+      "draft_resident_bytes": 32,
+      "rotations": 4096,
+      "target_digest_unchanged": true,
+      "target_evictions": 0,
+      "target_storage_identity_unchanged": true
+    },
+    "logical_lifecycle_separate_from_physical_storage": true,
+    "prefix_identity": {
+      "audit": {
+        "accounting_exact": true,
+        "active_recurrent_absent_from_all_lru": true,
+        "anonymous_entry_count": 0,
+        "no_anonymous_entries": true,
+        "prefix_index_exact": true,
+        "unique_physical_storage": true,
+        "within_dedicated_budgets": true
+      },
+      "descriptor": {
+        "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+        "backend_policy": "packed-decode+compact-nope-dsa",
+        "checkpoint_fingerprint": "checkpoint-a",
+        "indexpool_abi": "compact-indexpool-v4",
+        "kda_state_abi": "glm53-kda-state-v1",
+        "model_revision": "04c4e9e",
+        "prefix_token_sha256": "same-token-sequence"
+      },
+      "exact_identity_hit": true,
+      "namespace_sha256": "b848c963b4e366a95df01c57f3d2dbc5867fcbc162f89ca8a5cd138ecbf83f75",
+      "same_tokens_different_identity_misses": {
+        "attention_cache_abi": true,
+        "backend_policy": true,
+        "checkpoint_fingerprint": true,
+        "indexpool_abi": true,
+        "kda_state_abi": true,
+        "model_revision": true
+      }
+    },
+    "snapshot_independence": {
+      "active_resident_bytes": 64,
+      "audit": {
+        "accounting_exact": true,
+        "active_recurrent_absent_from_all_lru": true,
+        "anonymous_entry_count": 0,
+        "no_anonymous_entries": true,
+        "prefix_index_exact": true,
+        "unique_physical_storage": true,
+        "within_dedicated_budgets": true
+      },
+      "caller_alias_severed": true,
+      "first_restore_exact": true,
+      "replay_restore_exact": true,
+      "restore_storage_distinct": true,
+      "snapshot_resident_bytes": 64,
+      "snapshot_still_immutable_after_active_mutation": true,
+      "snapshot_unchanged_under_pressure": true,
+      "source_snapshot_storage_distinct": true
+    }
+  }
+}

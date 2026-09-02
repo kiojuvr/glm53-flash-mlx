@@ -197,6 +197,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | compiled KDA recurrent readout localization | layer 10/22/25/42を再現 / recurrence・state・tail exact / 最初の差はQ scale FP32 1 ULP |
 | exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
 | resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
+| cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -528,6 +529,16 @@ q/kv projection風の同一staging viewでは未所有aliasが上書き後の値
 
 公式checkpointのpacked-decode実機gateでは42/42 bankの4 bufferすべてが`owned + row-major-contiguous`で、16/128-tokenの全step full-vocab oracleが一致しました。load＋residencyは43.38秒、startup peakは319,706,119,424 bytesで、既存340 GB gateと旧packed startup peak比64 MiB非回帰gateを通過しています。公式mmap parameterは配列自身をownerとして保持するstable borrow、derived q/k/v fusionとNoPE projection viewはowned materializationです。checkpoint attestationはsource integrity、このfixtureはload後のlifetime integrityを検証し、runtime ABI、backend policy、APC、admission、serverは変更していません。
 
+### Cache state lifecycle and retention classes
+
+将来のDFlashや長期agent sessionに先立ち、物理allocatorを分割せずlogical lifecycleとaccounting domainを固定しました。`TARGET_PREFIX`はDSA latent/IndexPool prefix identityに属する`LONG_REUSE`、`ACTIVE_RECURRENT`は現在requestにpinする`PINNED_REQUEST`、`SNAPSHOT_STATE`はAPC ownerだけが管理する`SNAPSHOT_OWNED`、`DRAFT_TRANSIENT`は自身のhard budget内で循環する`SHORT_BOUNDED`です。lifecycleとretentionは別enum・別fieldで明示し、dtype、layout、tensor shapeから推定しません。
+
+小型policy simulatorではtarget 100 blocks相当を保持したままdraftを4,096回rotateし、draft residentは32、draft evictionは4,064、target evictionは0でした。target storage identityとdigestは不変です。target pressureとdraft pressureを同時に与えてもactive recurrent storage identity/digestは不変で、active entryはprefix・snapshot・draftの全LRUに入りません。外部pressureによるactive eviction、draft pressureによるtarget eviction、target pressureによるsnapshot/draft evictionはfail closedします。
+
+Snapshot captureはcaller/active storageからowned copyを作り、restoreもsnapshotとは別のowned active storageを作ります。capture後にactive stateを更新し、target eviction、draft rotation、restore、再更新、再restoreを行ってもsnapshot digestと復元stateはbyte-exactでした。snapshot bytesはactive/prefix budgetへ課金されず、APC policyだけがevictできます。実runtimeのRAM APCでも16-step continuation logits、post-state、snapshot immutabilityが一致しています。
+
+Prefix reuse identityにはmodel revision、checkpoint fingerprint、backend policy、attention cache ABI、KDA state ABI、IndexPool ABI、token digestを明示します。同一token列でも前6項目のどれかが異なれば全てmissとなり、accidental sharingはありません。class別にresident/peak bytes、allocation/eviction count、cumulative allocated bytesを記録し、anonymous allocationは0です。このcommitはpolicy/simulatorだけで、DFlash、物理pool、runtime cache implementation、APC namespace、ABI、admission、serverは変更していません。
+
 ### Packed decode operator microcaptures
 
 再生可能captureは代表layer 3/24/44へ縮小しました。`load_model()`のlazy mappingから対象MoE層だけをpack/materializeし、full model payloadをresident化しません。各層についてrouter、routed expert、shared expert、最終加算、full FFNの5 stageを別processでcaptureし、15/15 caseが32 GiB・15分budget内で完走しました。
@@ -731,6 +742,9 @@ uv run python scripts/probe_long_context_first_decode_boundary.py \
   --output bench-results/m3ultra512-long-context-first-decode-boundary-20260831.json
 
 uv run python scripts/probe_resident_tensor_ownership.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+
+uv run python scripts/probe_cache_state_lifecycle.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
