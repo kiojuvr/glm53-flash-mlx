@@ -200,6 +200,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
+| layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
 | layer-local packed MoE microcapture | layer 3/24/44 × 5 stages完走 / 1層active 7.277 GB / trace 3.17–3.23 GB / full model非resident |
 | row-blocked vector KDA、4K/8K/16K | R=4勝者 / R=1比3.063×・2.977×・3.500× / current比1.638×・1.704×・1.999× |
 | row-blocked KDA full-model、2K/4K | 46.008→45.954 s / 91.305→91.198 s / 各1.00118×（1.02× gate未達） |
@@ -565,6 +566,10 @@ authoritative stateはfirst materialization以降1,354,772,633 bytes/armでdrift
 
 256k extended artifactでは1000回のmaterializationと全event件数を明示gateにし、最初と最後の10,000-token steady windowからlate throughput retentionを記録します。lifecycle accountingはTARGET_PREFIX / ACTIVE_RECURRENT / SNAPSHOT_STATE / DRAFT_TRANSIENTごとにstart/end/deltaを保存し、resident/peakだけでなくcumulative allocated bytes/tokens、allocation/eviction countを最終summaryへ固定します。256-token進捗行にはelapsed、logical steps/s、推定残時間も出力します。
 
+256k extended qualificationは256,000 logical token、A/B合計512,050 model forwardを13時間36分で完走しました。34/34 KDA層×1,005 checkpoint、全step full-vocab logits、1,000回のmaterialization前後、62回のRAM APC、rollback/replay 1/8/16 token各2回、17-token fail-closedの計69 eventは全てexactです。first divergence、NaN、invalid index、Metal errorは0で、state leafは167、authoritative driftは0 bytesでした。独立した100k qualificationと重なる395 checkpointのKDA digest系列も完全一致します。
+
+steady active-memory driftは369,900 bytes、peakは333.166 GBでgate内です。最初/最後の10,000-token medianによるlate throughput retentionはA 0.9759、B 0.9761、observer overheadはA 0.465%、B 0.468%でした。lifecycle accountingはanonymous allocation 0のまま、35,363,328 cumulative physical token slotsと446,825,650,554 cumulative bytesを経験し、最終residentは6,475,734,066 bytesにboundedしています。うちSNAPSHOT_STATEは440,349,916,488 cumulative bytesをallocateしつつ最終resident 0 bytes、DRAFT_TRANSIENTは全指標0です。これによりtoken-countを軸にしたKDA state-safety qualificationは完了とし、次はlogical token数を抑えてallocation/APC/rollback churnを高密度化する試験へ移ります。
+
 ```bash
 uv run python scripts/soak_layerwise_kda_state_digests.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
@@ -575,7 +580,7 @@ uv run python scripts/soak_layerwise_kda_state_digests.py \
 uv run python scripts/soak_layerwise_kda_state_digests.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --steps 256000 \
-  --output bench-results/m3ultra512-layerwise-kda-state-digest-256k-20260902.json
+  --output bench-results/m3ultra512-layerwise-kda-state-digest-256k-20260903.json
 ```
 
 ### Packed decode operator microcaptures

@@ -16,6 +16,11 @@ QUALIFICATION_ARTIFACT = (
     / "bench-results"
     / "m3ultra512-layerwise-kda-state-digest-100k-20260902.json"
 )
+EXTENDED_ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-layerwise-kda-state-digest-256k-20260903.json"
+)
 
 
 def test_soak_script_defines_staged_tiers_events_and_failure_localization():
@@ -138,3 +143,61 @@ def test_100k_qualification_is_exact_and_steady_memory_is_bounded():
         "uninterrupted": 100_000,
         "eventful": 100_050,
     }
+
+
+def test_256k_extended_qualification_closes_token_count_soak():
+    artifact = json.loads(EXTENDED_ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["tier"] == "extended"
+    assert artifact["steps"] == artifact["last_completed_step"] == 256_000
+    assert all(artifact["acceptance"].values())
+    assert artifact["first_divergence"] is None
+    assert artifact["nan_count"] == 0
+    assert artifact["metal_error"] is None
+
+    summary = artifact["summary"]
+    assert summary["checkpoint_count"] == 1_005
+    assert summary["periodic_256_checkpoint_count"] == 1_000
+    assert summary["materialization_count"] == 1_000
+    assert summary["event_count"] == summary["expected_event_count"] == 69
+    assert summary["authoritative_state_drift_bytes"] == 0
+    assert summary["active_memory_drift_bytes"] == 369_900
+    assert summary["active_memory_drift_bytes"] <= 64 * 2**20
+    assert summary["peak_memory_bytes"] <= 340_000_000_000
+    assert summary["state_leaf_counts"] == [167]
+    assert summary["observer_overhead"]["uninterrupted_ratio"] <= 0.01
+    assert summary["observer_overhead"]["eventful_ratio"] <= 0.01
+    assert summary["throughput_retention"]["uninterrupted"][
+        "late_throughput_retention"
+    ] >= 0.95
+    assert summary["throughput_retention"]["eventful"][
+        "late_throughput_retention"
+    ] >= 0.95
+    assert artifact["actual_model_forwards"] == {
+        "uninterrupted": 256_000,
+        "eventful": 256_050,
+    }
+
+    lifecycle = summary["lifecycle_accounting"]
+    assert lifecycle["end"]["anonymous_allocation_count"] == 0
+    assert lifecycle["end"]["cumulative_allocated_bytes"] == 446_825_650_554
+    assert lifecycle["end"]["cumulative_allocated_tokens"] == 35_363_328
+    assert lifecycle["end"]["by_lifecycle"]["snapshot-state"][
+        "resident_bytes"
+    ] == 0
+    assert all(
+        value == 0
+        for value in lifecycle["end"]["by_lifecycle"]["draft-transient"].values()
+    )
+
+
+def test_256k_run_repeats_all_overlapping_100k_kda_digests():
+    qualification = json.loads(QUALIFICATION_ARTIFACT.read_text())
+    extended = json.loads(EXTENDED_ARTIFACT.read_text())
+    common = set(qualification["checkpoints"]) & set(extended["checkpoints"])
+    assert len(common) == 395
+    for step in common:
+        for arm in ("uninterrupted", "eventful"):
+            assert qualification["checkpoints"][step][arm][
+                "aggregate_digest"
+            ] == extended["checkpoints"][step][arm]["aggregate_digest"]
