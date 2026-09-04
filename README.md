@@ -199,6 +199,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
 | materialization / cache-write ownership | compact・RAM APC・prefill→decodeでA/B/C exact / no-ownerでもvalue生成 / invalid destination atomic / 16/128 oracle exact |
+| DSA pooled workspace geometry | 128K/Q256 32 MiB・256K/Q256 64 MiB / 1Mは64 rows×4 blocks / 88境界とtop-k/expand exact |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -551,6 +552,16 @@ forwardの一時値を計算する必要性と、その値をpersistent cacheへ
 actual compact NoPE cache、RAM APC restore、32-token prefillから最初のsparse decodeへのtransitionでA=materialize+write、B=materialize+no-write、C=no materialize+no-writeを比較しました。Aは既存production操作とvalue、cache、selected indexがbyte-exactです。BはAと同じtemporary valueを生成しながらcache offset、physical capacity、resident bytes、state digestを一切変更せず、Cはproducerを起動しません。invalid destinationもproducer call 0、authoritative state不変です。APC snapshotは全arm後もimmutableでした。
 
 packed-decode＋compact-nope-dsaの実checkpointでも公式16/128-token全vocab oracleとRAM APC 16-step continuation、post-state、snapshot immutabilityが一致しました。この契約はtensor ownership、layout、cache lifecycleとは独立で、runtime cache implementation、ABI、APC namespace、backend、admission、serverを変更しません。semantic prefix snapshotはこの直交契約の上に構築します。
+
+### Bounded DSA Indexer workspace geometry
+
+DSA Indexerのkey dimensionをlogical contextではなく`pool_count = quotient + (remainder != 0)`、すなわち`ceil_div(context_tokens, index_kpool=4)`へ固定しました。FP32 pooled-logits面は`query_block_rows × pool_count × 4 bytes`で計画し、64 MiBを上限にquery軸だけを分割します。128K/Q256は32,768 pools・32 MiB・1 block、256K/Q256は65,536 pools・64 MiB・1 block、1M/Q256は262,144 pools・64 rows×4 blocksです。262,144→262,145 tokenでは65,536→65,537 poolsとなり、partial末尾poolをfloor divisionで落としません。
+
+Q=1/63/64/65/127/128/255/256とcontext=1–5、2,047–2,049、4,095–4,097の88組合せでunsplitとrow-blockedを比較し、raw FP32 logits、top-k score、top-k pool index、expanded token index、valid/sentinel位置が全てbyte-exactでした。selected幅はcontextによらず2,051、sentinel以外の範囲外indexは0です。128K/256K operator qualificationも同じ結果で、処理後active-memory driftは0 bytesでした。8K/Q256のone-block fast pathは2 warmup＋5×64反復でreference比0.9977×です。
+
+memory accountingはFP32 logits、exact argsort full-order、top-k score、IndexPool expansion、selected outputをtransientへ、pool keys/indices/validityをpersistent IndexPoolへ分離します。256Kではlogits面64 MiB、full-order index scratch 64 MiBです。Metal allocatorで測ったcandidate全体のworking peakは568.9 MBで、これはsynthetic score式、masked score、exact argsortのbackend working setも含むため64 MiB logits budgetとは別指標です。referenceとcandidateを同時保持するdifferential harness peakは1.133 GBでした。いずれも処理後residentは0へ戻り、256 MiBの`Q × logical_context` logitsを生成する経路やmaximum context基準のresident scratchはありません。
+
+実checkpoint layer 3は`index_kpool=4`、`index_topk=2048`、head dim 128であることを確認し、packed-decode＋compact-nope-dsaの公式16/128-token full-vocab oracleとRAM APC continuationもexactです。このcommitはplanner/operator qualificationだけで、production DSA kernel、cache implementation、ABI、APC namespace、backend、server admissionを変更していません。
 
 ### KDA state index load/store guards
 
