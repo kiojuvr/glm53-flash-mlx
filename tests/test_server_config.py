@@ -8,6 +8,12 @@ from glm53_flash_mlx.abi import (
     NOPE_DSA_CACHE_ABI_COMPACT,
     NOPE_DSA_CACHE_ABI_DIRECT,
 )
+from glm53_flash_mlx.manifest import (
+    APPROVED_CHAT_TEMPLATE_REVISIONS,
+    EXPECTED_CHECKPOINT_DIGEST,
+    EXPECTED_TOKENIZER_DIGEST,
+    revision_identity_from_digests,
+)
 from glm53_flash_mlx.server import (
     _disk_cache_descriptor,
     _disk_cache_identity,
@@ -129,6 +135,30 @@ def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
         "attention_cache_abi"
     ]
     assert direct_descriptor["cache_backend"] == "direct"
+
+
+def test_disk_cache_descriptor_audits_split_official_revision_identity():
+    templates = list(APPROVED_CHAT_TEMPLATE_REVISIONS)
+    baseline = revision_identity_from_digests(
+        checkpoint_digest=EXPECTED_CHECKPOINT_DIGEST,
+        tokenizer_digest=EXPECTED_TOKENIZER_DIGEST,
+        chat_template_digest=templates[0],
+    )
+    candidate = revision_identity_from_digests(
+        checkpoint_digest=EXPECTED_CHECKPOINT_DIGEST,
+        tokenizer_digest=EXPECTED_TOKENIZER_DIGEST,
+        chat_template_digest=templates[1],
+    )
+
+    descriptor = _disk_cache_descriptor(candidate)
+    assert descriptor["checkpoint_revision"] == candidate.checkpoint_revision
+    assert descriptor["checkpoint_digest"] == EXPECTED_CHECKPOINT_DIGEST
+    assert descriptor["tokenizer_revision"] == candidate.tokenizer_revision
+    assert descriptor["tokenizer_digest"] == EXPECTED_TOKENIZER_DIGEST
+    assert descriptor["chat_template_revision"] == candidate.chat_template_revision
+    assert descriptor["chat_template_digest"] == templates[1]
+    assert descriptor["checkpoint_content_sha256"] == candidate.namespace_sha256
+    assert _disk_cache_identity(baseline) != _disk_cache_identity(candidate)
 
 
 def test_disk_cache_identity_separates_packed_decode_without_grouped_abi(monkeypatch):

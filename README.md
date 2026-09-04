@@ -97,7 +97,9 @@ CPU expert bucket/full-KV DSA prefillを巨大promptへ誤って起動しない�
 
 `--max-tokens`はrequest省略時の既定値であると同時に、各requestのgeneration hard capです。既定では4,096を受理し、4,097以上をHTTP 400で拒否します。
 
-serverは公式Hugging Face [revision `04c4e9e`](https://huggingface.co/zai-org/GLM-5.3-Flash/tree/04c4e9e95c5da8862dced7e5056455116f83a7e0)に固定されています。起動時にはconfig、tokenizer、chat template、index等の既知SHA-256に加え、全62 weight shardを含むcheckpoint content digestを照合します。全payload attestationはM3 Ultra実測で約130–142秒です。
+serverは公式Hugging Face weight revision [`04c4e9e`](https://huggingface.co/zai-org/GLM-5.3-Flash/tree/04c4e9e95c5da8862dced7e5056455116f83a7e0)に固定されています。起動時にはconfig、tokenizer、chat template、index等の既知SHA-256に加え、全62 weight shardを照合します。checkpoint、tokenizer、chat templateは独立したrevision/digestとして認証され、disk APC identityにも個別fieldで含まれます。全payload attestationはM3 Ultra実測で約130–142秒です。
+
+2026-09-05の公式chat-template更新（snapshot `690b705`）は、accepted baseline snapshot `3f1971b`と全62 shard、index、config、tokenizer、processor、generation configがbyte-identicalで、runtime入力では`chat_template.jinja`だけが変わるrevisionと確認済みです。公式repositoryのancillary fileでは`README.md`も更新され、LICENSEと`.gitattributes`は不変です。新templateは`None` contentを文字列として出力せず、tool-result整列の制御を修正します。system/user、multi-turn、assistant、tools、reasoning effort、clear-thinkingを含む10 fixtureでruntime tokenizerと公式Transformersのrender/token列が一致し、既存greedy-oracle promptも不変です。既定model pathは比較oracleとしてPRO-2のまま維持し、PRO-1を起動せずqualificationしました。
 
 attestation後にtext target全体（実測319.706 GB、297.75 GiB）をunified memoryへmaterializeします。この処理はM3 Ultra実測で約30.6秒です。保存dtypeはFP8/BF16のままであり、BF16 model copyは作りません。一時的なsmoke testだけ常駐化を省く場合は`--no-warm-residency`を指定できます。content attestationは省略されません。
 
@@ -145,7 +147,7 @@ uv run glm53 serve --apc --apc-blocks 512 \
   --experimental-disk-apc
 ```
 
-disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離します。packed-decodeはrow-contiguous packed bank ABIとpacked selected decode ABIを含み、packed-groupedはそれらに加えてgrouped kernel ABIと256-route runtime thresholdを含みます。cache backendと3つのMoE backendの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
+disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-template revision/digest、KV codec設定、固定mlx-vlm revision、v4 row-contiguous custom Metal kernel ABI、cache backend、NoPE DSA cache ABIから生成します。同じweight/tokenizerでもtemplate revisionが異なれば別namespaceです。Directは`glm53-nope-dsa-v1`、compactはsingle latent、fixed-absolute-capacityのcompact IndexPool v4、kpool4/int64、rollback16/raw19、self-contained APEを明示する`glm53-nope-dsa-v4`です。さらにMoE backendを分離します。packed-decodeはrow-contiguous packed bank ABIとpacked selected decode ABIを含み、packed-groupedはそれらに加えてgrouped kernel ABIと256-route runtime thresholdを含みます。cache backendと3つのMoE backendの全組み合わせが別namespaceです。compact cacheのRAM APCは`state/meta_state` exact snapshotで16-token continuation parityを確認済みです。compact disk APCは未実装のため、`--apc-disk-path`との併用をweight load前にfail closedします。APC自体は既定offです。
 
 `/v1/metrics`と`/health`でqueue、prefill/decode速度、APC状態を確認できます。production decodeは`nested-cache-eval-clear-v1` policyでrecurrent cacheを256 tokenごとにmaterializeします。環境変数の既存値はserver初期化時に上書きし、CLIで任意値は公開しません。`/v1/metrics`の`server.recurrent_state_materialization`にはconfigured interval、完了回数、前回境界からのdecode step、最終境界step、active/cache/peak memoryを記録します。Metal buffer object数は公開APIがないため報告しません。
 
@@ -161,7 +163,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 
 ## M3 Ultra 512 GB実測
 
-2026-08-28〜31、このリポジトリの公式checkpointで測定した値です。
+2026-08-28〜09-05、このリポジトリの公式checkpointで測定した値です。
 
 | 項目 | 実測 |
 |---|---:|
@@ -173,6 +175,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | OpenAI chat completion | HTTP 200（実model、安定alias） |
 | deterministic 256-token prefill | 17.49 s / 14.63 tok/s / peak 320.64 GB |
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
+| latest official chat template | 62/62 shard＋tokenizer/config/index同一 / templateのみ変更 / 10 fixture official-runtime exact |
 | layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
 | layer 3 grouped FP8 MoE, 256 tokens | 111.50 → 22.03 ms / 5.06× / working peak +319.7 MB |
 | full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |

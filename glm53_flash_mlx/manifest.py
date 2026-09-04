@@ -18,17 +18,29 @@ EXPECTED_SHARDS = 62
 EXPECTED_TENSORS = 76_108
 EXPECTED_DECLARED_BYTES = 328_326_771_576
 OFFICIAL_HF_REVISION = "04c4e9e95c5da8862dced7e5056455116f83a7e0"
+BASELINE_OFFICIAL_SNAPSHOT_REVISION = "3f1971b7b5f7a528c9c4ef6212c8785298a8c24a"
+LATEST_OFFICIAL_SNAPSHOT_REVISION = "690b705278a3a58e538fcb37c2ca8b5f9511213c"
+OFFICIAL_TOKENIZER_REVISION = BASELINE_OFFICIAL_SNAPSHOT_REVISION
 # Canonical tensor metadata digest of the public checkpoint. Filled after the
 # audit algorithm itself is validated against that checkpoint.
 EXPECTED_LAYOUT_DIGEST = "c21cc9b55c8b977434e5932682313a3b84ac87e31c61a12e2768dd57e2954a72"
-EXPECTED_CONTENT_DIGEST = "6f5c2c108875dc81a63124d1e5f0f655cc1af7ff3cf34370f1e2b66f9d62dfd3"
+EXPECTED_CHECKPOINT_DIGEST = "fa0e072f4e9bcde1c8b0ce3e0a35387ecda1d7a6fc23d7a1e6cbc9063043e708"
+EXPECTED_TOKENIZER_DIGEST = "a6c68bb04007faf831fe85cf8d62da7389c5590df7c519365800950a163787bb"
+APPROVED_CHAT_TEMPLATE_REVISIONS = {
+    "34d5ee66b12fa6446cdae131c352b8f68cd85369e0e6fda115583805fada3891": (
+        BASELINE_OFFICIAL_SNAPSHOT_REVISION
+    ),
+    "0c4099f3382d6c92700dfb99725025360966fd73032f0ecf32377c0d9e6309c5": (
+        LATEST_OFFICIAL_SNAPSHOT_REVISION
+    ),
+}
 EXPECTED_METADATA_SHA256 = {
     "config.json": "bb8f01c42cb92a52ca72e65afb4d5bd8d11aef083cd210e8de25dfb904f23e9f",
     "generation_config.json": "230c30609ecbbb9e6583bedde8e7bdda0c6eb8fe5fad0eaeb3d1b293d751cb4f",
     "model.safetensors.index.json": "3c3f40366a53c3fd7974b4eab7881a365a98c2a4329150befebab99fe7c18b05",
     "tokenizer.json": "19e773648cb4e65de8660ea6365e10acca112d42a854923df93db4a6f333a82d",
     "tokenizer_config.json": "98b1271574f41abf89427ae2dda030d94dc9478f0edc5a8bd240db213c6fd5fc",
-    "chat_template.jinja": "34d5ee66b12fa6446cdae131c352b8f68cd85369e0e6fda115583805fada3891",
+    "chat_template.jinja": tuple(APPROVED_CHAT_TEMPLATE_REVISIONS),
     "processor_config.json": "aae38374c94b08cc9b0547c6e64f05b951bd9735cea571c6988f5ed552bed3ed",
 }
 FP8_FORMAT = "e4m3"
@@ -85,6 +97,10 @@ class CheckpointReport:
     quantization: dict[str, Any] | None
     server_ready: bool
     audit_failures: tuple[str, ...]
+    tokenizer_revision: str
+    tokenizer_digest: str
+    chat_template_revision: str
+    chat_template_digest: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -106,6 +122,136 @@ def _file_sha256(path: Path, *, chunk_mb: int = 16) -> str:
     return digest.hexdigest()
 
 
+TOKENIZER_IDENTITY_FILES = (
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "processor_config.json",
+)
+
+
+def _component_digest_from_file_hashes(
+    schema: str, rows: list[tuple[str, int, str]]
+) -> str:
+    digest = hashlib.sha256()
+    digest.update(schema.encode())
+    digest.update(b"\0")
+    for name, size, content_sha256 in sorted(rows):
+        digest.update(name.encode())
+        digest.update(b"\0")
+        digest.update(struct.pack("<Q", size))
+        digest.update(bytes.fromhex(content_sha256))
+    return digest.hexdigest()
+
+
+def component_file_hashes(
+    path: str | Path,
+    names: tuple[str, ...] | list[str],
+    *,
+    chunk_mb: int = 16,
+) -> list[tuple[str, int, str]]:
+    root = Path(path).expanduser().resolve()
+    rows = []
+    for name in names:
+        file = root / name
+        if not file.is_file():
+            raise ManifestError(f"identity component missing: {name}")
+        rows.append((name, file.stat().st_size, _file_sha256(file, chunk_mb=chunk_mb)))
+    return rows
+
+
+def tokenizer_content_digest(path: str | Path) -> str:
+    rows = component_file_hashes(path, TOKENIZER_IDENTITY_FILES)
+    return _component_digest_from_file_hashes("glm53-tokenizer-content-v1", rows)
+
+
+def chat_template_content_digest(path: str | Path) -> str:
+    root = Path(path).expanduser().resolve()
+    template = root / "chat_template.jinja"
+    if not template.is_file():
+        raise ManifestError("identity component missing: chat_template.jinja")
+    return _file_sha256(template)
+
+
+def checkpoint_weight_file_hashes(
+    path: str | Path, *, chunk_mb: int = 16
+) -> list[tuple[str, int, str]]:
+    root = Path(path).expanduser().resolve()
+    index_path = root / "model.safetensors.index.json"
+    if not index_path.is_file():
+        raise ManifestError(f"model.safetensors.index.json not found: {index_path}")
+    index = json.loads(index_path.read_text())
+    shards = sorted(set((index.get("weight_map") or {}).values()))
+    return component_file_hashes(
+        root,
+        ["model.safetensors.index.json", *shards],
+        chunk_mb=chunk_mb,
+    )
+
+
+def checkpoint_weight_digest(path: str | Path, *, chunk_mb: int = 16) -> str:
+    return _component_digest_from_file_hashes(
+        "glm53-checkpoint-weight-content-v1",
+        checkpoint_weight_file_hashes(path, chunk_mb=chunk_mb),
+    )
+
+
+@dataclass(frozen=True)
+class OfficialRevisionIdentity:
+    checkpoint_revision: str
+    checkpoint_digest: str
+    tokenizer_revision: str
+    tokenizer_digest: str
+    chat_template_revision: str
+    chat_template_digest: str
+
+    def descriptor(self) -> dict[str, str]:
+        return asdict(self)
+
+    @property
+    def namespace_sha256(self) -> str:
+        return _canonical_digest("glm53-official-revision-identity-v1", self.descriptor())
+
+
+def revision_identity_from_digests(
+    *, checkpoint_digest: str, tokenizer_digest: str, chat_template_digest: str
+) -> OfficialRevisionIdentity:
+    if checkpoint_digest != EXPECTED_CHECKPOINT_DIGEST:
+        raise ManifestError(
+            "official checkpoint weight digest mismatch: "
+            f"got {checkpoint_digest}, expected {EXPECTED_CHECKPOINT_DIGEST}"
+        )
+    if tokenizer_digest != EXPECTED_TOKENIZER_DIGEST:
+        raise ManifestError(
+            "official tokenizer digest mismatch: "
+            f"got {tokenizer_digest}, expected {EXPECTED_TOKENIZER_DIGEST}"
+        )
+    try:
+        template_revision = APPROVED_CHAT_TEMPLATE_REVISIONS[chat_template_digest]
+    except KeyError as error:
+        raise ManifestError(
+            f"unapproved official chat template digest: {chat_template_digest}"
+        ) from error
+    return OfficialRevisionIdentity(
+        checkpoint_revision=OFFICIAL_HF_REVISION,
+        checkpoint_digest=checkpoint_digest,
+        tokenizer_revision=OFFICIAL_TOKENIZER_REVISION,
+        tokenizer_digest=tokenizer_digest,
+        chat_template_revision=template_revision,
+        chat_template_digest=chat_template_digest,
+    )
+
+
+def attest_revision_identity(
+    path: str | Path, *, chunk_mb: int = 16
+) -> OfficialRevisionIdentity:
+    inspect_checkpoint(path, require_server_ready=True)
+    return revision_identity_from_digests(
+        checkpoint_digest=checkpoint_weight_digest(path, chunk_mb=chunk_mb),
+        tokenizer_digest=tokenizer_content_digest(path),
+        chat_template_digest=chat_template_content_digest(path),
+    )
+
+
 def _audit_official_metadata(root: Path) -> list[str]:
     failures: list[str] = []
     for name, expected in EXPECTED_METADATA_SHA256.items():
@@ -114,7 +260,8 @@ def _audit_official_metadata(root: Path) -> list[str]:
             failures.append(f"official metadata missing: {name}")
             continue
         actual = _file_sha256(path)
-        if actual != expected:
+        approved = (expected,) if isinstance(expected, str) else tuple(expected)
+        if actual not in approved:
             failures.append(f"official metadata digest mismatch: {name}")
     return failures
 
@@ -248,6 +395,24 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
     dsa = tuple(i for i, kind in enumerate(layer_types) if kind == "deepseek_sparse_attention")
     failures: list[str] = []
     failures.extend(_audit_official_metadata(root))
+    tokenizer_digest = (
+        tokenizer_content_digest(root)
+        if all((root / name).is_file() for name in TOKENIZER_IDENTITY_FILES)
+        else "missing"
+    )
+    tokenizer_revision = (
+        OFFICIAL_TOKENIZER_REVISION
+        if tokenizer_digest == EXPECTED_TOKENIZER_DIGEST
+        else "unapproved"
+    )
+    chat_template_digest = (
+        chat_template_content_digest(root)
+        if (root / "chat_template.jinja").is_file()
+        else "missing"
+    )
+    chat_template_revision = APPROVED_CHAT_TEMPLATE_REVISIONS.get(
+        chat_template_digest, "unapproved"
+    )
     if layers != 45 or len(layer_types) != 45:
         failures.append(f"layers={layers}/{len(layer_types)} (expected 45)")
     if kda != EXPECTED_KDA:
@@ -327,6 +492,10 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
         index_topk=int(text.get("index_topk", -1)),
         index_kpool=int(text.get("index_kpool", -1)),
         server_ready=server_ready, audit_failures=tuple(failures),
+        tokenizer_revision=tokenizer_revision,
+        tokenizer_digest=tokenizer_digest,
+        chat_template_revision=chat_template_revision,
+        chat_template_digest=chat_template_digest,
     )
     if require_server_ready and not server_ready:
         detail = "; ".join(failures[:8]) or f"source format is {source_format}"
@@ -335,7 +504,11 @@ def inspect_checkpoint(path: str | Path, *, require_server_ready: bool = False) 
 
 
 def checkpoint_content_digest(path: str | Path, *, chunk_mb: int = 16) -> str:
-    """Hash config/tokenizer/index and every shard byte for disk-cache identity."""
+    """Return the legacy bundled content hash for diagnostics only.
+
+    Runtime attestation and disk APC use ``OfficialRevisionIdentity`` so a
+    template-only update never masquerades as a weight revision.
+    """
     root = Path(path).expanduser().resolve()
     report = inspect_checkpoint(root, require_server_ready=True)
     index = json.loads((root / "model.safetensors.index.json").read_text())
@@ -361,11 +534,5 @@ def checkpoint_content_digest(path: str | Path, *, chunk_mb: int = 16) -> str:
 
 
 def attest_checkpoint(path: str | Path, *, chunk_mb: int = 16) -> str:
-    """Hash all official weight payloads and reject any content divergence."""
-    actual = checkpoint_content_digest(path, chunk_mb=chunk_mb)
-    if actual != EXPECTED_CONTENT_DIGEST:
-        raise ManifestError(
-            "checkpoint content digest mismatch for official Hugging Face revision "
-            f"{OFFICIAL_HF_REVISION}: got {actual}, expected {EXPECTED_CONTENT_DIGEST}"
-        )
-    return actual
+    """Attest independently versioned official content and return its namespace."""
+    return attest_revision_identity(path, chunk_mb=chunk_mb).namespace_sha256

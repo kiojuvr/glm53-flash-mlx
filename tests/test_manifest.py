@@ -7,10 +7,14 @@ import pytest
 
 from glm53_flash_mlx import manifest
 from glm53_flash_mlx.manifest import (
+    APPROVED_CHAT_TEMPLATE_REVISIONS,
+    EXPECTED_CHECKPOINT_DIGEST,
+    EXPECTED_TOKENIZER_DIGEST,
     ManifestError,
     attest_checkpoint,
     checkpoint_content_digest,
     inspect_checkpoint,
+    revision_identity_from_digests,
 )
 
 
@@ -125,13 +129,19 @@ def test_disk_cache_content_digest_changes_when_payload_changes(tmp_path, monkey
         lambda *_args, **_kwargs: type("Report", (), {"layout_digest": "layout"})(),
     )
     before = checkpoint_content_digest(tmp_path, chunk_mb=1)
-    monkeypatch.setattr(manifest, "EXPECTED_CONTENT_DIGEST", before)
-    assert attest_checkpoint(tmp_path, chunk_mb=1) == before
     (tmp_path / "one.safetensors").write_bytes(b"same-size-payload-b")
     after = checkpoint_content_digest(tmp_path, chunk_mb=1)
     assert before != after
-    with pytest.raises(ManifestError, match="content digest mismatch"):
-        attest_checkpoint(tmp_path, chunk_mb=1)
+
+
+def test_attest_checkpoint_returns_split_revision_namespace(monkeypatch):
+    identity = revision_identity_from_digests(
+        checkpoint_digest=EXPECTED_CHECKPOINT_DIGEST,
+        tokenizer_digest=EXPECTED_TOKENIZER_DIGEST,
+        chat_template_digest=next(iter(APPROVED_CHAT_TEMPLATE_REVISIONS)),
+    )
+    monkeypatch.setattr(manifest, "attest_revision_identity", lambda *_a, **_k: identity)
+    assert attest_checkpoint("/unused") == identity.namespace_sha256
 
 
 def test_config_and_chat_template_are_authenticated(tmp_path, monkeypatch):
@@ -158,6 +168,64 @@ def test_config_and_chat_template_are_authenticated(tmp_path, monkeypatch):
     assert manifest._audit_official_metadata(tmp_path) == [
         "official metadata digest mismatch: chat_template.jinja"
     ]
+
+
+def test_chat_template_metadata_accepts_only_explicit_approved_revisions(
+    tmp_path, monkeypatch
+):
+    template = tmp_path / "chat_template.jinja"
+    template.write_text("candidate")
+    candidate = hashlib.sha256(template.read_bytes()).hexdigest()
+    monkeypatch.setattr(
+        manifest,
+        "EXPECTED_METADATA_SHA256",
+        {"chat_template.jinja": ("baseline-digest", candidate)},
+    )
+    assert manifest._audit_official_metadata(tmp_path) == []
+
+    template.write_text("unapproved")
+    assert manifest._audit_official_metadata(tmp_path) == [
+        "official metadata digest mismatch: chat_template.jinja"
+    ]
+
+
+def test_revision_identity_separates_checkpoint_tokenizer_and_template():
+    baseline_template, candidate_template = APPROVED_CHAT_TEMPLATE_REVISIONS
+    baseline = revision_identity_from_digests(
+        checkpoint_digest=EXPECTED_CHECKPOINT_DIGEST,
+        tokenizer_digest=EXPECTED_TOKENIZER_DIGEST,
+        chat_template_digest=baseline_template,
+    )
+    candidate = revision_identity_from_digests(
+        checkpoint_digest=EXPECTED_CHECKPOINT_DIGEST,
+        tokenizer_digest=EXPECTED_TOKENIZER_DIGEST,
+        chat_template_digest=candidate_template,
+    )
+
+    assert baseline.checkpoint_digest == candidate.checkpoint_digest
+    assert baseline.tokenizer_digest == candidate.tokenizer_digest
+    assert baseline.chat_template_revision != candidate.chat_template_revision
+    assert baseline.chat_template_digest != candidate.chat_template_digest
+    assert baseline.namespace_sha256 != candidate.namespace_sha256
+
+
+@pytest.mark.parametrize(
+    ("field", "message"),
+    [
+        ("checkpoint_digest", "checkpoint weight digest mismatch"),
+        ("tokenizer_digest", "tokenizer digest mismatch"),
+        ("chat_template_digest", "unapproved official chat template digest"),
+    ],
+)
+def test_revision_identity_rejects_each_unapproved_component(field, message):
+    values = {
+        "checkpoint_digest": EXPECTED_CHECKPOINT_DIGEST,
+        "tokenizer_digest": EXPECTED_TOKENIZER_DIGEST,
+        "chat_template_digest": next(iter(APPROVED_CHAT_TEMPLATE_REVISIONS)),
+    }
+    values[field] = "0" * 64
+    with pytest.raises(ManifestError, match=message):
+        revision_identity_from_digests(**values)
 
 
 def test_fp8_scale_shape_and_dtype_are_audited():

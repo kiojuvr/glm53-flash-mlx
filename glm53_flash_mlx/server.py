@@ -22,7 +22,12 @@ from .abi import (
     PACKED_DECODE_KERNEL_ABI,
     PACKED_EXPERT_BANK_ABI,
 )
-from .manifest import ManifestError, attest_checkpoint, inspect_checkpoint
+from .manifest import (
+    ManifestError,
+    OfficialRevisionIdentity,
+    attest_revision_identity,
+    inspect_checkpoint,
+)
 from .materialization import (
     MATERIALIZATION_INTERVAL_TOKENS,
     MATERIALIZATION_POLICY,
@@ -91,12 +96,23 @@ def validate_admission(
         )
 
 
-def _disk_cache_descriptor(content_digest: str) -> dict:
+def _disk_cache_descriptor(
+    revision_identity: str | OfficialRevisionIdentity,
+) -> dict:
     """Build the auditable descriptor behind the disk APC namespace hash."""
     cache_backend = os.environ.get("GLM53_CACHE_BACKEND", "direct")
+    if isinstance(revision_identity, OfficialRevisionIdentity):
+        revision_descriptor = revision_identity.descriptor()
+        checkpoint_namespace = revision_identity.namespace_sha256
+    else:
+        # Preserve the narrow helper contract used by existing unit fixtures.
+        # Production startup always supplies the fully split identity above.
+        revision_descriptor = {}
+        checkpoint_namespace = revision_identity
     descriptor = {
         "schema": CACHE_IDENTITY_SCHEMA,
-        "checkpoint_content_sha256": content_digest,
+        "checkpoint_content_sha256": checkpoint_namespace,
+        **revision_descriptor,
         "mlx_vlm_revision": MLX_VLM_REVISION,
         "metal_kernel_abi": KERNEL_ABI_VERSION,
         "attention_cache_abi": (
@@ -132,11 +148,13 @@ def _disk_cache_descriptor(content_digest: str) -> dict:
     return descriptor
 
 
-def _disk_cache_identity(content_digest: str) -> str:
+def _disk_cache_identity(
+    revision_identity: str | OfficialRevisionIdentity,
+) -> str:
     """Content-bound identity for the explicitly experimental disk APC."""
     return hashlib.sha256(
         json.dumps(
-            _disk_cache_descriptor(content_digest),
+            _disk_cache_descriptor(revision_identity),
             sort_keys=True,
             separators=(",", ":"),
         ).encode()
@@ -403,12 +421,14 @@ def main(argv: list[str] | None = None) -> int:
         "Attesting every checkpoint shard against the pinned official revision"
     )
     try:
-        content_digest = attest_checkpoint(args.model)
+        revision_identity = attest_revision_identity(args.model)
     except ManifestError as exc:
         print(f"glm53-serve: {exc}", file=sys.stderr)
         return 2
     if args.apc_disk_path is not None:
-        os.environ["GLM53_DISK_APC_IDENTITY"] = _disk_cache_identity(content_digest)
+        os.environ["GLM53_DISK_APC_IDENTITY"] = _disk_cache_identity(
+            revision_identity
+        )
     apply_runtime_patch()
 
     import mlx.core as mx
@@ -425,6 +445,12 @@ def main(argv: list[str] | None = None) -> int:
         report.path,
         report.fingerprint[:16],
         patch_status(),
+    )
+    logging.getLogger(__name__).info(
+        "revision_identity checkpoint=%s tokenizer=%s chat_template=%s",
+        report.official_revision,
+        report.tokenizer_revision,
+        report.chat_template_revision,
     )
     logging.getLogger(__name__).info(
         "moe_backend=%s cache_backend=%s prompt_limit=%d",
