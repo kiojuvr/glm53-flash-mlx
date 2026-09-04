@@ -596,6 +596,8 @@ token-countとは独立にallocator/lifetime pressureを増やすため、A=通�
 
 qualificationはlogical tokenを16,384以下に保ったまま、256k state soakの基準446,825,650,554 cumulative bytes以上を要求します。約1時間のoperator-runになるためユーザー側で実行します。
 
+実checkpointのqualificationは3,696.6秒で完走しました。16,384 logical token、A/B合計33,027 model forward、641 APC ownership cycle、32 rollback/replay、64 materializationを実行し、65 checkpointのfull-vocab logits、full cache、34層KDA digestは全てexactです。4種の拒否操作は計641回すべてstate/snapshot/accounting/binding変更前に拒否されました。累積469,639,955,364 bytes / 22,430,720 physical token slotsへ到達し、256k soak基準を超えています。authoritative driftは0 bytes、steady active driftは131,917 bytes、peakは321.272 GB、final lifecycle residentは696,795,186 bytesです。SNAPSHOT_STATEとDRAFT_TRANSIENTの最終residentは0、anonymous allocation、NaN、invalid access、Metal errorも0でした。これにより短いlogical sequenceへ高密度なownership/APC/rollback圧力を加えるallocation-churn qualificationは完了です。
+
 ```bash
 uv run python scripts/stress_state_cumulative_allocation_churn.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \

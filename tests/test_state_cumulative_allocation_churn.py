@@ -17,6 +17,11 @@ FAILED_QUALIFICATION_ARTIFACT = (
     / "bench-results"
     / "m3ultra512-state-cumulative-allocation-churn-qualification-failed-overlap-20260904.json"
 )
+QUALIFICATION_ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-state-cumulative-allocation-churn-qualification-20260904.json"
+)
 
 
 def test_churn_probe_decouples_logical_tokens_from_allocation_pressure():
@@ -208,3 +213,122 @@ def test_first_qualification_attempt_preserves_overlap_failure_evidence():
         "lifecycle_balance_exact': True",
     ):
         assert invariant in failure["reason"]
+
+
+def test_churn_qualification_reaches_256k_allocation_pressure_exactly():
+    artifact = json.loads(QUALIFICATION_ARTIFACT.read_text())
+    assert artifact["schema"] == "glm53-state-cumulative-allocation-churn-v1"
+    assert artifact["complete"] is True
+    assert artifact["tier"] == "qualification"
+    assert artifact["logical_tokens"] == artifact["last_completed_step"] == 16_384
+    assert all(artifact["acceptance"].values())
+    assert artifact["first_divergence"] is None
+    assert artifact["nan_count"] == 0
+    assert artifact["metal_error"] is None
+
+    summary = artifact["summary"]
+    assert summary["actual_model_forwards"] == {
+        "uninterrupted": 16_384,
+        "eventful": 16_643,
+    }
+    assert summary["apc_generation_count"] == 641
+    assert summary["operation_count"] == 673
+    assert summary["event_counts"] == {
+        "apc-ownership-churn": 641,
+        "rollback-replay": 32,
+    }
+    assert summary["checkpoint_count"] == 65
+    assert summary["materialization_count"] == 64
+    assert summary["cumulative_allocated_bytes"] == 469_639_955_364
+    assert summary["cumulative_allocated_bytes"] >= artifact[
+        "baseline_256k_cumulative_allocation_bytes"
+    ]
+    assert summary["cumulative_allocated_tokens"] == 22_430_720
+    assert summary["authoritative_state_drift_bytes"] == 0
+    assert summary["active_memory_drift_bytes"] == 131_917
+    assert summary["active_memory_drift_bytes"] <= 64 * 2**20
+    assert summary["peak_memory_bytes"] <= 340_000_000_000
+    assert summary["rejected_operation_counts"] == {
+        "ephemeral-resident-promotion": 160,
+        "invalid-kda-state-index": 160,
+        "rollback-17": 160,
+        "wrong-cache-identity-restore": 161,
+    }
+
+
+def test_churn_qualification_preserves_every_checkpoint_and_transition():
+    artifact = json.loads(QUALIFICATION_ARTIFACT.read_text())
+    assert len(artifact["checkpoints"]) == 65
+    assert all(
+        row["layerwise_exact"]
+        and row["full_cache_digest_exact"]
+        and row["full_vocab_logits_exact"]
+        and row["lifecycle_balance_exact"]
+        and set(row["state_leaf_count"].values()) == {167}
+        for row in artifact["checkpoints"].values()
+    )
+    assert len(artifact["materializations"]) == 64
+    assert all(row["state_exact"] for row in artifact["materializations"])
+
+    rollback = [
+        row for row in artifact["events"] if row["kind"] == "rollback-replay"
+    ]
+    assert len(rollback) == 32
+    assert {row["rollback_depth"] for row in rollback} == {1, 8, 16}
+    assert all(
+        row["state_exact"]
+        and row["logits_exact"]
+        and row["source_snapshot_immutable"]
+        and row["lifecycle_balance_exact"]
+        and row["nan_count"] == 0
+        for row in rollback
+    )
+    churn = [
+        row
+        for row in artifact["events"]
+        if row["kind"] == "apc-ownership-churn"
+    ]
+    assert len(churn) == 641
+    assert all(
+        row["restore_exact"]
+        and row["snapshot_owned_storage_immutable"]
+        and row["temporary_storage_returned"]
+        and row["lifecycle_balance_exact"]
+        and all(
+            row["rejected_operation"][key]
+            for key in (
+                "rejected",
+                "authoritative_state_unchanged",
+                "snapshot_unchanged",
+                "accounting_unchanged",
+                "bindings_unchanged",
+            )
+        )
+        for row in churn
+    )
+
+
+def test_churn_qualification_lifecycle_accounting_closes_exactly():
+    artifact = json.loads(QUALIFICATION_ARTIFACT.read_text())
+    lifecycle = artifact["summary"]["lifecycle_accounting"]["end"]
+    assert lifecycle["ownership_balance_exact"] is True
+    assert lifecycle["anonymous_allocation_count"] == 0
+    assert lifecycle["resident_bytes"] == 696_795_186
+    assert lifecycle["cumulative_allocated_bytes"] == 469_639_955_364
+    assert lifecycle["cumulative_released_bytes"] == 468_943_160_178
+    assert lifecycle["cumulative_allocated_bytes"] - lifecycle[
+        "cumulative_released_bytes"
+    ] == lifecycle["resident_bytes"]
+    assert lifecycle["by_lifecycle"]["snapshot-state"]["resident_bytes"] == 0
+    assert all(
+        value == 0
+        for value in lifecycle["by_lifecycle"]["draft-transient"].values()
+    )
+    for row in lifecycle["by_lifecycle"].values():
+        assert (
+            row["cumulative_allocated_bytes"]
+            + row["transfer_in_bytes"]
+            - row["cumulative_released_bytes"]
+            - row["transfer_out_bytes"]
+            == row["resident_bytes"]
+        )
