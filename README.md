@@ -200,6 +200,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
 | materialization / cache-write ownership | compact・RAM APC・prefill→decodeでA/B/C exact / no-ownerでもvalue生成 / invalid destination atomic / 16/128 oracle exact |
 | DSA pooled workspace geometry | 128K/Q256 32 MiB・256K/Q256 64 MiB / 1Mは64 rows×4 blocks / 88境界とtop-k/expand exact |
+| hybrid semantic prefix snapshot contract | RAM-only owned snapshot / 1・255・256・257・1023・1024境界×64-step replay exact / transactional capture・restore / final resident 0 |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -562,6 +563,14 @@ Q=1/63/64/65/127/128/255/256とcontext=1–5、2,047–2,049、4,095–4,097の8
 memory accountingはFP32 logits、exact argsort full-order、top-k score、IndexPool expansion、selected outputをtransientへ、pool keys/indices/validityをpersistent IndexPoolへ分離します。256Kではlogits面64 MiB、full-order index scratch 64 MiBです。Metal allocatorで測ったcandidate全体のworking peakは568.9 MBで、これはsynthetic score式、masked score、exact argsortのbackend working setも含むため64 MiB logits budgetとは別指標です。referenceとcandidateを同時保持するdifferential harness peakは1.133 GBでした。いずれも処理後residentは0へ戻り、256 MiBの`Q × logical_context` logitsを生成する経路やmaximum context基準のresident scratchはありません。
 
 実checkpoint layer 3は`index_kpool=4`、`index_topk=2048`、head dim 128であることを確認し、packed-decode＋compact-nope-dsaの公式16/128-token full-vocab oracleとRAM APC continuationもexactです。このcommitはplanner/operator qualificationだけで、production DSA kernel、cache implementation、ABI、APC namespace、backend、server admissionを変更していません。
+
+### Hybrid semantic prefix snapshot contract
+
+RAM限定の`SemanticPrefixSnapshot`を、個別tensor bundleではなく「prefix直後の完全なsemantic boundary」へ固定しました。identityはcheckpoint revision/fingerprint、MoE/cache backend、attention cache ABI、KDA state ABI、IndexPool ABI、prefix token digestを含みます。boundaryはabsolute/logical token位置、256-token materialization epoch、rollback epoch、34 KDA層のactive slot、11 DSA層のlatent/KVとIndexPool logical extentを一体として保持します。v1ではabsolute positionとlogical prefix lengthの一致を要求し、forward完了・cache update完了・GPU materialize済みのquiescent pointだけをcapture対象とします。
+
+captureはlive stateをmaterializeした後、全45層を別のMLX-owned storageへcloneし、schema・全state digest・component boundaryを再検査してからstoreへ一度だけpublishします。capture中にlive stateが変化した場合や途中componentで失敗した場合、snapshot/accountingは公開されません。restoreもidentityを最初に検証し、全replacementを別storageへ準備してからlive cache handleの参照を一度だけ交換するため、失敗時にKV/KDA/IndexPoolの一部だけが復元される経路はありません。snapshotは`SNAPSHOT_STATE`・`SNAPSHOT_OWNED`でprefix LRUから独立し、restoreしても消費されず、明示deleteまでimmutableです。disk serializationはv1の非対象です。
+
+実checkpointのpacked-decode＋compact-nope-dsaでposition 1/255/256/257/1023/1024を測定し、各境界でuninterrupted、capture-only、capture→8-step別入力mutate→restore→64-step replay、同一snapshotの2回目restoreを比較しました。全64-step full-vocab logits、34層KDA state、11層DSA latent/KV、IndexPool、slot/index metadataがbyte-exactで、NaNは0です。6 snapshotの累積owned allocation 978,948,000 bytesは全て明示releaseされ、最終`SNAPSHOT_STATE` residentは0、anonymous allocationは0でした。公式16/128-token oracleもexactです。このcontract screenはserver API、disk APC、cache ABI、backend、admissionを変更しません。次工程は4K程度のmutate/restoreを反復するsemantic replay qualificationです。
 
 ### KDA state index load/store guards
 

@@ -1,0 +1,2601 @@
+{
+  "acceptance": {
+    "all_six_boundaries_exercised": true,
+    "all_target_components_byte_exact": true,
+    "anonymous_snapshot_allocation_zero": true,
+    "capture_is_observation_only": true,
+    "capture_mutate_restore_replay_exact": true,
+    "capture_only_continuation_exact": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "ram_only_no_disk_persistence": true,
+    "runtime_abi_backend_admission_unchanged": true,
+    "same_snapshot_reusable": true,
+    "snapshot_accounting_returns_to_zero": true,
+    "snapshot_immutable_and_owned": true,
+    "snapshot_lifecycle_is_separate_from_prefix_lru": true
+  },
+  "backend": {
+    "cache": "compact-nope-dsa",
+    "moe": "packed-decode"
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "complete": true,
+  "contract": {
+    "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+    "capture_commit": "validate-all-then-publish",
+    "capture_point": "post-forward-quiescent-materialized",
+    "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+    "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+    "materialization_interval_tokens": 256,
+    "materialization_policy": "nested-cache-eval-clear-v1",
+    "partial_component_restore": false,
+    "persistence": "ram-only",
+    "prefix_lru_member": false,
+    "restore_commit": "validate-all-then-single-cache-reference-swap",
+    "snapshot_consumed_by_restore": false
+  },
+  "date": "2026-09-04",
+  "decision": "hybrid_semantic_prefix_snapshot_contract_ready_for_replay_qualification",
+  "load_seconds": 39.10194299998693,
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "model_path": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.881520624971017,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "probe_only": true,
+  "runtime_changes": {
+    "admission": false,
+    "backend": false,
+    "cache_abi": false,
+    "disk_apc": false,
+    "server_api": false
+  },
+  "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+  "screen": {
+    "boundaries": [
+      1,
+      255,
+      256,
+      257,
+      1023,
+      1024
+    ],
+    "continuation_steps": 64,
+    "mutation_steps": 8,
+    "rows": [
+      {
+        "accounting_after_delete": {
+          "allocation_count": 1,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 163072035,
+          "cumulative_released_bytes": 163072035,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163072035,
+          "prefix_lru_member": false,
+          "release_count": 1,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 1,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 163072035,
+          "cumulative_released_bytes": 0,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163072035,
+          "prefix_lru_member": false,
+          "release_count": 0,
+          "resident_bytes": 163072035,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 0,
+        "materialization_steps": [],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 1,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 1,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                1
+              ],
+              [
+                7,
+                1
+              ],
+              [
+                11,
+                1
+              ],
+              [
+                15,
+                1
+              ],
+              [
+                19,
+                1
+              ],
+              [
+                23,
+                1
+              ],
+              [
+                27,
+                1
+              ],
+              [
+                31,
+                1
+              ],
+              [
+                35,
+                1
+              ],
+              [
+                39,
+                1
+              ],
+              [
+                43,
+                1
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                1
+              ],
+              [
+                7,
+                1
+              ],
+              [
+                11,
+                1
+              ],
+              [
+                15,
+                1
+              ],
+              [
+                19,
+                1
+              ],
+              [
+                23,
+                1
+              ],
+              [
+                27,
+                1
+              ],
+              [
+                31,
+                1
+              ],
+              [
+                35,
+                1
+              ],
+              [
+                39,
+                1
+              ],
+              [
+                43,
+                1
+              ]
+            ],
+            "logical_prefix_length": 1,
+            "materialization_epoch": 0,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "4fc849e4f7d4767e274b4d26965a980e9b3fed559dcd92f5c8136db806eac329",
+            "indexpool_sha256": "3b7cb170e9670279d57d2bd1a991d3f1edd16adf0304fa42254b733b88f46b6d",
+            "kda_state_sha256": "9e97e584d70c7e8c2b368dc4a5ae7dd244bca6c17861c7b9dddc7378f9ee1e2c",
+            "slot_index_metadata_sha256": "7950f60e3802df25f1dbe52050612732276bcc316b0f4161a25869c26a784afc"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "40e736c02a102a050e1555781b4171020a4279adaa7ed9ca3cc9633a0ade9c37"
+          },
+          "identity_namespace_sha256": "19b9296c3b127a9d0b05986899421293d9cc4951f5b0a5444f7b0368e748b1e4",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163072035,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "d55e2baea3c5c9a01f8aaab9a204d0001155f92e2a888399a8bf307bbb6b3d91",
+          "snapshot_id": "prefix-1",
+          "state_sha256": "bd41e912ece44574e631e9b55bb5e6d5b015aac7a55bb4e5b06177b6ff2edafc"
+        },
+        "snapshot_immutable": true
+      },
+      {
+        "accounting_after_delete": {
+          "allocation_count": 2,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 326247228,
+          "cumulative_released_bytes": 326247228,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 2,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 2,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 326247228,
+          "cumulative_released_bytes": 163072035,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 1,
+          "resident_bytes": 163175193,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 0,
+        "materialization_steps": [
+          256
+        ],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 255,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 255,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                255
+              ],
+              [
+                7,
+                255
+              ],
+              [
+                11,
+                255
+              ],
+              [
+                15,
+                255
+              ],
+              [
+                19,
+                255
+              ],
+              [
+                23,
+                255
+              ],
+              [
+                27,
+                255
+              ],
+              [
+                31,
+                255
+              ],
+              [
+                35,
+                255
+              ],
+              [
+                39,
+                255
+              ],
+              [
+                43,
+                255
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                255
+              ],
+              [
+                7,
+                255
+              ],
+              [
+                11,
+                255
+              ],
+              [
+                15,
+                255
+              ],
+              [
+                19,
+                255
+              ],
+              [
+                23,
+                255
+              ],
+              [
+                27,
+                255
+              ],
+              [
+                31,
+                255
+              ],
+              [
+                35,
+                255
+              ],
+              [
+                39,
+                255
+              ],
+              [
+                43,
+                255
+              ]
+            ],
+            "logical_prefix_length": 255,
+            "materialization_epoch": 0,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "2c803fde2d30fcc4ab34df9c6afc3a33f95a96c6a5d641fe705f9e596bf510e1",
+            "indexpool_sha256": "001ef5b92fcb0947a42dfd9dae2d2fcc589c2e924b76cb57cfd199bd1eb47de3",
+            "kda_state_sha256": "cd0e1bb692ef37613a0b2350f50c532ea1f06b76df4a498996c064275f5c33a3",
+            "slot_index_metadata_sha256": "106d34c714d18f52dda91fb602db802102e4962fa02585d3c481592cbe546bd9"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "3de3c15f4793e52f422a834997e6b599fdb6e0226e0a7e439c90c99ae7cc94b2"
+          },
+          "identity_namespace_sha256": "48d8bdd801600f0ed89c4ed7e2383b4d71683480b1afd499b7b9ef760b2aa6cb",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163175193,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "e7b8096e492d423142e7de398f75722dd7a1ed9c4069c3cd4a1d13dc012799d2",
+          "snapshot_id": "prefix-255",
+          "state_sha256": "79990fb92d29b72330a887c2cf068b3d0cf9694368c4fb907cb0dcbaf45c5b95"
+        },
+        "snapshot_immutable": true
+      },
+      {
+        "accounting_after_delete": {
+          "allocation_count": 3,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 489422421,
+          "cumulative_released_bytes": 489422421,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 3,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 3,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 489422421,
+          "cumulative_released_bytes": 326247228,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 2,
+          "resident_bytes": 163175193,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 1,
+        "materialization_steps": [],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 256,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 256,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                256
+              ],
+              [
+                7,
+                256
+              ],
+              [
+                11,
+                256
+              ],
+              [
+                15,
+                256
+              ],
+              [
+                19,
+                256
+              ],
+              [
+                23,
+                256
+              ],
+              [
+                27,
+                256
+              ],
+              [
+                31,
+                256
+              ],
+              [
+                35,
+                256
+              ],
+              [
+                39,
+                256
+              ],
+              [
+                43,
+                256
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                256
+              ],
+              [
+                7,
+                256
+              ],
+              [
+                11,
+                256
+              ],
+              [
+                15,
+                256
+              ],
+              [
+                19,
+                256
+              ],
+              [
+                23,
+                256
+              ],
+              [
+                27,
+                256
+              ],
+              [
+                31,
+                256
+              ],
+              [
+                35,
+                256
+              ],
+              [
+                39,
+                256
+              ],
+              [
+                43,
+                256
+              ]
+            ],
+            "logical_prefix_length": 256,
+            "materialization_epoch": 1,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "925383ba9f076605ca49a332c9604f8556477e08ea6f041c579c79124f0917d9",
+            "indexpool_sha256": "93d1cd0955fa9d287752c9b74b8a4b1eb36fcb35fc16152a873a62dce396b483",
+            "kda_state_sha256": "ee01865a021583a455d13031eaee7aa719c0a65827ccdb3510744edecc8b8efb",
+            "slot_index_metadata_sha256": "f99213724b8523589b977098e2302df180e12675aeb0fd5f8b07e0cdb106ae73"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "457ff6c433b7dc668d3f69cb0b5a34f725affa8f654fa5ad3b8d956f4e4df7ea"
+          },
+          "identity_namespace_sha256": "c8815eaf62f7fbd1d1ad7ce9f4ea37d65b61ed76bda07ca5deded76db2f43d1e",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163175193,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "456c4f2e8a20a29b4be4f9c57ee2e4b008715852e5fb1c913b43dbffaeb4201c",
+          "snapshot_id": "prefix-256",
+          "state_sha256": "a4c94fbcb1e22589ef34225606d38dd2534e47bdbefd17b82889b6095aa86e9d"
+        },
+        "snapshot_immutable": true
+      },
+      {
+        "accounting_after_delete": {
+          "allocation_count": 4,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 652597614,
+          "cumulative_released_bytes": 652597614,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 4,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 4,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 652597614,
+          "cumulative_released_bytes": 489422421,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 3,
+          "resident_bytes": 163175193,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 1,
+        "materialization_steps": [],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 257,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 257,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                257
+              ],
+              [
+                7,
+                257
+              ],
+              [
+                11,
+                257
+              ],
+              [
+                15,
+                257
+              ],
+              [
+                19,
+                257
+              ],
+              [
+                23,
+                257
+              ],
+              [
+                27,
+                257
+              ],
+              [
+                31,
+                257
+              ],
+              [
+                35,
+                257
+              ],
+              [
+                39,
+                257
+              ],
+              [
+                43,
+                257
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                257
+              ],
+              [
+                7,
+                257
+              ],
+              [
+                11,
+                257
+              ],
+              [
+                15,
+                257
+              ],
+              [
+                19,
+                257
+              ],
+              [
+                23,
+                257
+              ],
+              [
+                27,
+                257
+              ],
+              [
+                31,
+                257
+              ],
+              [
+                35,
+                257
+              ],
+              [
+                39,
+                257
+              ],
+              [
+                43,
+                257
+              ]
+            ],
+            "logical_prefix_length": 257,
+            "materialization_epoch": 1,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "665d0888c05de6a622d509c2c91e480598ba0a406931840102a6f099168f1e85",
+            "indexpool_sha256": "e6005894093b17725e98f8fa09c89f7d3f6917d43d0ca0d4e77b84f64dc44e13",
+            "kda_state_sha256": "cc6a370de2ef53cdcb56efbc825bd69a14e3e4c468710c39669dd8c4070324de",
+            "slot_index_metadata_sha256": "2579432eb8f79d263803055752747602fd959893d18fa35461f0cda88cfdf9fd"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "207f90fe837d4b33ce2c3ff7766cb4d1fe913ac2acd1be932b4b0d64f304832c"
+          },
+          "identity_namespace_sha256": "592595f812a747d3ce8e44fc25e6e796acb434f7ab1b86b86ee701cbff2f05c3",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163175193,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "bcdbe9d6c99a847f20b93146ba919aed64623001374f170b6d1ae23fd1bdd679",
+          "snapshot_id": "prefix-257",
+          "state_sha256": "b90308aeec6963af5aaadc4f830d006b853f62bd4fb5df7ad6d0d761cbd29e92"
+        },
+        "snapshot_immutable": true
+      },
+      {
+        "accounting_after_delete": {
+          "allocation_count": 5,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 815772807,
+          "cumulative_released_bytes": 815772807,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 5,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 5,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 815772807,
+          "cumulative_released_bytes": 652597614,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 4,
+          "resident_bytes": 163175193,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 3,
+        "materialization_steps": [
+          1024
+        ],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 1023,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 1023,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                1023
+              ],
+              [
+                7,
+                1023
+              ],
+              [
+                11,
+                1023
+              ],
+              [
+                15,
+                1023
+              ],
+              [
+                19,
+                1023
+              ],
+              [
+                23,
+                1023
+              ],
+              [
+                27,
+                1023
+              ],
+              [
+                31,
+                1023
+              ],
+              [
+                35,
+                1023
+              ],
+              [
+                39,
+                1023
+              ],
+              [
+                43,
+                1023
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                1023
+              ],
+              [
+                7,
+                1023
+              ],
+              [
+                11,
+                1023
+              ],
+              [
+                15,
+                1023
+              ],
+              [
+                19,
+                1023
+              ],
+              [
+                23,
+                1023
+              ],
+              [
+                27,
+                1023
+              ],
+              [
+                31,
+                1023
+              ],
+              [
+                35,
+                1023
+              ],
+              [
+                39,
+                1023
+              ],
+              [
+                43,
+                1023
+              ]
+            ],
+            "logical_prefix_length": 1023,
+            "materialization_epoch": 3,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "ff5c9de7b6356e84f6a20c3653f2109dd4dd503ed47be34ceb84f6f7301ba3ac",
+            "indexpool_sha256": "3b5ac759b0abfb90bfb9017232dfa84cecf82ccae297d12e55e3a3f8a79a7ec2",
+            "kda_state_sha256": "5cc4985ec51c82c7552df072cfbe49ae4c315bd277a6e1d35984c6c45728e287",
+            "slot_index_metadata_sha256": "9a65bad41302d9c2a0a66374bf88819e6df996bd6c2271515f61f89eeb20fe7d"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "ab8c02825449fee1bee4edb9c5291d1016f5a6d9e72c82ede28ec12a7ae06d4b"
+          },
+          "identity_namespace_sha256": "1dfde956178ff6a5f837ecadeadb48208581aa328ea6732714f6c558636e2eea",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163175193,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "8555d94638af548c1561a048a63e6e4b2bfa239edbb689016c0a948fa0325d26",
+          "snapshot_id": "prefix-1023",
+          "state_sha256": "91d648a025084e32f84175cc98b34548793f8b3d69a74f424e423d009ff9a5a3"
+        },
+        "snapshot_immutable": true
+      },
+      {
+        "accounting_after_delete": {
+          "allocation_count": 6,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 978948000,
+          "cumulative_released_bytes": 978948000,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 6,
+          "resident_bytes": 0,
+          "retention": "snapshot-owned"
+        },
+        "accounting_before_delete": {
+          "allocation_count": 6,
+          "anonymous_allocation_count": 0,
+          "cumulative_allocated_bytes": 978948000,
+          "cumulative_released_bytes": 815772807,
+          "disk_persistence": false,
+          "lifecycle": "snapshot-state",
+          "peak_bytes": 163175193,
+          "prefix_lru_member": false,
+          "release_count": 5,
+          "resident_bytes": 163175193,
+          "retention": "snapshot-owned"
+        },
+        "capture_mutate_restore_replay_exact": true,
+        "capture_observation_only": true,
+        "capture_only_continuation_exact": true,
+        "dsa_kv_exact": true,
+        "full_vocab_logits_steps_compared": 64,
+        "indexpool_exact": true,
+        "kda_state_exact": true,
+        "materialization_epoch": 4,
+        "materialization_steps": [],
+        "mutated_state_differs": true,
+        "nan_count": 0,
+        "position": 1024,
+        "restored_source_exact": true,
+        "same_snapshot_second_restore_exact": true,
+        "slot_index_metadata_exact": true,
+        "snapshot_descriptor": {
+          "boundary": {
+            "absolute_token_position": 1024,
+            "active_state_slots": [
+              [
+                0,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                1,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                2,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                4,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                5,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                6,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                8,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                9,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                10,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                12,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                13,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                14,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                16,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                17,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                18,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                20,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                21,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                22,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                24,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                25,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                26,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                28,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                29,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                30,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                32,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                33,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                34,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                36,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                37,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                38,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                40,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                41,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                42,
+                [
+                  0,
+                  1
+                ]
+              ],
+              [
+                44,
+                [
+                  0,
+                  1
+                ]
+              ]
+            ],
+            "indexpool_logical_extents": [
+              [
+                3,
+                1024
+              ],
+              [
+                7,
+                1024
+              ],
+              [
+                11,
+                1024
+              ],
+              [
+                15,
+                1024
+              ],
+              [
+                19,
+                1024
+              ],
+              [
+                23,
+                1024
+              ],
+              [
+                27,
+                1024
+              ],
+              [
+                31,
+                1024
+              ],
+              [
+                35,
+                1024
+              ],
+              [
+                39,
+                1024
+              ],
+              [
+                43,
+                1024
+              ]
+            ],
+            "kv_logical_extents": [
+              [
+                3,
+                1024
+              ],
+              [
+                7,
+                1024
+              ],
+              [
+                11,
+                1024
+              ],
+              [
+                15,
+                1024
+              ],
+              [
+                19,
+                1024
+              ],
+              [
+                23,
+                1024
+              ],
+              [
+                27,
+                1024
+              ],
+              [
+                31,
+                1024
+              ],
+              [
+                35,
+                1024
+              ],
+              [
+                39,
+                1024
+              ],
+              [
+                43,
+                1024
+              ]
+            ],
+            "logical_prefix_length": 1024,
+            "materialization_epoch": 4,
+            "materialization_interval_tokens": 256,
+            "materialization_policy": "nested-cache-eval-clear-v1",
+            "rollback_epoch": 0
+          },
+          "cache_leaf_count": 167,
+          "component_digests": {
+            "dsa_kv_sha256": "ba50a02f468a40402fe7e4db0b6ef2caec84aabc28802fa31ac93841cbab3db9",
+            "indexpool_sha256": "97d52dc443c77aacc0dbc0c5eb0ce7589e4f542d428720b77a1726ac6a7d4aa1",
+            "kda_state_sha256": "78ccd9d256038ca2cb7db2871ebd7667ef2335ff92f000765602229510bd3b5b",
+            "slot_index_metadata_sha256": "0e507655952fb4b202c128218b6947538f76787d280ef6fd3173fdb39c66265a"
+          },
+          "identity": {
+            "attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+            "cache_backend": "compact-nope-dsa",
+            "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+            "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+            "indexpool_abi": "glm53-compact-indexpool-v4-kpool4-int64-raw19",
+            "kda_state_abi": "glm53-kda-arrays-cache-v1-conv0-recurrent1",
+            "moe_backend": "packed-decode",
+            "prefix_token_sha256": "3d132398bf2288901c9be1a539c5fb9310e979025f2b469c05c3ef1240d59579"
+          },
+          "identity_namespace_sha256": "e50d2ba27d422f512fa0688951bd33c0dfadc4c34b5c6399f1a508fadf33b094",
+          "ownership": {
+            "lifecycle": "snapshot-state",
+            "persistence": "ram-only",
+            "physical_storage_alias_with_live": false,
+            "prefix_lru_member": false,
+            "retention": "snapshot-owned",
+            "tensor_ownership": "owned"
+          },
+          "resident_bytes": 163175193,
+          "schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+          "schema_sha256": "e9d3ddd9b17e237f564f06551ccf6855bf5842bebcdbdd4397fdd85be131ebe3",
+          "snapshot_id": "prefix-1024",
+          "state_sha256": "9c8ad49179ebca0281d81ce1a75bcc6d3a795f40dfd6bb5c79f3ef3bdccd15d9"
+        },
+        "snapshot_immutable": true
+      }
+    ]
+  },
+  "snapshot_accounting": {
+    "final": {
+      "allocation_count": 6,
+      "anonymous_allocation_count": 0,
+      "cumulative_allocated_bytes": 978948000,
+      "cumulative_released_bytes": 978948000,
+      "disk_persistence": false,
+      "lifecycle": "snapshot-state",
+      "peak_bytes": 163175193,
+      "prefix_lru_member": false,
+      "release_count": 6,
+      "resident_bytes": 0,
+      "retention": "snapshot-owned"
+    },
+    "peak_single_snapshot_resident_bytes": 163175193
+  },
+  "warm_residency_seconds": 2.113116249907762
+}
