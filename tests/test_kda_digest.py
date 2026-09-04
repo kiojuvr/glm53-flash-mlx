@@ -83,6 +83,14 @@ def test_steady_memory_drift_requires_a_materialized_observation():
         )
 
 
+def test_steady_memory_drift_accepts_churn_checkpoint_schema():
+    checkpoints = {
+        "256": {"logical_token": 256, "memory": {"active_bytes": 1_000}},
+        "512": {"logical_token": 512, "memory": {"active_bytes": 1_004}},
+    }
+    assert steady_active_memory_drift(checkpoints) == 4
+
+
 def test_decode_throughput_retention_uses_disjoint_steady_windows():
     latencies = [9.0, 9.0, 1.0, 1.2, 1.4, 2.0, 2.2, 2.4]
     result = decode_throughput_retention(
@@ -123,9 +131,15 @@ def test_lifecycle_accounting_delta_is_reported_per_class():
         "resident_bytes": 2,
         "peak_bytes": 4,
         "cumulative_allocated_bytes": 10,
+        "cumulative_released_bytes": 0,
         "cumulative_allocated_tokens": 4,
         "allocation_count": 2,
+        "release_count": 0,
         "eviction_count": 1,
+        "transfer_in_bytes": 0,
+        "transfer_out_bytes": 0,
+        "transfer_in_count": 0,
+        "transfer_out_count": 0,
     }
 
 
@@ -201,6 +215,13 @@ def test_lifecycle_accounting_is_explicit_monotonic_and_reclassifiable():
     assert after["cumulative_allocated_tokens"] == 4_352
     assert after["by_lifecycle"]["active-recurrent"]["resident_bytes"] == 100
     assert after["by_lifecycle"]["snapshot-state"]["resident_bytes"] == 0
+    assert after["ownership_balance_exact"] is True
+    assert after["by_lifecycle"]["snapshot-state"]["transfer_out_bytes"] == 100
+    assert after["by_lifecycle"]["active-recurrent"]["transfer_in_bytes"] == 100
+    assert after["by_lifecycle"]["active-recurrent"]["release_count"] == 1
+    assert after["by_lifecycle"]["active-recurrent"][
+        "cumulative_released_bytes"
+    ] == 100
 
 
 def test_accounting_rejects_anonymous_or_implicit_lifecycle():

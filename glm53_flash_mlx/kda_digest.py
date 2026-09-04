@@ -38,7 +38,7 @@ def steady_active_memory_drift(
     values = [
         int(row["memory"]["active_bytes"])
         for row in checkpoints.values()
-        if int(row["step"]) >= first_steady_step
+        if int(row.get("step", row.get("logical_token", -1))) >= first_steady_step
     ]
     if not values:
         raise ValueError("no steady-state memory checkpoints")
@@ -79,14 +79,20 @@ def lifecycle_accounting_delta(start: Mapping, end: Mapping) -> dict:
     for lifecycle, start_row in start["by_lifecycle"].items():
         end_row = end["by_lifecycle"][lifecycle]
         delta[lifecycle] = {
-            key: int(end_row[key]) - int(start_row[key])
+            key: int(end_row.get(key, 0)) - int(start_row.get(key, 0))
             for key in (
                 "resident_bytes",
                 "peak_bytes",
                 "cumulative_allocated_bytes",
+                "cumulative_released_bytes",
                 "cumulative_allocated_tokens",
                 "allocation_count",
+                "release_count",
                 "eviction_count",
+                "transfer_in_bytes",
+                "transfer_out_bytes",
+                "transfer_in_count",
+                "transfer_out_count",
             )
         }
     return delta
@@ -337,9 +343,15 @@ class SoakLifecycleAccounting:
                 "resident_bytes": 0,
                 "peak_bytes": 0,
                 "allocation_count": 0,
+                "release_count": 0,
                 "eviction_count": 0,
                 "cumulative_allocated_bytes": 0,
+                "cumulative_released_bytes": 0,
                 "cumulative_allocated_tokens": 0,
+                "transfer_in_bytes": 0,
+                "transfer_out_bytes": 0,
+                "transfer_in_count": 0,
+                "transfer_out_count": 0,
             }
             for lifecycle in CacheLifecycle
         }
@@ -382,6 +394,9 @@ class SoakLifecycleAccounting:
         if delta > 0:
             row["allocation_count"] += 1
             row["cumulative_allocated_bytes"] += delta
+        elif delta < 0:
+            row["release_count"] += 1
+            row["cumulative_released_bytes"] -= delta
         entry.resident_bytes = resident_bytes
 
     def update_physical_tokens(self, owner: str, *, physical_tokens: int) -> None:
@@ -397,7 +412,9 @@ class SoakLifecycleAccounting:
         entry = self._entries.pop(owner)
         row = self._stats[entry.lifecycle]
         row["resident_bytes"] -= entry.resident_bytes
+        row["release_count"] += 1
         row["eviction_count"] += 1
+        row["cumulative_released_bytes"] += entry.resident_bytes
 
     def reclassify(self, owner: str, new_owner: str, lifecycle: CacheLifecycle) -> None:
         if not new_owner or new_owner in self._entries:
@@ -406,8 +423,12 @@ class SoakLifecycleAccounting:
         previous = self._stats[entry.lifecycle]
         current = self._stats[lifecycle]
         previous["resident_bytes"] -= entry.resident_bytes
+        previous["transfer_out_bytes"] += entry.resident_bytes
+        previous["transfer_out_count"] += 1
         current["resident_bytes"] += entry.resident_bytes
         current["peak_bytes"] = max(current["peak_bytes"], current["resident_bytes"])
+        current["transfer_in_bytes"] += entry.resident_bytes
+        current["transfer_in_count"] += 1
         entry.lifecycle = lifecycle
         self._entries[new_owner] = entry
 
@@ -426,5 +447,16 @@ class SoakLifecycleAccounting:
             ),
             "cumulative_allocated_tokens": sum(
                 row["cumulative_allocated_tokens"] for row in rows.values()
+            ),
+            "cumulative_released_bytes": sum(
+                row["cumulative_released_bytes"] for row in rows.values()
+            ),
+            "ownership_balance_exact": all(
+                row["cumulative_allocated_bytes"]
+                + row["transfer_in_bytes"]
+                - row["cumulative_released_bytes"]
+                - row["transfer_out_bytes"]
+                == row["resident_bytes"]
+                for row in rows.values()
             ),
         }
