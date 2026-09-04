@@ -201,6 +201,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | materialization / cache-write ownership | compact・RAM APC・prefill→decodeでA/B/C exact / no-ownerでもvalue生成 / invalid destination atomic / 16/128 oracle exact |
 | DSA pooled workspace geometry | 128K/Q256 32 MiB・256K/Q256 64 MiB / 1Mは64 rows×4 blocks / 88境界とtop-k/expand exact |
 | hybrid semantic prefix snapshot contract | RAM-only owned snapshot / 1・255・256・257・1023・1024境界×64-step replay exact / transactional capture・restore / final resident 0 |
+| hybrid semantic prefix snapshot replay | S0から4,096-tokenを8回exact replay / S1から2,048-token exact / 10 restore・stale参照0 / final snapshot resident 0 |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -571,6 +572,14 @@ RAM限定の`SemanticPrefixSnapshot`を、個別tensor bundleではなく「pref
 captureはlive stateをmaterializeした後、全45層を別のMLX-owned storageへcloneし、schema・全state digest・component boundaryを再検査してからstoreへ一度だけpublishします。capture中にlive stateが変化した場合や途中componentで失敗した場合、snapshot/accountingは公開されません。restoreもidentityを最初に検証し、全replacementを別storageへ準備してからlive cache handleの参照を一度だけ交換するため、失敗時にKV/KDA/IndexPoolの一部だけが復元される経路はありません。snapshotは`SNAPSHOT_STATE`・`SNAPSHOT_OWNED`でprefix LRUから独立し、restoreしても消費されず、明示deleteまでimmutableです。disk serializationはv1の非対象です。
 
 実checkpointのpacked-decode＋compact-nope-dsaでposition 1/255/256/257/1023/1024を測定し、各境界でuninterrupted、capture-only、capture→8-step別入力mutate→restore→64-step replay、同一snapshotの2回目restoreを比較しました。全64-step full-vocab logits、34層KDA state、11層DSA latent/KV、IndexPool、slot/index metadataがbyte-exactで、NaNは0です。6 snapshotの累積owned allocation 978,948,000 bytesは全て明示releaseされ、最終`SNAPSHOT_STATE` residentは0、anonymous allocationは0でした。公式16/128-token oracleもexactです。このcontract screenはserver API、disk APC、cache ABI、backend、admissionを変更しません。次工程は4K程度のmutate/restoreを反復するsemantic replay qualificationです。
+
+### Hybrid semantic prefix snapshot replay qualification
+
+同じimmutableなS0から4,096-token continuationを8回restore/replayし、各runの全4,096 full-vocab logitsと256-tokenごとの16 semantic checkpointをbaselineと比較しました。全8 runで34層KDA state、11層DSA latent/KV、IndexPool、slot/index metadata、最終stateがbyte-exactです。2,048-token地点でnested S1を取得し、S0からの4K replay後にS1へ戻した残り2K replayも8 checkpointを含めexactでした。S0/S1のstorage aliasは0で、S1 capture・全replay後も両digestは不変です。
+
+8回のS0 restore、S1 restore、最終S0 restoreの計10世代でlive cache参照は毎回一度だけ交換され、旧cache entryのstale参照は0でした。identity mismatch、component corruption、invalid extentを4K後のfull hybrid stateへ注入しても、swap前に拒否されlive reference・generation・stateとsnapshotは全て不変です。snapshot restore replacementは累積2,002,196,730 bytesをallocate/releaseし、snapshot自体の累積400,439,346 bytesも2 capture/2 deleteで収支一致しました。restore回数に対するsnapshot resident増加はなく、全delete後は0 bytes、anonymous allocationは0です。
+
+replay endpointのactive-memory幅は96 bytes、peakは320.686 GBでした。公式16/128-token full-vocab oracleもexactです。artifactは38,912 sequential decode forwardと1回の256-token prefill、合計39,168 token positionを記録し、RAM-only contract、server、disk APC、cache ABI、backend、admissionを変更していません。これによりRAM semantic snapshotの反復replay qualificationは完了し、次は同一snapshotから異なるtoken trajectoryを独立生成するsemantic branch A/Bをfirst-classに扱う工程へ進みます。
 
 ### KDA state index load/store guards
 

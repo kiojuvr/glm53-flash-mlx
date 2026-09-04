@@ -225,6 +225,37 @@ def test_restore_branch_and_replay_are_byte_exact():
     assert snapshot.state_sha256 == semantic_cache_digest(snapshot._cache)
 
 
+def test_snapshot_and_live_generations_and_replacement_accounting_are_monotonic():
+    cache, _ = _new_cache()
+    handle = SemanticCacheHandle(cache)
+    store = SemanticSnapshotStore()
+    first = _capture(store, handle, snapshot_id="snapshot-a")
+    second = store.capture(
+        handle,
+        snapshot_id="snapshot-b",
+        identity=_identity(prefix_token_sha256="same-boundary-second-snapshot"),
+        absolute_token_position=8,
+        materialization_epoch=0,
+    )
+    assert (first.snapshot_generation, second.snapshot_generation) == (1, 2)
+    initial = handle.accounting()
+    assert initial["live_generation"] == initial["restore_count"] == 0
+
+    store.restore("snapshot-a", handle, expected_identity=_identity())
+    after_first = handle.accounting()
+    assert after_first["live_generation"] == after_first["restore_count"] == 1
+    assert after_first["cumulative_replacement_allocated_bytes"] > 0
+    assert after_first["cumulative_replaced_live_bytes"] > 0
+    store.restore("snapshot-a", handle, expected_identity=_identity())
+    after_second = handle.accounting()
+    assert after_second["live_generation"] == after_second["restore_count"] == 2
+    assert after_second["cumulative_replacement_allocated_bytes"] == (
+        2 * after_first["cumulative_replacement_allocated_bytes"]
+    )
+    assert store.accounting()["restore_count"] == 2
+    assert store.accounting()["snapshot_count"] == 2
+
+
 def test_capture_failure_does_not_publish_or_mutate_live_state_or_accounting():
     from mlx_vlm.apc_adapters import clone_cache_entry
 

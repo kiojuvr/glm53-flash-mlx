@@ -410,6 +410,7 @@ class HybridSemanticPrefixSnapshot:
     component_digests: Mapping[str, str]
     cache_leaf_count: int
     resident_bytes: int
+    snapshot_generation: int = 0
     ownership: SemanticSnapshotOwnership = field(
         default_factory=SemanticSnapshotOwnership
     )
@@ -421,6 +422,7 @@ class HybridSemanticPrefixSnapshot:
         _nonempty_string("state_sha256", self.state_sha256)
         _nonnegative_integer("cache_leaf_count", self.cache_leaf_count)
         _nonnegative_integer("resident_bytes", self.resident_bytes)
+        _nonnegative_integer("snapshot_generation", self.snapshot_generation)
         if not self._cache:
             raise SemanticSnapshotError("published snapshot must contain complete cache state")
         object.__setattr__(
@@ -439,6 +441,7 @@ class HybridSemanticPrefixSnapshot:
             "component_digests": dict(self.component_digests),
             "cache_leaf_count": self.cache_leaf_count,
             "resident_bytes": self.resident_bytes,
+            "snapshot_generation": self.snapshot_generation,
             "ownership": self.ownership.descriptor(),
         }
 
@@ -455,6 +458,7 @@ def prepare_semantic_snapshot(
     absolute_token_position: int,
     materialization_epoch: int,
     rollback_epoch: int = 0,
+    snapshot_generation: int = 0,
     clone_entry: Callable | None = None,
 ) -> HybridSemanticPrefixSnapshot:
     """Prepare a complete owned snapshot without publishing partial state."""
@@ -503,6 +507,7 @@ def prepare_semantic_snapshot(
         component_digests=semantic_component_digests(cloned),
         cache_leaf_count=sum(1 for _ in _cache_arrays(cloned)),
         resident_bytes=sum(_entry_nbytes(entry) for entry in cloned),
+        snapshot_generation=snapshot_generation,
         _cache=tuple(cloned),
     )
 
@@ -547,10 +552,40 @@ class SemanticCacheHandle:
         if not isinstance(cache, (tuple, list)) or not cache:
             raise SemanticSnapshotError("semantic cache handle requires a complete cache")
         self._cache = list(cache)
+        initial = sum(_entry_nbytes(entry) for entry in self._cache)
+        self._generation = 0
+        self._restore_count = 0
+        self._resident_bytes = initial
+        self._peak_resident_bytes = initial
+        self._cumulative_replacement_allocated_bytes = 0
+        self._cumulative_replaced_live_bytes = 0
 
     @property
     def cache(self) -> list[object]:
         return self._cache
+
+    @property
+    def generation(self) -> int:
+        return self._generation
+
+    def _refresh_resident_bytes(self) -> int:
+        current = sum(_entry_nbytes(entry) for entry in self._cache)
+        self._resident_bytes = current
+        self._peak_resident_bytes = max(self._peak_resident_bytes, current)
+        return current
+
+    def accounting(self) -> dict[str, int]:
+        self._refresh_resident_bytes()
+        return {
+            "live_generation": self._generation,
+            "restore_count": self._restore_count,
+            "resident_live_bytes": self._resident_bytes,
+            "peak_live_bytes": self._peak_resident_bytes,
+            "cumulative_replacement_allocated_bytes": (
+                self._cumulative_replacement_allocated_bytes
+            ),
+            "cumulative_replaced_live_bytes": self._cumulative_replaced_live_bytes,
+        }
 
     def restore(
         self,
@@ -564,8 +599,18 @@ class SemanticCacheHandle:
             expected_identity=expected_identity,
             clone_entry=clone_entry,
         )
+        previous_bytes = self._refresh_resident_bytes()
+        replacement_bytes = sum(_entry_nbytes(entry) for entry in replacement)
         # The only mutation in restore: every component is already validated.
         self._cache = replacement
+        self._generation += 1
+        self._restore_count += 1
+        self._resident_bytes = replacement_bytes
+        self._peak_resident_bytes = max(
+            self._peak_resident_bytes, replacement_bytes
+        )
+        self._cumulative_replacement_allocated_bytes += replacement_bytes
+        self._cumulative_replaced_live_bytes += previous_bytes
 
 
 @dataclass
@@ -600,6 +645,8 @@ class SemanticSnapshotStore:
     def __init__(self):
         self._snapshots: dict[str, HybridSemanticPrefixSnapshot] = {}
         self._accounting = _SnapshotAccounting()
+        self._next_snapshot_generation = 1
+        self._restore_count = 0
 
     def capture(
         self,
@@ -621,11 +668,13 @@ class SemanticSnapshotStore:
             absolute_token_position=absolute_token_position,
             materialization_epoch=materialization_epoch,
             rollback_epoch=rollback_epoch,
+            snapshot_generation=self._next_snapshot_generation,
             clone_entry=clone_entry,
         )
         # Publish only after every component and invariant has passed.
         self._snapshots[snapshot_id] = prepared
         self._accounting.allocate(prepared.resident_bytes)
+        self._next_snapshot_generation += 1
         return prepared
 
     def get(self, snapshot_id: str) -> HybridSemanticPrefixSnapshot:
@@ -647,6 +696,7 @@ class SemanticSnapshotStore:
             expected_identity=expected_identity,
             clone_entry=clone_entry,
         )
+        self._restore_count += 1
 
     def delete(self, snapshot_id: str) -> None:
         snapshot = self.get(snapshot_id)
@@ -664,6 +714,12 @@ class SemanticSnapshotStore:
             "prefix_lru_member": False,
             "disk_persistence": False,
             **self._accounting.descriptor(),
+            "snapshot_count": len(self._snapshots),
+            "snapshot_owned_bytes": self._accounting.resident_bytes,
+            "snapshot_peak_owned_bytes": self._accounting.peak_bytes,
+            "capture_count": self._accounting.allocation_count,
+            "restore_count": self._restore_count,
+            "delete_count": self._accounting.release_count,
         }
 
     @property
