@@ -1,0 +1,120 @@
+{
+  "acceptance": {
+    "all_three_paths_exercised": true,
+    "apc_snapshot_immutable": true,
+    "invalid_destination_is_preflight_atomic": true,
+    "materialize_and_cache_write_exact": true,
+    "materialize_without_owner_state_unchanged": true,
+    "materialize_without_owner_value_exact": true,
+    "no_materialization_no_owner_is_noop": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "prefill_decode_selection_exact": true,
+    "ram_apc_continuation_exact": true
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "contract": {
+    "cache_write_sentinel": -1,
+    "identity": "glm53-state-materialization-v1-value-independent-of-write-owner-sentinel-minus1-preflight-before-producer",
+    "invalid_destination_checked_before_producer": true,
+    "materialization_requirement_independent_of_cache_ownership": true
+  },
+  "date": "2026-09-04",
+  "decision": "materialization_write_ownership_contract_ready_for_semantic_snapshot",
+  "existing_runtime_identity": {
+    "cache_identity_schema": "glm53-hybrid-state-v1",
+    "compact_attention_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+    "direct_attention_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1"
+  },
+  "fixtures": {
+    "compact_cache": {
+      "arm_a_cache_exact": true,
+      "arm_a_materialized_and_written": true,
+      "arm_a_value_exact": true,
+      "arm_b_cache_and_accounting_unchanged": true,
+      "arm_b_materialized_without_write": true,
+      "arm_b_value_exact": true,
+      "arm_c_allocation_free_noop": true,
+      "invalid_destination_preflight_atomic": true,
+      "producer_calls": {
+        "a": 1,
+        "b": 1,
+        "c": 0,
+        "invalid": 0
+      }
+    },
+    "prefill_decode_transition": {
+      "arm_a_cache_exact": true,
+      "arm_a_materialized_and_written": true,
+      "arm_a_projection_exact": true,
+      "arm_a_selected_indices_exact": true,
+      "arm_b_cache_and_accounting_unchanged": true,
+      "arm_b_materialized_without_write": true,
+      "arm_c_allocation_free_noop": true,
+      "invalid_destination_preflight_atomic": true,
+      "producer_calls": {
+        "a": 1,
+        "b": 1,
+        "c": 0,
+        "invalid": 0
+      },
+      "transition_context": {
+        "decode_tokens": 1,
+        "prefill_tokens": 32
+      }
+    },
+    "ram_apc_restore": {
+      "arm_a_materialized_and_restored": true,
+      "arm_a_restore_exact": true,
+      "arm_b_live_cache_unchanged": true,
+      "arm_b_materialized_without_restore": true,
+      "arm_b_value_exact": true,
+      "arm_c_allocation_free_noop": true,
+      "invalid_destination_preflight_atomic": true,
+      "producer_calls": {
+        "a": 1,
+        "b": 1,
+        "c": 0,
+        "invalid": 0
+      },
+      "snapshot_immutable": true
+    }
+  },
+  "full_model": {
+    "cache_backend": "compact-nope-dsa",
+    "executed": true,
+    "load_seconds": 38.90966825000942,
+    "moe_backend": "packed-decode",
+    "official_oracle": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 9.770201375009492,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "ram_apc": {
+      "all_logits_hashes_match": true,
+      "post_state_exact": true,
+      "snapshot_immutable": true,
+      "steps": 16
+    },
+    "warm_residency_seconds": 2.114040083019063
+  },
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "probe_only": true,
+  "runtime_changes": {
+    "abi": false,
+    "admission": false,
+    "apc_namespace": false,
+    "backend": false,
+    "cache_implementation": false,
+    "server": false
+  },
+  "schema": "glm53-state-materialization-cache-write-ownership-v1"
+}

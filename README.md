@@ -198,6 +198,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
 | resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
+| materialization / cache-write ownership | compact・RAM APC・prefill→decodeでA/B/C exact / no-ownerでもvalue生成 / invalid destination atomic / 16/128 oracle exact |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -542,6 +543,14 @@ q/kv projection風の同一staging viewでは未所有aliasが上書き後の値
 Snapshot captureはcaller/active storageからowned copyを作り、restoreもsnapshotとは別のowned active storageを作ります。capture後にactive stateを更新し、target eviction、draft rotation、restore、再更新、再restoreを行ってもsnapshot digestと復元stateはbyte-exactでした。snapshot bytesはactive/prefix budgetへ課金されず、APC policyだけがevictできます。実runtimeのRAM APCでも16-step continuation logits、post-state、snapshot immutabilityが一致しています。
 
 Prefix reuse identityにはmodel revision、checkpoint fingerprint、backend policy、attention cache ABI、KDA state ABI、IndexPool ABI、token digestを明示します。同一token列でも前6項目のどれかが異なれば全てmissとなり、accidental sharingはありません。class別にresident/peak bytes、allocation/eviction count、cumulative allocated bytesを記録し、anonymous allocationは0です。このcommitはpolicy/simulatorだけで、DFlash、物理pool、runtime cache implementation、APC namespace、ABI、admission、serverは変更していません。
+
+### State materialization and cache-write ownership
+
+forwardの一時値を計算する必要性と、その値をpersistent cacheへ書くownershipを別軸へ固定しました。`MaterializationRequest(require_value, cache_write_slot)`はdestinationをproducer起動前にpreflightし、slot `None`または`-1`はcache writeだけを抑止します。`require_value=True`ならownerなしでもproducerは必ず一度実行されます。`require_value=False`かつownerなしはallocation-free no-opであり、valueなしのwrite、slot `< -1`、capacity以上、bool/floatの暗黙castはstateへ触れる前に拒否します。clipやmoduloはありません。
+
+actual compact NoPE cache、RAM APC restore、32-token prefillから最初のsparse decodeへのtransitionでA=materialize+write、B=materialize+no-write、C=no materialize+no-writeを比較しました。Aは既存production操作とvalue、cache、selected indexがbyte-exactです。BはAと同じtemporary valueを生成しながらcache offset、physical capacity、resident bytes、state digestを一切変更せず、Cはproducerを起動しません。invalid destinationもproducer call 0、authoritative state不変です。APC snapshotは全arm後もimmutableでした。
+
+packed-decode＋compact-nope-dsaの実checkpointでも公式16/128-token全vocab oracleとRAM APC 16-step continuation、post-state、snapshot immutabilityが一致しました。この契約はtensor ownership、layout、cache lifecycleとは独立で、runtime cache implementation、ABI、APC namespace、backend、admission、serverを変更しません。semantic prefix snapshotはこの直交契約の上に構築します。
 
 ### KDA state index load/store guards
 
