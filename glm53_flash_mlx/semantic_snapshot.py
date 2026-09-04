@@ -291,6 +291,22 @@ def _entry_nbytes(entry: object) -> int:
     return sum(int(value.nbytes) for value in _arrays(_entry_state(entry)))
 
 
+def semantic_cache_resident_bytes(cache: Sequence[object]) -> int:
+    """Return authoritative cache bytes without inferring a lifecycle class."""
+
+    return sum(_entry_nbytes(entry) for entry in cache)
+
+
+def semantic_cache_storage_alias_count(
+    left: Sequence[object], right: Sequence[object]
+) -> int:
+    """Count tensor-object aliases across two complete cache incarnations."""
+
+    left_arrays = list(_cache_arrays(left))
+    right_arrays = list(_cache_arrays(right))
+    return sum(a is b for a in left_arrays for b in right_arrays)
+
+
 def _logical_size(entry: object) -> int:
     size = getattr(entry, "size", None)
     if callable(size):

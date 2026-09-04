@@ -202,6 +202,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | DSA pooled workspace geometry | 128K/Q256 32 MiB・256K/Q256 64 MiB / 1Mは64 rows×4 blocks / 88境界とtop-k/expand exact |
 | hybrid semantic prefix snapshot contract | RAM-only owned snapshot / 1・255・256・257・1023・1024境界×64-step replay exact / transactional capture・restore / final resident 0 |
 | hybrid semantic prefix snapshot replay | S0から4,096-tokenを8回exact replay / S1から2,048-token exact / 10 restore・stale参照0 / final snapshot resident 0 |
+| first-class semantic branch isolation | S0→A/B twin 1,024 token exact / divergent 512 token相互隔離 / branch snapshot replay・rollback exact / final resident 0 |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -580,6 +581,16 @@ captureはlive stateをmaterializeした後、全45層を別のMLX-owned storage
 8回のS0 restore、S1 restore、最終S0 restoreの計10世代でlive cache参照は毎回一度だけ交換され、旧cache entryのstale参照は0でした。identity mismatch、component corruption、invalid extentを4K後のfull hybrid stateへ注入しても、swap前に拒否されlive reference・generation・stateとsnapshotは全て不変です。snapshot restore replacementは累積2,002,196,730 bytesをallocate/releaseし、snapshot自体の累積400,439,346 bytesも2 capture/2 deleteで収支一致しました。restore回数に対するsnapshot resident増加はなく、全delete後は0 bytes、anonymous allocationは0です。
 
 replay endpointのactive-memory幅は96 bytes、peakは320.686 GBでした。公式16/128-token full-vocab oracleもexactです。artifactは38,912 sequential decode forwardと1回の256-token prefill、合計39,168 token positionを記録し、RAM-only contract、server、disk APC、cache ABI、backend、admissionを変更していません。これによりRAM semantic snapshotの反復replay qualificationは完了し、次は同一snapshotから異なるtoken trajectoryを独立生成するsemantic branch A/Bをfirst-classに扱う工程へ進みます。
+
+### First-class semantic branch isolation
+
+`SemanticBranchManager`はimmutable S0から全hybrid cacheをeager-copyしてA/Bをforkし、一度に一branchだけを明示activateします。branch compatibilityは既存snapshot identityで検査し、branch ID、parent snapshot、storage generationはdebug/provenance lineageとして別管理します。A/B/S0間のmutable tensor aliasは0です。activationは全cache boundaryをpreflightした後にactive branch IDを一度だけ交換し、stateful cache、scheduler、continuous batching、kernel/cache ABIは変更しません。
+
+twin armではS0からbaseline/A/Bへ同じ1,024-token continuationを与え、全step full-vocab logitsと256-tokenごとの4 checkpointで34層KDA、11層DSA latent/KV、IndexPool、slot/index metadata、最終stateがbyte-exactでした。Aを進めている間のBと、Bを進めている間のAはstate digest・position・branch accountingまで不変です。divergent armでは最初のtokenを変えたA/Bが異なるfinal stateへ進みながら、相手branchとS0を一切変更しませんでした。Aの16-token rollback→replayもexactで、17-token要求はA/B/S0とactive cache referenceを変える前に拒否されます。
+
+AからSA、BからSBを独立captureし、lineageはそれぞれ`A generation 2 → SA`、`B generation 1 → SB`として記録しました。SA/SB/S0/live branch間のaliasは0です。SB→Bと、A削除後のSA→新branch A2はいずれも64-token continuationがfull-vocab logits・全stateでexactでした。Aを削除してもB/S0/SA/SBは不変です。activation validator failure、unknown branch、rollback 17、snapshot identity mismatchの4 failure domainも全てbranch-localかつatomicでした。
+
+実機screenではbranch 3作成/3削除、restore 4回、switch 12回を記録し、mixed component generationは0です。branch-owned stateはpeak 326,350,386 bytes、累積allocation/releaseは各1,142,226,351 bytes、snapshotは4 capture/4 delete・各652,700,772 bytesで収支一致しました。twin比較用baseline cacheも163,175,193 bytesを明示解放し、stale entryは0です。全削除後のbranch/snapshot resident、lineage bytes、anonymous allocationは0で、process peakは320.858 GBです。公式16/128-token oracleもexactです。v1はRAM上の逐次activationとeager-copyをcorrectness anchorとし、並列branch実行やCOW/shared prefixは実装しません。次工程はA/Bを実行・評価してwinnerだけをcommitするtrajectory transactionです。
 
 ### KDA state index load/store guards
 

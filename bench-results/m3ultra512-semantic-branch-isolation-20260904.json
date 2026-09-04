@@ -1,0 +1,710 @@
+{
+  "acceptance": {
+    "all_branch_storage_released": true,
+    "all_snapshot_storage_released": true,
+    "anonymous_allocation_zero": true,
+    "branch_local_rollback_replay_exact": true,
+    "branch_snapshot_lineage_exact": true,
+    "branch_snapshot_restore_replay_exact": true,
+    "branch_snapshots_owned_and_alias_free": true,
+    "delete_is_branch_local": true,
+    "divergent_branches_are_independent": true,
+    "forked_mutable_storage_alias_zero": true,
+    "mixed_branch_generation_zero": true,
+    "nan_invalid_access_metal_error_zero": true,
+    "official_128_token_oracle_exact": true,
+    "official_16_token_oracle_exact": true,
+    "peak_memory_within_340gb": true,
+    "reference_baseline_cache_released": true,
+    "rollback_and_activation_failures_are_branch_local": true,
+    "runtime_server_cache_abi_scheduler_unchanged": true,
+    "twin_baseline_a_b_byte_exact": true,
+    "twin_branch_mutation_isolated": true
+  },
+  "backend": {
+    "cache": "compact-nope-dsa",
+    "moe": "packed-decode"
+  },
+  "branch_accounting_before_delete": {
+    "active_branch_id": 2,
+    "anonymous_allocation_count": 0,
+    "branch_count": 2,
+    "branch_create_count": 3,
+    "branch_delete_count": 1,
+    "branch_restore_count": 4,
+    "branch_switch_count": 11,
+    "by_branch": {
+      "1": {
+        "allocation_count": 3,
+        "cumulative_allocated_bytes": 489525579,
+        "cumulative_released_bytes": 489525579,
+        "generation": null,
+        "parent_snapshot_id": null,
+        "peak_bytes": 163175193,
+        "position": null,
+        "release_count": 3,
+        "resident_bytes": 0
+      },
+      "2": {
+        "allocation_count": 3,
+        "cumulative_allocated_bytes": 489525579,
+        "cumulative_released_bytes": 326350386,
+        "generation": 2,
+        "parent_snapshot_id": "SB",
+        "peak_bytes": 163175193,
+        "position": 832,
+        "release_count": 2,
+        "resident_bytes": 163175193
+      },
+      "3": {
+        "allocation_count": 1,
+        "cumulative_allocated_bytes": 163175193,
+        "cumulative_released_bytes": 0,
+        "generation": 0,
+        "parent_snapshot_id": "SA",
+        "peak_bytes": 163175193,
+        "position": 832,
+        "release_count": 0,
+        "resident_bytes": 163175193
+      }
+    },
+    "cumulative_allocated_by_branch": {
+      "1": 489525579,
+      "2": 489525579,
+      "3": 163175193
+    },
+    "cumulative_allocated_bytes": 1142226351,
+    "cumulative_released_bytes": 815875965,
+    "lifecycle": "semantic-branch-state",
+    "mixed_component_generation_count": 0,
+    "peak_bytes": 326350386,
+    "peak_bytes_by_branch": {
+      "1": 163175193,
+      "2": 163175193,
+      "3": 163175193
+    },
+    "resident_bytes": 326350386,
+    "resident_bytes_by_branch": {
+      "1": 0,
+      "2": 163175193,
+      "3": 163175193
+    },
+    "schema": "glm53-semantic-branch-v1-eager-owned-isolated",
+    "snapshot_bytes_by_lineage": {
+      "1": 326350386,
+      "2": 163175193
+    }
+  },
+  "branch_snapshot_replay": {
+    "a2_b_storage_alias_count": 0,
+    "a2_parent_snapshot_id": "SA",
+    "a2_sa_storage_alias_count": 0,
+    "b_unchanged_by_a_delete": true,
+    "b_unchanged_while_a2_advanced": true,
+    "branch_a2_replay": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.075945167103782,
+      "end_memory": {
+        "active_bytes": 320685777307,
+        "cache_bytes": 56707221,
+        "peak_bytes": 320857989302
+      },
+      "final_components": {
+        "dsa_kv_sha256": "d361e945463ff7f2c696ed1e663694e6d0838641e6ef76201c614cc78bb6d1d9",
+        "indexpool_sha256": "8285afaaaecb4811f02562befbdef6004c8485f4e03363385e072b3a5705949c",
+        "kda_state_sha256": "66c762bf2aecbc7ce653a3cb8c06354e0277232384a7c02e3812e954ad7e6a84",
+        "slot_index_metadata_sha256": "f6c0f712c85bc4f964157e86eae164a246a0f4e12bb3543f0c3f846d1f2bd5af"
+      },
+      "final_state_sha256": "55b3496209db7533b5179fc14d819ed19735c10681b4d1af307fec430722bdaa",
+      "logits_sequence_sha256": "313feb11ea8e8861f2e0b53fee5642f900b9afaab6065477264f45615931dbcd",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.608489235614996
+    },
+    "branch_a2_replay_comparison": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "branch_a_reference": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.079595500137657,
+      "end_memory": {
+        "active_bytes": 320685680107,
+        "cache_bytes": 56783733,
+        "peak_bytes": 320721547394
+      },
+      "final_components": {
+        "dsa_kv_sha256": "d361e945463ff7f2c696ed1e663694e6d0838641e6ef76201c614cc78bb6d1d9",
+        "indexpool_sha256": "8285afaaaecb4811f02562befbdef6004c8485f4e03363385e072b3a5705949c",
+        "kda_state_sha256": "66c762bf2aecbc7ce653a3cb8c06354e0277232384a7c02e3812e954ad7e6a84",
+        "slot_index_metadata_sha256": "f6c0f712c85bc4f964157e86eae164a246a0f4e12bb3543f0c3f846d1f2bd5af"
+      },
+      "final_state_sha256": "55b3496209db7533b5179fc14d819ed19735c10681b4d1af307fec430722bdaa",
+      "logits_sequence_sha256": "313feb11ea8e8861f2e0b53fee5642f900b9afaab6065477264f45615931dbcd",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.599428438399396
+    },
+    "branch_b_reference": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.078262583119795,
+      "end_memory": {
+        "active_bytes": 320685680119,
+        "cache_bytes": 56783721,
+        "peak_bytes": 320721547394
+      },
+      "final_components": {
+        "dsa_kv_sha256": "4851aafd2e72a3ba879bf8b6cb115e233995ecba8f180a43533275e1d32c3ac1",
+        "indexpool_sha256": "92d4b673a42d36906216136a8436bd1750862e390efb0e2a6e245453a70e5d32",
+        "kda_state_sha256": "020c5871266b8d6eb5f80941efd976bd5da3630cb85be3449a78ef21ad8f22c1",
+        "slot_index_metadata_sha256": "f6c0f712c85bc4f964157e86eae164a246a0f4e12bb3543f0c3f846d1f2bd5af"
+      },
+      "final_state_sha256": "bd14ae8b38dd3f06b67f7a3acd7cb5026f84b30179ad85e5df42e50786cc5e00",
+      "logits_sequence_sha256": "db4db1f677dc95c0ff66e38501d1a96e9c03848a773287d102e758eb40fe0e46",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.602735473493782
+    },
+    "branch_b_replay": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.076859916094691,
+      "end_memory": {
+        "active_bytes": 320685775195,
+        "cache_bytes": 48057813,
+        "peak_bytes": 320857989302
+      },
+      "final_components": {
+        "dsa_kv_sha256": "4851aafd2e72a3ba879bf8b6cb115e233995ecba8f180a43533275e1d32c3ac1",
+        "indexpool_sha256": "92d4b673a42d36906216136a8436bd1750862e390efb0e2a6e245453a70e5d32",
+        "kda_state_sha256": "020c5871266b8d6eb5f80941efd976bd5da3630cb85be3449a78ef21ad8f22c1",
+        "slot_index_metadata_sha256": "f6c0f712c85bc4f964157e86eae164a246a0f4e12bb3543f0c3f846d1f2bd5af"
+      },
+      "final_state_sha256": "bd14ae8b38dd3f06b67f7a3acd7cb5026f84b30179ad85e5df42e50786cc5e00",
+      "logits_sequence_sha256": "db4db1f677dc95c0ff66e38501d1a96e9c03848a773287d102e758eb40fe0e46",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.606217437102574
+    },
+    "branch_b_replay_comparison": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "deleted_a_resident_bytes": 0,
+    "restore_b": {
+      "cache_reference_replaced": true,
+      "generation_advanced_once": true,
+      "identity_after": {
+        "branch_id": 2,
+        "generation": 2,
+        "parent_snapshot_id": "SB"
+      },
+      "identity_before": {
+        "branch_id": 2,
+        "generation": 1,
+        "parent_snapshot_id": "S0"
+      },
+      "stale_entry_reference_count": 0
+    },
+    "snapshots_unchanged_by_a_delete": true
+  },
+  "branch_snapshots": {
+    "SA": {
+      "lineage": {
+        "absolute_token_position": 768,
+        "parent_snapshot_id": "A-rollback",
+        "snapshot_id": "SA",
+        "source_branch_generation": 2,
+        "source_branch_id": 1
+      },
+      "resident_bytes": 163175193,
+      "state_sha256": "a47428e3ca73504be91bebeffdee80679cac394b6e9b5b5d0ffd0040bab471f1"
+    },
+    "SB": {
+      "lineage": {
+        "absolute_token_position": 768,
+        "parent_snapshot_id": "S0",
+        "snapshot_id": "SB",
+        "source_branch_generation": 1,
+        "source_branch_id": 2
+      },
+      "resident_bytes": 163175193,
+      "state_sha256": "1a643a16e109e7f301d9091cb0925deda578a6c9659400268dc940f2a8798ea2"
+    },
+    "storage_alias_count": {
+      "sa_branch_a": 0,
+      "sa_s0": 0,
+      "sa_sb": 0,
+      "sb_branch_b": 0,
+      "sb_s0": 0
+    }
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "complete": true,
+  "configuration": {
+    "capacity_tokens": 1280,
+    "checkpoint_interval": 256,
+    "decode_model_forward_calls": 4368,
+    "divergent_steps": 512,
+    "prefill_model_forward_calls": 1,
+    "prefix_tokens": 256,
+    "replay_steps": 64,
+    "rollback_tokens": 16,
+    "twin_steps": 1024
+  },
+  "date": "2026-09-04",
+  "decision": "first_class_semantic_branch_isolation_defined",
+  "divergent": {
+    "a_unchanged_while_b_advanced": true,
+    "b_unchanged_while_a_advanced": true,
+    "branch_a": {
+      "checkpoint_count": 2,
+      "elapsed_seconds": 40.06381791597232,
+      "end_memory": {
+        "active_bytes": 320359254584,
+        "cache_bytes": 1802458,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "59a0f9bf60fef5e17c511940d4498bde76e3903539c68690558d6e63b3a3f6e5",
+        "indexpool_sha256": "9054db57a457091f04ad3e03154a40a7329efcce918b0c7e0da473fcbbfb27c7",
+        "kda_state_sha256": "8224e38aca1b3b714b8ec79c3d461f68b62ece5cad3462f9adf94dea75604815",
+        "slot_index_metadata_sha256": "6b3acce25ebbdfbffb7a6424ff1093b3838f8b963c7f97c52f1376111a450c3b"
+      },
+      "final_state_sha256": "a47428e3ca73504be91bebeffdee80679cac394b6e9b5b5d0ffd0040bab471f1",
+      "logits_sequence_sha256": "8fea14ef87c14d1a59b5d441a4beffbab3c6e7ef93583c8da6e738a1138bd112",
+      "materialization_count": 2,
+      "materialization_positions": [
+        512,
+        768
+      ],
+      "nan_count": 0,
+      "steps": 512,
+      "tokens_per_second": 12.77961079680027
+    },
+    "branch_b": {
+      "checkpoint_count": 2,
+      "elapsed_seconds": 39.86324870795943,
+      "end_memory": {
+        "active_bytes": 320522515201,
+        "cache_bytes": 1804730,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "2ba55599a402bf098180ad64d5a73d09e364ed598e206c9df1e52fe892d7cc84",
+        "indexpool_sha256": "5e27d182f11272485c4c574a33c81fca6c45f9436549823abdad6c4d50d88cf2",
+        "kda_state_sha256": "5533a1c0470c793ffcfd0c794c15d442c1d35662499f8396acd1094ce1b0e66c",
+        "slot_index_metadata_sha256": "6b3acce25ebbdfbffb7a6424ff1093b3838f8b963c7f97c52f1376111a450c3b"
+      },
+      "final_state_sha256": "1a643a16e109e7f301d9091cb0925deda578a6c9659400268dc940f2a8798ea2",
+      "logits_sequence_sha256": "1f67338c830f2ccff2420b23f6acd572eaa1e20b1c991cee99a6f1f01a98f733",
+      "materialization_count": 2,
+      "materialization_positions": [
+        512,
+        768
+      ],
+      "nan_count": 0,
+      "steps": 512,
+      "tokens_per_second": 12.843910534009483
+    },
+    "final_states_differ": true,
+    "first_input_tokens_differ": true,
+    "restore_from_s0": {
+      "branch_a": {
+        "cache_reference_replaced": true,
+        "generation_advanced_once": true,
+        "identity_after": {
+          "branch_id": 1,
+          "generation": 1,
+          "parent_snapshot_id": "S0"
+        },
+        "identity_before": {
+          "branch_id": 1,
+          "generation": 0,
+          "parent_snapshot_id": "S0"
+        },
+        "stale_entry_reference_count": 0
+      },
+      "branch_b": {
+        "cache_reference_replaced": true,
+        "generation_advanced_once": true,
+        "identity_after": {
+          "branch_id": 2,
+          "generation": 1,
+          "parent_snapshot_id": "S0"
+        },
+        "identity_before": {
+          "branch_id": 2,
+          "generation": 0,
+          "parent_snapshot_id": "S0"
+        },
+        "stale_entry_reference_count": 0
+      }
+    },
+    "rollback_replay": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 1.3632986668962985,
+      "end_memory": {
+        "active_bytes": 320359266028,
+        "cache_bytes": 1802458,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "59a0f9bf60fef5e17c511940d4498bde76e3903539c68690558d6e63b3a3f6e5",
+        "indexpool_sha256": "9054db57a457091f04ad3e03154a40a7329efcce918b0c7e0da473fcbbfb27c7",
+        "kda_state_sha256": "8224e38aca1b3b714b8ec79c3d461f68b62ece5cad3462f9adf94dea75604815",
+        "slot_index_metadata_sha256": "6b3acce25ebbdfbffb7a6424ff1093b3838f8b963c7f97c52f1376111a450c3b"
+      },
+      "final_state_sha256": "a47428e3ca73504be91bebeffdee80679cac394b6e9b5b5d0ffd0040bab471f1",
+      "logits_sequence_sha256": "0c2a7b51899e2381d791ce24f16b2e53100a59484dbb0ead5456c1011c009f21",
+      "materialization_count": 1,
+      "materialization_positions": [
+        768
+      ],
+      "nan_count": 0,
+      "steps": 16,
+      "tokens_per_second": 11.736239745928737
+    },
+    "rollback_replay_exact": true,
+    "rollback_restore": {
+      "cache_reference_replaced": true,
+      "generation_advanced_once": true,
+      "identity_after": {
+        "branch_id": 1,
+        "generation": 2,
+        "parent_snapshot_id": "A-rollback"
+      },
+      "identity_before": {
+        "branch_id": 1,
+        "generation": 1,
+        "parent_snapshot_id": "S0"
+      },
+      "stale_entry_reference_count": 0
+    },
+    "s0_immutable": true
+  },
+  "failure_isolation": {
+    "activation_validator_failure": {
+      "active_branch_unchanged": true,
+      "active_cache_reference_unchanged": true,
+      "all_branch_state_and_accounting_unchanged": true,
+      "manager_accounting_unchanged": true,
+      "message": "injected activation failure",
+      "parent_snapshot_unchanged": true,
+      "rejected": true
+    },
+    "rollback_17": {
+      "active_branch_unchanged": true,
+      "active_cache_reference_unchanged": true,
+      "all_branch_state_and_accounting_unchanged": true,
+      "manager_accounting_unchanged": true,
+      "message": "branch rollback must be within [1, 16]",
+      "parent_snapshot_unchanged": true,
+      "rejected": true
+    },
+    "snapshot_identity_mismatch": {
+      "active_branch_unchanged": true,
+      "active_cache_reference_unchanged": true,
+      "all_branch_state_and_accounting_unchanged": true,
+      "manager_accounting_unchanged": true,
+      "message": "semantic snapshot identity mismatch",
+      "parent_snapshot_unchanged": true,
+      "rejected": true
+    },
+    "unknown_branch_activation": {
+      "active_branch_unchanged": true,
+      "active_cache_reference_unchanged": true,
+      "all_branch_state_and_accounting_unchanged": true,
+      "manager_accounting_unchanged": true,
+      "message": "unknown semantic branch: 999999",
+      "parent_snapshot_unchanged": true,
+      "rejected": true
+    }
+  },
+  "final_accounting": {
+    "branch": {
+      "active_branch_id": null,
+      "anonymous_allocation_count": 0,
+      "branch_count": 0,
+      "branch_create_count": 3,
+      "branch_delete_count": 3,
+      "branch_restore_count": 4,
+      "branch_switch_count": 12,
+      "by_branch": {
+        "1": {
+          "allocation_count": 3,
+          "cumulative_allocated_bytes": 489525579,
+          "cumulative_released_bytes": 489525579,
+          "generation": null,
+          "parent_snapshot_id": null,
+          "peak_bytes": 163175193,
+          "position": null,
+          "release_count": 3,
+          "resident_bytes": 0
+        },
+        "2": {
+          "allocation_count": 3,
+          "cumulative_allocated_bytes": 489525579,
+          "cumulative_released_bytes": 489525579,
+          "generation": null,
+          "parent_snapshot_id": null,
+          "peak_bytes": 163175193,
+          "position": null,
+          "release_count": 3,
+          "resident_bytes": 0
+        },
+        "3": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 163175193,
+          "cumulative_released_bytes": 163175193,
+          "generation": null,
+          "parent_snapshot_id": null,
+          "peak_bytes": 163175193,
+          "position": null,
+          "release_count": 1,
+          "resident_bytes": 0
+        }
+      },
+      "cumulative_allocated_by_branch": {
+        "1": 489525579,
+        "2": 489525579,
+        "3": 163175193
+      },
+      "cumulative_allocated_bytes": 1142226351,
+      "cumulative_released_bytes": 1142226351,
+      "lifecycle": "semantic-branch-state",
+      "mixed_component_generation_count": 0,
+      "peak_bytes": 326350386,
+      "peak_bytes_by_branch": {
+        "1": 163175193,
+        "2": 163175193,
+        "3": 163175193
+      },
+      "resident_bytes": 0,
+      "resident_bytes_by_branch": {
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "schema": "glm53-semantic-branch-v1-eager-owned-isolated",
+      "snapshot_bytes_by_lineage": {}
+    },
+    "memory": {
+      "active_bytes": 319706168868,
+      "cache_bytes": 1036315660,
+      "peak_bytes": 320857989302
+    },
+    "snapshot": {
+      "allocation_count": 4,
+      "anonymous_allocation_count": 0,
+      "capture_count": 4,
+      "cumulative_allocated_bytes": 652700772,
+      "cumulative_released_bytes": 652700772,
+      "delete_count": 4,
+      "disk_persistence": false,
+      "lifecycle": "snapshot-state",
+      "peak_bytes": 652700772,
+      "prefix_lru_member": false,
+      "release_count": 4,
+      "resident_bytes": 0,
+      "restore_count": 0,
+      "retention": "snapshot-owned",
+      "snapshot_count": 0,
+      "snapshot_owned_bytes": 0,
+      "snapshot_peak_owned_bytes": 652700772
+    }
+  },
+  "initial_storage_alias_count": {
+    "a_b": 0,
+    "a_s0": 0,
+    "b_s0": 0
+  },
+  "last_completed_phase": "complete",
+  "model_path": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.894790375139564,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "runtime_changes": {
+    "admission": false,
+    "cache_abi": false,
+    "continuous_batching": false,
+    "disk_apc": false,
+    "kernel_abi": false,
+    "parallel_execution": false,
+    "scheduler": false,
+    "server": false
+  },
+  "schema": "glm53-semantic-branch-v1-eager-owned-isolated",
+  "snapshot_accounting_before_delete": {
+    "allocation_count": 4,
+    "anonymous_allocation_count": 0,
+    "capture_count": 4,
+    "cumulative_allocated_bytes": 652700772,
+    "cumulative_released_bytes": 0,
+    "delete_count": 0,
+    "disk_persistence": false,
+    "lifecycle": "snapshot-state",
+    "peak_bytes": 652700772,
+    "prefix_lru_member": false,
+    "release_count": 0,
+    "resident_bytes": 652700772,
+    "restore_count": 0,
+    "retention": "snapshot-owned",
+    "snapshot_count": 4,
+    "snapshot_owned_bytes": 652700772,
+    "snapshot_peak_owned_bytes": 652700772
+  },
+  "snapshot_schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+  "twin": {
+    "a_b_logits_sequence_exact": true,
+    "a_unchanged_while_b_advanced": true,
+    "b_unchanged_while_a_advanced": true,
+    "baseline": {
+      "checkpoint_count": 4,
+      "elapsed_seconds": 79.22263229102828,
+      "end_memory": {
+        "active_bytes": 320359398827,
+        "cache_bytes": 2968392,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "a4fa7445ddbce08c6f2089442ebc77e83117eb86e986ecb19542a4b12e823aef",
+        "indexpool_sha256": "e03bddac606a1741e20dae72f69249edca2272a0dbc928ff1703d53bb78809ac",
+        "kda_state_sha256": "f69e2fc07accec2acf31bafee2350777ca6950c829c02e00db4ef76da6b36754",
+        "slot_index_metadata_sha256": "d08364bad46555bff0ee32da08e2b04093c1bbb2f81ca4c18ac5f802220eb3cf"
+      },
+      "final_state_sha256": "a231af85bb2b1583a63d2c94263d319a991ced8f16d543ea23b0e9e1440d4e0a",
+      "logits_sequence_sha256": "8306555b222f33f03d27c619e723aed6addf28a7a1cd3945cb0898f1cb619efd",
+      "materialization_count": 4,
+      "materialization_positions": [
+        512,
+        768,
+        1024,
+        1280
+      ],
+      "nan_count": 0,
+      "steps": 1024,
+      "tokens_per_second": 12.925599293877097
+    },
+    "baseline_vs_a": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "baseline_vs_b": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "branch_a": {
+      "checkpoint_count": 4,
+      "elapsed_seconds": 79.68449962488376,
+      "end_memory": {
+        "active_bytes": 320359472706,
+        "cache_bytes": 2968392,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "a4fa7445ddbce08c6f2089442ebc77e83117eb86e986ecb19542a4b12e823aef",
+        "indexpool_sha256": "e03bddac606a1741e20dae72f69249edca2272a0dbc928ff1703d53bb78809ac",
+        "kda_state_sha256": "f69e2fc07accec2acf31bafee2350777ca6950c829c02e00db4ef76da6b36754",
+        "slot_index_metadata_sha256": "d08364bad46555bff0ee32da08e2b04093c1bbb2f81ca4c18ac5f802220eb3cf"
+      },
+      "final_state_sha256": "a231af85bb2b1583a63d2c94263d319a991ced8f16d543ea23b0e9e1440d4e0a",
+      "logits_sequence_sha256": "8306555b222f33f03d27c619e723aed6addf28a7a1cd3945cb0898f1cb619efd",
+      "materialization_count": 4,
+      "materialization_positions": [
+        512,
+        768,
+        1024,
+        1280
+      ],
+      "nan_count": 0,
+      "steps": 1024,
+      "tokens_per_second": 12.850679929227125
+    },
+    "branch_b": {
+      "checkpoint_count": 4,
+      "elapsed_seconds": 79.74406879185699,
+      "end_memory": {
+        "active_bytes": 320359546477,
+        "cache_bytes": 2968392,
+        "peak_bytes": 320651391496
+      },
+      "final_components": {
+        "dsa_kv_sha256": "a4fa7445ddbce08c6f2089442ebc77e83117eb86e986ecb19542a4b12e823aef",
+        "indexpool_sha256": "e03bddac606a1741e20dae72f69249edca2272a0dbc928ff1703d53bb78809ac",
+        "kda_state_sha256": "f69e2fc07accec2acf31bafee2350777ca6950c829c02e00db4ef76da6b36754",
+        "slot_index_metadata_sha256": "d08364bad46555bff0ee32da08e2b04093c1bbb2f81ca4c18ac5f802220eb3cf"
+      },
+      "final_state_sha256": "a231af85bb2b1583a63d2c94263d319a991ced8f16d543ea23b0e9e1440d4e0a",
+      "logits_sequence_sha256": "8306555b222f33f03d27c619e723aed6addf28a7a1cd3945cb0898f1cb619efd",
+      "materialization_count": 4,
+      "materialization_positions": [
+        512,
+        768,
+        1024,
+        1280
+      ],
+      "nan_count": 0,
+      "steps": 1024,
+      "tokens_per_second": 12.841080415306887
+    },
+    "reference_baseline_release": {
+      "memory_after_release": {
+        "active_bytes": 320195842617,
+        "cache_bytes": 0,
+        "peak_bytes": 320651391496
+      },
+      "resident_bytes_before_release": 163175193,
+      "stale_entry_reference_count": 0
+    },
+    "s0_immutable": true
+  }
+}
