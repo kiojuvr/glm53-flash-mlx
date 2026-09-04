@@ -203,6 +203,7 @@ disk namespaceはcheckpoint全shard、index、tokenizer/chat template、KV codec
 | hybrid semantic prefix snapshot contract | RAM-only owned snapshot / 1・255・256・257・1023・1024境界×64-step replay exact / transactional capture・restore / final resident 0 |
 | hybrid semantic prefix snapshot replay | S0から4,096-tokenを8回exact replay / S1から2,048-token exact / 10 restore・stale参照0 / final snapshot resident 0 |
 | first-class semantic branch isolation | S0→A/B twin 1,024 token exact / divergent 512 token相互隔離 / branch snapshot replay・rollback exact / final resident 0 |
+| trajectory transaction winner commit | A/B双方256-token候補→winnerをzero-copy昇格 / 64-token continuation exact / stale evaluation・base CAS reject / final resident 0 |
 | KDA state index load/store guards | slot 0/1・sentinel -1 / 全34層 Direct/compact / invalid read/write/restore atomic / 16/128 oracle exact |
 | layerwise KDA digest soak screen | 4,096 logical tokens / 21 checkpoints / 34層 A/B exact / rollback 1・8・16 / APC exact / drift 0 |
 | layerwise KDA digest soak extended | 256,000 logical tokens / 1,000 materializations / 34層×1,005 checkpoints A/B exact / steady drift 369,900 bytes |
@@ -591,6 +592,16 @@ twin armではS0からbaseline/A/Bへ同じ1,024-token continuationを与え、�
 AからSA、BからSBを独立captureし、lineageはそれぞれ`A generation 2 → SA`、`B generation 1 → SB`として記録しました。SA/SB/S0/live branch間のaliasは0です。SB→Bと、A削除後のSA→新branch A2はいずれも64-token continuationがfull-vocab logits・全stateでexactでした。Aを削除してもB/S0/SA/SBは不変です。activation validator failure、unknown branch、rollback 17、snapshot identity mismatchの4 failure domainも全てbranch-localかつatomicでした。
 
 実機screenではbranch 3作成/3削除、restore 4回、switch 12回を記録し、mixed component generationは0です。branch-owned stateはpeak 326,350,386 bytes、累積allocation/releaseは各1,142,226,351 bytes、snapshotは4 capture/4 delete・各652,700,772 bytesで収支一致しました。twin比較用baseline cacheも163,175,193 bytesを明示解放し、stale entryは0です。全削除後のbranch/snapshot resident、lineage bytes、anonymous allocationは0で、process peakは320.858 GBです。公式16/128-token oracleもexactです。v1はRAM上の逐次activationとeager-copyをcorrectness anchorとし、並列branch実行やCOW/shared prefixは実装しません。次工程はA/Bを実行・評価してwinnerだけをcommitするtrajectory transactionです。
+
+### Trajectory transaction winner commit
+
+`TrajectoryTransactionManager`は評価policyを持たず、外部評価器が確定したwinner branch ID、branch generation、terminal position、semantic digest、scoreだけをimmutableな`TrajectoryEvaluation`へ束縛します。transactionは`OPEN → EXECUTED → EVALUATED → COMMITTED`または`ABORTED`の明示state machineで、terminal transactionへの二重commit、commit後abort、abort後commitをstate変更前に拒否します。begin時のactive generation/position/digestも保持し、commitはactive rootのCASとwinnerのgeneration/position/digestを両方再検査します。評価後のwinner進行と、transaction外でのactive進行はいずれもstale commitとしてfail closedです。
+
+winner commitは新しいhybrid cacheをcopyせず、既存のbranch-owned `SemanticCacheHandle`をactive rootへ一度だけ移譲します。旧active rootのreleaseとwinner ownership promotionをaccountingへ別記録し、commit成功後だけloserを解放します。branch側の`allocated = released + promoted + resident`、active側の`allocated + promoted-in = released + resident`はともに0-byte収支です。commit前のstale rejectionではactive、winner、loserのdigest・position・cache reference・accountingが全て不変で、abortは候補だけを解放してactive rootを変えません。
+
+実checkpointではS0@256からA/Bをそれぞれ256 token進め、A-winsとB-winsを対称にqualificationしました。両caseともwinner terminal stateとcommit直後active stateは34層KDA、11層DSA latent/KV、IndexPool、slot/index metadataを含めbyte-exactで、cache object identityも同一です。commit後の64-token continuationはwinner snapshotからforkしたoracleと全step full-vocab logits・全stateでexactでした。旧activeとloserのstale entryは0、mixed generationは0です。
+
+5 transactionの内訳はcommit 2、abort 3、stale reject 2です。12 branchのうち10はrelease、2はownership promotionされ、winner promoted bytesとloser released bytesはいずれも314,002,226 bytes、branch peakは314,002,226 bytesでした。全終了後のtransaction/branch/active/snapshot residentとanonymous allocationは0、process peakは320.646 GBです。公式16/128-token oracleもexactで、server、disk APC、cache/kernel ABI、backend、admission、並列schedulerは変更していません。これにより`fork → execute → external evaluate → atomic winner commit/abort`のRAM-only correctness primitiveが成立しました。次工程では異なるsampling trajectoryをdeterministic evaluatorで選択するqualificationへ進めます。
 
 ### KDA state index load/store guards
 

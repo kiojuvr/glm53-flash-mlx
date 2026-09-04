@@ -100,6 +100,8 @@ class _BranchAccounting:
     cumulative_released_bytes: int = 0
     allocation_count: int = 0
     release_count: int = 0
+    promotion_count: int = 0
+    cumulative_promoted_bytes: int = 0
 
     def allocate(self, nbytes: int) -> None:
         self.resident_bytes += nbytes
@@ -115,7 +117,34 @@ class _BranchAccounting:
             raise AssertionError("semantic branch accounting became negative")
 
     def descriptor(self) -> dict[str, int]:
-        return asdict(self)
+        row = asdict(self)
+        row["ownership_balance_bytes"] = (
+            self.cumulative_allocated_bytes
+            - self.cumulative_released_bytes
+            - self.cumulative_promoted_bytes
+            - self.resident_bytes
+        )
+        return row
+
+    def promote(self, nbytes: int) -> None:
+        self.resident_bytes -= nbytes
+        self.cumulative_promoted_bytes += nbytes
+        self.promotion_count += 1
+        if self.resident_bytes < 0:
+            raise AssertionError("semantic branch promotion accounting became negative")
+
+
+@dataclass(frozen=True)
+class PromotedSemanticBranch:
+    identity: BranchIdentity
+    compatibility_identity: SemanticSnapshotIdentity
+    position: int
+    resident_bytes: int
+    _handle: SemanticCacheHandle = field(repr=False, compare=False)
+
+    @property
+    def cache(self) -> list[object]:
+        return self._handle.cache
 
 
 @dataclass
@@ -180,6 +209,7 @@ class SemanticBranchManager:
         self._delete_count = 0
         self._switch_count = 0
         self._restore_count = 0
+        self._promotion_count = 0
         self._peak_resident_bytes = 0
 
     def _get(self, branch_id: int) -> SemanticBranch:
@@ -248,6 +278,15 @@ class SemanticBranchManager:
 
     def branch(self, branch_id: int) -> SemanticBranch:
         return self._get(branch_id)
+
+    def has_branch(self, branch_id: int) -> bool:
+        """Return whether a validated branch id is currently resident."""
+
+        return _branch_id(branch_id) in self._branches
+
+    @property
+    def branch_ids(self) -> tuple[int, ...]:
+        return tuple(sorted(self._branches))
 
     @property
     def active_branch_id(self) -> int | None:
@@ -425,6 +464,28 @@ class SemanticBranchManager:
         del self._branches[branch_id]
         self._delete_count += 1
 
+    def promote_branch(self, branch_id: int) -> PromotedSemanticBranch:
+        """Transfer one owned branch incarnation out of the branch domain."""
+
+        target = self._get(branch_id)
+        nbytes = self._synchronize_branch_accounting(target)
+        if target._handle is None:
+            raise SemanticBranchError("released semantic branch cannot be promoted")
+        promoted = PromotedSemanticBranch(
+            identity=target.identity,
+            compatibility_identity=target.compatibility_identity,
+            position=target.position,
+            resident_bytes=nbytes,
+            _handle=target._handle,
+        )
+        target._accounting.promote(nbytes)
+        target._handle = None
+        del self._branches[branch_id]
+        if self._active_branch_id == branch_id:
+            self._active_branch_id = None
+        self._promotion_count += 1
+        return promoted
+
     def accounting(self) -> dict[str, object]:
         for branch in self._branches.values():
             self._synchronize_branch_accounting(branch)
@@ -445,6 +506,15 @@ class SemanticBranchManager:
             )
             by_branch[str(branch_id)] = row
         resident = self._total_resident()
+        cumulative_allocated = sum(
+            row.cumulative_allocated_bytes for row in self._history.values()
+        )
+        cumulative_released = sum(
+            row.cumulative_released_bytes for row in self._history.values()
+        )
+        cumulative_promoted = sum(
+            row.cumulative_promoted_bytes for row in self._history.values()
+        )
         mixed_component_generation_count = sum(
             1
             for branch in self._branches.values()
@@ -459,16 +529,20 @@ class SemanticBranchManager:
             "active_branch_id": self._active_branch_id,
             "resident_bytes": resident,
             "peak_bytes": self._peak_resident_bytes,
-            "cumulative_allocated_bytes": sum(
-                row.cumulative_allocated_bytes for row in self._history.values()
-            ),
-            "cumulative_released_bytes": sum(
-                row.cumulative_released_bytes for row in self._history.values()
+            "cumulative_allocated_bytes": cumulative_allocated,
+            "cumulative_released_bytes": cumulative_released,
+            "cumulative_promoted_bytes": cumulative_promoted,
+            "ownership_balance_bytes": (
+                cumulative_allocated
+                - cumulative_released
+                - cumulative_promoted
+                - resident
             ),
             "branch_create_count": self._create_count,
             "branch_delete_count": self._delete_count,
             "branch_switch_count": self._switch_count,
             "branch_restore_count": self._restore_count,
+            "branch_promotion_count": self._promotion_count,
             "mixed_component_generation_count": mixed_component_generation_count,
             "resident_bytes_by_branch": {
                 key: row["resident_bytes"] for key, row in by_branch.items()

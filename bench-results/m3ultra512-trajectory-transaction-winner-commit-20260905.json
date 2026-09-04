@@ -1,0 +1,1379 @@
+{
+  "a_wins": {
+    "active_at_begin": {
+      "accounting": {
+        "anonymous_allocation_count": 0,
+        "cumulative_allocated_bytes": 314002226,
+        "cumulative_promoted_in_bytes": 0,
+        "cumulative_released_bytes": 157001113,
+        "generation": 1,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 157001113,
+        "position": 256,
+        "promotion_count": 0,
+        "resident_bytes": 157001113,
+        "restore_count": 1,
+        "winner_promoted_bytes": 0
+      },
+      "cache_id": 5945439872,
+      "generation": 1,
+      "position": 256,
+      "resident_bytes": 157001113,
+      "state_sha256": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2"
+    },
+    "candidate_branch_ids": [
+      1,
+      2
+    ],
+    "commit": {
+      "active_cache_id_after": 5945445568,
+      "active_generation_after": 2,
+      "active_generation_before": 1,
+      "active_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+      "loser_released_bytes": 157001113,
+      "mixed_generation_count": 0,
+      "previous_active_released_bytes": 157001113,
+      "transaction_id": "a-wins",
+      "winner_branch_id": 1,
+      "winner_cache_id_before": 5945445568,
+      "winner_promoted_bytes": 157001113,
+      "winner_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+      "winner_storage_promoted_without_copy": true
+    },
+    "committed_continuation": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.057764375116676,
+      "end_memory": {
+        "active_bytes": 320177637211,
+        "cache_bytes": 47926677,
+        "peak_bytes": 320645501312
+      },
+      "final_components": {
+        "dsa_kv_sha256": "3bebfe4e79f2e9f4572966147f0ba6d93a01eaae647ce18b217d800e3b5c872b",
+        "indexpool_sha256": "2c8fa2060f263f292fbe6258e71327fe13a0906da147ab288557ce86692b222f",
+        "kda_state_sha256": "4d6fa1f8ba564b805089b085ce35a58eb8c55ce4cc3e6826001a919e78849ca7",
+        "slot_index_metadata_sha256": "4394280069bc17ce43df34612b0e1d192e890968a140c98fc36682ff7c8c8aad"
+      },
+      "final_state_sha256": "9bb9ef09f8b1195ab61d9fb2ba14fb9c129f8ac45fc9983a1a4d5c203d0c5505",
+      "logits_sequence_sha256": "872e69a8a7ab0bececfd2585474db8172b51bb517152859e36907c6388f457e8",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.653812090351401
+    },
+    "continuation_comparison": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "continuation_final_state_exact": true,
+    "evaluation": {
+      "branch_generation": 0,
+      "score": 1.0,
+      "terminal_position": 512,
+      "terminal_state_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+      "transaction_id": "a-wins",
+      "winner_branch_id": 1
+    },
+    "evaluation_observation_only": true,
+    "loser_before_commit": {
+      "accounting": {
+        "allocation_count": 1,
+        "cumulative_allocated_bytes": 157001113,
+        "cumulative_promoted_bytes": 0,
+        "cumulative_released_bytes": 0,
+        "generation": 0,
+        "ownership_balance_bytes": 0,
+        "parent_snapshot_id": "S0",
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 0,
+        "release_count": 0,
+        "resident_bytes": 157001113
+      },
+      "cache_id": 5945402752,
+      "generation": 0,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca"
+    },
+    "loser_stale_entry_count": 0,
+    "old_active_stale_entry_count": 0,
+    "oracle_continuation": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.063497707946226,
+      "end_memory": {
+        "active_bytes": 320334847707,
+        "cache_bytes": 53797365,
+        "peak_bytes": 320645501312
+      },
+      "final_components": {
+        "dsa_kv_sha256": "3bebfe4e79f2e9f4572966147f0ba6d93a01eaae647ce18b217d800e3b5c872b",
+        "indexpool_sha256": "2c8fa2060f263f292fbe6258e71327fe13a0906da147ab288557ce86692b222f",
+        "kda_state_sha256": "4d6fa1f8ba564b805089b085ce35a58eb8c55ce4cc3e6826001a919e78849ca7",
+        "slot_index_metadata_sha256": "4394280069bc17ce43df34612b0e1d192e890968a140c98fc36682ff7c8c8aad"
+      },
+      "final_state_sha256": "9bb9ef09f8b1195ab61d9fb2ba14fb9c129f8ac45fc9983a1a4d5c203d0c5505",
+      "logits_sequence_sha256": "872e69a8a7ab0bececfd2585474db8172b51bb517152859e36907c6388f457e8",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.639484342920468
+    },
+    "post_commit": {
+      "accounting": {
+        "anonymous_allocation_count": 0,
+        "cumulative_allocated_bytes": 314002226,
+        "cumulative_promoted_in_bytes": 157001113,
+        "cumulative_released_bytes": 314002226,
+        "generation": 2,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 1,
+        "resident_bytes": 157001113,
+        "restore_count": 1,
+        "winner_promoted_bytes": 157001113
+      },
+      "cache_id": 5945445568,
+      "generation": 2,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73"
+    },
+    "s0_immutable": true,
+    "sibling_isolation": {
+      "1": true,
+      "2": true
+    },
+    "terminal_rejections": {
+      "commit_then_abort": true,
+      "double_commit": true
+    },
+    "trajectories": {
+      "1": {
+        "checkpoint_count": 1,
+        "elapsed_seconds": 19.793846084037796,
+        "end_memory": {
+          "active_bytes": 320334624011,
+          "cache_bytes": 1804562,
+          "peak_bytes": 320645501312
+        },
+        "final_components": {
+          "dsa_kv_sha256": "c97bf54b7a58769a8f584eb6a86c4025a264a7e2cc168e6c30099b592a5a170b",
+          "indexpool_sha256": "58b22234aa0a138139499e8b3f6ed15166692623b5769fb94f38fae1cece6e2b",
+          "kda_state_sha256": "ed932eed5b644b42e20a6d31f6c0702687bd5c90cf08719891ca0e7367b97db9",
+          "slot_index_metadata_sha256": "0ee2adf8ae3afab4b7c1fb6a63d821f3049920c4b86baf019d3a2137c3fc759a"
+        },
+        "final_state_sha256": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+        "logits_sequence_sha256": "65fd937373612c2018139b3ee8cbdfef645b9e17dd17553877bdf9c905e28243",
+        "materialization_count": 1,
+        "materialization_positions": [
+          512
+        ],
+        "nan_count": 0,
+        "steps": 256,
+        "tokens_per_second": 12.933312652483652
+      },
+      "2": {
+        "checkpoint_count": 1,
+        "elapsed_seconds": 19.841589832911268,
+        "end_memory": {
+          "active_bytes": 320334697794,
+          "cache_bytes": 1804658,
+          "peak_bytes": 320645501312
+        },
+        "final_components": {
+          "dsa_kv_sha256": "d78835407fc86fa65407bdba524f8ecce335fb7ee3dfd496e5c7ac9631372bb2",
+          "indexpool_sha256": "ebb1f1d22ade39e581b9b9cb7c2498a1582200cc7ac52af4018801e6f3349c25",
+          "kda_state_sha256": "dd87dfe462274c2d1ab2c16e7c7bc09f0141678fd6a637b5edddd396bc59738b",
+          "slot_index_metadata_sha256": "0ee2adf8ae3afab4b7c1fb6a63d821f3049920c4b86baf019d3a2137c3fc759a"
+        },
+        "final_state_sha256": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+        "logits_sequence_sha256": "a8c7a533d1a9bdddb9822f3ea624f99b080562e20fa04f1c72ef9b06fa380909",
+        "materialization_count": 1,
+        "materialization_positions": [
+          512
+        ],
+        "nan_count": 0,
+        "steps": 256,
+        "tokens_per_second": 12.902191918884066
+      }
+    },
+    "transaction_state": "committed",
+    "winner_before_commit": {
+      "accounting": {
+        "allocation_count": 1,
+        "cumulative_allocated_bytes": 157001113,
+        "cumulative_promoted_bytes": 0,
+        "cumulative_released_bytes": 0,
+        "generation": 0,
+        "ownership_balance_bytes": 0,
+        "parent_snapshot_id": "S0",
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 0,
+        "release_count": 0,
+        "resident_bytes": 157001113
+      },
+      "cache_id": 5945445568,
+      "generation": 0,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73"
+    },
+    "winner_cache_id_after": 5945445568,
+    "winner_cache_id_before": 5945445568,
+    "winner_offset": 0
+  },
+  "abort": {
+    "active_unchanged": true,
+    "resident_after_abort": 0,
+    "state": "aborted",
+    "terminal_commit_rejected": true
+  },
+  "acceptance": {
+    "a_and_b_winner_commit_symmetric": true,
+    "abort_preserves_active_and_releases_candidates": true,
+    "all_snapshot_and_active_resident_released": true,
+    "all_transaction_and_branch_resident_released": true,
+    "anonymous_allocation_zero": true,
+    "evaluation_is_observation_only": true,
+    "evaluation_policy_is_external": true,
+    "explicit_transaction_state_machine": true,
+    "loser_released_only_after_commit": true,
+    "mixed_generation_zero": true,
+    "nan_zero": true,
+    "official_16_128_oracle_exact": true,
+    "old_active_and_loser_stale_references_zero": true,
+    "ownership_accounting_balanced": true,
+    "parent_snapshot_immutable": true,
+    "peak_within_340gb": true,
+    "runtime_scope_unchanged": true,
+    "sibling_mutation_isolated": true,
+    "source_cache_released": true,
+    "stale_base_rejected_atomically": true,
+    "stale_evaluation_rejected_atomically": true,
+    "terminal_transactions_fail_closed": true,
+    "winner_continuation_full_state_exact": true,
+    "winner_owned_storage_promoted_without_copy": true,
+    "winner_semantic_state_promoted_exact": true
+  },
+  "accounting_before_release": {
+    "abort_count": 3,
+    "active": {
+      "anonymous_allocation_count": 0,
+      "cumulative_allocated_bytes": 942006678,
+      "cumulative_promoted_in_bytes": 314002226,
+      "cumulative_released_bytes": 1099007791,
+      "generation": 10,
+      "ownership_balance_bytes": 0,
+      "peak_bytes": 157001113,
+      "position": 256,
+      "promotion_count": 2,
+      "resident_bytes": 157001113,
+      "restore_count": 5,
+      "winner_promoted_bytes": 314002226
+    },
+    "anonymous_allocation_count": 0,
+    "branch": {
+      "active_branch_id": null,
+      "anonymous_allocation_count": 0,
+      "branch_count": 0,
+      "branch_create_count": 12,
+      "branch_delete_count": 10,
+      "branch_promotion_count": 2,
+      "branch_restore_count": 0,
+      "branch_switch_count": 22,
+      "by_branch": {
+        "1": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 157001113,
+          "cumulative_released_bytes": 0,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 1,
+          "release_count": 0,
+          "resident_bytes": 0
+        },
+        "10": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "11": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "12": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "2": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "3": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "4": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "5": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 157001113,
+          "cumulative_released_bytes": 0,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 1,
+          "release_count": 0,
+          "resident_bytes": 0
+        },
+        "6": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "7": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "8": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        },
+        "9": {
+          "allocation_count": 1,
+          "cumulative_allocated_bytes": 157001113,
+          "cumulative_promoted_bytes": 0,
+          "cumulative_released_bytes": 157001113,
+          "generation": null,
+          "ownership_balance_bytes": 0,
+          "parent_snapshot_id": null,
+          "peak_bytes": 157001113,
+          "position": null,
+          "promotion_count": 0,
+          "release_count": 1,
+          "resident_bytes": 0
+        }
+      },
+      "cumulative_allocated_by_branch": {
+        "1": 157001113,
+        "10": 157001113,
+        "11": 157001113,
+        "12": 157001113,
+        "2": 157001113,
+        "3": 157001113,
+        "4": 157001113,
+        "5": 157001113,
+        "6": 157001113,
+        "7": 157001113,
+        "8": 157001113,
+        "9": 157001113
+      },
+      "cumulative_allocated_bytes": 1884013356,
+      "cumulative_promoted_bytes": 314002226,
+      "cumulative_released_bytes": 1570011130,
+      "lifecycle": "semantic-branch-state",
+      "mixed_component_generation_count": 0,
+      "ownership_balance_bytes": 0,
+      "peak_bytes": 314002226,
+      "peak_bytes_by_branch": {
+        "1": 157001113,
+        "10": 157001113,
+        "11": 157001113,
+        "12": 157001113,
+        "2": 157001113,
+        "3": 157001113,
+        "4": 157001113,
+        "5": 157001113,
+        "6": 157001113,
+        "7": 157001113,
+        "8": 157001113,
+        "9": 157001113
+      },
+      "resident_bytes": 0,
+      "resident_bytes_by_branch": {
+        "1": 0,
+        "10": 0,
+        "11": 0,
+        "12": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "schema": "glm53-semantic-branch-v1-eager-owned-isolated",
+      "snapshot_bytes_by_lineage": {}
+    },
+    "commit_count": 2,
+    "lifecycle": "trajectory-transaction-state",
+    "loser_released_bytes": 314002226,
+    "ownership_balance_exact": true,
+    "resident_bytes_by_transaction": {
+      "a-wins": 0,
+      "b-wins": 0,
+      "explicit-abort": 0,
+      "stale-base": 0,
+      "stale-evaluation": 0
+    },
+    "schema": "glm53-trajectory-transaction-v1-cas-winner-promotion",
+    "stale_commit_reject_count": 2,
+    "transaction_count": 5,
+    "transaction_resident_bytes": 0,
+    "transactions": {
+      "a-wins": {
+        "base_active_generation": 1,
+        "base_active_position": 256,
+        "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+        "candidate_branch_ids": [
+          1,
+          2
+        ],
+        "commit_result": {
+          "active_cache_id_after": 5945445568,
+          "active_generation_after": 2,
+          "active_generation_before": 1,
+          "active_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+          "loser_released_bytes": 157001113,
+          "mixed_generation_count": 0,
+          "previous_active_released_bytes": 157001113,
+          "transaction_id": "a-wins",
+          "winner_branch_id": 1,
+          "winner_cache_id_before": 5945445568,
+          "winner_promoted_bytes": 157001113,
+          "winner_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+          "winner_storage_promoted_without_copy": true
+        },
+        "evaluation": {
+          "branch_generation": 0,
+          "score": 1.0,
+          "terminal_position": 512,
+          "terminal_state_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+          "transaction_id": "a-wins",
+          "winner_branch_id": 1
+        },
+        "parent_snapshot_id": "S0",
+        "state": "committed",
+        "transaction_id": "a-wins"
+      },
+      "b-wins": {
+        "base_active_generation": 4,
+        "base_active_position": 256,
+        "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+        "candidate_branch_ids": [
+          4,
+          5
+        ],
+        "commit_result": {
+          "active_cache_id_after": 5945442880,
+          "active_generation_after": 5,
+          "active_generation_before": 4,
+          "active_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+          "loser_released_bytes": 157001113,
+          "mixed_generation_count": 0,
+          "previous_active_released_bytes": 157001113,
+          "transaction_id": "b-wins",
+          "winner_branch_id": 5,
+          "winner_cache_id_before": 5945442880,
+          "winner_promoted_bytes": 157001113,
+          "winner_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+          "winner_storage_promoted_without_copy": true
+        },
+        "evaluation": {
+          "branch_generation": 0,
+          "score": 1.0,
+          "terminal_position": 512,
+          "terminal_state_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+          "transaction_id": "b-wins",
+          "winner_branch_id": 5
+        },
+        "parent_snapshot_id": "S0",
+        "state": "committed",
+        "transaction_id": "b-wins"
+      },
+      "explicit-abort": {
+        "base_active_generation": 10,
+        "base_active_position": 256,
+        "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+        "candidate_branch_ids": [
+          11,
+          12
+        ],
+        "commit_result": null,
+        "evaluation": null,
+        "parent_snapshot_id": "S0",
+        "state": "aborted",
+        "transaction_id": "explicit-abort"
+      },
+      "stale-base": {
+        "base_active_generation": 8,
+        "base_active_position": 256,
+        "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+        "candidate_branch_ids": [
+          9,
+          10
+        ],
+        "commit_result": null,
+        "evaluation": {
+          "branch_generation": 0,
+          "score": 1.0,
+          "terminal_position": 272,
+          "terminal_state_digest": "611405c76741af37772bdf117a8559460226e3b54f4ee4fa796915fcf2324b6b",
+          "transaction_id": "stale-base",
+          "winner_branch_id": 10
+        },
+        "parent_snapshot_id": "S0",
+        "state": "aborted",
+        "transaction_id": "stale-base"
+      },
+      "stale-evaluation": {
+        "base_active_generation": 7,
+        "base_active_position": 256,
+        "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+        "candidate_branch_ids": [
+          7,
+          8
+        ],
+        "commit_result": null,
+        "evaluation": {
+          "branch_generation": 0,
+          "score": 1.0,
+          "terminal_position": 272,
+          "terminal_state_digest": "37b87432981312a7990da217d8d10d75b50d547b9d28418f9a129c950ac78589",
+          "transaction_id": "stale-evaluation",
+          "winner_branch_id": 7
+        },
+        "parent_snapshot_id": "S0",
+        "state": "aborted",
+        "transaction_id": "stale-evaluation"
+      }
+    },
+    "winner_promoted_bytes": 314002226
+  },
+  "b_wins": {
+    "active_at_begin": {
+      "accounting": {
+        "anonymous_allocation_count": 0,
+        "cumulative_allocated_bytes": 471003339,
+        "cumulative_promoted_in_bytes": 157001113,
+        "cumulative_released_bytes": 471003339,
+        "generation": 4,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 157001113,
+        "position": 256,
+        "promotion_count": 1,
+        "resident_bytes": 157001113,
+        "restore_count": 2,
+        "winner_promoted_bytes": 157001113
+      },
+      "cache_id": 5945398528,
+      "generation": 4,
+      "position": 256,
+      "resident_bytes": 157001113,
+      "state_sha256": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2"
+    },
+    "candidate_branch_ids": [
+      4,
+      5
+    ],
+    "commit": {
+      "active_cache_id_after": 5945442880,
+      "active_generation_after": 5,
+      "active_generation_before": 4,
+      "active_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+      "loser_released_bytes": 157001113,
+      "mixed_generation_count": 0,
+      "previous_active_released_bytes": 157001113,
+      "transaction_id": "b-wins",
+      "winner_branch_id": 5,
+      "winner_cache_id_before": 5945442880,
+      "winner_promoted_bytes": 157001113,
+      "winner_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+      "winner_storage_promoted_without_copy": true
+    },
+    "committed_continuation": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.0710390829481184,
+      "end_memory": {
+        "active_bytes": 320177740804,
+        "cache_bytes": 47910389,
+        "peak_bytes": 320645501312
+      },
+      "final_components": {
+        "dsa_kv_sha256": "fded51e1afa93ce6bb9ca99bd29e1564b5ba7b67bffc633093fbdc1ba212f64e",
+        "indexpool_sha256": "ea4e0bcd5124af4415cf1c33e3ae409f551c7b56abce49c608e50b94f8fdcae5",
+        "kda_state_sha256": "b93492955c2479346984494399b30aca99deaf11ef8a411367127931bbce101c",
+        "slot_index_metadata_sha256": "4394280069bc17ce43df34612b0e1d192e890968a140c98fc36682ff7c8c8aad"
+      },
+      "final_state_sha256": "eeddf02fa48b7de20d1fde8fc78e98d636a09dae96d1eb6e53559469acf3a837",
+      "logits_sequence_sha256": "4cd91385b78e4410c55a5146a63a43ba0ae758cd59cc766622f12004360ee903",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.620687585549572
+    },
+    "continuation_comparison": {
+      "all_checkpoint_state_exact": true,
+      "checkpoint_mismatch_positions": [],
+      "dsa_kv_exact": true,
+      "final_state_exact": true,
+      "full_vocab_logits_exact": true,
+      "indexpool_exact": true,
+      "kda_state_exact": true,
+      "logits_mismatch_steps": [],
+      "nan_count": 0,
+      "slot_index_metadata_exact": true
+    },
+    "continuation_final_state_exact": true,
+    "evaluation": {
+      "branch_generation": 0,
+      "score": 1.0,
+      "terminal_position": 512,
+      "terminal_state_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+      "transaction_id": "b-wins",
+      "winner_branch_id": 5
+    },
+    "evaluation_observation_only": true,
+    "loser_before_commit": {
+      "accounting": {
+        "allocation_count": 1,
+        "cumulative_allocated_bytes": 157001113,
+        "cumulative_promoted_bytes": 0,
+        "cumulative_released_bytes": 0,
+        "generation": 0,
+        "ownership_balance_bytes": 0,
+        "parent_snapshot_id": "S0",
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 0,
+        "release_count": 0,
+        "resident_bytes": 157001113
+      },
+      "cache_id": 5945345920,
+      "generation": 0,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73"
+    },
+    "loser_stale_entry_count": 0,
+    "old_active_stale_entry_count": 0,
+    "oracle_continuation": {
+      "checkpoint_count": 1,
+      "elapsed_seconds": 5.0742358330171555,
+      "end_memory": {
+        "active_bytes": 320334951396,
+        "cache_bytes": 53928181,
+        "peak_bytes": 320645501312
+      },
+      "final_components": {
+        "dsa_kv_sha256": "fded51e1afa93ce6bb9ca99bd29e1564b5ba7b67bffc633093fbdc1ba212f64e",
+        "indexpool_sha256": "ea4e0bcd5124af4415cf1c33e3ae409f551c7b56abce49c608e50b94f8fdcae5",
+        "kda_state_sha256": "b93492955c2479346984494399b30aca99deaf11ef8a411367127931bbce101c",
+        "slot_index_metadata_sha256": "4394280069bc17ce43df34612b0e1d192e890968a140c98fc36682ff7c8c8aad"
+      },
+      "final_state_sha256": "eeddf02fa48b7de20d1fde8fc78e98d636a09dae96d1eb6e53559469acf3a837",
+      "logits_sequence_sha256": "4cd91385b78e4410c55a5146a63a43ba0ae758cd59cc766622f12004360ee903",
+      "materialization_count": 0,
+      "materialization_positions": [],
+      "nan_count": 0,
+      "steps": 64,
+      "tokens_per_second": 12.612736598398387
+    },
+    "post_commit": {
+      "accounting": {
+        "anonymous_allocation_count": 0,
+        "cumulative_allocated_bytes": 471003339,
+        "cumulative_promoted_in_bytes": 314002226,
+        "cumulative_released_bytes": 628004452,
+        "generation": 5,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 2,
+        "resident_bytes": 157001113,
+        "restore_count": 2,
+        "winner_promoted_bytes": 314002226
+      },
+      "cache_id": 5945442880,
+      "generation": 5,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca"
+    },
+    "s0_immutable": true,
+    "sibling_isolation": {
+      "4": true,
+      "5": true
+    },
+    "terminal_rejections": {
+      "commit_then_abort": true,
+      "double_commit": true
+    },
+    "trajectories": {
+      "4": {
+        "checkpoint_count": 1,
+        "elapsed_seconds": 19.939558875048533,
+        "end_memory": {
+          "active_bytes": 320334823323,
+          "cache_bytes": 1796346,
+          "peak_bytes": 320645501312
+        },
+        "final_components": {
+          "dsa_kv_sha256": "c97bf54b7a58769a8f584eb6a86c4025a264a7e2cc168e6c30099b592a5a170b",
+          "indexpool_sha256": "58b22234aa0a138139499e8b3f6ed15166692623b5769fb94f38fae1cece6e2b",
+          "kda_state_sha256": "ed932eed5b644b42e20a6d31f6c0702687bd5c90cf08719891ca0e7367b97db9",
+          "slot_index_metadata_sha256": "0ee2adf8ae3afab4b7c1fb6a63d821f3049920c4b86baf019d3a2137c3fc759a"
+        },
+        "final_state_sha256": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+        "logits_sequence_sha256": "65fd937373612c2018139b3ee8cbdfef645b9e17dd17553877bdf9c905e28243",
+        "materialization_count": 1,
+        "materialization_positions": [
+          512
+        ],
+        "nan_count": 0,
+        "steps": 256,
+        "tokens_per_second": 12.838799574465355
+      },
+      "5": {
+        "checkpoint_count": 1,
+        "elapsed_seconds": 19.946209124987945,
+        "end_memory": {
+          "active_bytes": 320334818987,
+          "cache_bytes": 1810758,
+          "peak_bytes": 320645501312
+        },
+        "final_components": {
+          "dsa_kv_sha256": "d78835407fc86fa65407bdba524f8ecce335fb7ee3dfd496e5c7ac9631372bb2",
+          "indexpool_sha256": "ebb1f1d22ade39e581b9b9cb7c2498a1582200cc7ac52af4018801e6f3349c25",
+          "kda_state_sha256": "dd87dfe462274c2d1ab2c16e7c7bc09f0141678fd6a637b5edddd396bc59738b",
+          "slot_index_metadata_sha256": "0ee2adf8ae3afab4b7c1fb6a63d821f3049920c4b86baf019d3a2137c3fc759a"
+        },
+        "final_state_sha256": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+        "logits_sequence_sha256": "a8c7a533d1a9bdddb9822f3ea624f99b080562e20fa04f1c72ef9b06fa380909",
+        "materialization_count": 1,
+        "materialization_positions": [
+          512
+        ],
+        "nan_count": 0,
+        "steps": 256,
+        "tokens_per_second": 12.834519000369436
+      }
+    },
+    "transaction_state": "committed",
+    "winner_before_commit": {
+      "accounting": {
+        "allocation_count": 1,
+        "cumulative_allocated_bytes": 157001113,
+        "cumulative_promoted_bytes": 0,
+        "cumulative_released_bytes": 0,
+        "generation": 0,
+        "ownership_balance_bytes": 0,
+        "parent_snapshot_id": "S0",
+        "peak_bytes": 157001113,
+        "position": 512,
+        "promotion_count": 0,
+        "release_count": 0,
+        "resident_bytes": 157001113
+      },
+      "cache_id": 5945442880,
+      "generation": 0,
+      "position": 512,
+      "resident_bytes": 157001113,
+      "state_sha256": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca"
+    },
+    "winner_cache_id_after": 5945442880,
+    "winner_cache_id_before": 5945442880,
+    "winner_offset": 1
+  },
+  "backend": {
+    "cache": "compact-nope-dsa",
+    "moe": "packed-decode"
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checkpoint_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "complete": true,
+  "configuration": {
+    "candidate_count": 2,
+    "capacity_tokens": 592,
+    "continuation_steps": 64,
+    "evaluation_policy": "external-deterministic-fixture",
+    "failure_steps": 16,
+    "prefix_tokens": 256,
+    "trajectory_steps": 256,
+    "winner_selection_is_runtime_policy": false
+  },
+  "date": "2026-09-05",
+  "final_accounting": {
+    "memory": {
+      "active_bytes": 319706168872,
+      "cache_bytes": 0,
+      "peak_bytes": 320645501312
+    },
+    "snapshot": {
+      "allocation_count": 3,
+      "anonymous_allocation_count": 0,
+      "capture_count": 3,
+      "cumulative_allocated_bytes": 471003339,
+      "cumulative_released_bytes": 471003339,
+      "delete_count": 3,
+      "disk_persistence": false,
+      "lifecycle": "snapshot-state",
+      "peak_bytes": 314002226,
+      "prefix_lru_member": false,
+      "release_count": 3,
+      "resident_bytes": 0,
+      "restore_count": 0,
+      "retention": "snapshot-owned",
+      "snapshot_count": 0,
+      "snapshot_owned_bytes": 0,
+      "snapshot_peak_owned_bytes": 314002226
+    },
+    "transaction": {
+      "abort_count": 3,
+      "active": {
+        "anonymous_allocation_count": 0,
+        "cumulative_allocated_bytes": 942006678,
+        "cumulative_promoted_in_bytes": 314002226,
+        "cumulative_released_bytes": 1256008904,
+        "generation": 10,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 157001113,
+        "position": 256,
+        "promotion_count": 2,
+        "resident_bytes": 0,
+        "restore_count": 5,
+        "winner_promoted_bytes": 314002226
+      },
+      "anonymous_allocation_count": 0,
+      "branch": {
+        "active_branch_id": null,
+        "anonymous_allocation_count": 0,
+        "branch_count": 0,
+        "branch_create_count": 12,
+        "branch_delete_count": 10,
+        "branch_promotion_count": 2,
+        "branch_restore_count": 0,
+        "branch_switch_count": 22,
+        "by_branch": {
+          "1": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 157001113,
+            "cumulative_released_bytes": 0,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 1,
+            "release_count": 0,
+            "resident_bytes": 0
+          },
+          "10": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "11": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "12": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "2": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "3": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "4": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "5": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 157001113,
+            "cumulative_released_bytes": 0,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 1,
+            "release_count": 0,
+            "resident_bytes": 0
+          },
+          "6": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "7": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "8": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          },
+          "9": {
+            "allocation_count": 1,
+            "cumulative_allocated_bytes": 157001113,
+            "cumulative_promoted_bytes": 0,
+            "cumulative_released_bytes": 157001113,
+            "generation": null,
+            "ownership_balance_bytes": 0,
+            "parent_snapshot_id": null,
+            "peak_bytes": 157001113,
+            "position": null,
+            "promotion_count": 0,
+            "release_count": 1,
+            "resident_bytes": 0
+          }
+        },
+        "cumulative_allocated_by_branch": {
+          "1": 157001113,
+          "10": 157001113,
+          "11": 157001113,
+          "12": 157001113,
+          "2": 157001113,
+          "3": 157001113,
+          "4": 157001113,
+          "5": 157001113,
+          "6": 157001113,
+          "7": 157001113,
+          "8": 157001113,
+          "9": 157001113
+        },
+        "cumulative_allocated_bytes": 1884013356,
+        "cumulative_promoted_bytes": 314002226,
+        "cumulative_released_bytes": 1570011130,
+        "lifecycle": "semantic-branch-state",
+        "mixed_component_generation_count": 0,
+        "ownership_balance_bytes": 0,
+        "peak_bytes": 314002226,
+        "peak_bytes_by_branch": {
+          "1": 157001113,
+          "10": 157001113,
+          "11": 157001113,
+          "12": 157001113,
+          "2": 157001113,
+          "3": 157001113,
+          "4": 157001113,
+          "5": 157001113,
+          "6": 157001113,
+          "7": 157001113,
+          "8": 157001113,
+          "9": 157001113
+        },
+        "resident_bytes": 0,
+        "resident_bytes_by_branch": {
+          "1": 0,
+          "10": 0,
+          "11": 0,
+          "12": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "schema": "glm53-semantic-branch-v1-eager-owned-isolated",
+        "snapshot_bytes_by_lineage": {}
+      },
+      "commit_count": 2,
+      "lifecycle": "trajectory-transaction-state",
+      "loser_released_bytes": 314002226,
+      "ownership_balance_exact": true,
+      "resident_bytes_by_transaction": {
+        "a-wins": 0,
+        "b-wins": 0,
+        "explicit-abort": 0,
+        "stale-base": 0,
+        "stale-evaluation": 0
+      },
+      "schema": "glm53-trajectory-transaction-v1-cas-winner-promotion",
+      "stale_commit_reject_count": 2,
+      "transaction_count": 5,
+      "transaction_resident_bytes": 0,
+      "transactions": {
+        "a-wins": {
+          "base_active_generation": 1,
+          "base_active_position": 256,
+          "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+          "candidate_branch_ids": [
+            1,
+            2
+          ],
+          "commit_result": {
+            "active_cache_id_after": 5945445568,
+            "active_generation_after": 2,
+            "active_generation_before": 1,
+            "active_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+            "loser_released_bytes": 157001113,
+            "mixed_generation_count": 0,
+            "previous_active_released_bytes": 157001113,
+            "transaction_id": "a-wins",
+            "winner_branch_id": 1,
+            "winner_cache_id_before": 5945445568,
+            "winner_promoted_bytes": 157001113,
+            "winner_semantic_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+            "winner_storage_promoted_without_copy": true
+          },
+          "evaluation": {
+            "branch_generation": 0,
+            "score": 1.0,
+            "terminal_position": 512,
+            "terminal_state_digest": "36801a94e20f6613c63ac67a11acbcf70203799f89235f9aec21cb362b17fb73",
+            "transaction_id": "a-wins",
+            "winner_branch_id": 1
+          },
+          "parent_snapshot_id": "S0",
+          "state": "committed",
+          "transaction_id": "a-wins"
+        },
+        "b-wins": {
+          "base_active_generation": 4,
+          "base_active_position": 256,
+          "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+          "candidate_branch_ids": [
+            4,
+            5
+          ],
+          "commit_result": {
+            "active_cache_id_after": 5945442880,
+            "active_generation_after": 5,
+            "active_generation_before": 4,
+            "active_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+            "loser_released_bytes": 157001113,
+            "mixed_generation_count": 0,
+            "previous_active_released_bytes": 157001113,
+            "transaction_id": "b-wins",
+            "winner_branch_id": 5,
+            "winner_cache_id_before": 5945442880,
+            "winner_promoted_bytes": 157001113,
+            "winner_semantic_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+            "winner_storage_promoted_without_copy": true
+          },
+          "evaluation": {
+            "branch_generation": 0,
+            "score": 1.0,
+            "terminal_position": 512,
+            "terminal_state_digest": "6a5ced01ee0bc947fa93b84c7089b72cce2f4117c04b4fb2293209e33165c5ca",
+            "transaction_id": "b-wins",
+            "winner_branch_id": 5
+          },
+          "parent_snapshot_id": "S0",
+          "state": "committed",
+          "transaction_id": "b-wins"
+        },
+        "explicit-abort": {
+          "base_active_generation": 10,
+          "base_active_position": 256,
+          "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+          "candidate_branch_ids": [
+            11,
+            12
+          ],
+          "commit_result": null,
+          "evaluation": null,
+          "parent_snapshot_id": "S0",
+          "state": "aborted",
+          "transaction_id": "explicit-abort"
+        },
+        "stale-base": {
+          "base_active_generation": 8,
+          "base_active_position": 256,
+          "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+          "candidate_branch_ids": [
+            9,
+            10
+          ],
+          "commit_result": null,
+          "evaluation": {
+            "branch_generation": 0,
+            "score": 1.0,
+            "terminal_position": 272,
+            "terminal_state_digest": "611405c76741af37772bdf117a8559460226e3b54f4ee4fa796915fcf2324b6b",
+            "transaction_id": "stale-base",
+            "winner_branch_id": 10
+          },
+          "parent_snapshot_id": "S0",
+          "state": "aborted",
+          "transaction_id": "stale-base"
+        },
+        "stale-evaluation": {
+          "base_active_generation": 7,
+          "base_active_position": 256,
+          "base_active_state_digest": "129fd24f34e3c975b08c09ed36cc963bb04f67afe204767f5cef66e605d8a7d2",
+          "candidate_branch_ids": [
+            7,
+            8
+          ],
+          "commit_result": null,
+          "evaluation": {
+            "branch_generation": 0,
+            "score": 1.0,
+            "terminal_position": 272,
+            "terminal_state_digest": "37b87432981312a7990da217d8d10d75b50d547b9d28418f9a129c950ac78589",
+            "transaction_id": "stale-evaluation",
+            "winner_branch_id": 7
+          },
+          "parent_snapshot_id": "S0",
+          "state": "aborted",
+          "transaction_id": "stale-evaluation"
+        }
+      },
+      "winner_promoted_bytes": 314002226
+    }
+  },
+  "last_completed_phase": "complete",
+  "model_path": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.898070833878592,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "runtime_changes": {
+    "admission": false,
+    "backend": false,
+    "cache_abi": false,
+    "disk_apc": false,
+    "kernel_abi": false,
+    "parallel_branch_execution": false,
+    "server": false
+  },
+  "schema": "glm53-trajectory-transaction-v1-cas-winner-promotion",
+  "snapshot_schema": "glm53-hybrid-semantic-prefix-snapshot-v1-ram-owned-transactional",
+  "source_release": {
+    "resident_bytes": 157001113,
+    "stale_entry_reference_count": 0
+  },
+  "stale_base": {
+    "all_state_and_references_unchanged": true,
+    "rejected": true,
+    "resident_after_abort": 0,
+    "transaction_state_after_abort": "aborted"
+  },
+  "stale_evaluation": {
+    "all_state_and_references_unchanged": true,
+    "rejected": true,
+    "resident_after_abort": 0,
+    "transaction_state_after_abort": "aborted"
+  }
+}
