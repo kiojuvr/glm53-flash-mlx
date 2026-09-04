@@ -9,6 +9,7 @@ from glm53_flash_mlx.churn import (
     distributed_churn_schedule,
     required_churn_cycles,
     rollback_schedule,
+    temporary_storage_returned,
 )
 
 
@@ -23,6 +24,9 @@ def test_churn_tiers_separate_logical_length_from_allocation_pressure():
         BASELINE_256K_CUMULATIVE_ALLOCATION_BYTES
     )
     assert extended.cumulative_allocation_target_bytes == 1 << 40
+    assert churn_tier("developer-smoke").cumulative_allocation_target_bytes == (
+        10_000_000_000
+    )
 
 
 def test_required_cycles_and_schedule_are_deterministic_and_dense():
@@ -64,3 +68,26 @@ def test_accounting_balance_detects_per_class_and_total_errors():
     assert accounting_balance_errors(snapshot) == ()
     snapshot["by_lifecycle"]["snapshot-state"]["resident_bytes"] = 61
     assert accounting_balance_errors(snapshot)
+
+
+def test_temporary_storage_returns_to_preexisting_rollback_baseline():
+    before = {
+        "by_lifecycle": {
+            "snapshot-state": {"resident_bytes": 400},
+            "draft-transient": {"resident_bytes": 0},
+        }
+    }
+    same = {
+        "by_lifecycle": {
+            "snapshot-state": {"resident_bytes": 400},
+            "draft-transient": {"resident_bytes": 0},
+        }
+    }
+    leaked = {
+        "by_lifecycle": {
+            "snapshot-state": {"resident_bytes": 800},
+            "draft-transient": {"resident_bytes": 0},
+        }
+    }
+    assert temporary_storage_returned(before, same)
+    assert not temporary_storage_returned(before, leaked)

@@ -37,6 +37,7 @@ from glm53_flash_mlx.churn import (
     distributed_churn_schedule,
     required_churn_cycles,
     rollback_schedule,
+    temporary_storage_returned,
 )
 from glm53_flash_mlx.kda_digest import (
     SoakLifecycleAccounting,
@@ -291,7 +292,8 @@ def _apc_churn_cycle(
     capacity_tokens: int,
     accounting: SoakLifecycleAccounting,
 ) -> tuple[list, dict]:
-    resident_before = accounting.snapshot()["resident_bytes"]
+    accounting_before = accounting.snapshot()
+    resident_before = accounting_before["resident_bytes"]
     live_before = _full_cache_digest(cache_b)
     source_owner = f"apc-{apc_generation}-source"
     restored_owner = f"apc-{apc_generation}-restored"
@@ -336,7 +338,7 @@ def _apc_churn_cycle(
     mx.synchronize()
     resident_after = accounting.snapshot()["resident_bytes"]
     balance_errors = accounting_balance_errors(accounting.snapshot())
-    temporary = accounting.snapshot()["by_lifecycle"]
+    accounting_after = accounting.snapshot()
     event = {
         "kind": "apc-ownership-churn",
         "operation_sequence": operation_sequence,
@@ -353,22 +355,10 @@ def _apc_churn_cycle(
         ],
         "lifecycle_balance_exact": not balance_errors,
         "lifecycle_balance_errors": list(balance_errors),
-        "temporary_storage_returned": (
-            temporary[CacheLifecycle.SNAPSHOT_STATE.value]["resident_bytes"] == 0
-            and temporary[CacheLifecycle.DRAFT_TRANSIENT.value]["resident_bytes"]
-            == 0
+        "temporary_storage_returned": temporary_storage_returned(
+            accounting_before, accounting_after
         ),
     }
-    if not all(
-        event[key]
-        for key in (
-            "restore_exact",
-            "snapshot_owned_storage_immutable",
-            "lifecycle_balance_exact",
-            "temporary_storage_returned",
-        )
-    ):
-        raise ChurnDivergenceError(f"APC churn cycle failed: {event}")
     return cache_b, event
 
 
@@ -676,6 +666,28 @@ def run_churn(model, artifact: dict, output_path: Path, *, vocab: int) -> None:
                 operation_context["resident_bytes_after"] = accounting.snapshot()[
                     "resident_bytes"
                 ]
+                if not all(
+                    event[key]
+                    for key in (
+                        "restore_exact",
+                        "snapshot_owned_storage_immutable",
+                        "lifecycle_balance_exact",
+                        "temporary_storage_returned",
+                    )
+                ):
+                    _record_failure(
+                        artifact,
+                        reason=f"APC churn cycle failed: {event}",
+                        step=step,
+                        operation_sequence=counters["operation_sequence"],
+                        accounting=accounting,
+                        cache_a=cache_a,
+                        cache_b=cache_b,
+                        apc_generation=counters["apc_generation"],
+                        rollback_depth=operation_context["rollback_depth"],
+                        resident_before=operation_context["resident_bytes_before"],
+                        resident_after=operation_context["resident_bytes_after"],
+                    )
 
             if step % MATERIALIZATION_INTERVAL_TOKENS == 0:
                 before_a = _full_cache_digest(cache_a)

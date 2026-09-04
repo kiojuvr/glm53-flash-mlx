@@ -17,7 +17,8 @@ class ChurnTier:
 
 
 CHURN_TIERS = {
-    "developer-smoke": ChurnTier("developer-smoke", 256, 2_000_000_000, 64),
+    # Dense enough to force APC churn while a rollback source snapshot is live.
+    "developer-smoke": ChurnTier("developer-smoke", 256, 10_000_000_000, 64),
     "screen": ChurnTier("screen", 4_096, 50_000_000_000, 1_024),
     "qualification": ChurnTier(
         "qualification",
@@ -93,3 +94,15 @@ def accounting_balance_errors(snapshot: dict) -> tuple[str, ...]:
     if not snapshot.get("ownership_balance_exact", False):
         errors.append("snapshot ownership_balance_exact is false")
     return tuple(errors)
+
+
+def temporary_storage_returned(before: dict, after: dict) -> bool:
+    """Require a transition to preserve any pre-existing temporary owners."""
+
+    for lifecycle in ("snapshot-state", "draft-transient"):
+        if (
+            int(after["by_lifecycle"][lifecycle]["resident_bytes"])
+            != int(before["by_lifecycle"][lifecycle]["resident_bytes"])
+        ):
+            return False
+    return True

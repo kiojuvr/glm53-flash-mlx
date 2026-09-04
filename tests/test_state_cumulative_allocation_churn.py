@@ -12,6 +12,11 @@ ARTIFACT = (
     / "bench-results"
     / "m3ultra512-state-cumulative-allocation-churn-screen-20260904.json"
 )
+FAILED_QUALIFICATION_ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-state-cumulative-allocation-churn-qualification-failed-overlap-20260904.json"
+)
 
 
 def test_churn_probe_decouples_logical_tokens_from_allocation_pressure():
@@ -173,3 +178,33 @@ def test_churn_screen_all_checkpoints_and_events_preserve_invariants():
         )
         for row in churn
     )
+
+
+def test_first_qualification_attempt_preserves_overlap_failure_evidence():
+    artifact = json.loads(FAILED_QUALIFICATION_ARTIFACT.read_text())
+    assert artifact["tier"] == "qualification"
+    assert artifact["complete"] is False
+    assert artifact["last_completed_step"] == 1_021
+    assert artifact["nan_count"] == 0
+    failure = artifact["first_divergence"]
+    assert failure["logical_token"] == 1_022
+    assert failure["operation_sequence"] == 41
+    assert failure["apc_generation"] == 40
+    assert failure["operation_kind"] == "apc-ownership-churn:rollback-17"
+    assert failure["resident_bytes_before"] == 1_045_192_779
+    assert failure["lifecycle"]["ownership_balance_exact"] is True
+    assert failure["lifecycle"]["by_lifecycle"]["snapshot-state"][
+        "resident_bytes"
+    ] == 348_397_593
+    assert "temporary_storage_returned': False" in failure["reason"]
+    for invariant in (
+        "rejected': True",
+        "authoritative_state_unchanged': True",
+        "snapshot_unchanged': True",
+        "accounting_unchanged': True",
+        "bindings_unchanged': True",
+        "restore_exact': True",
+        "snapshot_owned_storage_immutable': True",
+        "lifecycle_balance_exact': True",
+    ):
+        assert invariant in failure["reason"]

@@ -590,6 +590,8 @@ token-countとは独立にallocator/lifetime pressureを増やすため、A=通�
 
 物理allocationとownership transferを混同しないよう、各lifecycleでallocated/released bytes、allocation/release/eviction count、transfer in/outを独立記録します。各観測点で`allocated + transfer_in - released - transfer_out == resident`を要求し、一時SNAPSHOT_STATEとDRAFT_TRANSIENTは各cycle後にbaselineへ戻します。失敗artifactはlogical tokenだけでなくoperation/allocation sequence、lifecycle、ownership、APC generation、rollback depth、resident before/after、最初のKDA layer/state差を保存します。
 
+ここでいうtemporary baselineは絶対0ではなく、cycle開始時のresident量です。rollback source snapshotを複数token保持している間にAPC churnが重なっても、その既存snapshotは生存しなければなりません。最初のqualification attemptはtoken 1,022でこの正当な348,397,593-byte rollback snapshotをleakと誤認して安全停止しました。このnegative evidenceは`m3ultra512-state-cumulative-allocation-churn-qualification-failed-overlap-20260904.json`へ分離しています。判定をcycle前後同量へ修正し、10 GB developer smokeではtoken 184の重複caseを含む32 cycle、11,389,480,934 cumulative bytesで全gateを再確認しました。
+
 実checkpointのscreenは4,096 logical token、A/B合計8,218 model forward、124 APC ownership cycle、4 rollback/replayを実行し、累積51,656,675,634 bytes / 1,122,816 physical token slotsへ到達しました。17 checkpointのfull-vocab logits、full cache、34層KDA digestは全てexactです。4種の拒否操作は各31回、計124回すべてstate/snapshot/accounting/binding変更前に拒否されました。materializationは16回、authoritative drift 0 bytes、steady active drift 230,015 bytes、final resident 400,439,346 bytes、peak 320.507 GB、anonymous allocationとNaN/Metal errorは0です。
 
 qualificationはlogical tokenを16,384以下に保ったまま、256k state soakの基準446,825,650,554 cumulative bytes以上を要求します。約1時間のoperator-runになるためユーザー側で実行します。
