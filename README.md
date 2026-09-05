@@ -176,6 +176,7 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 | deterministic 256-token prefill | 17.49 s / 14.63 tok/s / peak 320.64 GB |
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
 | latest official chat template | 62/62 shard＋tokenizer/config/index同一 / templateのみ変更 / 10 fixture official-runtime exact |
+| coding-agent prefix APC 4K–32K | cold 43.7–44.9 tok/s / exact hit 12/12 / suffix logits・KDA・DSA・IndexPool exact / 32K peak 336.420 GB |
 | layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
 | layer 3 grouped FP8 MoE, 256 tokens | 111.50 → 22.03 ms / 5.06× / working peak +319.7 MB |
 | full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |
@@ -845,6 +846,36 @@ Tier 2ではcold prefillを実行せず、16k/64k/128kと262143〜262147 token�
 全8 context × 11 DSA層でDirect/compactのselected indexとattention outputがbyte-identicalです。全indexは`-1`または`[0, Kv)`、selected幅は最大2051で、Direct/compact full-model first logits、compact resident/restore post-stateも一致しました。262145/262144 first-decode latency比はDirect 1.010、compact resident 1.006、restore 0.968で1.5 gate内です。256k peakは331.456 GB、OOM・NaN・Metal errorはありません。
 
 この結果が検証するのは「256k resident/RAM restore stateからfirst decodeへ遷移できること」です。256k cold prefillはunsupportedかつunvalidatedです。16k以上のcold promptはproduction admissionでfail closedし、拒否前後のcache hashも不変でした。prompt上限256、総context上限16,384、runtime/server/APC/cache ABIは変更していません。
+
+### Coding-agent prefix-cache admission qualification
+
+4K / 8K / 16K / 32Kの長文cold prefillとexact hybrid RAM APCを、system prompt、tool schema、実repository text、conversation history、assistant/tool-result suffixから成るcoding-agent fixtureで段階qualificationします。各prefixは公式chat templateの構造を維持したまま指定token長へ正確に調整します。cold live cacheから同じ41-token suffixを処理するuninterrupted Direct armと、APC exact snapshotを復元して同じshapeのsuffixを処理するwarm armを比較します。これにより、cold/warmでquery shapeを変えた際のattention reduction差をcache誤差へ混入させません。
+
+4K / 8K / 16K / 32Kのcold prefillは92.666 / 182.369 / 368.356 / 750.022秒、43.7–44.9 tok/sで全て完走しました。各contextで3回、合計12回のexact hitを行い、41-token warm suffixは1.302–1.864秒です。全turnでfull-vocab logits、KDA、DSA latent/KV、IndexPool、slot/index metadataがuninterrupted Directとbyte-exactでした。APC snapshotは263,053,312 / 378,486,784 / 609,353,728 / 1,071,087,616 bytesで、live/restored storage aliasとanonymous allocationは0、snapshot digestとresident accountingは不変です。warm active-memory幅は最大448,333 bytes、32K peakは336.420 GBでgate内でした。公式16/128-token oracleも全step exactです。
+
+OpenAI-compatible smokeでは4,096-token cold requestが91.373秒、同じprefixへ16-token suffixを加えた第2 requestが0.916秒でした。第2 requestの`prompt_tokens_details.cached_tokens=4096`、APC `exact_hits=1`、`matched_tokens=4096`が一致し、server `/health`はDirect＋RAM APC、probe専用context 36,864でhealthyです。artifactは全model/HTTP gate合格で`complete=true`、`accepted=true`です。
+
+本試験は長時間のユーザー起動probeです。contextごとにatomic artifactを更新し、完了済みcontextは再実行時にskipしますが、in-flight cacheのdisk resumeは主張しません。4点のmodel gate後、明示的に32K admissionとRAM APCを有効にした別server processへ4K OpenAI-compatible二turn smokeを行い、実prefix hitを`/v1/cache/stats`で確認して初めてartifactを`complete=true`にします。今回その全工程に合格しましたが、既定Direct backend、prompt 256、総context 16,384、PRO-2 baseline、PRO-1 candidateはこのtest commitでは変更しません。
+
+```bash
+# 4K/8K/16K/32Kのcontrolled model qualification。
+uv run python scripts/qualify_coding_agent_prefix_cache_admission.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --output bench-results/m3ultra512-coding-agent-prefix-cache-admission-20260905.json
+
+# 上のprocess終了後、別terminalでprobe専用serverを起動する。
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --apc \
+  --max-prompt-tokens 32768 \
+  --max-context-tokens 36864
+
+# 実OpenAI-compatible二turn smokeを同じartifactへmergeする。
+uv run python scripts/qualify_coding_agent_prefix_cache_admission.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase server-smoke \
+  --output bench-results/m3ultra512-coding-agent-prefix-cache-admission-20260905.json
+```
 
 ## 検証
 
