@@ -13,7 +13,7 @@
         "glm-5.3-flash": {
           "name": "GLM-5.3 Flash MLX",
           "limit": {
-            "context": 4352,
+            "context": 36864,
             "output": 4096
           }
         }

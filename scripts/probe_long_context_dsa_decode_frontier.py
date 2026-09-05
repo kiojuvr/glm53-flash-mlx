@@ -29,7 +29,7 @@ from glm53_flash_mlx.indexpool import (
 )
 from glm53_flash_mlx.loader import load
 from glm53_flash_mlx.manifest import inspect_checkpoint
-from glm53_flash_mlx.server import DEFAULT_MAX_PROMPT_TOKENS
+from glm53_flash_mlx.server import LEGACY_PROBE_MAX_PROMPT_TOKENS
 
 PRIMARY_CONTEXTS = (2048, 2049, 8192, 16384, 32768, 65536, 131072, 262144)
 POOL_TAIL_CONTEXTS = (32768, 32769, 32770, 32771)
@@ -799,7 +799,7 @@ def main() -> int:
         "selected_sparse_attention_width_bounded": len(sparse_widths) == 1,
         "context_256k_completed_without_oom": "262144" in cases,
         "runtime_server_apc_admission_unchanged": (
-            GROUPED_MIN_ROUTES == 256 and DEFAULT_MAX_PROMPT_TOKENS == 256
+            GROUPED_MIN_ROUTES == 256 and LEGACY_PROBE_MAX_PROMPT_TOKENS == 256
         ),
     }
     acceptance["accepted"] = all(acceptance.values())
@@ -852,7 +852,7 @@ def main() -> int:
         "runtime_policy": {
             "default_backend": "direct",
             "packed_grouped_prefill_candidate_stopped": True,
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
             "server_changed": False,
             "apc_abi_changed": False,
             "admission_changed": False,

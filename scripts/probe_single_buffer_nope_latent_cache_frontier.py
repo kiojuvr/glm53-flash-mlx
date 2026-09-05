@@ -21,7 +21,7 @@ from mlx.utils import tree_flatten
 from glm53_flash_mlx.abi import MLX_VLM_REVISION, NOPE_DSA_CACHE_ABI
 from glm53_flash_mlx.loader import load
 from glm53_flash_mlx.manifest import EXPECTED_DSA, inspect_checkpoint
-from glm53_flash_mlx.server import DEFAULT_MAX_PROMPT_TOKENS
+from glm53_flash_mlx.server import LEGACY_PROBE_MAX_PROMPT_TOKENS
 from probe_long_context_dsa_decode_frontier import (
     _attention_phase,
     _expand_phase,
@@ -905,7 +905,7 @@ def main() -> int:
             for layer in step["layers"]
         ),
         "no_nan": all(layer["nan_count"] == 0 for layer in layer_rows),
-        "runtime_server_apc_admission_unchanged": DEFAULT_MAX_PROMPT_TOKENS == 256,
+        "runtime_server_apc_admission_unchanged": LEGACY_PROBE_MAX_PROMPT_TOKENS == 256,
     }
     acceptance["accepted"] = all(acceptance.values())
     output = {
@@ -938,7 +938,7 @@ def main() -> int:
         "runtime_policy": {
             "probe_only_single_latent_cache": True,
             "default_backend": "direct",
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
             "server_changed": False,
             "apc_abi_changed": False,
             "admission_changed": False,

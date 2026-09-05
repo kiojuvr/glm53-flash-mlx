@@ -22,7 +22,7 @@ from glm53_flash_mlx.abi import MLX_VLM_REVISION, NOPE_DSA_CACHE_ABI
 from glm53_flash_mlx.indexpool import INDEXPOOL_SENTINEL
 from glm53_flash_mlx.loader import load
 from glm53_flash_mlx.manifest import EXPECTED_DSA, inspect_checkpoint
-from glm53_flash_mlx.server import DEFAULT_MAX_PROMPT_TOKENS
+from glm53_flash_mlx.server import LEGACY_PROBE_MAX_PROMPT_TOKENS
 
 CONTEXTS = (2049, 32768, 65536, 131072, 262144)
 STEPS = 16
@@ -733,7 +733,7 @@ def main() -> int:
             )
             for case in cases.values()
         ),
-        "runtime_server_apc_admission_unchanged": DEFAULT_MAX_PROMPT_TOKENS == 256,
+        "runtime_server_apc_admission_unchanged": LEGACY_PROBE_MAX_PROMPT_TOKENS == 256,
     }
     acceptance["accepted"] = all(acceptance.values())
     decision = _decision(cases)
@@ -763,7 +763,7 @@ def main() -> int:
         "decision_gate": decision,
         "runtime_policy": {
             "default_backend": "direct",
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
             "server_changed": False,
             "apc_abi_changed": False,
             "admission_changed": False,

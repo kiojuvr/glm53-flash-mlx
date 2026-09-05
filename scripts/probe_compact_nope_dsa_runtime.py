@@ -26,7 +26,7 @@ from glm53_flash_mlx.nope_cache import (
     CompactIndexPoolCache,
     SingleNoPELatentCache,
 )
-from glm53_flash_mlx.server import DEFAULT_MAX_PROMPT_TOKENS
+from glm53_flash_mlx.server import LEGACY_PROBE_MAX_PROMPT_TOKENS
 
 PROMPTS = (1, 16, 128, 256)
 CONTEXTS = (2049, 8192, 16384, 32768, 131072, 262144)
@@ -494,7 +494,7 @@ def main() -> int:
         ]
         >= 0.95,
         "compact_256k_no_oom": str(CONTEXTS[-1]) in compact_cases,
-        "default_prompt_limit_unchanged": DEFAULT_MAX_PROMPT_TOKENS == 256,
+        "default_prompt_limit_unchanged": LEGACY_PROBE_MAX_PROMPT_TOKENS == 256,
         "non_speculative_kda_rollback_not_claimed": True,
     }
     acceptance["accepted"] = all(acceptance.values())
@@ -520,7 +520,7 @@ def main() -> int:
             "disk_apc": "fail-closed",
             "ram_apc": "exact state/meta_state snapshot",
             "default_backend": "direct",
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
             "mtp_or_dflash2_supported": False,
         },
         "acceptance": acceptance,

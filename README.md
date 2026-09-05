@@ -83,17 +83,19 @@ uv run glm53 serve \
   --experimental-compact-nope-dsa-cache
 ```
 
-この経路は11 DSA層を`SingleNoPELatentCache + CompactIndexPoolCache`へ切り替えます。prefill 1〜256 tokenから直接compact poolを構築し、4,096-token generation headroomを256-token境界へ予約します。raw rollback state上限は監査済み`index_kpool`から`16 + index_kpool - 1`として導出され、公式checkpointでは19 tokenです。batch 1専用で、batch > 1はfail closedします。既定Direct cache、MoE backend、prompt/context admissionは変わりません。
+この経路は11 DSA層を`SingleNoPELatentCache + CompactIndexPoolCache`へ切り替えます。prefillから直接compact poolを構築し、serverの総context capacityを絶対位置として予約します。既定36,864-token capacityでは32,768-token prompt＋4,096-token generationを再確保なしに保持します。raw rollback state上限は監査済み`index_kpool`から`16 + index_kpool - 1`として導出され、公式checkpointでは19 tokenです。batch 1専用で、batch > 1はfail closedします。既定Direct cacheとMoE backendは変わりません。
 
 通常運転では同時sequenceを1に固定し、interactive decodeを優先します。既定memory設定はwired 440 GB、MLX cache 32 GB、prefill chunk 2048 tokensです。
 
-CPU expert bucket/full-KV DSA prefillを巨大promptへ誤って起動しないよう、次の2段階admissionを既定で適用します。
+server admissionは独立した固定prompt capを持たず、request全体を次の契約で検査します。
 
-- prompt上限: 256 tokens（実機probe済み）
-- prompt + generationの総context上限: 16,384 tokens
+- prompt + generationの総context上限: 36,864 tokens
 - requestのgeneration上限: 4,096 tokens
+- 最大generationを予約した場合のprompt上限: 32,768 tokens
 
-`--max-prompt-tokens`と`--max-context-tokens`は別々に変更できます。256より大きいpromptは、GPU expert bucketing/grouped GEMMとselected-KV DSAが入るまで実験設定として扱ってください。
+authoritativeな判定は`prompt_tokens + max_tokens <= max_context_tokens`です。たとえば32,768-token promptは4,096-token generationと同時に受理され、32,769-token promptで同じgenerationを要求するとHTTP 400でstate更新前に拒否されます。capacityを明示変更する場合は`--max-context-tokens`を使います。
+
+32K cold prefillのM3 Ultra実測は約750秒なので、production初期化はfirst-token queue timeoutを1,800秒へ固定します。これにより上流既定600秒や短いユーザー環境値が、qualification済みadmissionを途中cancelしません。実効値は`/v1/metrics`の`server.long_prefill`へ表示されます。
 
 `--max-tokens`はrequest省略時の既定値であると同時に、各requestのgeneration hard capです。既定では4,096を受理し、4,097以上をHTTP 400で拒否します。
 
@@ -103,7 +105,7 @@ serverは公式Hugging Face weight revision [`04c4e9e`](https://huggingface.co/z
 
 attestation後にtext target全体（実測319.706 GB、297.75 GiB）をunified memoryへmaterializeします。この処理はM3 Ultra実測で約30.6秒です。保存dtypeはFP8/BF16のままであり、BF16 model copyは作りません。一時的なsmoke testだけ常駐化を省く場合は`--no-warm-residency`を指定できます。content attestationは省略されません。
 
-API keyを使う場合は`--api-key`または`GLM53_API_KEY`を指定します。
+API keyを使う場合は`--api-key`または`GLM53_API_KEY`を指定します。`/v1/metrics`の`server.admission`にはpolicy、総context、generation上限、最大generation時のprompt上限が表示されます。
 
 ```bash
 curl http://127.0.0.1:8080/health
@@ -121,7 +123,7 @@ curl http://127.0.0.1:8080/v1/chat/completions \
 
 ## 4. OpenCode
 
-[examples/opencode.json](examples/opencode.json)をプロジェクトの`opencode.json`へコピーするか、既存設定へprovider部分を統合します。serverは安定したmodel alias `glm-5.3-flash`を受け付けます。OpenCodeの`limit.context`は総contextなので、exampleは安全なprompt 256 + output 4,096 = 4,352を広告します。prompt単独の上限はserver側でも強制します。
+[examples/opencode.json](examples/opencode.json)をプロジェクトの`opencode.json`へコピーするか、既存設定へprovider部分を統合します。serverは安定したmodel alias `glm-5.3-flash`を受け付けます。OpenCodeの`limit.context`は総contextなので、exampleはqualification済みの36,864を広告します。`output`は4,096のままで、promptに使える量はrequestのgeneration予約量から動的に決まります。
 
 ```bash
 opencode --model glm53/glm-5.3-flash
@@ -863,11 +865,10 @@ uv run python scripts/qualify_coding_agent_prefix_cache_admission.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --output bench-results/m3ultra512-coding-agent-prefix-cache-admission-20260905.json
 
-# 上のprocess終了後、別terminalでprobe専用serverを起動する。
+# 上のprocess終了後、別terminalで36,864-token serverを起動する。
 uv run glm53 serve \
   --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --apc \
-  --max-prompt-tokens 32768 \
   --max-context-tokens 36864
 
 # 実OpenAI-compatible二turn smokeを同じartifactへmergeする。
@@ -875,6 +876,31 @@ uv run python scripts/qualify_coding_agent_prefix_cache_admission.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --phase server-smoke \
   --output bench-results/m3ultra512-coding-agent-prefix-cache-admission-20260905.json
+```
+
+### Production coding-agent admission promotion gate
+
+production admissionは`prompt-plus-generation-v1`へ一本化し、既定総context 36,864、generation hard cap 4,096、最大generation時のprompt 32,768を明示します。独立した固定prompt capと`--max-prompt-tokens`は廃止し、compact cacheの絶対capacityも総contextと一致させます。`/v1/metrics`の`server.admission`とstartup logから実効契約を監査できます。
+
+exact RAM APCは`aligned-guarded-prefill-checkpoint-v1`を使用します。prompt末尾16 tokenより前のauthoritative checkpointだけを保存し、さらに絶対prefill chunk境界（既定2,048 token）へ切り下げてcold/warm suffixのKDA演算geometryを一致させます。最終prefillが最初の生成tokenまで計算した後のcacheをfull-prompt identityとしてharvestしません。このpolicy、guard幅、alignmentは`/v1/metrics`の`server.exact_apc`およびdisk APC identityへ明示されます。
+
+昇格の最終実機gateは、modelとserverを同時常駐させない二段階のユーザー起動qualificationです。model phaseは32K cold prefixから4,096-token continuationを生成し、RAM APC restore後の全step full-vocab logits、全256-token境界、KDA、DSA/KV、IndexPool、slot metadataを比較します。HTTP phaseは8K/16K/32Kについてcold 256-token decode、同一prompt warm hit、tool-result suffix reuse、APC reset後のuncached Direct reference、再度のwarm hitを比較します。32,769 prompt＋4,096 generationのHTTP 400とcache非更新も確認します。各phaseは同じartifactへatomic mergeされ、両方の合格前は`complete=false`です。
+
+```bash
+# 1. serverを停止した状態で32K + 4,096 exact model qualification。
+uv run python scripts/qualify_production_coding_agent_admission.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase model
+
+# 2. model phase終了後、別terminalでproduction既定serverを起動。
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --apc
+
+# 3. 8K/16K/32K OpenAI-compatible multi-turn qualification。
+uv run python scripts/qualify_production_coding_agent_admission.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase http
 ```
 
 ## 検証

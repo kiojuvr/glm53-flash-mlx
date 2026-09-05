@@ -26,7 +26,7 @@ from glm53_flash_mlx.abi import MLX_VLM_REVISION, NOPE_DSA_CACHE_ABI
 from glm53_flash_mlx.indexpool import INDEXPOOL_SENTINEL, sanitize_indexpool_indices
 from glm53_flash_mlx.loader import load
 from glm53_flash_mlx.manifest import EXPECTED_DSA, inspect_checkpoint
-from glm53_flash_mlx.server import DEFAULT_MAX_PROMPT_TOKENS
+from glm53_flash_mlx.server import LEGACY_PROBE_MAX_PROMPT_TOKENS
 from probe_long_context_dsa_decode_frontier import (
     _attention_phase,
     _expand_phase,
@@ -1282,7 +1282,7 @@ def main() -> int:
         >= 0.8,
         "append_copy_bytes_context_independent": len(append_copy_values) == 1,
         "active_memory_drift_bounded_64mib": max(compact_drifts) <= 64 * 1024 * 1024,
-        "runtime_server_apc_admission_unchanged": DEFAULT_MAX_PROMPT_TOKENS == 256,
+        "runtime_server_apc_admission_unchanged": LEGACY_PROBE_MAX_PROMPT_TOKENS == 256,
         "evidence_complete": True,
     }
     acceptance["accepted"] = all(acceptance.values())
@@ -1333,7 +1333,7 @@ def main() -> int:
             "server_changed": False,
             "apc_abi_changed": False,
             "admission_changed": False,
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
         },
         "acceptance": acceptance,
     }

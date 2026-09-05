@@ -35,7 +35,7 @@ from glm53_flash_mlx.materialization import (
 from glm53_flash_mlx.server import (
     DEFAULT_MAX_CONTEXT_TOKENS,
     DEFAULT_MAX_GENERATION_TOKENS,
-    DEFAULT_MAX_PROMPT_TOKENS,
+    LEGACY_PROBE_MAX_PROMPT_TOKENS,
     validate_admission,
 )
 
@@ -43,7 +43,9 @@ TIER1_PROMPTS = (16, 128, 255, 256)
 TIER2_CONTEXTS = (16384, 65536, 131072, 262143, 262144, 262145, 262146, 262147)
 KDA_LAYERS = tuple(layer for layer in range(45) if layer not in EXPECTED_DSA)
 FIRST_DECODE_TOKEN = 1729
-COMPACT_SERVER_CAPACITY = DEFAULT_MAX_PROMPT_TOKENS + DEFAULT_MAX_GENERATION_TOKENS
+COMPACT_SERVER_CAPACITY = (
+    LEGACY_PROBE_MAX_PROMPT_TOKENS + DEFAULT_MAX_GENERATION_TOKENS
+)
 EXPECTED_DIRECT_LEAVES = len(KDA_LAYERS) * 2 + len(EXPECTED_DSA) * 4
 EXPECTED_COMPACT_LEAVES = len(KDA_LAYERS) * 2 + len(EXPECTED_DSA) * 9
 MAX_SELECTED_WIDTH = 2048 + 4 - 1
@@ -375,7 +377,7 @@ def _tier1(model) -> list[dict]:
             validate_admission(
                 prompt,
                 1,
-                max_prompt_tokens=DEFAULT_MAX_PROMPT_TOKENS,
+                max_prompt_tokens=LEGACY_PROBE_MAX_PROMPT_TOKENS,
                 max_generation_tokens=DEFAULT_MAX_GENERATION_TOKENS,
                 max_context_tokens=DEFAULT_MAX_CONTEXT_TOKENS,
             )
@@ -805,7 +807,7 @@ def _cold_prefill_rejection(model) -> dict:
             validate_admission(
                 prompt,
                 1,
-                max_prompt_tokens=DEFAULT_MAX_PROMPT_TOKENS,
+                max_prompt_tokens=LEGACY_PROBE_MAX_PROMPT_TOKENS,
                 max_generation_tokens=DEFAULT_MAX_GENERATION_TOKENS,
                 max_context_tokens=DEFAULT_MAX_CONTEXT_TOKENS,
             )

@@ -38,9 +38,61 @@ from .patch import apply_runtime_patch, patch_status
 
 DEFAULT_SOURCE = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
 DEFAULT_MODEL = DEFAULT_SOURCE
-DEFAULT_MAX_PROMPT_TOKENS = 256
+# Archived probes import this value to describe the historical safety gate
+# they measured.  It is not part of production admission.
+LEGACY_PROBE_MAX_PROMPT_TOKENS = 256
 DEFAULT_MAX_GENERATION_TOKENS = 4_096
-DEFAULT_MAX_CONTEXT_TOKENS = 16_384
+DEFAULT_MAX_CONTEXT_TOKENS = 36_864
+DEFAULT_FIRST_TOKEN_TIMEOUT_SECONDS = 1_800.0
+QUALIFIED_PROMPT_TOKENS = 32_768
+ADMISSION_POLICY = "prompt-plus-generation-v1"
+EXACT_APC_STORE_POLICY = "aligned-guarded-prefill-checkpoint-v1"
+EXACT_APC_PREFIX_GUARD_TOKENS = 16
+
+
+def admission_snapshot(
+    *, max_generation_tokens: int, max_context_tokens: int
+) -> dict[str, int | str]:
+    """Return the auditable production admission contract."""
+    return {
+        "policy": ADMISSION_POLICY,
+        "max_context_tokens": int(max_context_tokens),
+        "max_generation_tokens": int(max_generation_tokens),
+        "max_prompt_tokens_at_max_generation": (
+            int(max_context_tokens) - int(max_generation_tokens)
+        ),
+    }
+
+
+def _disable_unsafe_full_prompt_exact_harvest(prompt_batch) -> bool:
+    """Keep exact APC stores on the authoritative guarded prefill boundary.
+
+    ``PromptProcessingBatch.prompt_step()`` publishes the checkpoint before
+    the final guarded suffix.  Its later ``generate()`` harvest runs after the
+    final prefill forward has also produced the first generated token.  That
+    state cannot be persisted under the full-prompt identity.  Block APC is
+    unaffected.
+    """
+    if (
+        getattr(prompt_batch, "_apc_manager", None) is None
+        or getattr(prompt_batch, "_apc_mode", None) != "exact"
+    ):
+        return False
+    prompt_batch._apc_harvest_enabled = False
+    return True
+
+
+def _align_exact_apc_checkpoint(
+    safe_checkpoint_tokens: int,
+    *,
+    alignment_tokens: int,
+) -> int:
+    """Align an upstream-safe checkpoint to the absolute prefill geometry."""
+    safe = max(0, int(safe_checkpoint_tokens))
+    alignment = int(alignment_tokens)
+    if alignment <= 0:
+        raise ValueError("exact APC checkpoint alignment must be positive")
+    return (safe // alignment) * alignment
 
 
 def validate_cache_apc_policy(
@@ -69,16 +121,22 @@ def validate_admission(
     prompt_tokens: int,
     requested_generation_tokens: int,
     *,
-    max_prompt_tokens: int,
     max_generation_tokens: int,
     max_context_tokens: int,
+    max_prompt_tokens: int | None = None,
 ) -> None:
-    """Reject expensive prefill separately from total cache capacity."""
-    if prompt_tokens > max_prompt_tokens:
+    """Validate generation and the authoritative total-context budget.
+
+    ``max_prompt_tokens`` is a compatibility-only explicit override for old
+    probe fixtures.  The production server omits it and admits prompts solely
+    through ``prompt + requested generation <= context capacity``.
+    """
+    if prompt_tokens < 0:
+        raise ValueError("prompt tokens must be non-negative")
+    if max_prompt_tokens is not None and prompt_tokens > max_prompt_tokens:
         raise ValueError(
-            f"prompt has {prompt_tokens} tokens, but this bounded-prefill runtime "
-            f"is limited to {max_prompt_tokens}; GPU expert bucketing and sparse "
-            "DSA prefill are not implemented"
+            f"prompt has {prompt_tokens} tokens, but the explicit prompt override "
+            f"is limited to {max_prompt_tokens}"
         )
     if requested_generation_tokens < 0:
         raise ValueError("requested generation tokens must be non-negative")
@@ -123,6 +181,11 @@ def _disk_cache_descriptor(
         "cache_backend": cache_backend,
         "apc_hash": "sha256",
         "apc_block_size": 64,
+        "exact_apc_store_policy": EXACT_APC_STORE_POLICY,
+        "exact_apc_prefix_guard_tokens": EXACT_APC_PREFIX_GUARD_TOKENS,
+        "exact_apc_checkpoint_alignment_tokens": int(
+            os.environ.get("PREFILL_STEP_SIZE", "2048")
+        ),
         "kv_bits": os.environ.get("KV_BITS"),
         "kv_key_bits": os.environ.get("KV_KEY_BITS"),
         "kv_value_bits": os.environ.get("KV_VALUE_BITS"),
@@ -174,7 +237,6 @@ def configure_m3_ultra(
     experimental_packed_decode_moe: bool,
     experimental_packed_grouped_moe: bool,
     experimental_compact_nope_dsa_cache: bool,
-    max_prompt_tokens: int,
     max_context_tokens: int,
 ) -> None:
     """Set runtime knobs before mlx-vlm imports its server configuration."""
@@ -192,12 +254,19 @@ def configure_m3_ultra(
     )
     os.environ["PREFILL_STEP_SIZE"] = str(prefill_step_size)
     os.environ["MLX_VLM_MAX_TOKENS"] = str(max_tokens)
-    os.environ["GLM53_MAX_PROMPT_TOKENS"] = str(max_prompt_tokens)
+    os.environ.pop("GLM53_MAX_PROMPT_TOKENS", None)
+    os.environ["GLM53_ADMISSION_POLICY"] = ADMISSION_POLICY
     os.environ["GLM53_MAX_GENERATION_TOKENS"] = str(max_tokens)
     os.environ["GLM53_COMPACT_CACHE_CAPACITY_TOKENS"] = str(
-        max_prompt_tokens + max_tokens
+        max_context_tokens
     )
     os.environ["MAX_KV_SIZE"] = str(max_context_tokens)
+    # A qualified 32K cold prefill takes about 750 seconds on M3 Ultra.
+    # Production admission must not be defeated by mlx-vlm's 600s default or
+    # by a shorter inherited user environment value.
+    os.environ["MLX_VLM_TOKEN_QUEUE_TIMEOUT"] = str(
+        DEFAULT_FIRST_TOKEN_TIMEOUT_SECONDS
+    )
     os.environ.setdefault("MLX_VLM_LOG_PROGRESS_INTERVAL", "16")
     os.environ.setdefault("MLX_VLM_ENABLE_THINKING", "1")
     os.environ.setdefault("MLX_VLM_VISION_CACHE_SIZE", "8")
@@ -229,6 +298,9 @@ def configure_m3_ultra(
         os.environ["APC_BLOCK_SIZE"] = "64"
         os.environ["APC_NUM_BLOCKS"] = str(apc_blocks)
         os.environ["APC_HASH"] = "sha256"
+        os.environ["APC_EXACT_PREFIX_GUARD_TOKENS"] = str(
+            EXACT_APC_PREFIX_GUARD_TOKENS
+        )
         if apc_disk_path is not None:
             apc_disk_path.mkdir(parents=True, exist_ok=True)
             os.environ["APC_DISK_PATH"] = str(apc_disk_path)
@@ -239,6 +311,7 @@ def configure_m3_ultra(
 def _install_server_loader() -> None:
     """Make every server load pass through the audited GLM-5.3 patch."""
     apply_runtime_patch()
+    from mlx_vlm.generate import ar as mlx_ar
     from mlx_vlm.server import generation, openai
     from mlx_vlm import apc as mlx_apc
     server_app = importlib.import_module("mlx_vlm.server.app")
@@ -268,16 +341,52 @@ def _install_server_loader() -> None:
 
     generation.load = load_patched
 
+    batch_generator_type = mlx_ar.BatchGenerator
+    if not getattr(
+        batch_generator_type._apc_exact_checkpoint_len,
+        "_glm53_aligned_exact_apc_checkpoint",
+        False,
+    ):
+        stock_exact_checkpoint_len = batch_generator_type._apc_exact_checkpoint_len
+
+        def aligned_exact_checkpoint_len(batch_generator, token_ids):
+            safe_checkpoint = stock_exact_checkpoint_len(batch_generator, token_ids)
+            return _align_exact_apc_checkpoint(
+                safe_checkpoint,
+                alignment_tokens=int(os.environ["PREFILL_STEP_SIZE"]),
+            )
+
+        aligned_exact_checkpoint_len._glm53_aligned_exact_apc_checkpoint = True
+        batch_generator_type._apc_exact_checkpoint_len = aligned_exact_checkpoint_len
+
+    prompt_batch_type = mlx_ar.PromptProcessingBatch
+    if not getattr(
+        prompt_batch_type.generate,
+        "_glm53_guarded_exact_apc_store",
+        False,
+    ):
+        stock_prompt_generate = prompt_batch_type.generate
+
+        def generate_with_guarded_exact_apc_store(prompt_batch, *args, **kwargs):
+            if _disable_unsafe_full_prompt_exact_harvest(prompt_batch):
+                logging.getLogger(__name__).debug(
+                    "Disabled post-final-prefill exact APC harvest; retaining "
+                    "the authoritative %d-token guarded checkpoint",
+                    EXACT_APC_PREFIX_GUARD_TOKENS,
+                )
+            return stock_prompt_generate(prompt_batch, *args, **kwargs)
+
+        generate_with_guarded_exact_apc_store._glm53_guarded_exact_apc_store = True
+        prompt_batch_type.generate = generate_with_guarded_exact_apc_store
+
     stock_budget_check = generation._check_configured_context_budget
 
     def check_glm53_budget(prompt_tokens, max_tokens):
-        prompt_limit = int(os.environ["GLM53_MAX_PROMPT_TOKENS"])
         generation_limit = int(os.environ["GLM53_MAX_GENERATION_TOKENS"])
         context_limit = int(os.environ["MAX_KV_SIZE"])
         try:
             validate_admission(
                 int(prompt_tokens), int(max_tokens or 0),
-                max_prompt_tokens=prompt_limit,
                 max_generation_tokens=generation_limit,
                 max_context_tokens=context_limit,
             )
@@ -318,6 +427,22 @@ def _install_server_loader() -> None:
     def runtime_snapshot_with_materialization():
         snapshot = stock_runtime_snapshot()
         snapshot["recurrent_state_materialization"] = materialization_snapshot()
+        generation_limit = int(os.environ["GLM53_MAX_GENERATION_TOKENS"])
+        context_limit = int(os.environ["MAX_KV_SIZE"])
+        snapshot["admission"] = admission_snapshot(
+            max_generation_tokens=generation_limit,
+            max_context_tokens=context_limit,
+        )
+        snapshot["exact_apc"] = {
+            "store_policy": EXACT_APC_STORE_POLICY,
+            "prefix_guard_tokens": EXACT_APC_PREFIX_GUARD_TOKENS,
+            "checkpoint_alignment_tokens": int(os.environ["PREFILL_STEP_SIZE"]),
+        }
+        snapshot["long_prefill"] = {
+            "token_queue_timeout_seconds": float(
+                os.environ["MLX_VLM_TOKEN_QUEUE_TIMEOUT"]
+            ),
+        }
         return snapshot
 
     server_app._server_runtime_snapshot = runtime_snapshot_with_materialization
@@ -334,7 +459,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--api-key", default=os.environ.get("GLM53_API_KEY"))
     p.add_argument("--prefill-step-size", type=int, default=2048)
     p.add_argument("--max-tokens", type=int, default=DEFAULT_MAX_GENERATION_TOKENS)
-    p.add_argument("--max-prompt-tokens", type=int, default=DEFAULT_MAX_PROMPT_TOKENS)
     p.add_argument("--max-context-tokens", type=int, default=DEFAULT_MAX_CONTEXT_TOKENS)
     p.add_argument("--wired-limit-gb", type=float, default=440.0)
     p.add_argument("--cache-limit-gb", type=float, default=32.0)
@@ -394,11 +518,11 @@ def main(argv: list[str] | None = None) -> int:
     except (ManifestError, ValueError) as exc:
         print(f"glm53-serve: {exc}", file=sys.stderr)
         return 2
-    if args.max_prompt_tokens <= 0 or args.max_context_tokens <= 0 or args.max_tokens <= 0:
+    if args.max_context_tokens <= 0 or args.max_tokens <= 0:
         print("glm53-serve: token limits must be positive", file=sys.stderr)
         return 2
-    if args.max_prompt_tokens > args.max_context_tokens:
-        print("glm53-serve: max prompt tokens cannot exceed total context", file=sys.stderr)
+    if args.max_tokens > args.max_context_tokens:
+        print("glm53-serve: max generation tokens cannot exceed total context", file=sys.stderr)
         return 2
     configure_m3_ultra(
         model=args.model,
@@ -414,7 +538,6 @@ def main(argv: list[str] | None = None) -> int:
         experimental_compact_nope_dsa_cache=(
             args.experimental_compact_nope_dsa_cache
         ),
-        max_prompt_tokens=args.max_prompt_tokens,
         max_context_tokens=args.max_context_tokens,
     )
     logging.getLogger(__name__).warning(
@@ -453,10 +576,16 @@ def main(argv: list[str] | None = None) -> int:
         report.chat_template_revision,
     )
     logging.getLogger(__name__).info(
-        "moe_backend=%s cache_backend=%s prompt_limit=%d",
+        "moe_backend=%s cache_backend=%s admission=%s context_limit=%d "
+        "generation_limit=%d prompt_at_max_generation=%d "
+        "first_token_timeout_seconds=%.0f",
         os.environ["GLM53_MOE_BACKEND"],
         os.environ["GLM53_CACHE_BACKEND"],
-        args.max_prompt_tokens,
+        ADMISSION_POLICY,
+        args.max_context_tokens,
+        args.max_tokens,
+        args.max_context_tokens - args.max_tokens,
+        DEFAULT_FIRST_TOKEN_TIMEOUT_SECONDS,
     )
     logging.getLogger(__name__).info(
         "materialization_policy=%s interval_tokens=%d",

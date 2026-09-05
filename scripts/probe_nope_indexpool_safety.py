@@ -28,7 +28,7 @@ from glm53_flash_mlx.indexpool import (
 from glm53_flash_mlx.loader import load
 from glm53_flash_mlx.manifest import inspect_checkpoint
 from glm53_flash_mlx.server import (
-    DEFAULT_MAX_PROMPT_TOKENS,
+    LEGACY_PROBE_MAX_PROMPT_TOKENS,
     _disk_cache_descriptor,
 )
 
@@ -372,7 +372,7 @@ def main() -> int:
             and grouped_descriptor["attention_cache_abi"] == NOPE_DSA_CACHE_ABI
         ),
         "runtime_policy_unchanged": (
-            GROUPED_MIN_ROUTES == 256 and DEFAULT_MAX_PROMPT_TOKENS == 256
+            GROUPED_MIN_ROUTES == 256 and LEGACY_PROBE_MAX_PROMPT_TOKENS == 256
         ),
     }
     acceptance["accepted"] = all(acceptance.values())
@@ -409,7 +409,7 @@ def main() -> int:
             "default_backend": "direct",
             "packed_grouped_experimental_opt_in": True,
             "grouped_min_routes": GROUPED_MIN_ROUTES,
-            "prompt_limit": DEFAULT_MAX_PROMPT_TOKENS,
+            "prompt_limit": LEGACY_PROBE_MAX_PROMPT_TOKENS,
             "grouped_full_model_correctness_accepted": False,
         },
         "acceptance": acceptance,
