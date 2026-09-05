@@ -1,0 +1,5608 @@
+{
+  "schema": "glm53-kpool-cache-tile-alignment-v1",
+  "date": "2026-09-05",
+  "complete": true,
+  "probe_only": true,
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "direct_cache_abi": "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "contract": {
+    "logical_block_tokens": 256,
+    "index_kpool": 4,
+    "physical_indexer_tile_rows": 64,
+    "selected_gather_token_granularity": 1,
+    "kda_state_slots": 2,
+    "custom_metal_indexer_kernel": false,
+    "virtual_tile_split_allowed": false,
+    "identity": "glm53-nope-cache-tile-alignment-v1-logical-block256-kpool4-physical-pool64-no-virtual-split",
+    "physical_indexer_tile_tokens": 256,
+    "allocation_alignment_tokens": 256,
+    "allocation_alignment_pool_rows": 64,
+    "kda_capacity_geometry": "fixed-slots-orthogonal-to-token-capacity",
+    "indexer_storage": "contiguous-pool-rows"
+  },
+  "contract_identity": "glm53-nope-cache-tile-alignment-v1-logical-block256-kpool4-physical-pool64-no-virtual-split",
+  "constraints": {
+    "logical_cache_block_tokens": 256,
+    "index_kpool": 4,
+    "physical_indexer_tile_rows": 64,
+    "selected_gather_token_granularity": 1,
+    "custom_metal_indexer_kernel": false,
+    "kda_state_slots": 2,
+    "virtual_page_or_tile_split": false
+  },
+  "mapping_boundaries": {
+    "255": {
+      "logical_capacity_tokens": 255,
+      "logical_pool_rows": 64,
+      "physical_capacity_tokens": 256,
+      "physical_pool_rows": 64,
+      "padding_tokens": 1,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 254,
+          "pool_row": 63,
+          "lane": 2,
+          "roundtrip": 254
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "256": {
+      "logical_capacity_tokens": 256,
+      "logical_pool_rows": 64,
+      "physical_capacity_tokens": 256,
+      "physical_pool_rows": 64,
+      "padding_tokens": 0,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 255,
+          "pool_row": 63,
+          "lane": 3,
+          "roundtrip": 255
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "257": {
+      "logical_capacity_tokens": 257,
+      "logical_pool_rows": 65,
+      "physical_capacity_tokens": 512,
+      "physical_pool_rows": 128,
+      "padding_tokens": 255,
+      "padding_pool_rows": 63,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 256,
+          "pool_row": 64,
+          "lane": 0,
+          "roundtrip": 256
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "511": {
+      "logical_capacity_tokens": 511,
+      "logical_pool_rows": 128,
+      "physical_capacity_tokens": 512,
+      "physical_pool_rows": 128,
+      "padding_tokens": 1,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 510,
+          "pool_row": 127,
+          "lane": 2,
+          "roundtrip": 510
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "512": {
+      "logical_capacity_tokens": 512,
+      "logical_pool_rows": 128,
+      "physical_capacity_tokens": 512,
+      "physical_pool_rows": 128,
+      "padding_tokens": 0,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 511,
+          "pool_row": 127,
+          "lane": 3,
+          "roundtrip": 511
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "513": {
+      "logical_capacity_tokens": 513,
+      "logical_pool_rows": 129,
+      "physical_capacity_tokens": 768,
+      "physical_pool_rows": 192,
+      "padding_tokens": 255,
+      "padding_pool_rows": 63,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 512,
+          "pool_row": 128,
+          "lane": 0,
+          "roundtrip": 512
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "262143": {
+      "logical_capacity_tokens": 262143,
+      "logical_pool_rows": 65536,
+      "physical_capacity_tokens": 262144,
+      "physical_pool_rows": 65536,
+      "padding_tokens": 1,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 262142,
+          "pool_row": 65535,
+          "lane": 2,
+          "roundtrip": 262142
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "262144": {
+      "logical_capacity_tokens": 262144,
+      "logical_pool_rows": 65536,
+      "physical_capacity_tokens": 262144,
+      "physical_pool_rows": 65536,
+      "padding_tokens": 0,
+      "padding_pool_rows": 0,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 262143,
+          "pool_row": 65535,
+          "lane": 3,
+          "roundtrip": 262143
+        }
+      ],
+      "first_padding_token_rejected": true
+    },
+    "262145": {
+      "logical_capacity_tokens": 262145,
+      "logical_pool_rows": 65537,
+      "physical_capacity_tokens": 262400,
+      "physical_pool_rows": 65600,
+      "padding_tokens": 255,
+      "padding_pool_rows": 63,
+      "allocation_alignment_tokens": 256,
+      "allocation_alignment_pool_rows": 64,
+      "sample_mappings": [
+        {
+          "token": 0,
+          "pool_row": 0,
+          "lane": 0,
+          "roundtrip": 0
+        },
+        {
+          "token": 262144,
+          "pool_row": 65536,
+          "lane": 0,
+          "roundtrip": 262144
+        }
+      ],
+      "first_padding_token_rejected": true
+    }
+  },
+  "physical_boundaries": {
+    "255": {
+      "logical_capacity_tokens": 255,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 255,
+        "logical_pool_rows": 64,
+        "physical_capacity_tokens": 256,
+        "physical_pool_rows": 64,
+        "padding_tokens": 1,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 256,
+      "indexpool_physical_capacity_rows": 64,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 282185,
+      "anonymous_allocation_bytes": 0
+    },
+    "256": {
+      "logical_capacity_tokens": 256,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 256,
+        "logical_pool_rows": 64,
+        "physical_capacity_tokens": 256,
+        "physical_pool_rows": 64,
+        "padding_tokens": 0,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 256,
+      "indexpool_physical_capacity_rows": 64,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 282185,
+      "anonymous_allocation_bytes": 0
+    },
+    "257": {
+      "logical_capacity_tokens": 257,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 257,
+        "logical_pool_rows": 65,
+        "physical_capacity_tokens": 512,
+        "physical_pool_rows": 128,
+        "padding_tokens": 255,
+        "padding_pool_rows": 63,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 512,
+      "indexpool_physical_capacity_rows": 128,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 562825,
+      "anonymous_allocation_bytes": 0
+    },
+    "511": {
+      "logical_capacity_tokens": 511,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 511,
+        "logical_pool_rows": 128,
+        "physical_capacity_tokens": 512,
+        "physical_pool_rows": 128,
+        "padding_tokens": 1,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 512,
+      "indexpool_physical_capacity_rows": 128,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 562825,
+      "anonymous_allocation_bytes": 0
+    },
+    "512": {
+      "logical_capacity_tokens": 512,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 512,
+        "logical_pool_rows": 128,
+        "physical_capacity_tokens": 512,
+        "physical_pool_rows": 128,
+        "padding_tokens": 0,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 512,
+      "indexpool_physical_capacity_rows": 128,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 562825,
+      "anonymous_allocation_bytes": 0
+    },
+    "513": {
+      "logical_capacity_tokens": 513,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 513,
+        "logical_pool_rows": 129,
+        "physical_capacity_tokens": 768,
+        "physical_pool_rows": 192,
+        "padding_tokens": 255,
+        "padding_pool_rows": 63,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 768,
+      "indexpool_physical_capacity_rows": 192,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 843465,
+      "anonymous_allocation_bytes": 0
+    },
+    "262143": {
+      "logical_capacity_tokens": 262143,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 262143,
+        "logical_pool_rows": 65536,
+        "physical_capacity_tokens": 262144,
+        "physical_pool_rows": 65536,
+        "padding_tokens": 1,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 262144,
+      "indexpool_physical_capacity_rows": 65536,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 287376905,
+      "anonymous_allocation_bytes": 0
+    },
+    "262144": {
+      "logical_capacity_tokens": 262144,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 262144,
+        "logical_pool_rows": 65536,
+        "physical_capacity_tokens": 262144,
+        "physical_pool_rows": 65536,
+        "padding_tokens": 0,
+        "padding_pool_rows": 0,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 262144,
+      "indexpool_physical_capacity_rows": 65536,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 287376905,
+      "anonymous_allocation_bytes": 0
+    },
+    "262145": {
+      "logical_capacity_tokens": 262145,
+      "logical_extent_tokens": 1,
+      "planned": {
+        "logical_capacity_tokens": 262145,
+        "logical_pool_rows": 65537,
+        "physical_capacity_tokens": 262400,
+        "physical_pool_rows": 65600,
+        "padding_tokens": 255,
+        "padding_pool_rows": 63,
+        "allocation_alignment_tokens": 256,
+        "allocation_alignment_pool_rows": 64
+      },
+      "latent_physical_capacity_tokens": 262400,
+      "indexpool_physical_capacity_rows": 65600,
+      "indexpool_logical_pool_count": 1,
+      "physical_capacity_matches_plan": true,
+      "physical_alignment_exact": true,
+      "padding_indices_all_sentinel": true,
+      "padding_valid_all_false": true,
+      "padding_keys_all_zero": true,
+      "logical_state_hash": "65ac893f095dcc30466ca2dd0a3d1e31e95eef8d79bb9ebbdcf45773a47f9ca1",
+      "accounted_cache_bytes": 287657545,
+      "anonymous_allocation_bytes": 0
+    }
+  },
+  "ram_restore_trim_replay": {
+    "capacity_tokens": 513,
+    "trim_tokens": 16,
+    "retired_padding_indices_all_sentinel": true,
+    "retired_padding_valid_all_false": true,
+    "retired_padding_keys_all_zero": true,
+    "restore_trim_replay_state_exact": true,
+    "physical_capacity_unchanged": true
+  },
+  "official_oracle": {
+    "executed": true,
+    "prompt_tokens": 17,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "first_16_match": true,
+    "full_128_match": true,
+    "all_full_vocab_logits_hashes_match": true,
+    "failures_16": [],
+    "failures_128": [],
+    "elapsed_seconds": 9.742877749959007
+  },
+  "ram_apc": {
+    "steps": 16,
+    "all_logits_hashes_match": true,
+    "post_state_exact": true,
+    "snapshot_immutable": true
+  },
+  "synthetic_256k": {
+    "context_tokens": 262144,
+    "context_mod_kpool": 0,
+    "capacity_target_tokens": 262145,
+    "rounded_physical_capacity_tokens": 262400,
+    "direct": {
+      "signature": {
+        "context_tokens": 262144,
+        "construction_mode": "canonical-synthetic-direct",
+        "cache_leaf_count": 112,
+        "cache_schema_hash": "1a8731c52d71b3f1e2a82c3cd45b10d646e5432907bb4a7bc5586b5c38af92f5",
+        "kda_state_hash": "f7e6e0ce17d8798b942ed34b68e324ca67fd2bac60dc82f5dbdd2b2420412580",
+        "indexpool_hash": "49421f59102b3c067da9e5e481f509cbf2b4bd2c8d005ddcb633c39d4da16a43",
+        "active_tail_count": 1,
+        "selected_width": 2051,
+        "physical_capacity_tokens": 262400,
+        "first_token_id": 256,
+        "first_logits_hash": "274c6a7e645c72c76a6a3946e9aa8e388f7c98a7b1af39092012b460fdd8bacc",
+        "post_state_hash": "c77ec17f70e8f10b642ec012edcf2467bcc9fb2384debac6f8d7d2e9ee5d66b5"
+      },
+      "first_decode_latency_ms": 115.35599990747869,
+      "nan_count": 0,
+      "metal_error": null,
+      "capacity_before": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_after": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexer_tokens": 262400
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_unchanged": true,
+      "cache_schema": [
+        {
+          "layer": 0,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 0,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 1,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 1,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 2,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 2,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 4,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 4,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 5,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 5,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 6,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 6,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 8,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 8,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 9,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 9,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 10,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 10,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 12,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 12,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 13,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 13,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 14,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 14,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 16,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 16,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 17,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 17,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 18,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 18,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 20,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 20,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 21,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 21,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 22,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 22,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 24,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 24,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 25,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 25,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 26,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 26,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 28,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 28,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 29,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 29,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 30,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 30,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 32,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 32,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 33,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 33,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 34,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 34,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 36,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 36,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 37,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 37,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 38,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 38,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 40,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 40,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 41,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 41,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 42,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 42,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 1,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 2,
+          "shape": [
+            1,
+            1,
+            262144,
+            257
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            134742016,
+            134742016,
+            514,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 3,
+          "shape": [
+            1,
+            1,
+            262144,
+            0
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "layer": 44,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 44,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        }
+      ],
+      "dsa_diagnostics": [
+        {
+          "layer": 3,
+          "selected_width": 2051,
+          "index_hash": "54236c530ef700f07dcbf0962045cf39838a58e615ef27cca15b7f99308513da",
+          "output_hash": "49122a2e9768fde4b067202ab7744d0638dfb7e7f70fe90fb2376694f8028f66",
+          "valid_index_min": 4212,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 7,
+          "selected_width": 2051,
+          "index_hash": "790149608fc5145469643e2dfcf36db2b041c0f673d904e242f60475bfd9ac89",
+          "output_hash": "4357b76736a23ef3c571389101a9e58f15f63f16e6812602085f52febc89fd44",
+          "valid_index_min": 3920,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 11,
+          "selected_width": 2051,
+          "index_hash": "3e28589788fa49bde1e8fc95c1f0f8dd17e540c4ecb73848845921d8d3ca4b84",
+          "output_hash": "e26ebee2e999bcee80106ee5bd95c8775b2323929a43fd2d92959edf2da958ca",
+          "valid_index_min": 3760,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 15,
+          "selected_width": 2051,
+          "index_hash": "1f68fabf64573092fb7d959da1bd395102beaf109a0cc929cb96930805dbb153",
+          "output_hash": "806798f83ca535bb9ec2f82f1e496070e8f97f0711e070e44ebca184a54190f8",
+          "valid_index_min": 3896,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 19,
+          "selected_width": 2051,
+          "index_hash": "279e787abf9ecda70e51218d61da597d6d1f4e007a1782c289571905a2c11b8b",
+          "output_hash": "5893f3cdaec853149ea0a2b7353b0d24b29a670cda637440301d02b2dbbb2802",
+          "valid_index_min": 404,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 23,
+          "selected_width": 2051,
+          "index_hash": "52d95646b054407bb45829dc173c77db5e4c4fdf2ded350453113ed9b1c14d04",
+          "output_hash": "20dfb098719b897d5c7d2af6f9e39e8a26f122e61b37069cdf79c960f340f34c",
+          "valid_index_min": 3580,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 27,
+          "selected_width": 2051,
+          "index_hash": "9b62c3c3aaa2f065566be2ad40cbc70a14b0b37bd3c38dca540daeb9b827f057",
+          "output_hash": "9ab50cd851fb73e66cfed88969faef5a35ef89b5b94a911188b08184b8c5c784",
+          "valid_index_min": 692,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 31,
+          "selected_width": 2051,
+          "index_hash": "99918aa4aad26e5be49bab33eb78491b3eb2e2292e2229ce1ab0a7c5be04c2c2",
+          "output_hash": "822bb47c0516bc98cffc130e5a79af41a0e9b449f42978359ee866b91acd3c63",
+          "valid_index_min": 5116,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 35,
+          "selected_width": 2051,
+          "index_hash": "d3fc48c7c136ac7e08c443998953e9510c8a844a80cfdcdbda1c52792a9695d6",
+          "output_hash": "99ef739dd7e404b90a859ac9b32e9e62aa71835ddb575c074b2ec7331950c566",
+          "valid_index_min": 5228,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 39,
+          "selected_width": 2051,
+          "index_hash": "d287a853d740944b5f9da9efd5138d3e68994bf1d7ed387e9263d7b43da00d31",
+          "output_hash": "d53dc3a1fe062cb08772ab229a733c1ad8fb8c975a13429ae7c8e6d5eb74334f",
+          "valid_index_min": 5128,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        },
+        {
+          "layer": 43,
+          "selected_width": 2051,
+          "index_hash": "804366ce43440e3fcd5692596be1aa75de8ea06b79720c7a16b9a6a1941eb547",
+          "output_hash": "224a021da0d56a18853872393083ef3d0d348e6ef6e7c8e55a27a1be16f6947c",
+          "valid_index_min": 176,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0
+        }
+      ]
+    },
+    "compact_resident": {
+      "signature": {
+        "context_tokens": 262144,
+        "construction_mode": "canonical-synthetic-compact",
+        "cache_leaf_count": 167,
+        "cache_schema_hash": "119686051586a431d781c2d3d1a4b96e180fa5f1b574106911c4f5f1713062ad",
+        "kda_state_hash": "f7e6e0ce17d8798b942ed34b68e324ca67fd2bac60dc82f5dbdd2b2420412580",
+        "indexpool_hash": "49421f59102b3c067da9e5e481f509cbf2b4bd2c8d005ddcb633c39d4da16a43",
+        "active_tail_count": 1,
+        "selected_width": 2051,
+        "physical_capacity_tokens": 262400,
+        "first_token_id": 256,
+        "first_logits_hash": "274c6a7e645c72c76a6a3946e9aa8e388f7c98a7b1af39092012b460fdd8bacc",
+        "post_state_hash": "c77ec17f70e8f10b642ec012edcf2467bcc9fb2384debac6f8d7d2e9ee5d66b5"
+      },
+      "first_decode_latency_ms": 82.56654208526015,
+      "nan_count": 0,
+      "metal_error": null,
+      "capacity_before": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_after": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_unchanged": true,
+      "cache_schema": [
+        {
+          "layer": 0,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 0,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 1,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 1,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 2,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 2,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 3,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 4,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 4,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 5,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 5,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 6,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 6,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 7,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 8,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 8,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 9,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 9,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 10,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 10,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 11,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 12,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 12,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 13,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 13,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 14,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 14,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 15,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 16,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 16,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 17,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 17,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 18,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 18,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 19,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 20,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 20,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 21,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 21,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 22,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 22,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 23,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 24,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 24,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 25,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 25,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 26,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 26,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 27,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 28,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 28,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 29,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 29,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 30,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 30,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 31,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 32,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 32,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 33,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 33,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 34,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 34,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 35,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 36,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 36,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 37,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 37,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 38,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 38,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 39,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 40,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 40,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 41,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 41,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 42,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 42,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 0,
+          "shape": [
+            1,
+            1,
+            262144,
+            512
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            268435456,
+            268435456,
+            1024,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 1,
+          "shape": [
+            1,
+            65536,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            16777216,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 2,
+          "shape": [
+            1,
+            65536,
+            4
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            2097152,
+            32,
+            8
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 3,
+          "shape": [
+            1,
+            65536
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            65536,
+            1
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 4,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 5,
+          "shape": [
+            1,
+            19,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            4864,
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 6,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.bool",
+          "canonical_row_major_strides_bytes": [
+            19,
+            1
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 7,
+          "shape": [
+            1,
+            19
+          ],
+          "dtype": "mlx.core.int64",
+          "canonical_row_major_strides_bytes": [
+            152,
+            8
+          ]
+        },
+        {
+          "layer": 43,
+          "leaf": 8,
+          "shape": [
+            4,
+            128
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            256,
+            2
+          ]
+        },
+        {
+          "layer": 44,
+          "leaf": 0,
+          "shape": [
+            1,
+            3,
+            24576
+          ],
+          "dtype": "mlx.core.bfloat16",
+          "canonical_row_major_strides_bytes": [
+            147456,
+            49152,
+            2
+          ]
+        },
+        {
+          "layer": 44,
+          "leaf": 1,
+          "shape": [
+            1,
+            64,
+            128,
+            128
+          ],
+          "dtype": "mlx.core.float32",
+          "canonical_row_major_strides_bytes": [
+            4194304,
+            65536,
+            512,
+            4
+          ]
+        }
+      ],
+      "dsa_diagnostics": [
+        {
+          "layer": 3,
+          "selected_width": 2051,
+          "index_hash": "54236c530ef700f07dcbf0962045cf39838a58e615ef27cca15b7f99308513da",
+          "output_hash": "49122a2e9768fde4b067202ab7744d0638dfb7e7f70fe90fb2376694f8028f66",
+          "valid_index_min": 4212,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 7,
+          "selected_width": 2051,
+          "index_hash": "790149608fc5145469643e2dfcf36db2b041c0f673d904e242f60475bfd9ac89",
+          "output_hash": "4357b76736a23ef3c571389101a9e58f15f63f16e6812602085f52febc89fd44",
+          "valid_index_min": 3920,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 11,
+          "selected_width": 2051,
+          "index_hash": "3e28589788fa49bde1e8fc95c1f0f8dd17e540c4ecb73848845921d8d3ca4b84",
+          "output_hash": "e26ebee2e999bcee80106ee5bd95c8775b2323929a43fd2d92959edf2da958ca",
+          "valid_index_min": 3760,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 15,
+          "selected_width": 2051,
+          "index_hash": "1f68fabf64573092fb7d959da1bd395102beaf109a0cc929cb96930805dbb153",
+          "output_hash": "806798f83ca535bb9ec2f82f1e496070e8f97f0711e070e44ebca184a54190f8",
+          "valid_index_min": 3896,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 19,
+          "selected_width": 2051,
+          "index_hash": "279e787abf9ecda70e51218d61da597d6d1f4e007a1782c289571905a2c11b8b",
+          "output_hash": "5893f3cdaec853149ea0a2b7353b0d24b29a670cda637440301d02b2dbbb2802",
+          "valid_index_min": 404,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 23,
+          "selected_width": 2051,
+          "index_hash": "52d95646b054407bb45829dc173c77db5e4c4fdf2ded350453113ed9b1c14d04",
+          "output_hash": "20dfb098719b897d5c7d2af6f9e39e8a26f122e61b37069cdf79c960f340f34c",
+          "valid_index_min": 3580,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 27,
+          "selected_width": 2051,
+          "index_hash": "9b62c3c3aaa2f065566be2ad40cbc70a14b0b37bd3c38dca540daeb9b827f057",
+          "output_hash": "9ab50cd851fb73e66cfed88969faef5a35ef89b5b94a911188b08184b8c5c784",
+          "valid_index_min": 692,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 31,
+          "selected_width": 2051,
+          "index_hash": "99918aa4aad26e5be49bab33eb78491b3eb2e2292e2229ce1ab0a7c5be04c2c2",
+          "output_hash": "822bb47c0516bc98cffc130e5a79af41a0e9b449f42978359ee866b91acd3c63",
+          "valid_index_min": 5116,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 35,
+          "selected_width": 2051,
+          "index_hash": "d3fc48c7c136ac7e08c443998953e9510c8a844a80cfdcdbda1c52792a9695d6",
+          "output_hash": "99ef739dd7e404b90a859ac9b32e9e62aa71835ddb575c074b2ec7331950c566",
+          "valid_index_min": 5228,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 39,
+          "selected_width": 2051,
+          "index_hash": "d287a853d740944b5f9da9efd5138d3e68994bf1d7ed387e9263d7b43da00d31",
+          "output_hash": "d53dc3a1fe062cb08772ab229a733c1ad8fb8c975a13429ae7c8e6d5eb74334f",
+          "valid_index_min": 5128,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        },
+        {
+          "layer": 43,
+          "selected_width": 2051,
+          "index_hash": "804366ce43440e3fcd5692596be1aa75de8ea06b79720c7a16b9a6a1941eb547",
+          "output_hash": "224a021da0d56a18853872393083ef3d0d348e6ef6e7c8e55a27a1be16f6947c",
+          "valid_index_min": 176,
+          "valid_index_max": 262144,
+          "sentinel_count": 2,
+          "out_of_range_count": 0,
+          "nan_count": 0,
+          "direct_index_byte_identical": true,
+          "direct_output_byte_identical": true
+        }
+      ]
+    },
+    "compact_restore": {
+      "signature": {
+        "context_tokens": 262144,
+        "construction_mode": "canonical-synthetic-compact-ram-apc-restore",
+        "cache_leaf_count": 167,
+        "cache_schema_hash": "119686051586a431d781c2d3d1a4b96e180fa5f1b574106911c4f5f1713062ad",
+        "kda_state_hash": "f7e6e0ce17d8798b942ed34b68e324ca67fd2bac60dc82f5dbdd2b2420412580",
+        "indexpool_hash": "49421f59102b3c067da9e5e481f509cbf2b4bd2c8d005ddcb633c39d4da16a43",
+        "active_tail_count": 1,
+        "selected_width": 2051,
+        "physical_capacity_tokens": 262400,
+        "first_token_id": 256,
+        "first_logits_hash": "274c6a7e645c72c76a6a3946e9aa8e388f7c98a7b1af39092012b460fdd8bacc",
+        "post_state_hash": "c77ec17f70e8f10b642ec012edcf2467bcc9fb2384debac6f8d7d2e9ee5d66b5"
+      },
+      "first_decode_latency_ms": 124.06712491065264,
+      "nan_count": 0,
+      "metal_error": null,
+      "capacity_before": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_after": {
+        "layers": [
+          {
+            "layer": 3,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 7,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 11,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 15,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 19,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 23,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 27,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 31,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 35,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 39,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          },
+          {
+            "layer": 43,
+            "latent_tokens": 262400,
+            "indexpool_rows": 65600
+          }
+        ],
+        "minimum_latent_tokens": 262400,
+        "maximum_latent_tokens": 262400
+      },
+      "capacity_unchanged": true
+    },
+    "direct_compact_first_logits_byte_identical": true,
+    "compact_resident_restore_logits_byte_identical": true,
+    "compact_resident_restore_post_state_exact": true,
+    "direct_compact_kda_post_hash_match": true,
+    "direct_compact_indexpool_post_hash_match": true,
+    "direct_compact_dsa_indices_byte_identical": true,
+    "direct_compact_dsa_outputs_byte_identical": true,
+    "kda_schema_hash_direct": "151787550006e1ff20af6dd945b24d541eb4c15953f78bb6024ff311c6798897",
+    "kda_schema_hash_compact": "151787550006e1ff20af6dd945b24d541eb4c15953f78bb6024ff311c6798897",
+    "active_memory_bytes": 326333318508,
+    "peak_memory_bytes": 331455611336,
+    "metal_error": null
+  },
+  "peak_memory_bytes": 331455611336,
+  "claims": {
+    "validated": "256k resident/restore to first decode with aligned compact cache",
+    "unsupported_unvalidated": "256k cold prefill to first decode"
+  },
+  "runtime_changes": {
+    "admission": false,
+    "apc_namespace": false,
+    "cache_state_schema": false,
+    "direct_backend": false,
+    "kernel_abi": false,
+    "server": false
+  },
+  "acceptance": {
+    "official_runtime_uses_kpool4": true,
+    "single_explicit_alignment_contract": true,
+    "logical_and_physical_capacity_distinct": true,
+    "alignment_minus_exact_plus_boundaries_match_plan": true,
+    "logical_pool_physical_expansion_roundtrip_exact": true,
+    "padding_never_selectable_or_valid": true,
+    "restore_trim_replay_exact_and_padding_retired": true,
+    "direct_compact_256k_selected_indices_and_dsa_output_exact": true,
+    "direct_compact_256k_first_logits_and_state_exact": true,
+    "compact_256k_ram_restore_exact": true,
+    "compact_256k_capacity_preallocated_and_aligned": true,
+    "all_256k_indices_sentinel_or_logically_in_range": true,
+    "ram_apc_continuation_exact": true,
+    "official_16_128_oracle_exact": true,
+    "no_anonymous_cache_allocation": true,
+    "kda_capacity_is_fixed_two_slot_and_not_kpool_paged": true
+  },
+  "accepted": true,
+  "decision": "cache_tile_alignment_safety_closed"
+}

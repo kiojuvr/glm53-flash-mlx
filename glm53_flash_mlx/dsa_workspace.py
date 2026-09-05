@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .cache_geometry import DEFAULT_INDEX_KPOOL
 
-DEFAULT_INDEX_KPOOL = 4
 DEFAULT_INDEX_TOPK = 2048
 DEFAULT_MAX_WORKSPACE_BYTES = 64 << 20
 FP32_BYTES = 4

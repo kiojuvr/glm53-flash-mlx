@@ -310,6 +310,7 @@ def patch_status() -> dict:
             "attention_gather_range_recheck",
             "compact_nope_dsa_cache_dispatch",
             "compact_nope_dsa_atomic_transitions",
+            "nope_kpool_cache_tile_alignment",
             "kda_state_index_load_store_guards",
             "mhc_kda_float32_storage",
         ],

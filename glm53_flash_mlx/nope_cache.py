@@ -9,15 +9,17 @@ from __future__ import annotations
 
 import mlx.core as mx
 
+from .cache_geometry import (
+    DEFAULT_NOPE_CACHE_TILE_ALIGNMENT,
+    plan_nope_cache_capacity,
+)
 from .indexpool import INDEXPOOL_SENTINEL, expand_selected_pools
 
-DEFAULT_CACHE_STEP = 256
+DEFAULT_CACHE_STEP = (
+    DEFAULT_NOPE_CACHE_TILE_ALIGNMENT.allocation_alignment_tokens
+)
 DEFAULT_ROLLBACK_WINDOW = 16
 DEFAULT_CAPACITY_TOKENS = 4352
-
-
-def _round_up(value: int, step: int) -> int:
-    return ((value + step - 1) // step) * step
 
 
 def _concat(left: mx.array | None, right: mx.array) -> mx.array:
@@ -119,7 +121,7 @@ class SingleNoPELatentCache:
         if template is None and self._latent is None:
             raise ValueError("a latent template is required for first allocation")
         source = template if self._latent is None else self._latent
-        capacity = _round_up(required, self.step)
+        capacity = plan_nope_cache_capacity(required).physical_capacity_tokens
         shape = (int(source.shape[0]), int(source.shape[1]), capacity, int(source.shape[3]))
         grown = mx.zeros(shape, dtype=source.dtype)
         if self._latent is not None and self.offset:
@@ -208,6 +210,8 @@ class SingleNoPELatentCache:
     @meta_state.setter
     def meta_state(self, value):
         offset, capacity, rollback, step = map(int, value)
+        if step != DEFAULT_CACHE_STEP:
+            raise ValueError("latent cache step violates the tile alignment contract")
         self.offset = offset
         self.capacity_tokens = capacity
         self.rollback_window = rollback
@@ -252,6 +256,8 @@ class CompactIndexPoolCache:
         if capacity_tokens < 0:
             raise ValueError("IndexPool capacity must be non-negative")
         self.index_kpool = int(indexer.index_kpool)
+        if self.index_kpool != DEFAULT_NOPE_CACHE_TILE_ALIGNMENT.index_kpool:
+            raise ValueError("IndexPool kpool violates the tile alignment contract")
         self.index_topk = int(indexer.index_topk)
         self.head_dim = int(indexer.head_dim)
         self.always_select_tail = bool(indexer.index_kpool_always_select_tail)
@@ -323,7 +329,9 @@ class CompactIndexPoolCache:
     def _ensure_pool_capacity(self, rows: int, dtype) -> None:
         if rows <= self.pool_capacity:
             return
-        capacity = _round_up(rows * self.index_kpool, self.step) // self.index_kpool
+        capacity = plan_nope_cache_capacity(
+            rows * self.index_kpool
+        ).physical_pool_rows
         keys = mx.zeros((1, capacity, self.head_dim), dtype=dtype)
         indices = mx.full(
             (1, capacity, self.index_kpool),
@@ -509,6 +517,7 @@ class CompactIndexPoolCache:
 
     def trim(self, tokens: int) -> int:
         self.validate_trim(tokens)
+        previous_logical_pool_count = self.logical_pool_count
         target = self.total_tokens - tokens
         keep = self.raw_token_count - tokens
         raw_keys = self.raw_keys[:, :keep]
@@ -533,6 +542,12 @@ class CompactIndexPoolCache:
         self.logical_pool_count = (
             target + self.index_kpool - 1
         ) // self.index_kpool
+        if self.logical_pool_count < previous_logical_pool_count:
+            start_clear = self.logical_pool_count
+            end_clear = previous_logical_pool_count
+            self.pool_keys[:, start_clear:end_clear] = 0
+            self.pool_indices[:, start_clear:end_clear] = INDEXPOOL_SENTINEL
+            self.pool_valid[:, start_clear:end_clear] = False
         if pooled is not None:
             self._write_pool_rows(start, pooled)
         return tokens
@@ -602,6 +617,10 @@ class CompactIndexPoolCache:
             always_tail,
             step,
         ) = map(int, value)
+        if kpool != DEFAULT_NOPE_CACHE_TILE_ALIGNMENT.index_kpool:
+            raise ValueError("restored kpool violates the tile alignment contract")
+        if step != DEFAULT_CACHE_STEP:
+            raise ValueError("restored step violates the tile alignment contract")
         self.total_tokens = total
         self.logical_pool_count = logical
         self.capacity_tokens = capacity

@@ -903,6 +903,23 @@ uv run python scripts/qualify_production_coding_agent_admission.py \
   --phase http
 ```
 
+### NoPE kpool cache tile-alignment safety
+
+compact NoPE cacheのlogical extentとphysical padded capacityを独立に扱います。ローカルruntimeにはpaged custom Metal Indexer kernelはなく、実在するnative constraintはMLX cacheの256-token allocation quantum、`index_kpool=4`、それから導かれるcontiguous IndexPool 64-row quantumです。selected gatherはtoken単位、KDA recurrent cacheはcontext非依存の固定2 slotであり、IndexPoolのpage geometryへ混在させません。authoritative allocation unitはこれらのLCMである256 tokensです。外部runtime固有のpage幅は輸入せず、incompatible geometryをvirtual splitで修復する経路も持ちません。
+
+`plan_nope_cache_capacity()`はlogical token capacity、ceil-divしたlogical pool rows、aligned latent capacity、aligned physical pool rowsを一度に返します。`SingleNoPELatentCache`と`CompactIndexPoolCache`は同じplanを使用します。物理paddingはlogical pool sliceへ露出せず、indicesは`-1`、validityはfalse、keysはzeroです。rollbackでretireされたpool rowも同じsentinel paddingへ戻します。既存state/meta schemaとcompact cache ABI v4は変えず、復元された`step`または`kpool`が契約と異なる場合は再allocation前にfail closedします。
+
+実機qualificationはalignmentと2×alignmentの±1、262,144の±1、RAM APC clone→trim 16→replay、公式16/128 oracle、全45層の256K canonical synthetic stateからのDirect/compact/restore first decodeを比較します。256K cold prefillは引き続きこのprobeの対象外です。
+
+M3 Ultra artifactでは全16 gateが合格しました。要求262,143 / 262,144 tokensは物理262,144 tokens・65,536 rows、262,145 tokensは物理262,400 tokens・65,600 rowsとなり、全境界でpadding sentinel/validity/zero-key契約を維持しました。256K synthetic first decodeは全11 DSA層のselected indicesとattention output、Direct/compact full-vocab logits、KDA/IndexPool post-state、compact resident/RAM restoreがbyte-exactです。peakは331,455,611,336 bytes、NaN・範囲外index・Metal error・anonymous allocationは0でした。
+
+```bash
+uv run python scripts/probe_kpool_cache_tile_alignment.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+MTPはrelease後のbacklogです。昇格時にはtarget full-vocab exact、GLM固有draft oracle、verify長`L=2..N`ごとのshape oracleに加え、`acceptance_by_position`、accepted token sequence、accepted trajectory hash、acceptance-rate regressionを必須証拠とします。kernel起動成功や小さなlogits誤差だけをspeculative trajectory correctnessとは扱いません。
+
 ## 検証
 
 ```bash
