@@ -1008,6 +1008,10 @@ uv run python scripts/probe_native_execution_engine_feasibility.py \
 
 native binaryはproduction packageへlinkせず、probe専用subprojectへ生成します。probe不合格時もruntime/server/APC/cache/kernel ABIと既定MLX経路は変わりません。
 
+M3 UltraのTier 0 qualificationでは、FP32/BF16のtie・signed-zero・sentinel fixture、32K/Q256の代表3 DSA層、2K/256Kの全11 DSA層、full-model logits/stateがすべてbyte-exactでした。32K prefill islandは1.8765→0.7349 ms（2.553×）、2K full-modelは79.185→72.009 ms/token、256K full-modelは82.266→76.844 ms/tokenとなり、後者は5.422 ms/tokenを回収しました。589 native executionsでplan-owned buffer addressは一定、execute内allocator/MLX graph/shape discovery/host synchronization counterはすべて0、peakは334,614,848,691 bytesです。
+
+256K operator単体は2.277→3.502 msと遅くなった一方、full-model wallは改善しました。したがってこのPASSはpartial top-k算術の高速化ではなく、native direct submissionによるexecution topology変更の効果です。native armの`host_submit_ms`はmodel call内のdirect encodeとGPU進行を含むため、Python graph-build時間とは解釈しません。次tierではscore producerからKDA/DSAまでislandを広げ、CPU encode、GPU execution、application starvationを別々に計測します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
