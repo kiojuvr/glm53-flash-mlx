@@ -1072,6 +1072,15 @@ uv run python scripts/attribute_native_dsa_sparse_attention_regression.py \
 
 実256K stateの全11 DSA層でもscaled query、gathered latent、attention outputはbyte-exactでした。11層合計のprepareはMLX 0.658 msに対してnative 0.625 msで0.032 ms短縮し、attention mathは1.032→1.041 msの0.009 ms差だけです。どちらも統合Tier 2のoperator退行0.308 msを説明せず、2.1 MiB gather materializationも局所ボトルネックではありません。退行はaccepted Tier 1 score islandへattention topologyを接続した場合にだけ生じる境界効果と判定し、Tier 2を終了します。Tier 1はexact nonproduction native baselineとして保持し、次は約0.98 ms/tokenのapplication gapが観測済みのcompact IndexPool update側を、preprojected key/gateから固定arenaへ取り込めるか検証します。
 
+native pool-update実装へ進む前に、その境界を完全無料にしたfull-model上限を測ります。untimed oracle trajectoryで各decode step・全11 DSA層のupdate後pool/raw stateをowned copyへmaterializeし、counterfactual armはそのstateを注入してaccepted Tier 1 selectionだけを実行します。capture/copy/ownership transitionは測定外なのでproduction方式ではなく、実装価値の上限です。通常Tier 1との差が256Kで0.75 ms/token未満なら、約0.98 msのisolated application gapを根拠にstateful native codeを書かず停止します。
+
+```bash
+uv run python scripts/probe_native_indexpool_update_boundary_headroom.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+2K/256Kで同一trajectoryの全logitsと最終KDA/DSA/IndexPool stateをbyte-exact比較し、2K回帰1%以内、peak 340 GB以内も要求します。0.75 ms以上なら次commitでpreprojected key/gate、partial-pool recomputation、pool-row publication、Tier 1 score/selectionを一つのfixed-address native submission islandへ統合します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
