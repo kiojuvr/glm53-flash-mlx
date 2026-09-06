@@ -27,6 +27,12 @@ NATIVE_DSA_SCORE_ISLAND_ABI = (
     "-coalesced-pool32-head32"
     "-exact-topk-expand"
 )
+NATIVE_DSA_SPARSE_ATTENTION_ISLAND_ABI = (
+    "glm53-native-dsa-sparse-attention-island-v1"
+    "-decode-width2051-d512"
+    "-mlx0322-steel-precise-softmax"
+    "-fixed-arena"
+)
 
 
 class NativeExecutionContractError(ValueError):
@@ -438,6 +444,214 @@ def plan_native_dsa_score_island(
     return NativeExecutionPlan(
         mode=mode,
         query_rows=rows,
+        logical_capacity_tokens=logical_capacity_tokens,
+        physical_pool_rows=pool_rows,
+        selected_pool_rows=512,
+        selected_token_width=2051,
+        buffers=buffers,
+        stages=stages,
+    )
+
+
+def plan_native_dsa_sparse_attention_island(
+    *, logical_capacity_tokens: int
+) -> NativeExecutionPlan:
+    """Plan the Tier-2 decode score -> sparse-attention execution island.
+
+    The pinned MLX runtime has no fused SDPA implementation for GLM's D512
+    latent decode geometry.  The native island therefore preserves its exact
+    fallback sequence: BF16 NT GEMM, bool-mask materialization, precise BF16
+    softmax, and BF16/FP32 split-K NN GEMM.  Context-sized score, selected
+    indices, gathered latent, softmax, and split-K accumulation remain private
+    plan scratch; only the D512 attention output crosses back to MLX.
+    """
+
+    capacity = plan_nope_cache_capacity(logical_capacity_tokens)
+    pool_rows = capacity.physical_pool_rows
+    kv_rows = capacity.physical_capacity_tokens
+    buffers = (
+        NativeBufferSpec(
+            "index_query",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, 1, 32, 128),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "mixture_weights",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, 1, 32),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "pool_keys",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, pool_rows, 128),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "latent",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, 1, kv_rows, 512),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "attention_query",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, 64, 1, 512),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "head_scores",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (32, pool_rows),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "index_scores",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (1, 1, pool_rows),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "selected_indices",
+            NativeBufferRole.SCRATCH,
+            "int32",
+            (1, 1, 2051),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "selected_valid",
+            NativeBufferRole.SCRATCH,
+            "bool",
+            (1, 1, 2051),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "scaled_query",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (64, 512),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "gathered_latent",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (2051, 512),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "attention_scores",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (64, 2051),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "splitk_accum",
+            NativeBufferRole.SCRATCH,
+            "float32",
+            (4, 64, 512),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "attention_output",
+            NativeBufferRole.OUTPUT,
+            "bfloat16",
+            (1, 64, 1, 512),
+            True,
+            True,
+            True,
+            True,
+        ),
+    )
+    stages = (
+        NativeStageSpec(
+            "pooled-score-selection-expansion",
+            NATIVE_DSA_SCORE_ISLAND_ABI,
+            ("index_query", "mixture_weights", "pool_keys"),
+            ("selected_indices", "selected_valid"),
+        ),
+        NativeStageSpec(
+            "gather-and-query-scale",
+            "glm53_native_prepare_sparse_attention_bfloat16",
+            ("selected_indices", "selected_valid", "attention_query", "latent"),
+            ("scaled_query", "gathered_latent"),
+        ),
+        NativeStageSpec(
+            "query-key-gemm",
+            "mlx0322-steel-nt-bf16",
+            ("scaled_query", "gathered_latent"),
+            ("attention_scores",),
+        ),
+        NativeStageSpec(
+            "selection-mask",
+            "glm53_native_mask_sparse_attention_scores_bfloat16",
+            ("selected_valid", "attention_scores"),
+            ("attention_scores",),
+        ),
+        NativeStageSpec(
+            "precise-softmax",
+            "mlx0322-block-softmax-precise-bf16",
+            ("attention_scores",),
+            ("attention_scores",),
+        ),
+        NativeStageSpec(
+            "weighted-value-splitk",
+            "mlx0322-steel-splitk-nn-bf16-fp32",
+            ("attention_scores", "gathered_latent"),
+            ("splitk_accum", "attention_output"),
+        ),
+    )
+    return NativeExecutionPlan(
+        mode=NativeExecutionMode.DECODE,
+        query_rows=1,
         logical_capacity_tokens=logical_capacity_tokens,
         physical_pool_rows=pool_rows,
         selected_pool_rows=512,

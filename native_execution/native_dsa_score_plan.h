@@ -16,27 +16,18 @@ namespace mx = mlx::core;
 // pooled score, exact top-k, and token expansion share one native command
 // encoder and one fixed-address scratch arena.
 class NativeDSAScoreSelectionPlan {
- public:
-  NativeDSAScoreSelectionPlan(
-      std::string mode,
-      int query_rows,
-      int physical_pool_rows,
-      float softmax_scale);
+public:
+  NativeDSAScoreSelectionPlan(std::string mode, int query_rows,
+                              int physical_pool_rows, float softmax_scale);
 
-  std::vector<mx::array> execute(
-      const mx::array& query,
-      const mx::array& mixture_weights,
-      const mx::array& pool_keys,
-      const mx::array& pool_indices,
-      const mx::array& pool_valid,
-      const mx::array& raw_positions,
-      const mx::array& raw_valid,
-      const mx::array& current_valid,
-      int logical_pool_rows,
-      int kv_len,
-      int active_tail_count);
+  std::vector<mx::array>
+  execute(const mx::array &query, const mx::array &mixture_weights,
+          const mx::array &pool_keys, const mx::array &pool_indices,
+          const mx::array &pool_valid, const mx::array &raw_positions,
+          const mx::array &raw_valid, const mx::array &current_valid,
+          int logical_pool_rows, int kv_len, int active_tail_count);
 
-  const std::string& mode() const { return mode_; }
+  const std::string &mode() const { return mode_; }
   int query_rows() const { return query_rows_; }
   int physical_pool_rows() const { return physical_pool_rows_; }
   int selected_width() const { return kSelectedWidth; }
@@ -49,9 +40,11 @@ class NativeDSAScoreSelectionPlan {
   uint64_t scratch_bytes() const;
   mx::array debug_head_scores() const { return head_scores_; }
   mx::array debug_index_scores() const { return index_scores_; }
+  mx::array debug_selected_indices() const { return selected_token_indices_; }
+  mx::array debug_selected_valid() const { return selected_token_valid_; }
   std::vector<uint64_t> buffer_identities() const;
 
- private:
+private:
   static constexpr int kHeads = 32;
   static constexpr int kHeadDim = 128;
   static constexpr int kSelectedPools = 512;
@@ -72,11 +65,8 @@ class NativeDSAScoreSelectionPlan {
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 
-  void validate_input(
-      const mx::array& array,
-      const char* name,
-      mx::Dtype dtype,
-      size_t elements) const;
+  void validate_input(const mx::array &array, const char *name, mx::Dtype dtype,
+                      size_t elements) const;
 };
 
 } // namespace glm53::native_execution

@@ -1,10 +1,13 @@
 #include <metal_stdlib>
 
+using namespace metal;
+
+#include "mlx/backend/metal/kernels/defines.h"
 #include "mlx/backend/metal/kernels/utils.h"
+#include "mlx/backend/metal/kernels/softmax.h"
 #include "mlx/backend/metal/kernels/steel/gemm/gemm.h"
 #include "mlx/backend/metal/kernels/steel/gemm/kernels/steel_gemm_fused.h"
-
-using namespace metal;
+#include "mlx/backend/metal/kernels/steel/gemm/kernels/steel_gemm_splitk.h"
 
 constant uint kSelectedPools = 512;
 constant uint kIndexKPool = 4;
@@ -233,3 +236,93 @@ instantiate_kernel(
     false,
     true,
     float);
+
+// Decode-only sparse DSA attention uses head dimension 512, which is not a
+// fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
+// Steel/precise-softmax sequence selected by that fallback so the native plan
+// can encode it without returning its gathered latent or score scratch to MLX.
+[[kernel]] void glm53_native_prepare_sparse_attention_bfloat16(
+    device const int* selected_indices [[buffer(0)]],
+    device const bool* selected_valid [[buffer(1)]],
+    device const bfloat16_t* query [[buffer(2)]],
+    device const bfloat16_t* latent [[buffer(3)]],
+    device bfloat16_t* scaled_query [[buffer(4)]],
+    device bfloat16_t* gathered_latent [[buffer(5)]],
+    constant const float& scale_fp32 [[buffer(6)]],
+    constant const int& physical_kv_rows [[buffer(7)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kAttentionHeads = 64;
+  constexpr uint kAttentionDim = 512;
+  constexpr uint kQueryElements = kAttentionHeads * kAttentionDim;
+  constexpr uint kGatherElements = kSelectedWidth * kAttentionDim;
+  bfloat16_t scale = bfloat16_t(scale_fp32);
+  if (position < kQueryElements) {
+    scaled_query[position] =
+        bfloat16_t(float(query[position]) * float(scale));
+  }
+  if (position < kGatherElements) {
+    uint slot = position / kAttentionDim;
+    uint column = position % kAttentionDim;
+    int index = selected_indices[slot];
+    bool valid = selected_valid[slot] && index >= 0 && index < physical_kv_rows;
+    // The eager gather sanitizes invalid indices to row zero and applies a
+    // separate attention mask.  Preserve that exact intermediate contract.
+    uint source_row = valid ? uint(index) : 0u;
+    gathered_latent[position] =
+        latent[size_t(source_row) * kAttentionDim + column];
+  }
+}
+
+[[kernel]] void glm53_native_mask_sparse_attention_scores_bfloat16(
+    device bfloat16_t* scores [[buffer(0)]],
+    device const bool* selected_valid [[buffer(1)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kAttentionHeads = 64;
+  constexpr uint kScoreElements = kAttentionHeads * kSelectedWidth;
+  if (position >= kScoreElements) return;
+  uint slot = position % kSelectedWidth;
+  if (!selected_valid[slot]) {
+    scores[position] = Limits<bfloat16_t>::finite_min;
+  }
+}
+
+instantiate_kernel(
+    "glm53_native_attention_gemm_nt_bfloat16_bfloat16_bm64_bn32_bk32_wm2_wn2",
+    gemm,
+    bfloat16_t,
+    64,
+    32,
+    32,
+    2,
+    2,
+    false,
+    true,
+    float);
+
+instantiate_kernel(
+    "glm53_native_block_softmax_precise_bfloat16",
+    softmax_single_row,
+    bfloat16_t,
+    float,
+    SOFTMAX_N_READS);
+
+instantiate_kernel(
+    "glm53_native_attention_gemm_splitk_nn_bfloat16_float32_bm32_bn32_bk16_wm2_wn2_MN_taligned_K_naligned",
+    gemm_splitk,
+    bfloat16_t,
+    float,
+    32,
+    32,
+    16,
+    2,
+    2,
+    false,
+    false,
+    true,
+    false);
+
+instantiate_kernel(
+    "glm53_native_attention_gemm_splitk_accum_bfloat16_float32",
+    gemm_splitk_accum,
+    float,
+    bfloat16_t);

@@ -1037,6 +1037,19 @@ Tier 1 v2のM3 Ultra qualificationでは人工Q256/P8256 screenが2.971→1.690 
 
 256K operator単体は3.888→4.695 ms（0.828×）ですが、full-model wallは5.886 ms短縮しています。このためTier 1 v2のPASSはlong-context score算術の高速化とは主張せず、MLXへ中間scoreを返さないpersistent submission topologyの効果と解釈します。次tierはselected indexをMLXへ返す境界をさらにsparse gather/attentionまで広げ、同じfixed-address arena内でwall利得が維持されるかを検証します。production runtime/server/APC/cache ABIは引き続き変更しません。
 
+Tier 2はdecodeだけを対象に、Tier 1のselected indexをMLXへ返さず、固定幅2051のlatent gatherとD512 sparse attentionまで同じnative command encoderへ収めます。pin済みMLX 0.32.2はD512にfused SDPAを持たないため、現行fallbackが実際に使用するBF16 Steel NT GEMM、bool mask、precise BF16 softmax、BF16/FP32 Steel split-K NN GEMMの演算順とgeometryをそのままinstantiateします。独自online softmaxや近似reductionは導入しません。context-sized score、selected index/validity、gathered latent、softmax、split-K accumulationは全てplan-owned fixed-address scratchで、MLXへ戻るのはD512 attention outputだけです。
+
+人工fixtureは512 pool、partial tail 3、invalid selected slotを含み、320GB modelのload前にselection、validity、gather、attention outputのbyte-exact性を検査します。実機では2K/256Kの全11 DSA層とfull-model logits/stateをTier 1 baselineと比較します。固定KEEP gateは256K full-modelで追加0.75 ms/token以上の短縮、2K回帰1%以内、concurrent scratch 128 MiB以内です。operatorだけ速くてもwallへ反映されなければ昇格しません。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_native_dsa_sparse_attention_island.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+これはprobe-onlyの長時間・320GB級qualificationです。runtime/server/APC/cache/kernel ABIは変更せず、合格時だけ次のunembed/output projection境界へ進みます。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
