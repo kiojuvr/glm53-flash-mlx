@@ -400,7 +400,9 @@ def _real_layer_case(profile, operator_probe, boundary_probe, model, source, con
         "repeat_values_byte_exact": _exact(candidate["values"], repeat_values),
         "repeat_indices_byte_exact": _exact(candidate["selected"], repeat_selected),
         "score_nan_count": int(
-            np.count_nonzero(np.isnan(np.asarray(candidate["scores"])))
+            np.count_nonzero(
+                np.isnan(np.asarray(candidate["scores"].astype(mx.float32)))
+            )
         ),
         "selected_index_hash": _hash(candidate["selected"]),
         "attention_output_hash": _hash(candidate["output"]),

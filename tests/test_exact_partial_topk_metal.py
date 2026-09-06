@@ -64,6 +64,7 @@ def test_requested_artificial_and_real_frontiers_are_present():
         "all_full_vocab_logits_exact",
     ):
         assert f'"{evidence}"' in source
+    assert 'candidate["scores"].astype(mx.float32)' in source
 
 
 def test_fixed_performance_gates_are_not_relaxed():
