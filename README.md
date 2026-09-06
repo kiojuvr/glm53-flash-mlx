@@ -955,6 +955,21 @@ isolated all-DSA GPU timeは256Kでpooled-key score 1.686 ms、exact argsort/top
 
 MTPはrelease後のbacklogです。昇格時にはtarget full-vocab exact、GLM固有draft oracle、verify長`L=2..N`ごとのshape oracleに加え、`acceptance_by_position`、accepted token sequence、accepted trajectory hash、acceptance-rate regressionを必須証拠とします。kernel起動成功や小さなlogits誤差だけをspeculative trajectory correctnessとは扱いません。
 
+### Exact partial top-k Metal probe
+
+Lightning Indexerの既存FP32 score tensorから上位512 poolを選ぶ部分だけを、probe専用Metal kernelへ置換します。query projection、pooled-key score生成、IndexPool更新、pool→token展開、sanitize/gather、sparse attentionは変更しません。候補は48-bit composite keyによるradix selectionで512件だけを抽出し、threadgroup内bitonic sortで`mx.argsort(-scores)`と同じscore降順・同点source-index昇順へ並べます。full sortやpersistent scratchは作りません。
+
+人工fixtureは昇順/降順、全同値、大きなtie group、kth境界tie、`+0/-0`、微小FP32差、BF16境界由来FP32を含みます。実checkpointでは2K/32K/128K/256Kの全11 DSA層についてtop-k value/index、expanded token index、sentinel、latent gather、attention output、post-cache stateをbyte-exact比較し、さらに4-step full-vocab trajectoryとsteady full-model wallを比較します。
+
+固定KEEP gateは256Kでtop-k aggregate `<=1.15 ms/token`かつ既存argsort比`>=0.75 ms/token`削減、full-model `<=81.2 ms/token`かつ`>=0.7 ms/token`削減、working peak増分32 MiB以下です。top-kが`>1.50 ms/token`なら棄却してpooled scoreへ移ります。Metal buffer/command-buffer数の公開APIがないため推測値は出さず、必要なら候補通過後にbounded System Traceを追加します。runtime/server/APC/cache/kernel ABIはこのprobeでは変更しません。
+
+この実モデル試験はcontextごとにartifactをatomic保存し、完了済みcontextをskipして再開できます。長時間処理はユーザー側で実行します。
+
+```bash
+uv run python scripts/probe_exact_partial_topk_metal.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
