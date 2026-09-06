@@ -3,10 +3,12 @@ from dataclasses import replace
 import pytest
 
 from glm53_flash_mlx.native_execution import (
+    NATIVE_DSA_SCORE_ISLAND_ABI,
     NATIVE_EXECUTION_ENGINE_ABI,
     NativeBufferRole,
     NativeExecutionContractError,
     NativeExecutionMode,
+    plan_native_dsa_score_island,
     plan_native_indexer_island,
 )
 
@@ -115,3 +117,45 @@ def test_mutable_scratch_cannot_be_borrowed_or_escape():
     buffers[scratch_index] = escaped
     with pytest.raises(NativeExecutionContractError, match="cannot escape"):
         replace(plan, buffers=tuple(buffers))
+
+
+def test_tier1_score_island_keeps_context_sized_scores_inside_fixed_arena():
+    plan = plan_native_dsa_score_island(
+        "decode", query_rows=1, logical_capacity_tokens=262_145
+    )
+    descriptor = plan.descriptor()
+    assert NATIVE_DSA_SCORE_ISLAND_ABI.startswith(
+        "glm53-native-dsa-score-island-v1"
+    )
+    assert descriptor["fixed_command_topology"] == [
+        "glm53_native_steel_gemm_nt_bfloat16",
+        "glm53_native_finish_pooled_score_bfloat16",
+        "glm53_native_exact_partial_topk_512_bfloat16",
+        "glm53_native_expand_selected_pools",
+    ]
+    scratch = {buffer.name: buffer for buffer in plan.buffers}
+    assert scratch["head_scores"].shape == (32, 65_600)
+    assert scratch["index_scores"].shape == (1, 1, 65_600)
+    assert scratch["head_scores"].returned_to_mlx is False
+    assert scratch["index_scores"].returned_to_mlx is False
+    assert scratch["selected_token_indices"].returned_to_mlx is True
+
+
+def test_tier1_prefill_and_decode_share_storage_and_state_contract():
+    prefill = plan_native_dsa_score_island(
+        "prefill", query_rows=256, logical_capacity_tokens=32_768
+    )
+    decode = plan_native_dsa_score_island(
+        "decode", query_rows=1, logical_capacity_tokens=32_768
+    )
+    assert prefill.fixed_command_topology == decode.fixed_command_topology
+    assert prefill.physical_pool_rows == decode.physical_pool_rows == 8_192
+    assert next(b for b in prefill.buffers if b.name == "pool_keys").shape == (
+        1,
+        8_192,
+        128,
+    )
+    for plan in (prefill, decode):
+        assert plan.dynamic_allocations_per_execute == 0
+        assert plan.python_graph_nodes_per_execute == 0
+        assert plan.host_synchronizations_per_execute == 0

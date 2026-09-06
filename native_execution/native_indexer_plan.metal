@@ -1,12 +1,56 @@
 #include <metal_stdlib>
 
 #include "mlx/backend/metal/kernels/utils.h"
+#include "mlx/backend/metal/kernels/steel/gemm/gemm.h"
+#include "mlx/backend/metal/kernels/steel/gemm/kernels/steel_gemm_fused.h"
 
 using namespace metal;
 
 constant uint kSelectedPools = 512;
 constant uint kIndexKPool = 4;
 constant uint kSelectedWidth = 2051;
+constant uint kIndexerHeads = 32;
+
+// The matmul itself is the same MLX Steel kernel selected on apple-gpu-d for
+// this BF16 nt geometry.  This tail fixes the eager BF16 materialization
+// points after that exact matmul output.
+[[kernel]] void glm53_native_finish_pooled_score_bfloat16(
+    device const bfloat16_t* head_scores [[buffer(0)]],
+    device const bfloat16_t* mixture_weights [[buffer(1)]],
+    device const bool* pool_valid [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    constant const int& logical_pool_rows [[buffer(4)]],
+    constant const int& physical_pool_rows [[buffer(5)]],
+    constant const float& softmax_scale_fp32 [[buffer(6)]],
+    uint2 lane_position [[thread_position_in_threadgroup]],
+    uint2 group [[threadgroup_position_in_grid]]) {
+  uint lane = lane_position.x;
+  uint pool = group.x;
+  uint row = group.y;
+  if (pool >= uint(physical_pool_rows)) return;
+  if (pool >= uint(logical_pool_rows) || !pool_valid[pool]) {
+    if (lane == 0) {
+      output[size_t(row) * uint(physical_pool_rows) + pool] =
+          bfloat16_t(-1.0e30f);
+    }
+    return;
+  }
+  bfloat16_t scale = bfloat16_t(softmax_scale_fp32);
+  size_t source =
+      (size_t(row) * kIndexerHeads + lane) * uint(physical_pool_rows) + pool;
+  bfloat16_t scaled =
+      bfloat16_t(float(head_scores[source]) * float(scale));
+  bfloat16_t clipped = scaled > bfloat16_t(0.0f)
+      ? scaled
+      : bfloat16_t(0.0f);
+  bfloat16_t weighted = bfloat16_t(
+      float(mixture_weights[size_t(row) * kIndexerHeads + lane]) *
+      float(clipped));
+  bfloat16_t total = simd_sum(weighted);
+  if (lane == 0) {
+    output[size_t(row) * uint(physical_pool_rows) + pool] = total;
+  }
+}
 
 template <typename T>
 [[kernel]] void native_exact_partial_topk_512(
@@ -156,3 +200,16 @@ template <typename T>
 
 instantiate_native_topk(float32, float);
 instantiate_native_topk(bfloat16, bfloat16_t);
+
+instantiate_kernel(
+    "glm53_native_steel_gemm_nt_bfloat16_bfloat16_bm64_bn64_bk16_wm1_wn2",
+    gemm,
+    bfloat16_t,
+    64,
+    64,
+    16,
+    1,
+    2,
+    false,
+    true,
+    float);

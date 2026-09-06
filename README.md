@@ -1012,6 +1012,19 @@ M3 UltraのTier 0 qualificationでは、FP32/BF16のtie・signed-zero・sentinel
 
 256K operator単体は2.277→3.502 msと遅くなった一方、full-model wallは改善しました。したがってこのPASSはpartial top-k算術の高速化ではなく、native direct submissionによるexecution topology変更の効果です。native armの`host_submit_ms`はmodel call内のdirect encodeとGPU進行を含むため、Python graph-build時間とは解釈しません。次tierではscore producerからKDA/DSAまでislandを広げ、CPU encode、GPU execution、application starvationを別々に計測します。
 
+Tier 1ではquery projectionとmixture-weight projectionの直後から境界を広げ、pooled head score、scale/clamp、head-weight reduction、exact top-k、pool→token expansionを同じC++ planへ収めます。M3 UltraでMLX 0.32.2が選ぶBF16 `nt` Steel GEMM（BM64/BN64/BK16/WM1/WN2）をprobe metallibへ同じtemplateでinstantiateし、plan-owned `head_scores`へ直接書きます。後段はeager MLXと同じBF16 materialization位置および32-lane `simd_sum`順を固定します。小規模fixtureではSteel head score、最終score、selected token、validityがすべてbyte-exactです。
+
+context-sizedなhead/index scoreはfixed-address scratchで、通常の`execute()`からMLXへ返しません。診断用viewはqualificationのbit比較だけに使います。query/weight projection、IndexPool update、sparse gather/attention、KDA、MoEはまだnative化したと主張しません。32K/Q256代表3層、2K/256K全11 DSA層とfull-modelを実機で比較し、scoreを含む全bit exact、32K operator 1.2×以上、256K full-model 3 ms/token以上短縮、2K回帰1%以内を通った場合だけgather/attentionへ境界を広げます。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_native_dsa_score_execution_island.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+これは長時間・320GB級の実モデルqualificationなので、スクリプトをユーザー側で実行します。artifactはcontextごとにatomic保存し、operator exactnessが崩れた時点でfull-model測定を省略して停止します。runtime/server/APC/cache/kernel ABIは変更しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

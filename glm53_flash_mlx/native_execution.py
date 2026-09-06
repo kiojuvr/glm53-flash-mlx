@@ -21,6 +21,11 @@ NATIVE_EXECUTION_ENGINE_ABI = (
     "-fixed-address-arena"
     "-direct-metal-submission"
 )
+NATIVE_DSA_SCORE_ISLAND_ABI = (
+    "glm53-native-dsa-score-island-v1"
+    "-bf16-eager-rounding"
+    "-exact-topk-expand"
+)
 
 
 class NativeExecutionContractError(ValueError):
@@ -258,6 +263,168 @@ def plan_native_indexer_island(
             "exact-partial-topk",
             "glm53_native_exact_partial_topk_512",
             ("scores",),
+            ("selected_pool_scratch",),
+        ),
+        NativeStageSpec(
+            "pool-token-expansion",
+            "glm53_native_expand_selected_pools",
+            ("selected_pool_scratch", "pool_indices", "pool_valid"),
+            ("selected_token_indices", "selected_token_valid"),
+        ),
+    )
+    return NativeExecutionPlan(
+        mode=mode,
+        query_rows=rows,
+        logical_capacity_tokens=logical_capacity_tokens,
+        physical_pool_rows=pool_rows,
+        selected_pool_rows=512,
+        selected_token_width=2051,
+        buffers=buffers,
+        stages=stages,
+    )
+
+
+def plan_native_dsa_score_island(
+    mode: NativeExecutionMode | str,
+    *,
+    query_rows: int,
+    logical_capacity_tokens: int,
+) -> NativeExecutionPlan:
+    """Plan the Tier-1 pooled-score -> selected-token execution island.
+
+    Query and mixture-weight projections remain explicit MLX inputs.  The
+    potentially context-sized score tensor is plan-owned scratch and cannot
+    escape back into the MLX graph.
+    """
+
+    try:
+        mode = NativeExecutionMode(mode)
+    except ValueError as error:
+        raise NativeExecutionContractError(f"unknown native mode: {mode}") from error
+    rows = int(query_rows)
+    if rows <= 0:
+        raise NativeExecutionContractError("query_rows must be positive")
+    capacity = plan_nope_cache_capacity(logical_capacity_tokens)
+    pool_rows = capacity.physical_pool_rows
+    buffers = (
+        NativeBufferSpec(
+            "query",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, rows, 32, 128),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "mixture_weights",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, rows, 32),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "pool_keys",
+            NativeBufferRole.INPUT,
+            "bfloat16",
+            (1, pool_rows, 128),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "pool_indices",
+            NativeBufferRole.INPUT,
+            "int64",
+            (1, pool_rows, 4),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "pool_valid",
+            NativeBufferRole.INPUT,
+            "bool",
+            (1, pool_rows),
+            True,
+            False,
+            False,
+            False,
+        ),
+        NativeBufferSpec(
+            "head_scores",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (rows * 32, pool_rows),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "index_scores",
+            NativeBufferRole.SCRATCH,
+            "bfloat16",
+            (1, rows, pool_rows),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "selected_pool_scratch",
+            NativeBufferRole.SCRATCH,
+            "uint32",
+            (1, rows, 512),
+            True,
+            True,
+            True,
+            False,
+        ),
+        NativeBufferSpec(
+            "selected_token_indices",
+            NativeBufferRole.OUTPUT,
+            "int32",
+            (1, rows, 2051),
+            True,
+            True,
+            True,
+            True,
+        ),
+        NativeBufferSpec(
+            "selected_token_valid",
+            NativeBufferRole.OUTPUT,
+            "bool",
+            (1, rows, 2051),
+            True,
+            True,
+            True,
+            True,
+        ),
+    )
+    stages = (
+        NativeStageSpec(
+            "pooled-head-score",
+            "glm53_native_steel_gemm_nt_bfloat16",
+            ("query", "pool_keys"),
+            ("head_scores",),
+        ),
+        NativeStageSpec(
+            "score-scale-weight-reduce",
+            "glm53_native_finish_pooled_score_bfloat16",
+            ("head_scores", "mixture_weights", "pool_valid"),
+            ("index_scores",),
+        ),
+        NativeStageSpec(
+            "exact-partial-topk",
+            "glm53_native_exact_partial_topk_512_bfloat16",
+            ("index_scores",),
             ("selected_pool_scratch",),
         ),
         NativeStageSpec(

@@ -414,6 +414,8 @@ def _prepared_fixture(
         "attention": attention,
         "entry": entry,
         "pool": pool,
+        "query": query,
+        "weights": weights,
         "scores": scores,
         "valid_candidates": valid_candidates,
         "current_valid": current_valid,

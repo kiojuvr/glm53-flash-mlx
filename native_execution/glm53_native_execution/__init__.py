@@ -4,6 +4,6 @@ The binary extension is intentionally built separately from the production
 package.  Import failure therefore cannot change the supported MLX runtime.
 """
 
-from ._ext import NativeIndexSelectionPlan
+from ._ext import NativeDSAScoreSelectionPlan, NativeIndexSelectionPlan
 
-__all__ = ["NativeIndexSelectionPlan"]
+__all__ = ["NativeDSAScoreSelectionPlan", "NativeIndexSelectionPlan"]

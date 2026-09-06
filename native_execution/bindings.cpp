@@ -2,10 +2,12 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
+#include "native_dsa_score_plan.h"
 #include "native_indexer_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
+using glm53::native_execution::NativeDSAScoreSelectionPlan;
 using glm53::native_execution::NativeIndexSelectionPlan;
 
 NB_MODULE(_ext, module) {
@@ -48,4 +50,62 @@ NB_MODULE(_ext, module) {
           &NativeIndexSelectionPlan::host_synchronization_count)
       .def_prop_ro(
           "buffer_identities", &NativeIndexSelectionPlan::buffer_identities);
+
+  nb::class_<NativeDSAScoreSelectionPlan>(
+      module, "NativeDSAScoreSelectionPlan")
+      .def(
+          nb::init<std::string, int, int, float>(),
+          "mode"_a,
+          "query_rows"_a,
+          "physical_pool_rows"_a,
+          "softmax_scale"_a)
+      .def(
+          "execute",
+          &NativeDSAScoreSelectionPlan::execute,
+          "query"_a,
+          "mixture_weights"_a,
+          "pool_keys"_a,
+          "pool_indices"_a,
+          "pool_valid"_a,
+          "raw_positions"_a,
+          "raw_valid"_a,
+          "current_valid"_a,
+          "logical_pool_rows"_a,
+          "kv_len"_a,
+          "active_tail_count"_a)
+      .def_prop_ro("mode", &NativeDSAScoreSelectionPlan::mode)
+      .def_prop_ro("query_rows", &NativeDSAScoreSelectionPlan::query_rows)
+      .def_prop_ro(
+          "physical_pool_rows",
+          &NativeDSAScoreSelectionPlan::physical_pool_rows)
+      .def_prop_ro(
+          "selected_width", &NativeDSAScoreSelectionPlan::selected_width)
+      .def_prop_ro(
+          "execution_count", &NativeDSAScoreSelectionPlan::execution_count)
+      .def_prop_ro(
+          "dynamic_allocation_count",
+          &NativeDSAScoreSelectionPlan::dynamic_allocation_count)
+      .def_prop_ro(
+          "graph_node_count", &NativeDSAScoreSelectionPlan::graph_node_count)
+      .def_prop_ro(
+          "shape_discovery_count",
+          &NativeDSAScoreSelectionPlan::shape_discovery_count)
+      .def_prop_ro(
+          "host_synchronization_count",
+          &NativeDSAScoreSelectionPlan::host_synchronization_count)
+      .def_prop_ro(
+          "returned_score_tensor_bytes",
+          &NativeDSAScoreSelectionPlan::returned_score_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativeDSAScoreSelectionPlan::scratch_bytes)
+      .def_prop_ro(
+          "debug_head_scores",
+          &NativeDSAScoreSelectionPlan::debug_head_scores,
+          "Diagnostic-only Steel GEMM output view")
+      .def_prop_ro(
+          "debug_index_scores",
+          &NativeDSAScoreSelectionPlan::debug_index_scores,
+          "Diagnostic-only view; execute() never returns score scratch")
+      .def_prop_ro(
+          "buffer_identities",
+          &NativeDSAScoreSelectionPlan::buffer_identities);
 }
