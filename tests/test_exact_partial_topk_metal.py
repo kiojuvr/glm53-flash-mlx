@@ -29,11 +29,11 @@ def test_probe_is_score_only_and_keeps_runtime_unchanged():
 def test_kernel_encodes_stable_ties_and_bounded_partial_selection():
     source = PROBE.read_text()
     assert "score descending; equal scores preserve ascending source index" in source
-    assert "0xffffu - index" in source
+    assert "0x1ffffu - index" in source
     assert "for (int shift = 44; shift >= 0; shift -= 4)" in source
     assert "threadgroup ulong candidates[K]" in source
     assert "mx.argsort(-scores, axis=-1)[..., :SELECT_K]" in source
-    assert "pool count must be in [512, 65536]" in source
+    assert "MAX_POOL_COUNT = 65_600" in source
     assert '"persistent_allocation_bytes": 0' in source
     assert '"command_buffer_count_inferred": False' in source
 
@@ -51,6 +51,9 @@ def test_requested_artificial_and_real_frontiers_are_present():
         "very_small_fp32_differences",
         "bf16_boundary_derived_fp32",
         "production_bfloat16_ties",
+        "production_sentinel_ties",
+        "first_post_256k_partial_pool",
+        "aligned_256k_pool_capacity",
     ):
         assert f'"{fixture}"' in source
     for evidence in (
@@ -80,7 +83,8 @@ def test_artifact_is_exact_and_meets_keep_gate_when_present():
     if not ARTIFACT.exists():
         pytest.skip("M3 Ultra exact partial top-k artifact has not been generated")
     artifact = json.loads(ARTIFACT.read_text())
-    assert artifact["schema"] == "glm53-exact-partial-topk-metal-v1"
+    if artifact.get("schema") != "glm53-exact-partial-topk-metal-v2":
+        pytest.skip("stale partial top-k artifact predates the 65,537-pool fix")
     if not artifact["complete"]:
         pytest.skip("exact partial top-k model qualification is still resumable")
     assert artifact["accepted"] is True

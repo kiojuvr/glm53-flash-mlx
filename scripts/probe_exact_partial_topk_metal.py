@@ -44,6 +44,7 @@ CONTEXTS = (2_048, 32_768, 131_072, 262_144)
 SELECT_K = 512
 THREADS = 512
 PROFILE_TOKEN = 3000
+MAX_POOL_COUNT = 65_600
 TOPK_KEEP_MS = 1.15
 TOPK_REJECT_MS = 1.50
 MIN_TOPK_SAVING_MS = 0.75
@@ -86,10 +87,12 @@ _PARTIAL_TOPK_SOURCE = r"""
             float score_value = float(row_scores[index]);
             uint bits = as_type<uint>(score_value);
             if ((bits & 0x7fffffffu) == 0u) bits = 0u;
-            uint ordered =
-                (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
+            // Production scores are nonnegative; invalid candidates use one
+            // negative sentinel. Reserve rank zero for every sentinel and use
+            // the remaining 31 bits for the exact nonnegative float ordering.
+            uint ordered = score_value < 0.0f ? 0u : bits + 1u;
             ulong key =
-                (ulong(ordered) << 16) | ulong(0xffffu - index);
+                (ulong(ordered) << 17) | ulong(0x1ffffu - index);
             bool matches = shift == 44 || (key >> uint(shift + 4)) == prefix;
             if (matches) {
                 uint digit = uint((key >> uint(shift)) & 0xful);
@@ -126,9 +129,8 @@ _PARTIAL_TOPK_SOURCE = r"""
         float score_value = float(row_scores[index]);
         uint bits = as_type<uint>(score_value);
         if ((bits & 0x7fffffffu) == 0u) bits = 0u;
-        uint ordered =
-            (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
-        ulong key = (ulong(ordered) << 16) | ulong(0xffffu - index);
+        uint ordered = score_value < 0.0f ? 0u : bits + 1u;
+        ulong key = (ulong(ordered) << 17) | ulong(0x1ffffu - index);
         if (key >= threshold) {
             uint slot = atomic_fetch_add_explicit(
                 &candidate_count, 1u, memory_order_relaxed);
@@ -156,7 +158,7 @@ _PARTIAL_TOPK_SOURCE = r"""
         }
     }
     ulong key = candidates[K - 1 - lane];
-    row_output[lane] = 0xffffu - uint(key & 0xfffful);
+    row_output[lane] = 0x1ffffu - uint(key & 0x1fffful);
 """
 
 
@@ -245,8 +247,8 @@ def exact_partial_topk(
     if scores.ndim < 1:
         raise ValueError("scores must have a selection axis")
     count = int(scores.shape[-1])
-    if count < k or count > 65_536:
-        raise ValueError("pool count must be in [512, 65536]")
+    if count < k or count > MAX_POOL_COUNT:
+        raise ValueError(f"pool count must be in [512, {MAX_POOL_COUNT}]")
     rows = int(scores.size // count)
     contiguous = mx.contiguous(scores.reshape(rows, count), allow_col_major=False)
     count_value = mx.array([count], dtype=mx.uint32)
@@ -270,15 +272,17 @@ def _oracle_topk(scores: mx.array) -> tuple[mx.array, mx.array]:
 def _artificial_fixtures() -> dict[str, mx.array]:
     n = 1024
     ascending = np.arange(n, dtype=np.float32)
-    tiny = np.linspace(-2.0e-7, 2.0e-7, n, dtype=np.float32)
-    bf16_source = np.linspace(-8.0, 8.0, n, dtype=np.float32)
+    tiny = np.linspace(0.0, 4.0e-7, n, dtype=np.float32)
+    bf16_source = np.linspace(0.0, 16.0, n, dtype=np.float32)
     bf16_derived = np.asarray(mx.array(bf16_source).astype(mx.bfloat16).astype(mx.float32))
     kth_tie = np.arange(n, dtype=np.float32)
     kth_tie[500:530] = np.float32(700.0)
     signed_zero = np.arange(n, dtype=np.float32)
     signed_zero[480:544:2] = np.float32(0.0)
     signed_zero[481:544:2] = np.float32(-0.0)
-    return {
+    sentinel = np.full(n, np.float32(-1.0e30), dtype=np.float32)
+    sentinel[:400] = np.arange(400, dtype=np.float32)
+    fixtures = {
         "strictly_ascending": mx.array(ascending)[None],
         "strictly_descending": mx.array(ascending[::-1].copy())[None],
         "all_equal": mx.zeros((1, n), dtype=mx.float32),
@@ -290,7 +294,18 @@ def _artificial_fixtures() -> dict[str, mx.array]:
         "production_bfloat16_ties": mx.array(
             (np.arange(n) // 32).astype(np.float32)
         )[None].astype(mx.bfloat16),
+        "production_sentinel_ties": mx.array(sentinel)[None],
     }
+    # Decode at exactly 256K appends a partial pool, so the first score shape is
+    # 65,537 rather than 65,536. Also exercise the full 256-token-aligned
+    # physical row capacity before loading the 320 GB model.
+    fixtures["first_post_256k_partial_pool"] = mx.arange(
+        65_537, dtype=mx.float32
+    )[None]
+    fixtures["aligned_256k_pool_capacity"] = mx.arange(
+        MAX_POOL_COUNT, dtype=mx.float32
+    )[None]
+    return fixtures
 
 
 def _run_artificial() -> dict:
@@ -741,7 +756,7 @@ def main() -> int:
     )
     warm_residency(model)
     official_oracle = oracle_probe._official_oracle(model, processor, report)
-    schema = "glm53-exact-partial-topk-metal-v1"
+    schema = "glm53-exact-partial-topk-metal-v2"
     artifact = None
     if args.output.exists():
         candidate = json.loads(args.output.read_text())
@@ -769,12 +784,13 @@ def main() -> int:
                 "input": "existing finite BF16 or FP32 Indexer score tensor",
                 "observed_production_dtype": "recorded per layer; expected bfloat16",
                 "output_k": SELECT_K,
-                "algorithm": "48-bit composite-key radix select plus in-threadgroup bitonic order",
+                "algorithm": "31-bit nonnegative score rank plus 17-bit source index; radix select and in-threadgroup bitonic order",
+                "score_domain": "finite nonnegative score or negative invalid-candidate sentinel",
                 "tie_order": "stable ascending source index",
                 "score_generation_changed": False,
                 "score_topk_fused": False,
                 "full_sort_materialized": False,
-                "max_pool_count": 65_536,
+                "max_pool_count": MAX_POOL_COUNT,
             },
             "performance_gates": {
                 "keep_topk_ms_at_256k": TOPK_KEEP_MS,
