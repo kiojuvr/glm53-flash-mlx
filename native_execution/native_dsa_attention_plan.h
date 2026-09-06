@@ -31,6 +31,20 @@ public:
                     const mx::array &attention_query, const mx::array &latent,
                     int logical_pool_rows, int kv_len, int active_tail_count);
 
+  // Diagnostic-only entry points used to attribute the Tier-2 operator
+  // regression.  They reuse the plan-owned arena and exact production-probe
+  // pipelines, but deliberately expose the durable boundary between input
+  // preparation and the D512 attention math.  The main execute() path never
+  // calls these methods and still returns only attention_output_.
+  std::vector<mx::array>
+  debug_prepare_inputs(const mx::array &selected_indices,
+                       const mx::array &selected_valid,
+                       const mx::array &attention_query,
+                       const mx::array &latent, int kv_len);
+  mx::array debug_attention_math(const mx::array &scaled_query,
+                                 const mx::array &gathered_latent,
+                                 const mx::array &selected_valid);
+
   int physical_pool_rows() const { return score_plan_.physical_pool_rows(); }
   int physical_kv_rows() const { return physical_kv_rows_; }
   int selected_width() const { return kSelectedWidth; }

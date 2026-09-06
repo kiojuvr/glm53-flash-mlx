@@ -1054,6 +1054,22 @@ M3 Ultra qualificationでは人工fixture、2K/256Kの全11 DSA層、full-model 
 
 しかし固定KEEP gateは256Kで追加0.75 ms/token以上です。native sparse-attention operator自体は2Kで1.597→2.123 ms、256Kで5.845→6.153 msへ悪化しており、full-modelで得た構造利得もgateには届きません。gateを緩めずTier 2は不合格とし、runtimeへ昇格せずunembed/output projectionへの単純拡張も行いません。次の再設計候補は、2.1 MiBのgathered-latent scratchを生成せず、selected indexをSteel gather GEMMへ直接渡して同じreduction orderを維持できるかの局所feasibilityです。
 
+Tier 2の再設計前に、退行をdurable numerical boundaryで二分します。probe専用のdiagnostic entry pointは同じplan-owned arenaと同じMetal pipelineを再利用し、selected-row gather＋BF16 query scaleと、QK＋mask＋precise softmax＋V readoutを独立にpin済みMLX fallbackと比較します。full-model内部へ同期を追加して測るのではなく、既にmaterializeした同一入力に対するoperator screenなので、結果をproduction wall改善とは解釈しません。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+# 320 GB checkpointをロードしない先行exactness screen
+uv run python scripts/attribute_native_dsa_sparse_attention_regression.py \
+  --artificial-only
+
+# 256K synthetic stateの全11 DSA層で実値を帰属
+uv run python scripts/attribute_native_dsa_sparse_attention_regression.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+人工D512 fixtureではscaled query、gathered latent、attention outputが全てbyte-exactでした。prepareはMLX 0.309 msに対してnative 0.316 ms、attention mathはMLX 0.398 msに対してnative 0.355 msです。この小形状では算術kernel自体にTier 2全体の約0.31 ms退行を説明する局所ボトルネックがないため、実11層でも同じならindirect GEMMを盲目的に実装せず、Tier 1を保持してpool update/query projection側へnative境界を広げます。実層でprepare退行が最大ならexact indirect latent loader、attention math退行が最大ならTier 2を終了する判定です。runtime/server/APC/cache/kernel production ABIは変えません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

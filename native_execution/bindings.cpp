@@ -84,6 +84,13 @@ NB_MODULE(_ext, module) {
            "raw_positions"_a, "raw_valid"_a, "current_valid"_a,
            "attention_query"_a, "latent"_a, "logical_pool_rows"_a, "kv_len"_a,
            "active_tail_count"_a)
+      .def("debug_prepare_inputs",
+           &NativeDSASparseAttentionPlan::debug_prepare_inputs,
+           "selected_indices"_a, "selected_valid"_a, "attention_query"_a,
+           "latent"_a, "kv_len"_a)
+      .def("debug_attention_math",
+           &NativeDSASparseAttentionPlan::debug_attention_math,
+           "scaled_query"_a, "gathered_latent"_a, "selected_valid"_a)
       .def_prop_ro("physical_pool_rows",
                    &NativeDSASparseAttentionPlan::physical_pool_rows)
       .def_prop_ro("physical_kv_rows",
