@@ -1,0 +1,167 @@
+{
+  "acceptance": {
+    "256k_update_boundary_headroom_at_least_0_75ms": true,
+    "2k_counterfactual_regression_at_most_1_percent": true,
+    "all_counterfactual_logits_and_state_byte_exact": true,
+    "official_oracle_exact": true,
+    "process_peak_at_most_340GB": true,
+    "production_abi_unchanged": true
+  },
+  "accepted": true,
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_logits_and_post_state_byte_exact": true,
+      "context_tokens": 2048,
+      "precomputed_snapshot_bytes": 13579951,
+      "recorded_dsa_updates": 77,
+      "recorded_steps": 7,
+      "timing": {
+        "A_tier1_normal_update": {
+          "median_host_submit_ms": 64.259709,
+          "median_wall_ms": 72.000542,
+          "samples": [
+            {
+              "host_submit_ms": 64.283459,
+              "wall_ms": 72.000542
+            },
+            {
+              "host_submit_ms": 64.237292,
+              "wall_ms": 71.916583
+            },
+            {
+              "host_submit_ms": 64.177542,
+              "wall_ms": 71.895
+            },
+            {
+              "host_submit_ms": 64.259709,
+              "wall_ms": 72.028375
+            },
+            {
+              "host_submit_ms": 64.278,
+              "wall_ms": 72.007209
+            }
+          ]
+        },
+        "B_precomputed_update_tier1_selection": {
+          "median_host_submit_ms": 63.2175,
+          "median_wall_ms": 71.176625,
+          "samples": [
+            {
+              "host_submit_ms": 63.2175,
+              "wall_ms": 71.172125
+            },
+            {
+              "host_submit_ms": 63.319542,
+              "wall_ms": 71.322417
+            },
+            {
+              "host_submit_ms": 63.260083,
+              "wall_ms": 71.189792
+            },
+            {
+              "host_submit_ms": 63.202291,
+              "wall_ms": 71.176625
+            },
+            {
+              "host_submit_ms": 62.946333,
+              "wall_ms": 70.895417
+            }
+          ]
+        }
+      },
+      "update_boundary_headroom_ms": 0.8239169999999945
+    },
+    "262144": {
+      "all_logits_and_post_state_byte_exact": true,
+      "context_tokens": 262144,
+      "precomputed_snapshot_bytes": 1460559023,
+      "recorded_dsa_updates": 77,
+      "recorded_steps": 7,
+      "timing": {
+        "A_tier1_normal_update": {
+          "median_host_submit_ms": 68.204375,
+          "median_wall_ms": 76.296583,
+          "samples": [
+            {
+              "host_submit_ms": 68.204375,
+              "wall_ms": 76.296583
+            },
+            {
+              "host_submit_ms": 68.227125,
+              "wall_ms": 76.34925
+            },
+            {
+              "host_submit_ms": 68.154,
+              "wall_ms": 76.267959
+            },
+            {
+              "host_submit_ms": 68.308333,
+              "wall_ms": 76.395167
+            },
+            {
+              "host_submit_ms": 67.952083,
+              "wall_ms": 76.112792
+            }
+          ]
+        },
+        "B_precomputed_update_tier1_selection": {
+          "median_host_submit_ms": 66.621708,
+          "median_wall_ms": 74.93225,
+          "samples": [
+            {
+              "host_submit_ms": 66.575917,
+              "wall_ms": 74.871542
+            },
+            {
+              "host_submit_ms": 66.621708,
+              "wall_ms": 74.93225
+            },
+            {
+              "host_submit_ms": 66.711375,
+              "wall_ms": 75.059166
+            },
+            {
+              "host_submit_ms": 66.560459,
+              "wall_ms": 74.85225
+            },
+            {
+              "host_submit_ms": 66.629042,
+              "wall_ms": 74.945292
+            }
+          ]
+        }
+      },
+      "update_boundary_headroom_ms": 1.364333000000002
+    }
+  },
+  "counterfactual": "exact post-update state replay; capture/copy/ownership excluded from timing; unchanged Tier-1 selection retained",
+  "date": "2026-09-07",
+  "decision": "implement_native_indexpool_update_submission_island",
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.763147999998182,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "process_peak_memory_bytes": 336249169032,
+  "profiling_only": true,
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-native-indexpool-update-boundary-headroom-v1"
+}

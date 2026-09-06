@@ -1081,6 +1081,8 @@ uv run python scripts/probe_native_indexpool_update_boundary_headroom.py \
 
 2K/256Kで同一trajectoryの全logitsと最終KDA/DSA/IndexPool stateをbyte-exact比較し、2K回帰1%以内、peak 340 GB以内も要求します。0.75 ms以上なら次commitでpreprojected key/gate、partial-pool recomputation、pool-row publication、Tier 1 score/selectionを一つのfixed-address native submission islandへ統合します。
 
+M3 Ultraのcounterfactual qualificationでは、通常のTier 1に対してupdate後stateを事前供給したarmが2Kで72.001→71.177 ms/token、256Kで76.297→74.932 ms/tokenとなり、境界headroomはそれぞれ0.824 msと1.364 msでした。host submitも64.260→63.218 ms、68.204→66.622 msへ短縮しています。両contextの全step logitsと最終KDA/DSA/IndexPool state、公式16/128 oracleはbyte-exactで、process peakは336.249 GBです。固定0.75 ms gateを両contextで通過したため、次はpreprojected key/gateからpartial pool rowを更新し、accepted Tier 1 selectionまで同じnative submission islandへ収めます。このcounterfactualのstate capture/copyは測定外であり、production実装とは主張しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
