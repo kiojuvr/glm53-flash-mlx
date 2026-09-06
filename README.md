@@ -1050,6 +1050,10 @@ uv run python scripts/probe_native_dsa_sparse_attention_island.py \
 
 これはprobe-onlyの長時間・320GB級qualificationです。runtime/server/APC/cache/kernel ABIは変更せず、合格時だけ次のunembed/output projection境界へ進みます。
 
+M3 Ultra qualificationでは人工fixture、2K/256Kの全11 DSA層、full-model logits/state、公式16/128 oracleがすべてbyte-exactでした。fixed arena identityは一定、execute内allocation/graph/shape discovery/host synchronizationは0、最大concurrent scratchは80,239,269 bytes、process peakは331,565,774,044 bytesです。256K full-modelはTier 1の76.426 ms/tokenから75.892 ms/tokenへ0.534 ms短縮し、2Kも72.085→71.977 ms/tokenでした。
+
+しかし固定KEEP gateは256Kで追加0.75 ms/token以上です。native sparse-attention operator自体は2Kで1.597→2.123 ms、256Kで5.845→6.153 msへ悪化しており、full-modelで得た構造利得もgateには届きません。gateを緩めずTier 2は不合格とし、runtimeへ昇格せずunembed/output projectionへの単純拡張も行いません。次の再設計候補は、2.1 MiBのgathered-latent scratchを生成せず、selected indexをSteel gather GEMMへ直接渡して同じreduction orderを維持できるかの局所feasibilityです。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

@@ -1,0 +1,1764 @@
+{
+  "acceptance": {
+    "256k_incremental_full_model_saving_at_least_0_75ms": false,
+    "2k_full_model_regression_at_most_1_percent": true,
+    "artificial_and_all_dsa_layers_byte_exact": true,
+    "fixed_arena_and_zero_execute_allocation_graph_sync": true,
+    "native_plan_scratch_at_most_128MiB": true,
+    "official_oracle_exact": true,
+    "process_peak_at_most_340GB": true,
+    "production_abi_unchanged": true
+  },
+  "accepted": false,
+  "artificial_native_contract": {
+    "all_exact": true,
+    "attention_output_byte_exact": true,
+    "buffer_identities_stable": true,
+    "dynamic_allocation_count": 0,
+    "gathered_latent_byte_exact": true,
+    "graph_node_count": 0,
+    "host_synchronization_count": 0,
+    "invalid_slots": 4,
+    "returned_intermediate_tensor_bytes": 0,
+    "selected_indices_byte_exact": true,
+    "selected_valid_byte_exact": true,
+    "shape_discovery_count": 0,
+    "tail_width": 3
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_layers_exact": true,
+      "concurrent_native_plan_scratch_bytes": 33031845,
+      "context_tokens": 2048,
+      "full_model": {
+        "A_tier1_mlx_attention": {
+          "median_host_submit_ms": 64.35375,
+          "median_wall_ms": 72.084958,
+          "samples": [
+            {
+              "host_submit_ms": 64.373375,
+              "wall_ms": 72.14025
+            },
+            {
+              "host_submit_ms": 64.301416,
+              "wall_ms": 72.058583
+            },
+            {
+              "host_submit_ms": 64.338834,
+              "wall_ms": 72.0685
+            },
+            {
+              "host_submit_ms": 64.37025,
+              "wall_ms": 72.116125
+            },
+            {
+              "host_submit_ms": 64.354625,
+              "wall_ms": 72.084958
+            },
+            {
+              "host_submit_ms": 64.316625,
+              "wall_ms": 72.071791
+            },
+            {
+              "host_submit_ms": 64.251625,
+              "wall_ms": 71.972333
+            },
+            {
+              "host_submit_ms": 64.35375,
+              "wall_ms": 72.088625
+            },
+            {
+              "host_submit_ms": 64.389084,
+              "wall_ms": 72.144167
+            }
+          ]
+        },
+        "B_tier2_native_attention": {
+          "median_host_submit_ms": 64.23425,
+          "median_wall_ms": 71.977292,
+          "samples": [
+            {
+              "host_submit_ms": 64.250833,
+              "wall_ms": 71.997
+            },
+            {
+              "host_submit_ms": 64.223833,
+              "wall_ms": 71.951625
+            },
+            {
+              "host_submit_ms": 64.239042,
+              "wall_ms": 72.045625
+            },
+            {
+              "host_submit_ms": 64.096291,
+              "wall_ms": 71.764875
+            },
+            {
+              "host_submit_ms": 64.23425,
+              "wall_ms": 71.993708
+            },
+            {
+              "host_submit_ms": 64.162583,
+              "wall_ms": 71.895875
+            },
+            {
+              "host_submit_ms": 64.263208,
+              "wall_ms": 72.027583
+            },
+            {
+              "host_submit_ms": 64.417167,
+              "wall_ms": 71.977292
+            },
+            {
+              "host_submit_ms": 64.186166,
+              "wall_ms": 71.903833
+            }
+          ]
+        },
+        "all_logits_byte_exact": true,
+        "incremental_native_saving_ms": 0.10766599999999471,
+        "post_state_byte_exact": true
+      },
+      "layers": [
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 3,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 7,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 11,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 15,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 19,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 23,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 27,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 31,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 35,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 39,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 43,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        }
+      ],
+      "operator_timing": {
+        "A_tier1_mlx_attention": {
+          "median_host_submit_ms": 0.155667,
+          "median_wall_ms": 1.596709,
+          "samples": [
+            {
+              "host_submit_ms": 0.15875,
+              "wall_ms": 1.596709
+            },
+            {
+              "host_submit_ms": 0.147584,
+              "wall_ms": 1.576042
+            },
+            {
+              "host_submit_ms": 0.156,
+              "wall_ms": 1.606833
+            },
+            {
+              "host_submit_ms": 0.143667,
+              "wall_ms": 1.551417
+            },
+            {
+              "host_submit_ms": 0.198042,
+              "wall_ms": 1.805917
+            },
+            {
+              "host_submit_ms": 0.152208,
+              "wall_ms": 1.570458
+            },
+            {
+              "host_submit_ms": 0.155667,
+              "wall_ms": 1.604709
+            },
+            {
+              "host_submit_ms": 0.146875,
+              "wall_ms": 1.548375
+            },
+            {
+              "host_submit_ms": 0.156459,
+              "wall_ms": 1.62225
+            }
+          ]
+        },
+        "B_tier2_native_attention": {
+          "median_host_submit_ms": 0.128917,
+          "median_wall_ms": 2.122542,
+          "samples": [
+            {
+              "host_submit_ms": 0.138084,
+              "wall_ms": 2.122542
+            },
+            {
+              "host_submit_ms": 0.119083,
+              "wall_ms": 2.129042
+            },
+            {
+              "host_submit_ms": 0.137917,
+              "wall_ms": 2.129375
+            },
+            {
+              "host_submit_ms": 0.123417,
+              "wall_ms": 2.084
+            },
+            {
+              "host_submit_ms": 0.128917,
+              "wall_ms": 2.046208
+            },
+            {
+              "host_submit_ms": 0.134417,
+              "wall_ms": 2.059792
+            },
+            {
+              "host_submit_ms": 0.124167,
+              "wall_ms": 2.11675
+            },
+            {
+              "host_submit_ms": 0.1265,
+              "wall_ms": 2.125125
+            },
+            {
+              "host_submit_ms": 0.137875,
+              "wall_ms": 2.194208
+            }
+          ]
+        },
+        "incremental_native_saving_ms": -0.5258330000000002
+      }
+    },
+    "262144": {
+      "all_layers_exact": true,
+      "concurrent_native_plan_scratch_bytes": 80239269,
+      "context_tokens": 262144,
+      "full_model": {
+        "A_tier1_mlx_attention": {
+          "median_host_submit_ms": 68.302833,
+          "median_wall_ms": 76.425875,
+          "samples": [
+            {
+              "host_submit_ms": 68.27525,
+              "wall_ms": 76.431666
+            },
+            {
+              "host_submit_ms": 68.138333,
+              "wall_ms": 76.296625
+            },
+            {
+              "host_submit_ms": 68.327916,
+              "wall_ms": 76.469875
+            },
+            {
+              "host_submit_ms": 68.262791,
+              "wall_ms": 76.391916
+            },
+            {
+              "host_submit_ms": 68.302833,
+              "wall_ms": 76.425875
+            },
+            {
+              "host_submit_ms": 68.15475,
+              "wall_ms": 76.322833
+            },
+            {
+              "host_submit_ms": 68.354958,
+              "wall_ms": 76.436417
+            },
+            {
+              "host_submit_ms": 68.305167,
+              "wall_ms": 76.402625
+            },
+            {
+              "host_submit_ms": 68.344083,
+              "wall_ms": 76.47775
+            }
+          ]
+        },
+        "B_tier2_native_attention": {
+          "median_host_submit_ms": 68.050334,
+          "median_wall_ms": 75.892084,
+          "samples": [
+            {
+              "host_submit_ms": 68.12475,
+              "wall_ms": 75.937542
+            },
+            {
+              "host_submit_ms": 67.976792,
+              "wall_ms": 75.7825
+            },
+            {
+              "host_submit_ms": 67.944292,
+              "wall_ms": 75.74775
+            },
+            {
+              "host_submit_ms": 68.050334,
+              "wall_ms": 75.892084
+            },
+            {
+              "host_submit_ms": 68.087458,
+              "wall_ms": 75.952083
+            },
+            {
+              "host_submit_ms": 67.990542,
+              "wall_ms": 75.785625
+            },
+            {
+              "host_submit_ms": 68.100875,
+              "wall_ms": 75.906375
+            },
+            {
+              "host_submit_ms": 68.088541,
+              "wall_ms": 75.9065
+            },
+            {
+              "host_submit_ms": 67.995,
+              "wall_ms": 75.824417
+            }
+          ]
+        },
+        "all_logits_byte_exact": true,
+        "incremental_native_saving_ms": 0.5337910000000079,
+        "post_state_byte_exact": true
+      },
+      "layers": [
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 3,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 7,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 11,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 15,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 19,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 23,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 27,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 31,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 35,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 39,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        },
+        {
+          "attention_output_byte_exact": true,
+          "buffer_identities_stable": true,
+          "gathered_latent_byte_exact": true,
+          "layer": 43,
+          "selected_indices_byte_exact": true,
+          "selected_valid_byte_exact": true
+        }
+      ],
+      "operator_timing": {
+        "A_tier1_mlx_attention": {
+          "median_host_submit_ms": 0.161542,
+          "median_wall_ms": 5.84525,
+          "samples": [
+            {
+              "host_submit_ms": 0.162208,
+              "wall_ms": 5.84525
+            },
+            {
+              "host_submit_ms": 0.165917,
+              "wall_ms": 5.897917
+            },
+            {
+              "host_submit_ms": 0.161542,
+              "wall_ms": 5.810458
+            },
+            {
+              "host_submit_ms": 0.165791,
+              "wall_ms": 5.86625
+            },
+            {
+              "host_submit_ms": 0.158583,
+              "wall_ms": 5.808416
+            },
+            {
+              "host_submit_ms": 0.154334,
+              "wall_ms": 5.841542
+            },
+            {
+              "host_submit_ms": 0.154709,
+              "wall_ms": 5.855375
+            },
+            {
+              "host_submit_ms": 0.163416,
+              "wall_ms": 5.825833
+            },
+            {
+              "host_submit_ms": 0.156167,
+              "wall_ms": 5.856542
+            }
+          ]
+        },
+        "B_tier2_native_attention": {
+          "median_host_submit_ms": 0.138208,
+          "median_wall_ms": 6.152875,
+          "samples": [
+            {
+              "host_submit_ms": 0.138583,
+              "wall_ms": 6.150666
+            },
+            {
+              "host_submit_ms": 0.140833,
+              "wall_ms": 6.158125
+            },
+            {
+              "host_submit_ms": 0.139708,
+              "wall_ms": 6.146
+            },
+            {
+              "host_submit_ms": 0.123833,
+              "wall_ms": 6.152875
+            },
+            {
+              "host_submit_ms": 0.132,
+              "wall_ms": 6.14475
+            },
+            {
+              "host_submit_ms": 0.123333,
+              "wall_ms": 6.158458
+            },
+            {
+              "host_submit_ms": 0.129625,
+              "wall_ms": 6.160875
+            },
+            {
+              "host_submit_ms": 0.138208,
+              "wall_ms": 6.171125
+            },
+            {
+              "host_submit_ms": 0.139375,
+              "wall_ms": 6.14775
+            }
+          ]
+        },
+        "incremental_native_saving_ms": -0.3076249999999998
+      }
+    }
+  },
+  "date": "2026-09-07",
+  "decision": "stop_or_redesign_native_sparse_attention_island",
+  "engine_abi": "glm53-native-execution-engine-v1-shared-prefill-decode-plan-fixed-address-arena-direct-metal-submission",
+  "island_abi": "glm53-native-dsa-sparse-attention-island-v1-decode-width2051-d512-mlx0322-steel-precise-softmax-fixed-arena",
+  "maximum_concurrent_native_plan_scratch_bytes": 80239269,
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "native_plan_evidence": [
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238278816",
+        "5092476480",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280256",
+        "5092486160",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280496",
+        "5092741664",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280976",
+        "5092751344",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282176",
+        "5092449792",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282416",
+        "5091935248",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282656",
+        "5091944928",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282896",
+        "5092757488",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283136",
+        "5092767168",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283376",
+        "5085961168",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283616",
+        "5085888992",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282896",
+        "5092476480",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283136",
+        "5092486160",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283376",
+        "5092741664",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283616",
+        "5092751344",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283856",
+        "5092449792",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284096",
+        "5091935248",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284336",
+        "5091944928",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284576",
+        "5092757488",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284816",
+        "5092767168",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238285056",
+        "5085961168",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238285296",
+        "5085888992",
+        "576",
+        "2304"
+      ],
+      "physical_kv_rows": 2304,
+      "physical_pool_rows": 576,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 3002895,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5057148592",
+        "5092476480",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5057143072",
+        "5092486160",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5057142352",
+        "5092741664",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5057142832",
+        "5092751344",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5057143312",
+        "5092449792",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238278576",
+        "5091935248",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282896",
+        "5091944928",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283136",
+        "5092757488",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283376",
+        "5092767168",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283616",
+        "5085961168",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 13,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238283856",
+        "5085888992",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284096",
+        "5092476480",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284336",
+        "5092486160",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284576",
+        "5092741664",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238284816",
+        "5092751344",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238285056",
+        "5092449792",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238285296",
+        "5091935248",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238278816",
+        "5091944928",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280256",
+        "5092757488",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280496",
+        "5092767168",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238280976",
+        "5085961168",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    },
+    {
+      "buffer_identities_stable": true,
+      "dynamic_allocation_count": 0,
+      "execution_count": 12,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "key": [
+        "5238282176",
+        "5085888992",
+        "65600",
+        "262400"
+      ],
+      "physical_kv_rows": 262400,
+      "physical_pool_rows": 65600,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 7294479,
+      "selected_width": 2051,
+      "shape_discovery_count": 0
+    }
+  ],
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.771674500079826,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "plan_contract": {
+    "abi": "glm53-native-execution-engine-v1-shared-prefill-decode-plan-fixed-address-arena-direct-metal-submission",
+    "buffers": [
+      {
+        "dtype": "bfloat16",
+        "elements": 4096,
+        "name": "index_query",
+        "owned_by_plan": false,
+        "returned_to_mlx": false,
+        "role": "input",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          32,
+          128
+        ],
+        "stable_address": false
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 32,
+        "name": "mixture_weights",
+        "owned_by_plan": false,
+        "returned_to_mlx": false,
+        "role": "input",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          32
+        ],
+        "stable_address": false
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 8396800,
+        "name": "pool_keys",
+        "owned_by_plan": false,
+        "returned_to_mlx": false,
+        "role": "input",
+        "row_major": true,
+        "shape": [
+          1,
+          65600,
+          128
+        ],
+        "stable_address": false
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 134348800,
+        "name": "latent",
+        "owned_by_plan": false,
+        "returned_to_mlx": false,
+        "role": "input",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          262400,
+          512
+        ],
+        "stable_address": false
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 32768,
+        "name": "attention_query",
+        "owned_by_plan": false,
+        "returned_to_mlx": false,
+        "role": "input",
+        "row_major": true,
+        "shape": [
+          1,
+          64,
+          1,
+          512
+        ],
+        "stable_address": false
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 2099200,
+        "name": "head_scores",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          32,
+          65600
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 65600,
+        "name": "index_scores",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          65600
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "int32",
+        "elements": 2051,
+        "name": "selected_indices",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          2051
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bool",
+        "elements": 2051,
+        "name": "selected_valid",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          1,
+          1,
+          2051
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 32768,
+        "name": "scaled_query",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          64,
+          512
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 1050112,
+        "name": "gathered_latent",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          2051,
+          512
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 131264,
+        "name": "attention_scores",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          64,
+          2051
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "float32",
+        "elements": 131072,
+        "name": "splitk_accum",
+        "owned_by_plan": true,
+        "returned_to_mlx": false,
+        "role": "scratch",
+        "row_major": true,
+        "shape": [
+          4,
+          64,
+          512
+        ],
+        "stable_address": true
+      },
+      {
+        "dtype": "bfloat16",
+        "elements": 32768,
+        "name": "attention_output",
+        "owned_by_plan": true,
+        "returned_to_mlx": true,
+        "role": "output",
+        "row_major": true,
+        "shape": [
+          1,
+          64,
+          1,
+          512
+        ],
+        "stable_address": true
+      }
+    ],
+    "coverage": "tier0-indexer-selection-expansion-submission-bridge",
+    "dynamic_allocations_per_execute": 0,
+    "fixed_command_topology": [
+      "glm53-native-dsa-score-island-v2-bf16-eager-rounding-coalesced-pool32-head32-exact-topk-expand",
+      "glm53_native_prepare_sparse_attention_bfloat16",
+      "mlx0322-steel-nt-bf16",
+      "glm53_native_mask_sparse_attention_scores_bfloat16",
+      "mlx0322-block-softmax-precise-bf16",
+      "mlx0322-steel-splitk-nn-bf16-fp32"
+    ],
+    "host_synchronizations_per_execute": 0,
+    "kda_dsa_native": false,
+    "logical_capacity_tokens": 262145,
+    "mode": "decode",
+    "moe_native": false,
+    "physical_pool_rows": 65600,
+    "python_graph_nodes_per_execute": 0,
+    "query_rows": 1,
+    "score_producer_native": false,
+    "selected_pool_rows": 512,
+    "selected_token_width": 2051,
+    "shape_discovery_per_execute": 0,
+    "stages": [
+      {
+        "name": "pooled-score-selection-expansion",
+        "pipeline": "glm53-native-dsa-score-island-v2-bf16-eager-rounding-coalesced-pool32-head32-exact-topk-expand",
+        "reads": [
+          "index_query",
+          "mixture_weights",
+          "pool_keys"
+        ],
+        "writes": [
+          "selected_indices",
+          "selected_valid"
+        ]
+      },
+      {
+        "name": "gather-and-query-scale",
+        "pipeline": "glm53_native_prepare_sparse_attention_bfloat16",
+        "reads": [
+          "selected_indices",
+          "selected_valid",
+          "attention_query",
+          "latent"
+        ],
+        "writes": [
+          "scaled_query",
+          "gathered_latent"
+        ]
+      },
+      {
+        "name": "query-key-gemm",
+        "pipeline": "mlx0322-steel-nt-bf16",
+        "reads": [
+          "scaled_query",
+          "gathered_latent"
+        ],
+        "writes": [
+          "attention_scores"
+        ]
+      },
+      {
+        "name": "selection-mask",
+        "pipeline": "glm53_native_mask_sparse_attention_scores_bfloat16",
+        "reads": [
+          "selected_valid",
+          "attention_scores"
+        ],
+        "writes": [
+          "attention_scores"
+        ]
+      },
+      {
+        "name": "precise-softmax",
+        "pipeline": "mlx0322-block-softmax-precise-bf16",
+        "reads": [
+          "attention_scores"
+        ],
+        "writes": [
+          "attention_scores"
+        ]
+      },
+      {
+        "name": "weighted-value-splitk",
+        "pipeline": "mlx0322-steel-splitk-nn-bf16-fp32",
+        "reads": [
+          "attention_scores",
+          "gathered_latent"
+        ],
+        "writes": [
+          "splitk_accum",
+          "attention_output"
+        ]
+      }
+    ]
+  },
+  "probe_only": true,
+  "process_peak_delta_from_warm_model_bytes": 8510468521,
+  "process_peak_memory_bytes": 331565774044,
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-native-dsa-sparse-attention-island-v1",
+  "scope_limits": {
+    "decode_only": true,
+    "kda_native": false,
+    "moe_native": false,
+    "pool_update_native": false,
+    "query_projection_native": false,
+    "score_selection_native": true,
+    "sparse_gather_attention_native": true,
+    "unembed_output_projection_native": false
+  },
+  "tier": "tier2-decode-score-selection-gather-d512-attention"
+}
