@@ -970,6 +970,10 @@ uv run python scripts/soak_cache_restore_allocation_pressure.py \
 
 hard gateは各path 100 restore以上、全世代の復元stateと16-step replay exact、source immutable、authoritative drift 0、source/live alias 0、stale entry 0、temporary logical resident 0、NaN/OOB/Metal error 0、active drift 64 MiB以内、peak 340 GB以内です。このcommitはruntime、server、RAM/disk APC ABI、cache ABI、admissionを変更せず、exact partial top-k Metalはsoak合格後まで実装しません。
 
+M3 Ultra qualificationでは32K cold prefillを749.882秒で完了し、1,071,087,616-byteのpersistent sourceをexact RAM APCとsemantic snapshotへ独立所有させました。各path 100世代、合計200 restoreと3,200 full-vocab decode stepで、生成token、全step logits、34層KDA、DSA latent/KV、authoritative Indexer state、derived Direct pool、slot/index metadataがbyte-exactです。first divergence、source/live storage alias、旧entry/tensorのstale reference、anonymous allocation、NaN/OOB/Metal errorはすべて0でした。
+
+各restore直前のcache-shaped pressureは両pathで107.830 GBずつ、累積215.660 GBです。persistent source digestは全世代不変で、semantic snapshotは100 restore後も1,071,087,616 bytes一定、明示delete後はallocation/release収支一致かつresident 0へ戻りました。restore endpointのactive driftは0 bytes、process peakは336,419,896,700 bytesでgate内です。これによりpersistent cacheを保持したままlive backingを解放・再利用してsparse attentionへ戻すsilent-corruption classは、現在のRAM APC/semantic snapshot経路についてqualification済みです。
+
 ## 検証
 
 ```bash
