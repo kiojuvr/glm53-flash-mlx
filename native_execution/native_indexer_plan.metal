@@ -14,7 +14,7 @@ constant uint kIndexerHeads = 32;
 // The matmul itself is the same MLX Steel kernel selected on apple-gpu-d for
 // this BF16 nt geometry.  This tail fixes the eager BF16 materialization
 // points after that exact matmul output.
-[[kernel]] void glm53_native_finish_pooled_score_bfloat16(
+[[kernel]] void glm53_native_finish_pooled_score_bfloat16_pool32(
     device const bfloat16_t* head_scores [[buffer(0)]],
     device const bfloat16_t* mixture_weights [[buffer(1)]],
     device const bool* pool_valid [[buffer(2)]],
@@ -22,33 +22,53 @@ constant uint kIndexerHeads = 32;
     constant const int& logical_pool_rows [[buffer(4)]],
     constant const int& physical_pool_rows [[buffer(5)]],
     constant const float& softmax_scale_fp32 [[buffer(6)]],
-    uint2 lane_position [[thread_position_in_threadgroup]],
-    uint2 group [[threadgroup_position_in_grid]]) {
-  uint lane = lane_position.x;
-  uint pool = group.x;
+    uint3 group [[threadgroup_position_in_grid]],
+    uint simd_lane [[thread_index_in_simdgroup]],
+    uint simd_group [[simdgroup_index_in_threadgroup]]) {
+  constexpr uint kPoolsPerGroup = 32;
+  constexpr uint kSimdGroups = 8;
+  constexpr uint kPoolsPerSimd = kPoolsPerGroup / kSimdGroups;
+  threadgroup bfloat16_t shared[kIndexerHeads * kPoolsPerGroup];
+
+  uint linear_lane = simd_group * 32 + simd_lane;
+  uint head = linear_lane / 8;
+  uint pool_lane = (linear_lane % 8) * kPoolsPerSimd;
+  uint pool_base = group.x * kPoolsPerGroup;
   uint row = group.y;
-  if (pool >= uint(physical_pool_rows)) return;
-  if (pool >= uint(logical_pool_rows) || !pool_valid[pool]) {
-    if (lane == 0) {
-      output[size_t(row) * uint(physical_pool_rows) + pool] =
-          bfloat16_t(-1.0e30f);
-    }
-    return;
-  }
+
   bfloat16_t scale = bfloat16_t(softmax_scale_fp32);
-  size_t source =
-      (size_t(row) * kIndexerHeads + lane) * uint(physical_pool_rows) + pool;
-  bfloat16_t scaled =
-      bfloat16_t(float(head_scores[source]) * float(scale));
-  bfloat16_t clipped = scaled > bfloat16_t(0.0f)
-      ? scaled
-      : bfloat16_t(0.0f);
-  bfloat16_t weighted = bfloat16_t(
-      float(mixture_weights[size_t(row) * kIndexerHeads + lane]) *
-      float(clipped));
-  bfloat16_t total = simd_sum(weighted);
-  if (lane == 0) {
-    output[size_t(row) * uint(physical_pool_rows) + pool] = total;
+  for (uint item = 0; item < kPoolsPerSimd; ++item) {
+    uint pool = pool_base + pool_lane + item;
+    bfloat16_t weighted = bfloat16_t(0.0f);
+    if (pool < uint(physical_pool_rows)) {
+      size_t source =
+          (size_t(row) * kIndexerHeads + head) *
+              uint(physical_pool_rows) +
+          pool;
+      bfloat16_t scaled =
+          bfloat16_t(float(head_scores[source]) * float(scale));
+      bfloat16_t clipped = scaled > bfloat16_t(0.0f)
+          ? scaled
+          : bfloat16_t(0.0f);
+      weighted = bfloat16_t(
+          float(mixture_weights[size_t(row) * kIndexerHeads + head]) *
+          float(clipped));
+    }
+    shared[head * kPoolsPerGroup + pool_lane + item] = weighted;
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  for (uint item = 0; item < kPoolsPerSimd; ++item) {
+    uint within_tile = simd_group * kPoolsPerSimd + item;
+    uint pool = pool_base + within_tile;
+    bfloat16_t total = simd_sum(
+        shared[simd_lane * kPoolsPerGroup + within_tile]);
+    if (simd_lane == 0 && pool < uint(physical_pool_rows)) {
+      output[size_t(row) * uint(physical_pool_rows) + pool] =
+          pool < uint(logical_pool_rows) && pool_valid[pool]
+          ? total
+          : bfloat16_t(-1.0e30f);
+    }
   }
 }
 

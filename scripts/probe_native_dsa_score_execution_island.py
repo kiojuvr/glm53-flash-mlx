@@ -25,6 +25,7 @@ import time
 import traceback
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 import mlx.core as mx
 import numpy as np
@@ -47,7 +48,7 @@ DEFAULT_MODEL = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
 DEFAULT_OUTPUT = (
     ROOT
     / "bench-results"
-    / "m3ultra512-native-dsa-score-execution-island-20260907.json"
+    / "m3ultra512-native-dsa-score-execution-island-v2-20260907.json"
 )
 DECODE_CONTEXTS = (2_048, 262_144)
 PREFILL_CONTEXT = 32_768
@@ -332,6 +333,78 @@ def _artificial_contract(plan_type, tier0) -> dict:
     }
 
 
+def _artificial_prefill_geometry(plan_type, tier0) -> dict:
+    """Exercise the actual Q256/P8256 memory geometry before model loading."""
+
+    rows, pools, logical = PREFILL_ROWS, 8_256, 8_192
+    query_axis = np.arange(rows * 32 * 128, dtype=np.float32).reshape(
+        1, rows, 32, 128
+    )
+    key_axis = np.arange(pools * 128, dtype=np.float32).reshape(1, pools, 128)
+    weight_axis = np.arange(rows * 32, dtype=np.float32).reshape(1, rows, 32)
+    query = mx.array(np.sin(query_axis * np.float32(0.0007)), dtype=mx.bfloat16)
+    pool_keys = mx.array(
+        np.cos(key_axis * np.float32(0.00011)), dtype=mx.bfloat16
+    )
+    weights = mx.array(
+        np.cos(weight_axis * np.float32(0.013)), dtype=mx.bfloat16
+    )
+    pool_valid = mx.arange(pools)[None] < logical
+    pool_indices = mx.arange(pools * 4, dtype=mx.int64).reshape(1, pools, 4)
+    current_valid = mx.ones((1, rows), dtype=mx.bool_)
+    valid_candidates = mx.broadcast_to(pool_valid[:, None], (1, rows, pools))
+    scale = 128**-0.5
+    scores = tier0._score_expression(
+        query, pool_keys, weights, valid_candidates, scale
+    )
+    pool = SimpleNamespace(
+        pool_keys=pool_keys,
+        pool_indices=pool_indices,
+        pool_valid=pool_valid,
+        raw_positions=mx.zeros((1, 4), dtype=mx.int64),
+        raw_valid=mx.zeros((1, 4), dtype=mx.bool_),
+        logical_pool_count=logical,
+        total_tokens=logical * 4,
+        active_tail_count=0,
+    )
+    indexer = SimpleNamespace(
+        softmax_scale=scale,
+        index_topk=2_048,
+        index_kpool=4,
+        index_kpool_always_select_tail=True,
+    )
+    fixture = {
+        "layer": "artificial-q256",
+        "attention": SimpleNamespace(indexer=indexer),
+        "pool": pool,
+        "query": query,
+        "weights": weights,
+        "scores": scores,
+        "valid_candidates": valid_candidates,
+        "current_valid": current_valid,
+    }
+    _eval(fixture)
+    registry = _Registry(plan_type)
+    exact = _exact_fixture(fixture, registry, tier0, "prefill")
+    timing = _operator_timing(
+        [fixture], registry, tier0, "prefill", warmups=1, samples=3
+    )
+    evidence = registry.evidence()
+    result = {
+        "query_rows": rows,
+        "physical_pool_rows": pools,
+        "logical_pool_rows": logical,
+        "exact": exact,
+        "operator_timing": timing,
+        "plan_evidence": evidence,
+        "all_exact": exact["score_byte_exact"]
+        and exact["indices_byte_exact"]
+        and exact["validity_byte_exact"],
+    }
+    _release(fixture)
+    return result
+
+
 def _exact_fixture(fixture, registry, tier0, mode: str) -> dict:
     pool = fixture["pool"]
     indexer = fixture["attention"].indexer
@@ -593,14 +666,14 @@ def main() -> int:
     parser.add_argument("--cache-limit-gb", type=float, default=32.0)
     args = parser.parse_args()
     artifact = {
-        "schema": "glm53-native-dsa-score-execution-island-v1",
+        "schema": "glm53-native-dsa-score-execution-island-v2",
         "date": date.today().isoformat(),
         "complete": False,
         "accepted": False,
         "probe_only": True,
         "engine_abi": NATIVE_EXECUTION_ENGINE_ABI,
         "island_abi": NATIVE_DSA_SCORE_ISLAND_ABI,
-        "tier": "tier1-pooled-score-exact-topk-token-expansion",
+        "tier": "tier1-v2-pool32-tiled-score-exact-topk-token-expansion",
         "mlx_version": importlib.metadata.version("mlx"),
         "scope_limits": {
             "query_projection_native": False,
@@ -632,6 +705,36 @@ def main() -> int:
             artifact["decision"] = "reject_native_score_numerical_order"
             _atomic_write(args.output, artifact)
             print(json.dumps({"output": str(args.output), **artifact}, indent=2))
+            return 1
+
+        _progress("artificial_prefill_geometry", rows=PREFILL_ROWS, pools=8_256)
+        artifact["artificial_prefill_geometry"] = _artificial_prefill_geometry(
+            Plan, tier0
+        )
+        _atomic_write(args.output, artifact)
+        artificial_prefill = artifact["artificial_prefill_geometry"]
+        if (
+            not artificial_prefill["all_exact"]
+            or artificial_prefill["operator_timing"]["native_speedup"]
+            < MIN_32K_PREFILL_SPEEDUP
+        ):
+            artifact["complete"] = True
+            artifact["decision"] = "reject_native_score_prefill_geometry_screen"
+            _atomic_write(args.output, artifact)
+            print(
+                json.dumps(
+                    {
+                        "output": str(args.output),
+                        "complete": True,
+                        "accepted": False,
+                        "decision": artifact["decision"],
+                        "speedup": artificial_prefill["operator_timing"][
+                            "native_speedup"
+                        ],
+                    },
+                    indent=2,
+                )
+            )
             return 1
 
         report = inspect_checkpoint(args.model, require_server_ready=True)

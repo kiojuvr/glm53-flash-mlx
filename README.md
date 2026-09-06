@@ -1029,6 +1029,10 @@ Tier 1 v1のM3 Ultra qualificationでは、人工fixture、32K/Q256代表3層、
 
 一方、32K/Q256 operatorは8.439→11.698 ms（0.721×）へ悪化し、固定1.20×gateを満たさないためv1全体は不合格です。原因はBF16 head reductionを1 poolあたり1 SIMD groupで実装し、Q=256でhead scoreのstride readが非coalescedになるgeometryです。correctnessやdecode利得を理由にgateを緩めず、v1はproductionへ昇格しません。次版ではMLX reductionと同じ32-pool tileでhead scoreをcoalesced loadし、同じBF16 `simd_sum`順を維持したままprefill geometryだけを再設計します。
 
+Tier 1 v2はその再設計をprobe-only ABIとして分離します。32 pools×32 headsを1 threadgroupで処理し、各threadが同一headの隣接4 poolsをcoalesced loadしてthreadgroup memoryへ転置した後、8 SIMD groupsが4 poolsずつ既存と同じ32-head BF16 `simd_sum`順でreduceします。padding poolは物理bufferへsentinelを書きますがlogical selectionへ露出しません。score、top-k、expansionの固定arenaとcommand topologyはv1から変えません。
+
+320GB級modelをロードする前に、実productionと同じQ256/P8256 geometryの人工fixtureを実行します。このscreenでscore/indices/validity byte-exactかつ1.20×以上を満たさなければartifactをatomic保存して即停止します。M3 Ultraの単独screenでは3.026→1.710 ms（1.770×）で、small fixtureを含む全出力がbyte-exactでした。これはfull-model qualificationではなく、v1の非coalesced prefill geometryだけが解消されたことを示す進行gateです。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

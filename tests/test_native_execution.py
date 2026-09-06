@@ -125,11 +125,11 @@ def test_tier1_score_island_keeps_context_sized_scores_inside_fixed_arena():
     )
     descriptor = plan.descriptor()
     assert NATIVE_DSA_SCORE_ISLAND_ABI.startswith(
-        "glm53-native-dsa-score-island-v1"
+        "glm53-native-dsa-score-island-v2"
     )
     assert descriptor["fixed_command_topology"] == [
         "glm53_native_steel_gemm_nt_bfloat16",
-        "glm53_native_finish_pooled_score_bfloat16",
+        "glm53_native_finish_pooled_score_bfloat16_pool32",
         "glm53_native_exact_partial_topk_512_bfloat16",
         "glm53_native_expand_selected_pools",
     ]

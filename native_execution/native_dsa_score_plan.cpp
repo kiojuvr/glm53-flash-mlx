@@ -217,7 +217,7 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
   auto* gemm = device.get_kernel(
       gemm_name, library, gemm_hash, gemm_constants);
   auto* score = device.get_kernel(
-      "glm53_native_finish_pooled_score_bfloat16", library);
+      "glm53_native_finish_pooled_score_bfloat16_pool32", library);
   auto* topk = device.get_kernel(
       "glm53_native_exact_partial_topk_512_bfloat16", library);
   auto* expand = device.get_kernel(
@@ -259,7 +259,8 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
   encoder.set_bytes(physical_pool_rows_, 5);
   encoder.set_bytes(softmax_scale_, 6);
   encoder.dispatch_threadgroups(
-      MTL::Size(physical_pool_rows_, query_rows_, 1), MTL::Size(kHeads, 1, 1));
+      MTL::Size((physical_pool_rows_ + 31) / 32, query_rows_, 1),
+      MTL::Size(256, 1, 1));
   encoder.barrier();
 
   encoder.set_compute_pipeline_state(topk);

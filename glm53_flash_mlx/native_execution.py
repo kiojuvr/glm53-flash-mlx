@@ -22,8 +22,9 @@ NATIVE_EXECUTION_ENGINE_ABI = (
     "-direct-metal-submission"
 )
 NATIVE_DSA_SCORE_ISLAND_ABI = (
-    "glm53-native-dsa-score-island-v1"
+    "glm53-native-dsa-score-island-v2"
     "-bf16-eager-rounding"
+    "-coalesced-pool32-head32"
     "-exact-topk-expand"
 )
 
@@ -417,7 +418,7 @@ def plan_native_dsa_score_island(
         ),
         NativeStageSpec(
             "score-scale-weight-reduce",
-            "glm53_native_finish_pooled_score_bfloat16",
+            "glm53_native_finish_pooled_score_bfloat16_pool32",
             ("head_scores", "mixture_weights", "pool_valid"),
             ("index_scores",),
         ),
