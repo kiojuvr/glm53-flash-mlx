@@ -989,6 +989,25 @@ M3 Ultraのfixed-gate screenでは、2K/256Kの全11 DSA層、full-model logits�
 
 Cのworking peak 131,093,138 bytesはinterleaved A/B/C operator測定全体のprocess peakであり、C単独へ因果帰属しません。ただしfull-model gateだけで棄却が確定するため、候補別memory再測定とbounded System Traceは実行しません。score/top-kを独立またはcompiled envelopeとして切り出すMLX-native Indexer探索はここで終了し、runtime/server/APC/cache/kernel ABIは変更しません。
 
+### Native prefill/decode execution engine feasibility
+
+部分Metal kernelが速くてもMLX execution boundaryでwallを失う問題を避けるため、prefill/decode共通のnative execution ABIをprobe-onlyで導入します。最終構成はMLX Directをcorrectness oracle/fallbackとし、同一packed weight、state ABI、cache ownership、fixed-address scratch arenaを共有する`NativePrefillEngine`と`NativeDecodeEngine`を持つ設計です。execution geometryだけをQ=256 prefillとQ=1 decodeで分け、weight storageは複製しません。
+
+最初のTier 0はengine全体ではなく、C++からMLXの同一Metal streamへ直接encodeできるかを確認するsubmission bridgeです。既にschedule済みのrow-major Indexer scoreを入力とし、exact partial top-kからpool→token expansionまでを固定2-pipeline topologyで実行します。selected-pool scratchと最終indices/validityはplan生成時に一度だけ確保してbuffer addressを固定し、execute中のMLX graph node、shape discovery、allocator、host synchronizationを0にします。scratchはMLXへ返さず、最終selected tokenだけを返します。同じABIを32K/Q256 prefill operatorと2K/256K decodeへ適用します。
+
+このTier 0はscore producer、KDA/DSA、MoEをnative化したとは主張せず、32K whole-prefill 1.2×および256K decode 3 ms短縮の最終gateもまだ評価しません。prefill island 1.2×、256K full-model bridge 0.75 ms以上短縮、2K回帰1%以内、全11 DSA層とfull-model logits/state byte-exactを通った場合だけ、次のcommitで境界をquery projection→pooled score→KDA/DSAへ広げます。
+
+extensionとMetal libraryを先にbuildします。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_native_execution_engine_feasibility.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+native binaryはproduction packageへlinkせず、probe専用subprojectへ生成します。probe不合格時もruntime/server/APC/cache/kernel ABIと既定MLX経路は変わりません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

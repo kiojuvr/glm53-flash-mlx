@@ -7,6 +7,9 @@ __pycache__/
 dist/
 build/
 *.gputrace
+native_execution/glm53_native_execution/*.so
+native_execution/glm53_native_execution/*.dylib
+native_execution/glm53_native_execution/*.metallib
 .DS_Store
 conversion-progress.json
 model-*.safetensors
