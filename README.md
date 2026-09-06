@@ -957,7 +957,7 @@ MTPはrelease後のbacklogです。昇格時にはtarget full-vocab exact、GLM�
 
 ### Exact partial top-k Metal probe
 
-Lightning Indexerの既存score tensorから上位512 poolを選ぶ部分だけを、probe専用Metal kernelへ置換します。実production score dtypeはBF16であり、probeはBF16/FP32をcast tensorなしで受け取ります。比較key生成時だけ各BF16値をexactにFP32へ昇格します。query projection、pooled-key score生成、IndexPool更新、pool→token展開、sanitize/gather、sparse attentionは変更しません。候補は非負score順位31 bitとsource index 17 bitから成る48-bit composite keyでradix selectionし、threadgroup内bitonic sortで`mx.argsort(-scores)`と同じscore降順・同点source-index昇順へ並べます。負値はinvalid-candidate sentinel専用です。256K直後のpartial poolとcapacity alignmentを含む最大65,600 pool rowを扱い、full sortやpersistent scratchは作りません。
+Lightning Indexerの既存score tensorから上位512 poolを選ぶ部分だけを、probe専用Metal kernelへ置換します。実production score dtypeはBF16であり、probeはBF16/FP32をcast tensorなしで受け取ります。比較key生成時だけ各BF16値をexactにFP32へ昇格します。query projection、pooled-key score生成、IndexPool更新、pool→token展開、sanitize/gather、sparse attentionは変更しません。候補はsigned FP32順位32 bitとsource index 17 bitから成る49-bit composite keyでradix selectionし、threadgroup内bitonic sortで`mx.argsort(-scores)`と同じscore降順・同点source-index昇順へ並べます。weighted head sumが作る正負のvalid scoreと負sentinelを同じ完全順序で扱います。256K直後のpartial poolとcapacity alignmentを含む最大65,600 pool rowを扱い、full sortやpersistent scratchは作りません。
 
 人工fixtureは昇順/降順、全同値、大きなtie group、kth境界tie、`+0/-0`、微小FP32差、BF16境界由来FP32を含みます。実checkpointでは2K/32K/128K/256Kの全11 DSA層についてtop-k value/index、expanded token index、sentinel、latent gather、attention output、post-cache stateをbyte-exact比較し、さらに4-step full-vocab trajectoryとsteady full-model wallを比較します。
 

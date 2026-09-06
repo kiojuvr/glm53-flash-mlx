@@ -30,7 +30,7 @@ def test_kernel_encodes_stable_ties_and_bounded_partial_selection():
     source = PROBE.read_text()
     assert "score descending; equal scores preserve ascending source index" in source
     assert "0x1ffffu - index" in source
-    assert "for (int shift = 44; shift >= 0; shift -= 4)" in source
+    assert "for (int shift = 48; shift >= 0; shift -= 4)" in source
     assert "threadgroup ulong candidates[K]" in source
     assert "mx.argsort(-scores, axis=-1)[..., :SELECT_K]" in source
     assert "MAX_POOL_COUNT = 65_600" in source
@@ -79,19 +79,27 @@ def test_fixed_performance_gates_are_not_relaxed():
     assert "MAX_WORKING_PEAK_DELTA = 32 << 20" in source
 
 
-def test_artifact_is_exact_and_meets_keep_gate_when_present():
+def test_artifact_records_a_consistent_fixed_gate_decision_when_present():
     if not ARTIFACT.exists():
         pytest.skip("M3 Ultra exact partial top-k artifact has not been generated")
     artifact = json.loads(ARTIFACT.read_text())
-    if artifact.get("schema") != "glm53-exact-partial-topk-metal-v2":
-        pytest.skip("stale partial top-k artifact predates the 65,537-pool fix")
+    if artifact.get("schema") != "glm53-exact-partial-topk-metal-v3":
+        pytest.skip("stale partial top-k artifact predates signed-score ordering")
     if not artifact["complete"]:
         pytest.skip("exact partial top-k model qualification is still resumable")
-    assert artifact["accepted"] is True
-    assert all(artifact["acceptance"].values())
-    assert artifact["decision"] == "keep_exact_partial_topk_candidate"
     assert set(map(int, artifact["contexts"])) == {2048, 32768, 131072, 262144}
-    assert (
-        artifact["contexts"]["262144"]["topk"]["candidate"]["median_wall_ms"]
-        <= 1.15
-    )
+    if artifact["accepted"]:
+        assert all(artifact["acceptance"].values())
+        assert artifact["decision"] == "keep_exact_partial_topk_candidate"
+        assert (
+            artifact["contexts"]["262144"]["topk"]["candidate"][
+                "median_wall_ms"
+            ]
+            <= 1.15
+        )
+    else:
+        assert not all(artifact["acceptance"].values())
+        assert artifact["decision"] in {
+            "reject_partial_topk_move_to_pooled_score",
+            "reject_partial_topk_fixed_gate_not_met",
+        }

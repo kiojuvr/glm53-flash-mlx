@@ -71,9 +71,9 @@ _PARTIAL_TOPK_SOURCE = r"""
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
-    // Select the exact Kth composite key with twelve 4-bit radix passes over
-    // the 48 significant bits.  No score ordering or reduction is changed.
-    for (int shift = 44; shift >= 0; shift -= 4) {
+    // Select the exact Kth composite key with thirteen 4-bit radix passes over
+    // the 49 significant bits.  No score ordering or reduction is changed.
+    for (int shift = 48; shift >= 0; shift -= 4) {
         if (lane < 16) {
             atomic_store_explicit(
                 &histogram[lane], 0u, memory_order_relaxed);
@@ -87,13 +87,14 @@ _PARTIAL_TOPK_SOURCE = r"""
             float score_value = float(row_scores[index]);
             uint bits = as_type<uint>(score_value);
             if ((bits & 0x7fffffffu) == 0u) bits = 0u;
-            // Production scores are nonnegative; invalid candidates use one
-            // negative sentinel. Reserve rank zero for every sentinel and use
-            // the remaining 31 bits for the exact nonnegative float ordering.
-            uint ordered = score_value < 0.0f ? 0u : bits + 1u;
+            // Preserve the complete signed finite FP32 ordering. Indexer head
+            // scores are nonnegative before weights_proj, but their weighted
+            // head sum may be negative. Invalid candidates are also negative.
+            uint ordered =
+                (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
             ulong key =
                 (ulong(ordered) << 17) | ulong(0x1ffffu - index);
-            bool matches = shift == 44 || (key >> uint(shift + 4)) == prefix;
+            bool matches = shift == 48 || (key >> uint(shift + 4)) == prefix;
             if (matches) {
                 uint digit = uint((key >> uint(shift)) & 0xful);
                 atomic_fetch_add_explicit(
@@ -129,7 +130,8 @@ _PARTIAL_TOPK_SOURCE = r"""
         float score_value = float(row_scores[index]);
         uint bits = as_type<uint>(score_value);
         if ((bits & 0x7fffffffu) == 0u) bits = 0u;
-        uint ordered = score_value < 0.0f ? 0u : bits + 1u;
+        uint ordered =
+            (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
         ulong key = (ulong(ordered) << 17) | ulong(0x1ffffu - index);
         if (key >= threshold) {
             uint slot = atomic_fetch_add_explicit(
@@ -272,8 +274,8 @@ def _oracle_topk(scores: mx.array) -> tuple[mx.array, mx.array]:
 def _artificial_fixtures() -> dict[str, mx.array]:
     n = 1024
     ascending = np.arange(n, dtype=np.float32)
-    tiny = np.linspace(0.0, 4.0e-7, n, dtype=np.float32)
-    bf16_source = np.linspace(0.0, 16.0, n, dtype=np.float32)
+    tiny = np.linspace(-2.0e-7, 2.0e-7, n, dtype=np.float32)
+    bf16_source = np.linspace(-8.0, 8.0, n, dtype=np.float32)
     bf16_derived = np.asarray(mx.array(bf16_source).astype(mx.bfloat16).astype(mx.float32))
     kth_tie = np.arange(n, dtype=np.float32)
     kth_tie[500:530] = np.float32(700.0)
@@ -756,7 +758,7 @@ def main() -> int:
     )
     warm_residency(model)
     official_oracle = oracle_probe._official_oracle(model, processor, report)
-    schema = "glm53-exact-partial-topk-metal-v2"
+    schema = "glm53-exact-partial-topk-metal-v3"
     artifact = None
     if args.output.exists():
         candidate = json.loads(args.output.read_text())
@@ -784,8 +786,8 @@ def main() -> int:
                 "input": "existing finite BF16 or FP32 Indexer score tensor",
                 "observed_production_dtype": "recorded per layer; expected bfloat16",
                 "output_k": SELECT_K,
-                "algorithm": "31-bit nonnegative score rank plus 17-bit source index; radix select and in-threadgroup bitonic order",
-                "score_domain": "finite nonnegative score or negative invalid-candidate sentinel",
+                "algorithm": "32-bit signed finite FP32 order plus 17-bit source index; radix select and in-threadgroup bitonic order",
+                "score_domain": "all finite BF16/FP32 values; NaN rejected by probe contract",
                 "tie_order": "stable ascending source index",
                 "score_generation_changed": False,
                 "score_topk_fused": False,
