@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import ast
 import json
+from collections.abc import Mapping
 from pathlib import Path
+from types import MappingProxyType
 
+import numpy as np
 import pytest
 
 
@@ -27,6 +30,25 @@ def test_soak_is_user_launched_atomic_and_fixes_the_qualification_geometry():
     assert "cache payload is\nnot serialized" in source
     assert '"complete": False' in source
     assert '"first_divergence": None' in source
+    assert "default=_json_default" in source
+    assert "dict(semantic_snapshot.component_digests)" in source
+
+
+def test_atomic_artifact_encoder_accepts_immutable_snapshot_mappings():
+    tree = ast.parse(SCRIPT.read_text())
+    function = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "_json_default"
+    )
+    module = ast.Module(body=[function], type_ignores=[])
+    namespace = {"Mapping": Mapping, "Path": Path, "np": np}
+    exec(compile(module, str(SCRIPT), "exec"), namespace)
+    encoded = json.dumps(
+        {"components": MappingProxyType({"kda": "exact"})},
+        default=namespace["_json_default"],
+    )
+    assert json.loads(encoded) == {"components": {"kda": "exact"}}
 
 
 def test_pressure_is_full_cache_shaped_and_released_before_restore():

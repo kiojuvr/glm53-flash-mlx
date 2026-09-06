@@ -24,6 +24,7 @@ import json
 import sys
 import time
 import weakref
+from collections.abc import Mapping
 from datetime import date
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -84,10 +85,26 @@ def _progress(phase: str, **values: Any) -> None:
     print(json.dumps({"phase": phase, **values}, sort_keys=True), flush=True)
 
 
+def _json_default(value: object):
+    if isinstance(value, Mapping):
+        return dict(value)
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, np.generic):
+        return value.item()
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+
 def _atomic_write(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    payload = json.dumps(
+        value,
+        indent=2,
+        sort_keys=True,
+        default=_json_default,
+    )
+    temporary.write_text(payload + "\n")
     temporary.replace(path)
 
 
@@ -918,7 +935,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "identity": semantic_identity.descriptor(),
                 "identity_namespace_sha256": semantic_identity.namespace_sha256,
                 "state_sha256": semantic_snapshot.state_sha256,
-                "components": semantic_snapshot.component_digests,
+                "components": dict(semantic_snapshot.component_digests),
                 "resident_bytes": semantic_snapshot.resident_bytes,
                 "authoritative_accounting": _authoritative_accounting(
                     semantic_snapshot._cache, snapshot_owned=True
