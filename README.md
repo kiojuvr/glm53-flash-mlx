@@ -1033,6 +1033,10 @@ Tier 1 v2はその再設計をprobe-only ABIとして分離します。32 pools�
 
 320GB級modelをロードする前に、実productionと同じQ256/P8256 geometryの人工fixtureを実行します。このscreenでscore/indices/validity byte-exactかつ1.20×以上を満たさなければartifactをatomic保存して即停止します。M3 Ultraの単独screenでは3.026→1.710 ms（1.770×）で、small fixtureを含む全出力がbyte-exactでした。これはfull-model qualificationではなく、v1の非coalesced prefill geometryだけが解消されたことを示す進行gateです。
 
+Tier 1 v2のM3 Ultra qualificationでは人工Q256/P8256 screenが2.971→1.690 ms（1.757×）、実32K/Q256代表3層が8.437→4.486 ms（1.881×）となりました。2K full-modelは79.254→72.003 ms/token、256Kは82.191→76.304 ms/tokenで、それぞれ7.252 msと5.886 msを回収しました。人工fixture、全11 DSA層、full-model logits/state、公式16/128 oracleはすべてbyte-exactで、fixed arena、execute内allocation/graph/shape discovery/host synchronizationも0です。最大concurrent native scratchは420,052,992 bytes、process peakは334,696,568,716 bytesです。
+
+256K operator単体は3.888→4.695 ms（0.828×）ですが、full-model wallは5.886 ms短縮しています。このためTier 1 v2のPASSはlong-context score算術の高速化とは主張せず、MLXへ中間scoreを返さないpersistent submission topologyの効果と解釈します。次tierはselected indexをMLXへ返す境界をさらにsparse gather/attentionまで広げ、同じfixed-address arena内でwall利得が維持されるかを検証します。production runtime/server/APC/cache ABIは引き続き変更しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
