@@ -1025,6 +1025,10 @@ uv run python scripts/probe_native_dsa_score_execution_island.py \
 
 これは長時間・320GB級の実モデルqualificationなので、スクリプトをユーザー側で実行します。artifactはcontextごとにatomic保存し、operator exactnessが崩れた時点でfull-model測定を省略して停止します。runtime/server/APC/cache/kernel ABIは変更しません。
 
+Tier 1 v1のM3 Ultra qualificationでは、人工fixture、32K/Q256代表3層、2K/256K全11 DSA層、full-model logits/state、公式16/128 oracleがすべてbyte-exactでした。2K full-modelは79.248→71.984 ms/token、256Kは82.490→77.240 ms/tokenとなり、それぞれ7.264 msと5.250 msを回収しました。固定arena identityは全実行で一定、execute内allocation/graph/shape discovery/host syncは0、最大concurrent native scratchは420,052,992 bytes、process peakは334,690,018,934 bytesです。
+
+一方、32K/Q256 operatorは8.439→11.698 ms（0.721×）へ悪化し、固定1.20×gateを満たさないためv1全体は不合格です。原因はBF16 head reductionを1 poolあたり1 SIMD groupで実装し、Q=256でhead scoreのstride readが非coalescedになるgeometryです。correctnessやdecode利得を理由にgateを緩めず、v1はproductionへ昇格しません。次版ではMLX reductionと同じ32-pool tileでhead scoreをcoalesced loadし、同じBF16 `simd_sum`順を維持したままprefill geometryだけを再設計します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
