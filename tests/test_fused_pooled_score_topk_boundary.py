@@ -72,6 +72,8 @@ def test_wall_measurement_is_interleaved_and_fixed_gates_are_present():
     assert "MAX_WORKING_PEAK_DELTA = 32 << 20" in source
     assert '"command_buffer_count_inferred": False' in source
     assert '"bounded_system_trace": "required only if C passes wall screen"' in source
+    assert '"bounded_system_trace_executed": False' in source
+    assert '"working_peak_measurement_scope"' in source
 
 
 def test_probe_does_not_change_production_runtime_or_abis():
@@ -94,5 +96,14 @@ def test_artifact_records_a_consistent_outcome_when_present():
         assert artifact["decision"] in {
             "reject_score_envelope_exactness",
             "reject_fused_score_topk_fixed_gate_not_met",
+            "reject_fused_score_topk_boundary_tax",
         }
         assert not all(artifact["acceptance"].values())
+        if artifact["decision"] == "reject_fused_score_topk_boundary_tax":
+            derived = artifact["derived_interpretation"]
+            assert derived["bounded_system_trace_executed"] is False
+            assert (
+                derived["arms"]["C_compiled_score_exact_topk"]
+                ["full_model_saving_ms"]
+                < 0
+            )

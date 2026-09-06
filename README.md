@@ -985,6 +985,10 @@ uv run python scripts/probe_fused_pooled_score_topk_boundary.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
+M3 Ultraのfixed-gate screenでは、2K/256Kの全11 DSA層、full-model logits、KDA/DSA/IndexPool stateがA/B/Cでbyte-exactでした。256KのBはoperatorを2.927 msから2.465 ms、full-model wallを82.408 msから82.175 msへ短縮しましたが、wall利得0.233 msはKEEP gateに届きません。Cは外部score tensorを返さずoperatorを2.003 msまで短縮した一方、full-model wallは84.075 msへ1.668 ms悪化しました。operator利得0.924 msを含めたexecution-boundary税は概算2.592 ms/tokenです。
+
+Cのworking peak 131,093,138 bytesはinterleaved A/B/C operator測定全体のprocess peakであり、C単独へ因果帰属しません。ただしfull-model gateだけで棄却が確定するため、候補別memory再測定とbounded System Traceは実行しません。score/top-kを独立またはcompiled envelopeとして切り出すMLX-native Indexer探索はここで終了し、runtime/server/APC/cache/kernel ABIは変更しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

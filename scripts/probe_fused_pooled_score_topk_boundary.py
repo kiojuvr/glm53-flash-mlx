@@ -496,6 +496,9 @@ def _full_model_arms(
     result["working_peak_delta_bytes"] = max(
         0, int(mx.get_peak_memory()) - baseline_active
     )
+    result["working_peak_measurement_scope"] = (
+        "combined interleaved A/B/C full-model process peak; not candidate-specific"
+    )
     result["interleaved_order"] = True
     result["B_saving_ms"] = (
         result[ARMS[0]]["median_wall_ms"]
@@ -572,6 +575,9 @@ def _operator_timing(fixtures, partial_topk, registry, warmups, samples):
         }
     result["working_peak_delta_bytes"] = max(
         0, int(mx.get_peak_memory()) - baseline_active
+    )
+    result["working_peak_measurement_scope"] = (
+        "combined interleaved A/B/C operator process peak; not candidate-specific"
     )
     result["command_buffers"] = None
     result["submission_gap_ms"] = None
@@ -738,6 +744,43 @@ def _acceptance(artifact):
     }
 
 
+def _derived_interpretation(artifact):
+    """Summarize operator savings versus observed full-model boundary cost."""
+    long = artifact.get("contexts", {}).get("262144", {})
+    operator = long.get("operator", {})
+    full_model = long.get("full_model", {})
+    if not all(arm in operator and arm in full_model for arm in ARMS):
+        return None
+    baseline_operator = operator[ARMS[0]]["median_wall_ms"]
+    baseline_full = full_model[ARMS[0]]["median_wall_ms"]
+    rows = {}
+    for arm in ARMS[1:]:
+        operator_saving = baseline_operator - operator[arm]["median_wall_ms"]
+        full_model_saving = baseline_full - full_model[arm]["median_wall_ms"]
+        rows[arm] = {
+            "operator_saving_ms": operator_saving,
+            "full_model_saving_ms": full_model_saving,
+            "estimated_execution_boundary_tax_ms": (
+                operator_saving - full_model_saving
+            ),
+        }
+    return {
+        "context_tokens": 262_144,
+        "arms": rows,
+        "C_external_score_tensor_bytes": long.get(
+            "score_tensor_external_bytes", {}
+        ).get(ARMS[2]),
+        "working_peak_gate_measurement_scope": operator.get(
+            "working_peak_measurement_scope"
+        ),
+        "bounded_system_trace_executed": False,
+        "conclusion": (
+            "reject C: exact operator saving is outweighed by full-model "
+            "execution-boundary cost; B saving is below the fixed KEEP gate"
+        ),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("model", nargs="?", type=Path, default=DEFAULT_MODEL)
@@ -826,10 +869,11 @@ def main() -> int:
     artifact["acceptance"] = _acceptance(artifact)
     artifact["complete"] = True
     artifact["accepted"] = all(artifact["acceptance"].values())
+    artifact["derived_interpretation"] = _derived_interpretation(artifact)
     artifact["decision"] = (
         "await_bounded_system_trace"
         if artifact["accepted"]
-        else "reject_fused_score_topk_fixed_gate_not_met"
+        else "reject_fused_score_topk_boundary_tax"
     )
     _atomic_write(args.output, artifact)
     print(
