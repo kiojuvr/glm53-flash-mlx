@@ -955,6 +955,21 @@ isolated all-DSA GPU timeは256Kでpooled-key score 1.686 ms、exact argsort/top
 
 MTPはrelease後のbacklogです。昇格時にはtarget full-vocab exact、GLM固有draft oracle、verify長`L=2..N`ごとのshape oracleに加え、`acceptance_by_position`、accepted token sequence、accepted trajectory hash、acceptance-rate regressionを必須証拠とします。kernel起動成功や小さなlogits誤差だけをspeculative trajectory correctnessとは扱いません。
 
+### Cache restore under allocation pressure
+
+長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
+
+各restore直前に32K full hybrid cache cloneをmaterializeして解放します。この時点では意図的に`mx.clear_cache()`を呼ばず、解放済みbackingを次のrestoreが再利用できる状態にします。各世代で16 stepすべてのfull-vocab logits、生成token、34層のconv/recurrent/index digest、DSA latent/KV、authoritative Indexer state、derived Direct poolのkeys/indices/valid/extent、cache identity/boundaryをbyte-exact比較します。persistent source digest、storage alias、旧live/pressure cache entryのweak reference、temporary logical resident、active/peak memoryも記録し、最初の差異でartifactをatomic保存して即停止します。
+
+これは長時間のユーザー起動qualificationです。cache payload自体はdiskへ保存しないため、process中断時は`complete=false`のnegative evidenceを残しますが、途中世代からの再開は主張しません。
+
+```bash
+uv run python scripts/soak_cache_restore_allocation_pressure.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+hard gateは各path 100 restore以上、全世代の復元stateと16-step replay exact、source immutable、authoritative drift 0、source/live alias 0、stale entry 0、temporary logical resident 0、NaN/OOB/Metal error 0、active drift 64 MiB以内、peak 340 GB以内です。このcommitはruntime、server、RAM/disk APC ABI、cache ABI、admissionを変更せず、exact partial top-k Metalはsoak合格後まで実装しません。
+
 ## 検証
 
 ```bash
