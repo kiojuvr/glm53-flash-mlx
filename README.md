@@ -203,6 +203,7 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 | compiled KDA recurrent readout localization | layer 10/22/25/42を再現 / recurrence・state・tail exact / 最初の差はQ scale FP32 1 ULP |
 | exact compiled KDA Q-scale final gate | runtime scalarで34/34層×64 step・公式16/128 exact / 14.632 tok/sで14.7 gate未達・MLX compile停止 |
 | resident tensor ownership gate | reusable staging破損を再現・遮断 / 42 bank owned+row-major / 16/128 oracle exact / ready 43.38 s / peak 319.706 GB |
+| Lightning Indexer decode profile | 2K/32K/128K/256K: 12.640/12.554/12.395/12.204 tok/s / 256K selection-free 13.084 tok/s / headroom 5.513 ms |
 | cache lifecycle / retention policy | 4 class独立accounting / draft 4,096 rotations・target eviction 0 / active pin / RAM APC exact |
 | materialization / cache-write ownership | compact・RAM APC・prefill→decodeでA/B/C exact / no-ownerでもvalue生成 / invalid destination atomic / 16/128 oracle exact |
 | DSA pooled workspace geometry | 128K/Q256 32 MiB・256K/Q256 64 MiB / 1Mは64 rows×4 blocks / 88境界とtop-k/expand exact |
@@ -917,6 +918,40 @@ M3 Ultra artifactでは全16 gateが合格しました。要求262,143 / 262,144
 uv run python scripts/probe_kpool_cache_tile_alignment.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
+
+### Lightning Indexer decode critical-path profile
+
+2K / 32K / 128K / 256Kのcompact NoPE synthetic stateから1-token decodeを行い、全11 DSA層についてIndexer query projection、IndexPool update、pooled-key score、exact argsort/top-k、kpool→token expansion、sentinel sanitize/latent gather、selected sparse attentionのA–Gを分離します。attention query/latent projectionはnon-Indexer remainderに残します。phase境界の同期値はscaling診断専用であり、その単純合計をfull-model token wallとは扱いません。通常armは最終logitsだけを同期し、profile OFF/ONのlogitsと全cache stateがbit-exactであることを必須にします。
+
+counterfactual armは各DSA層のexact selected indicesをrecord/replayします。authoritativeなIndexPool projection/update、sanitize/gather、sparse attentionは残し、query/score/top-k/expansionだけを除くため、`selection_free_headroom_ms`は選択計算の因果的な上限です。256Kでこの上限が0.5 ms/token以下またはtoken wallの2%以下ならIndexer最適化を停止し、それ以外ではbounded telemetry上の最大phaseだけを次候補にします。
+
+GPU busy/idle、command-buffer、submission gapは再生型`.gputrace`ではなく、別processの同一resident modelへphaseごとにattachする短い`Metal System Trace`で取得します。各traceは2 GiB上限、repo外保存、dynamic PID帰属です。static metallib labelはdispatch証拠に使いません。モデルphaseと4 contextのtelemetryは長時間になり得るため、次をユーザー側で順に実行します。
+
+```bash
+# 1. correctness、同期phase診断、full-model selection-free lower bound
+uv run python scripts/profile_lightning_indexer_decode_critical_path.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase model
+
+# 2. 4 contextのbounded telemetry取得、merge、finalize
+uv run python scripts/run_lightning_indexer_decode_telemetry.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --trace-root /private/tmp/glm53-indexer-telemetry-20260905
+```
+
+runnerとcontext別collectorはいずれも完了済みartifact/phaseをskipして再開できます。`trace-root`はrepo外の新規pathを指定します。model phaseの初期版に含まれたfull latent view同期metricはA–G外の測定汚染だったため、merge時に削除理由を`measurement_corrections`へ残し、正しいIndexer A–G、full-model、selection replay evidenceは再利用します。
+
+初期model artifactだけはsample間の`mx.clear_cache()`によりsteady wallへallocator/kernel-cache冷却を混ぜたため、既存A–G/System Traceを保持したままfull-model 3 armだけを一度retimeします。現行scriptで新規model phaseを取得する場合、この追加工程は不要です。
+
+```bash
+uv run python scripts/profile_lightning_indexer_decode_critical_path.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase retime
+```
+
+M3 Ultra実測ではsteady full-model wallが2K / 32K / 128K / 256Kで79.115 / 79.656 / 80.676 / 81.940 ms/token、bounded System TraceのGPU busy+idleは79.032 / 79.167 / 79.695 / 81.259 ms/tokenでした。profile OFF/ONとselection replayは7-step trajectoryのfinal logits、全KDA/DSA/IndexPool stateまでbyte-exactです。256Kでquery/score/top-k/expansionをexact replayしたcounterfactualは76.427 ms、13.084 tok/sで、因果的headroomは5.513 ms/token（token wallの6.73%）でした。
+
+isolated all-DSA GPU timeは256Kでpooled-key score 1.686 ms、exact argsort/top-k 1.899 ms、pool expansion 0.515 ms、sanitize/gather 0.279 msです。top-kが最大のIndexer phaseであり、次候補は`exact partial top-k Metal kernel`一つに限定します。近似集合やreduction順変更は許可せず、現行argsortとのscore/index byte-exact differentialを維持します。profiling commit自体はruntime、kernel、server、APC、cache ABI、admissionを変更しません。
 
 MTPはrelease後のbacklogです。昇格時にはtarget full-vocab exact、GLM固有draft oracle、verify長`L=2..N`ごとのshape oracleに加え、`acceptance_by_position`、accepted token sequence、accepted trajectory hash、acceptance-rate regressionを必須証拠とします。kernel起動成功や小さなlogits誤差だけをspeculative trajectory correctnessとは扱いません。
 

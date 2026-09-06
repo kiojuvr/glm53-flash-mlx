@@ -1,0 +1,484 @@
+{
+  "capture_contract": {
+    "dynamic_pid_attribution": true,
+    "full_model_resources_embedded": false,
+    "per_stage_trace": true,
+    "replayable": false,
+    "static_kernel_labels_used": false
+  },
+  "complete": true,
+  "context_tokens": 2048,
+  "last_completed_stage": "full_model_decode",
+  "pid": 9025,
+  "repetitions": 3,
+  "schema": "glm53-lightning-indexer-bounded-telemetry-v1",
+  "stages": {
+    "full_model_decode": {
+      "active_memory_after_bytes": 319938132790,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 7.372958,
+      "cpu_graph_build_samples_ms": [
+        15.110292,
+        5.729125,
+        7.372958
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "full_model_decode",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 81.585042,
+      "synchronized_wall_samples_ms": [
+        2954.557625,
+        80.205958,
+        81.585042
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,000 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,001 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,002 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,003 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,004 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,005 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,006 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,007 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,008 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,009 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,010 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,011 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,012 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,013 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  1,014 ) ( python3 (9025) )"
+        ],
+        "command_buffer_submission_rows": 1362,
+        "compute_or_command_interval_count": 2073,
+        "cpu_inter_submission_p50_ms": 0.080625,
+        "cpu_inter_submission_p95_ms": 0.4605,
+        "gpu_busy_ms": 216.285205,
+        "gpu_busy_ratio": 0.9122250072411495,
+        "gpu_gap_p50_ms": 0.001041,
+        "gpu_gap_p95_ms": 0.002083,
+        "gpu_idle_gap_ms": 20.811129,
+        "gpu_interval_count": 712,
+        "metal_application_interval_rows": 2073,
+        "metal_driver_interval_rows": 2075,
+        "resource_allocation_rows": 156
+      },
+      "trace": {
+        "bytes": 26214305,
+        "file_count": 573,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-full_model_decode.trace",
+        "sha256": "95c6f63e3ad345b9fb4084df7f0156acdcabf1042f09f6c88d793a47e829c637",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 35595140
+    },
+    "index_query_projection": {
+      "active_memory_after_bytes": 319947597075,
+      "active_memory_before_bytes": 319947506959,
+      "cpu_graph_build_ms_median": 0.057625,
+      "cpu_graph_build_samples_ms": [
+        0.14675,
+        0.057625,
+        0.028584
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "index_query_projection",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 0.724167,
+      "synchronized_wall_samples_ms": [
+        2877.8405,
+        0.724167,
+        0.603792
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  3 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  4 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  5 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  6 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  7 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  8 ) ( python3 (9025) )",
+          "Compute Command 0  ( Main Thread (0xd95613) (python3, pid: 9025) )"
+        ],
+        "command_buffer_submission_rows": 8,
+        "compute_or_command_interval_count": 13,
+        "cpu_inter_submission_p50_ms": 0.171083,
+        "cpu_inter_submission_p95_ms": 2876.768958,
+        "gpu_busy_ms": 0.729334,
+        "gpu_busy_ratio": 0.43089973673389326,
+        "gpu_gap_p50_ms": 0.436875,
+        "gpu_gap_p95_ms": 0.5245,
+        "gpu_idle_gap_ms": 0.96325,
+        "gpu_interval_count": 6,
+        "metal_application_interval_rows": 13,
+        "metal_driver_interval_rows": 15,
+        "resource_allocation_rows": 12
+      },
+      "trace": {
+        "bytes": 19303002,
+        "file_count": 572,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-index_query_projection.trace",
+        "sha256": "fc67261394d6a84d563c755bf3829c2ab224801ae4f26134792d1a3a423497a9",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 90116
+    },
+    "indexpool_update": {
+      "active_memory_after_bytes": 319947526180,
+      "active_memory_before_bytes": 319947506959,
+      "cpu_graph_build_ms_median": 0.746792,
+      "cpu_graph_build_samples_ms": [
+        4.916125,
+        0.746792,
+        0.613917
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "indexpool_update",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 1.609667,
+      "synchronized_wall_samples_ms": [
+        2848.755583,
+        1.609667,
+        1.331417
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  3 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  4 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  5 ) ( python3 (9025) )",
+          "Compute Command 0  ( Main Thread (0xd95613) (python3, pid: 9025) )"
+        ],
+        "command_buffer_submission_rows": 5,
+        "compute_or_command_interval_count": 7,
+        "cpu_inter_submission_p50_ms": 1.1235835,
+        "cpu_inter_submission_p95_ms": 2841.151625,
+        "gpu_busy_ms": 0.249585,
+        "gpu_busy_ratio": 0.07882148481947816,
+        "gpu_gap_p50_ms": 1.458437,
+        "gpu_gap_p95_ms": 1.628708,
+        "gpu_idle_gap_ms": 2.916874,
+        "gpu_interval_count": 3,
+        "metal_application_interval_rows": 7,
+        "metal_driver_interval_rows": 9,
+        "resource_allocation_rows": 67
+      },
+      "trace": {
+        "bytes": 19329795,
+        "file_count": 562,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-indexpool_update.trace",
+        "sha256": "e51e7b3e6f7a226f1bfa6398cc10bb932eb2663f52526cdbe9d501331297b697",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 19232
+    },
+    "pool_token_expansion": {
+      "active_memory_after_bytes": 319947616424,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 0.376,
+      "cpu_graph_build_samples_ms": [
+        1.265084,
+        0.376,
+        0.296958
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "pool_token_expansion",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 1.865209,
+      "synchronized_wall_samples_ms": [
+        2844.3955,
+        1.865209,
+        1.715583
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  10 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  11 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  12 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  13 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  14 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  15 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  16 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  17 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  18 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  19 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  20 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  21 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  22 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  23 ) ( python3 (9025) )"
+        ],
+        "command_buffer_submission_rows": 29,
+        "compute_or_command_interval_count": 55,
+        "cpu_inter_submission_p50_ms": 0.143292,
+        "cpu_inter_submission_p95_ms": 0.680083,
+        "gpu_busy_ms": 2.219295,
+        "gpu_busy_ratio": 0.5033651121125664,
+        "gpu_gap_p50_ms": 0.001667,
+        "gpu_gap_p95_ms": 0.839208,
+        "gpu_idle_gap_ms": 2.189622,
+        "gpu_interval_count": 27,
+        "metal_application_interval_rows": 55,
+        "metal_driver_interval_rows": 57,
+        "resource_allocation_rows": 180
+      },
+      "trace": {
+        "bytes": 19683701,
+        "file_count": 565,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-pool_token_expansion.trace",
+        "sha256": "0a065561806135a61a4fb5d49ff311e8b0652376ff211d7686e40528c80a6ed0",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 1686300
+    },
+    "pooled_key_score": {
+      "active_memory_after_bytes": 319947543109,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 0.234,
+      "cpu_graph_build_samples_ms": [
+        0.459416,
+        0.234,
+        0.168208
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "pooled_key_score",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 1.153792,
+      "synchronized_wall_samples_ms": [
+        2856.746333,
+        1.153792,
+        1.01525
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  10 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  11 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  3 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  4 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  5 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  6 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  7 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  8 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  9 ) ( python3 (9025) )",
+          "Compute Command 0  ( Main Thread (0xd95613) (python3, pid: 9025) )"
+        ],
+        "command_buffer_submission_rows": 11,
+        "compute_or_command_interval_count": 19,
+        "cpu_inter_submission_p50_ms": 0.2049375,
+        "cpu_inter_submission_p95_ms": 2855.097959,
+        "gpu_busy_ms": 0.934916,
+        "gpu_busy_ratio": 0.35213408662900186,
+        "gpu_gap_p50_ms": 0.0013335,
+        "gpu_gap_p95_ms": 1.001583,
+        "gpu_idle_gap_ms": 1.720084,
+        "gpu_interval_count": 9,
+        "metal_application_interval_rows": 19,
+        "metal_driver_interval_rows": 21,
+        "resource_allocation_rows": 34
+      },
+      "trace": {
+        "bytes": 18739236,
+        "file_count": 564,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-pooled_key_score.trace",
+        "sha256": "fbf18f92b675d5e5aac608b3f81365a4a7e23eb85f5493819291b79087795a41",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 648773
+    },
+    "sanitize_gather_preparation": {
+      "active_memory_after_bytes": 319970797637,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 0.124125,
+      "cpu_graph_build_samples_ms": [
+        0.183084,
+        0.124125,
+        0.083125
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "sanitize_gather_preparation",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 0.82275,
+      "synchronized_wall_samples_ms": [
+        2818.415375,
+        0.82275,
+        0.71975
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  3 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  4 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  5 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  6 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  7 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  8 ) ( python3 (9025) )",
+          "Compute Command 0  ( Main Thread (0xd95613) (python3, pid: 9025) )"
+        ],
+        "command_buffer_submission_rows": 8,
+        "compute_or_command_interval_count": 13,
+        "cpu_inter_submission_p50_ms": 0.287667,
+        "cpu_inter_submission_p95_ms": 2817.5945,
+        "gpu_busy_ms": 0.583917,
+        "gpu_busy_ratio": 0.3167077884850592,
+        "gpu_gap_p50_ms": 0.001667,
+        "gpu_gap_p95_ms": 0.723667,
+        "gpu_idle_gap_ms": 1.259792,
+        "gpu_interval_count": 6,
+        "metal_application_interval_rows": 13,
+        "metal_driver_interval_rows": 15,
+        "resource_allocation_rows": 11
+      },
+      "trace": {
+        "bytes": 22076199,
+        "file_count": 560,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-sanitize_gather_preparation.trace",
+        "sha256": "b447018ff82e8fb2b58941db3e6e041dd3832484c7ebde210ba1f8e1d4c868ad",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 23384398
+    },
+    "sparse_attention": {
+      "active_memory_after_bytes": 319947616292,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 0.227583,
+      "cpu_graph_build_samples_ms": [
+        0.419583,
+        0.227583,
+        0.165666
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "sparse_attention",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 3.51775,
+      "synchronized_wall_samples_ms": [
+        2914.497166,
+        3.51775,
+        3.435666
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  10 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  11 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  12 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  13 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  14 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  15 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  16 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  17 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  18 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  19 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  20 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  21 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  22 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  23 ) ( python3 (9025) )"
+        ],
+        "command_buffer_submission_rows": 59,
+        "compute_or_command_interval_count": 100,
+        "cpu_inter_submission_p50_ms": 0.0379375,
+        "cpu_inter_submission_p95_ms": 1.628833,
+        "gpu_busy_ms": 9.812792,
+        "gpu_busy_ratio": 0.8759400509739539,
+        "gpu_gap_p50_ms": 0.001542,
+        "gpu_gap_p95_ms": 0.003042,
+        "gpu_idle_gap_ms": 1.389792,
+        "gpu_interval_count": 42,
+        "metal_application_interval_rows": 100,
+        "metal_driver_interval_rows": 102,
+        "resource_allocation_rows": 44
+      },
+      "trace": {
+        "bytes": 19654954,
+        "file_count": 562,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-sparse_attention.trace",
+        "sha256": "af2fd0dd4037b0f0a50ddaa65f14d898d2b029be3f7722aadc2949e6dcceb134",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 11239472
+    },
+    "topk_selection": {
+      "active_memory_after_bytes": 319947554395,
+      "active_memory_before_bytes": 319947526176,
+      "cpu_graph_build_ms_median": 0.068542,
+      "cpu_graph_build_samples_ms": [
+        0.083792,
+        0.068542,
+        0.034667
+      ],
+      "repetitions": 3,
+      "replayable": false,
+      "stage": "topk_selection",
+      "static_kernel_labels_used_for_attribution": false,
+      "synchronized_wall_ms_median": 0.759,
+      "synchronized_wall_samples_ms": [
+        2852.526834,
+        0.582667,
+        0.759
+      ],
+      "telemetry": {
+        "application_label_examples": [
+          "Command Buffer 0  (Frame  1 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  2 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  3 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  4 ) ( python3 (9025) )",
+          "Command Buffer 0  (Frame  5 ) ( python3 (9025) )",
+          "Compute Command 0  ( Main Thread (0xd95613) (python3, pid: 9025) )"
+        ],
+        "command_buffer_submission_rows": 5,
+        "compute_or_command_interval_count": 7,
+        "cpu_inter_submission_p50_ms": 0.309271,
+        "cpu_inter_submission_p95_ms": 2851.978208,
+        "gpu_busy_ms": 0.132125,
+        "gpu_busy_ratio": 0.10648088824201161,
+        "gpu_gap_p50_ms": 0.554354,
+        "gpu_gap_p95_ms": 0.640375,
+        "gpu_idle_gap_ms": 1.108708,
+        "gpu_interval_count": 3,
+        "metal_application_interval_rows": 7,
+        "metal_driver_interval_rows": 9,
+        "resource_allocation_rows": 11
+      },
+      "trace": {
+        "bytes": 22040354,
+        "file_count": 561,
+        "kind": "bundle-directory",
+        "path": "/private/tmp/glm53-indexer-telemetry-20260905/2048/indexer-2048-topk_selection.trace",
+        "sha256": "e750e80de97eac47ce603b383098d6c26673fa6975e9dace2707492224ed5282",
+        "stored_in_repository": false
+      },
+      "trace_time_limit_seconds": 6,
+      "working_peak_bytes": 39505
+    }
+  },
+  "total_trace_bytes": 167041546
+}
