@@ -972,6 +972,19 @@ uv run python scripts/probe_exact_partial_topk_metal.py \
 
 M3 Ultraのsigned-score v3 rejection screenでは、人工fixtureと2K/256Kの全11 DSA層、4-step full-vocab logits、全KDA/DSA/IndexPool stateがbyte-exactでした。256Kのtop-k aggregateは1.358 msから0.620 msへ短縮しましたが、削減0.739 msは固定0.75 ms gateに届かず、full-model wallは82.077 msから84.132 msへ2.054 ms悪化しました。2Kでも79.080 msから79.333 msへ悪化しています。opaque Metal dispatch/dependency境界がoperator削減を上回るため候補を棄却し、32K/128Kの追加qualificationは行いません。artifactは`qualification_complete=false`とearly-rejection scopeを明示し、runtimeへ昇格しません。
 
+### Fused pooled-score/top-k execution-boundary probe
+
+独立partial top-k kernelで発生したexecution-boundary税を切り分けるため、2K/256Kの2点でA/B/Cを比較します。Aはproductionのeager MLX pooled score→MLX argsort、Bは同一score式だけを`mx.compile`してscore tensorを返した後にMLX argsort、Cは同一compiled envelope内でscore→signed exact partial top-kを実行しselected pool rowだけを返します。Cはscore tensorを外部MLX graph resultとして公開しません。
+
+score式のmatmul、softmax scale、zero clamp、weighted head sum、invalid sentinelの順序はproductionから変更しません。decode中のpartial pool増加でcompile signatureが変わらないよう、既存の物理padding済みpool shapeとbool validityを入力にし、padding scoreは負sentinelへ固定します。全11 DSA層でBのlogical score bits、B/Cのselected pool、expanded token、gather、attention output、cache stateをAとbyte-exact比較します。
+
+operatorとfull-modelのA/B/Cは順序を交替して測定し、常に候補を後に測るthermal biasを避けます。Cが256K full-modelで0.75 ms/token以上短縮し、2K回帰1%以内、working peak増分32 MiB以内ならbounded System Traceへ進みます。それ以外またはscore bit不一致なら即棄却します。command-buffer/GPU idle値は公開APIから推測せず、Cがwall screenを通った場合だけ非再生型traceを追加します。runtime/server/APC/cache/kernel ABIは変更しません。
+
+```bash
+uv run python scripts/probe_fused_pooled_score_topk_boundary.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
