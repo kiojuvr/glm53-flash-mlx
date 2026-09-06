@@ -1070,6 +1070,8 @@ uv run python scripts/attribute_native_dsa_sparse_attention_regression.py \
 
 人工D512 fixtureではscaled query、gathered latent、attention outputが全てbyte-exactでした。prepareはMLX 0.309 msに対してnative 0.316 ms、attention mathはMLX 0.398 msに対してnative 0.355 msです。この小形状では算術kernel自体にTier 2全体の約0.31 ms退行を説明する局所ボトルネックがないため、実11層でも同じならindirect GEMMを盲目的に実装せず、Tier 1を保持してpool update/query projection側へnative境界を広げます。実層でprepare退行が最大ならexact indirect latent loader、attention math退行が最大ならTier 2を終了する判定です。runtime/server/APC/cache/kernel production ABIは変えません。
 
+実256K stateの全11 DSA層でもscaled query、gathered latent、attention outputはbyte-exactでした。11層合計のprepareはMLX 0.658 msに対してnative 0.625 msで0.032 ms短縮し、attention mathは1.032→1.041 msの0.009 ms差だけです。どちらも統合Tier 2のoperator退行0.308 msを説明せず、2.1 MiB gather materializationも局所ボトルネックではありません。退行はaccepted Tier 1 score islandへattention topologyを接続した場合にだけ生じる境界効果と判定し、Tier 2を終了します。Tier 1はexact nonproduction native baselineとして保持し、次は約0.98 ms/tokenのapplication gapが観測済みのcompact IndexPool update側を、preprojected key/gateから固定arenaへ取り込めるか検証します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
