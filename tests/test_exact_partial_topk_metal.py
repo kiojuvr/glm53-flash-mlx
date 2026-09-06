@@ -87,8 +87,13 @@ def test_artifact_records_a_consistent_fixed_gate_decision_when_present():
         pytest.skip("stale partial top-k artifact predates signed-score ordering")
     if not artifact["complete"]:
         pytest.skip("exact partial top-k model qualification is still resumable")
-    assert set(map(int, artifact["contexts"])) == {2048, 32768, 131072, 262144}
     if artifact["accepted"]:
+        assert set(map(int, artifact["contexts"])) == {
+            2048,
+            32768,
+            131072,
+            262144,
+        }
         assert all(artifact["acceptance"].values())
         assert artifact["decision"] == "keep_exact_partial_topk_candidate"
         assert (
@@ -100,6 +105,16 @@ def test_artifact_records_a_consistent_fixed_gate_decision_when_present():
     else:
         assert not all(artifact["acceptance"].values())
         assert artifact["decision"] in {
+            "reject_partial_topk_full_model_regression",
             "reject_partial_topk_move_to_pooled_score",
             "reject_partial_topk_fixed_gate_not_met",
         }
+        if artifact["decision"] == "reject_partial_topk_full_model_regression":
+            assert set(map(int, artifact["contexts"])) >= {2048, 262144}
+            assert artifact["qualification_complete"] is False
+            assert artifact["rejection_screen"][
+                "all_operator_logits_and_state_exact"
+            ]
+            assert artifact["rejection_screen"][
+                "decisive_full_model_regression"
+            ]

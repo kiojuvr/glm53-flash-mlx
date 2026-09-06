@@ -728,6 +728,45 @@ def _acceptance(artifact: dict) -> dict:
     }
 
 
+def _rejection_screen(artifact: dict) -> dict:
+    contexts = artifact.get("contexts", {})
+    required = {2_048, 262_144}
+    present = required.issubset(set(map(int, contexts)))
+    rows = [contexts[str(context)] for context in sorted(required)] if present else []
+    exact = present and all(
+        row["all_11_layers_exact"]
+        and row["trajectory"]["all_full_vocab_logits_exact"]
+        and row["trajectory"]["post_state_exact"]
+        and row["full_model"]["baseline"]["final_logits_hash"]
+        == row["full_model"]["candidate"]["final_logits_hash"]
+        and row["full_model"]["baseline"]["post_state_hash"]
+        == row["full_model"]["candidate"]["post_state_hash"]
+        for row in rows
+    )
+    long = contexts.get("262144", {})
+    full = long.get("full_model", {})
+    regression_ms = -float(full.get("saving_ms", 0.0)) if present else 0.0
+    decisive_regression = present and regression_ms >= 0.7
+    return {
+        "contexts": [2_048, 262_144],
+        "contexts_present": present,
+        "all_operator_logits_and_state_exact": exact,
+        "full_model_regression_ms_at_256k": regression_ms,
+        "decisive_regression_threshold_ms": 0.7,
+        "decisive_full_model_regression": decisive_regression,
+        "complete": bool(
+            artifact.get("artificial", {}).get(
+                "all_values_and_indices_byte_exact"
+            )
+            and exact
+            and decisive_regression
+        ),
+        "scope": (
+            "early rejection only; no 32K/128K qualification claim"
+        ),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("model", nargs="?", type=Path, default=DEFAULT_MODEL)
@@ -830,9 +869,21 @@ def main() -> int:
         artifact["acceptance"] = _acceptance(artifact)
         _atomic_write(args.output, artifact)
     artifact["acceptance"] = _acceptance(artifact)
-    artifact["complete"] = set(map(int, artifact["contexts"])) == set(CONTEXTS)
-    artifact["accepted"] = artifact["complete"] and all(artifact["acceptance"].values())
-    if not artifact["complete"]:
+    artifact["qualification_complete"] = (
+        set(map(int, artifact["contexts"])) == set(CONTEXTS)
+    )
+    artifact["rejection_screen"] = _rejection_screen(artifact)
+    artifact["decision_complete"] = bool(
+        artifact["qualification_complete"]
+        or artifact["rejection_screen"]["complete"]
+    )
+    artifact["complete"] = artifact["decision_complete"]
+    artifact["accepted"] = artifact["qualification_complete"] and all(
+        artifact["acceptance"].values()
+    )
+    if artifact["rejection_screen"]["complete"]:
+        artifact["decision"] = "reject_partial_topk_full_model_regression"
+    elif not artifact["qualification_complete"]:
         artifact["decision"] = "await_remaining_contexts"
     elif artifact["accepted"]:
         artifact["decision"] = "keep_exact_partial_topk_candidate"

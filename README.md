@@ -970,6 +970,8 @@ uv run python scripts/probe_exact_partial_topk_metal.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
+M3 Ultraのsigned-score v3 rejection screenでは、人工fixtureと2K/256Kの全11 DSA層、4-step full-vocab logits、全KDA/DSA/IndexPool stateがbyte-exactでした。256Kのtop-k aggregateは1.358 msから0.620 msへ短縮しましたが、削減0.739 msは固定0.75 ms gateに届かず、full-model wallは82.077 msから84.132 msへ2.054 ms悪化しました。2Kでも79.080 msから79.333 msへ悪化しています。opaque Metal dispatch/dependency境界がoperator削減を上回るため候補を棄却し、32K/128Kの追加qualificationは行いません。artifactは`qualification_complete=false`とearly-rejection scopeを明示し、runtimeへ昇格しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
