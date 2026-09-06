@@ -17,7 +17,7 @@ ARTIFACT = (
 def test_probe_is_score_only_and_keeps_runtime_unchanged():
     source = PROBE.read_text()
     ast.parse(source)
-    assert "existing finite FP32 Indexer score tensor" in source
+    assert "existing finite BF16 or FP32 Indexer score tensor" in source
     assert '"score_generation_changed": False' in source
     assert '"score_topk_fused": False' in source
     assert '"full_sort_materialized": False' in source
@@ -50,6 +50,7 @@ def test_requested_artificial_and_real_frontiers_are_present():
         "positive_negative_zero",
         "very_small_fp32_differences",
         "bf16_boundary_derived_fp32",
+        "production_bfloat16_ties",
     ):
         assert f'"{fixture}"' in source
     for evidence in (

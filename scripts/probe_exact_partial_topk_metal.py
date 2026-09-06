@@ -55,7 +55,7 @@ _PARTIAL_TOPK_SOURCE = r"""
     uint lane = thread_position_in_threadgroup.x;
     uint row = threadgroup_position_in_grid.y;
     uint count = uint(pool_count[0]);
-    const device float* row_scores = scores + size_t(row) * count;
+    const device T* row_scores = scores + size_t(row) * count;
     device uint* row_output = indices + size_t(row) * K;
 
     threadgroup atomic_uint histogram[16];
@@ -83,7 +83,8 @@ _PARTIAL_TOPK_SOURCE = r"""
             // Numeric descending score, then original index ascending.  MLX
             // argsort is stable, so argsort(-score) preserves this exact tie
             // order. Collapse +0/-0 because they compare equal in the oracle.
-            uint bits = as_type<uint>(row_scores[index]);
+            float score_value = float(row_scores[index]);
+            uint bits = as_type<uint>(score_value);
             if ((bits & 0x7fffffffu) == 0u) bits = 0u;
             uint ordered =
                 (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
@@ -122,7 +123,8 @@ _PARTIAL_TOPK_SOURCE = r"""
     threadgroup_barrier(mem_flags::mem_threadgroup);
     ulong threshold = prefix_shared;
     for (uint index = lane; index < count; index += THREAD_COUNT) {
-        uint bits = as_type<uint>(row_scores[index]);
+        float score_value = float(row_scores[index]);
+        uint bits = as_type<uint>(score_value);
         if ((bits & 0x7fffffffu) == 0u) bits = 0u;
         uint ordered =
             (bits & 0x80000000u) ? ~bits : (bits ^ 0x80000000u);
@@ -230,12 +232,14 @@ def _release(*values) -> None:
     mx.synchronize()
 
 
-def exact_partial_topk(scores: mx.array, *, k: int = SELECT_K) -> tuple[mx.array, mx.array]:
-    """Return exact values/indices for finite FP32 scores, without full sorting."""
+def exact_partial_topk(
+    scores: mx.array, *, k: int = SELECT_K
+) -> tuple[mx.array, mx.array]:
+    """Return exact values/indices for finite BF16/FP32 scores without sorting."""
     if _partial_topk_kernel is None:
         raise RuntimeError("exact partial top-k probe requires Metal")
-    if scores.dtype != mx.float32:
-        raise TypeError("exact partial top-k requires FP32 scores")
+    if scores.dtype not in (mx.bfloat16, mx.float32):
+        raise TypeError("exact partial top-k requires BF16 or FP32 scores")
     if k != SELECT_K:
         raise ValueError(f"probe kernel supports exactly k={SELECT_K}")
     if scores.ndim < 1:
@@ -248,7 +252,7 @@ def exact_partial_topk(scores: mx.array, *, k: int = SELECT_K) -> tuple[mx.array
     count_value = mx.array([count], dtype=mx.uint32)
     indices = _partial_topk_kernel(
         inputs=[contiguous, count_value],
-        template=[("K", k), ("THREAD_COUNT", THREADS)],
+        template=[("T", scores.dtype), ("K", k), ("THREAD_COUNT", THREADS)],
         grid=(THREADS, rows, 1),
         threadgroup=(THREADS, 1, 1),
         output_shapes=[(rows, k)],
@@ -283,6 +287,9 @@ def _artificial_fixtures() -> dict[str, mx.array]:
         "positive_negative_zero": mx.array(signed_zero)[None],
         "very_small_fp32_differences": mx.array(tiny)[None],
         "bf16_boundary_derived_fp32": mx.array(bf16_derived)[None],
+        "production_bfloat16_ties": mx.array(
+            (np.arange(n) // 32).astype(np.float32)
+        )[None].astype(mx.bfloat16),
     }
 
 
@@ -375,6 +382,7 @@ def _real_layer_case(profile, operator_probe, boundary_probe, model, source, con
     result = {
         "layer": layer,
         "pool_count": int(candidate["scores"].shape[-1]),
+        "score_dtype": str(candidate["scores"].dtype),
         "score_hash_exact": _hash(oracle["scores"]) == _hash(candidate["scores"]),
         "topk_values_byte_exact": _exact(oracle["values"], candidate["values"]),
         "topk_indices_byte_exact": _exact(oracle["selected"], candidate["selected"]),
@@ -756,7 +764,8 @@ def main() -> int:
             "contexts": {},
             "metal_error_count": 0,
             "kernel_contract": {
-                "input": "existing finite FP32 Indexer score tensor",
+                "input": "existing finite BF16 or FP32 Indexer score tensor",
+                "observed_production_dtype": "recorded per layer; expected bfloat16",
                 "output_k": SELECT_K,
                 "algorithm": "48-bit composite-key radix select plus in-threadgroup bitonic order",
                 "tie_order": "stable ascending source index",
