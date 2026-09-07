@@ -1,4 +1,5 @@
 import ast
+import json
 from pathlib import Path
 
 
@@ -9,6 +10,11 @@ HEADER = ROOT / "native_execution" / "native_packed_moe_plan.h"
 SOURCE = ROOT / "native_execution" / "native_packed_moe_plan.cpp"
 BINDINGS = ROOT / "native_execution" / "bindings.cpp"
 CMAKE = ROOT / "native_execution" / "CMakeLists.txt"
+ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-native-packed-moe-execution-plan-20260907.json"
+)
 
 
 def test_native_packed_moe_plan_is_bound_and_built_probe_only():
@@ -87,3 +93,28 @@ def test_probe_keeps_router_outside_native_boundary_and_production_unchanged():
     assert '"probe_only": True' in source
     for component in ("runtime", "server", "apc", "cache_abi", "kernel_abi"):
         assert f'"{component}": False' in source
+
+
+def test_native_packed_moe_qualification_is_an_exact_short_screen_but_stops():
+    artifact = json.loads(ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == "stop_or_redesign_native_packed_moe_execution_plan"
+    assert artifact["artificial_native_contract"]["output_byte_exact"]
+    assert artifact["process_peak_memory_bytes"] <= 340_000_000_000
+    for context in ("2048", "262144"):
+        row = artifact["contexts"][context]
+        assert row["all_full_vocab_logits_byte_exact"]
+        assert row["all_generated_tokens_exact"]
+        assert row["post_state_byte_exact"]
+        assert row["native_wall_saving_ms"] < 0.0
+        assert row["native_host_saving_ms"] < 0.0
+    oracle = artifact["official_oracle"]
+    assert oracle["A_exact_composition"]["all_full_vocab_logits_hashes_match"]
+    assert oracle["B_native_packed_moe_plan"]["first_16_match"]
+    assert not oracle["B_native_packed_moe_plan"]["full_128_match"]
+    assert "step 68 logits hash mismatch" in oracle[
+        "B_native_packed_moe_plan"
+    ]["failures_128"]
+    assert artifact["acceptance"]["2k_decode_at_least_15_tps"]
+    assert not artifact["acceptance"]["official_oracle_exact_both_arms"]

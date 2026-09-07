@@ -1143,6 +1143,8 @@ uv run python scripts/probe_native_packed_moe_execution_plan.py \
 
 人工gateはreference/native hash `7e8d533842dc9d182f1a3b40afe490782395922dfce97919305f426b550a25fc`でbyte-exact、固定scratch 7,936 bytes、execute counterはallocation/graph/shape/sync/intermediate全て0でした。full-modelの固定KEEP gateは2Kで15 tok/s以上、exact composition比で2K/256Kともwall 0.50 msおよびhost submit 0.50 ms以上短縮、context retention 0.90以上、全42 plan実行、全logits/token/cache stateと両arm公式oracle exact、peak 340 GB以内です。合格するまでproduction runtime/server/APC/cache/kernel ABIは変更しません。
 
+実モデルqualificationでは2K/256Kの各7-step differentialは全logits/token/cache state exactで2Kは15.299 tok/sを維持しましたが、公式128-token oracleはstep 68からlogits hashが分岐し、step 105からtokenも分岐しました。さらにexact composition比で2Kは63.804→65.364 ms、256Kは67.490→68.987 msへ約1.5 ms悪化し、host submitもそれぞれ2.113 ms、2.627 ms増えました。peak 331.563 GB、固定arena契約は正常です。短いexact screenを根拠にgateを緩めず、native planはSTOPとします。次はstep 1–68の実activation/outputをexact compositionからowned captureし、同じ42 native planへ時系列replayして最初の層・stageを特定します。performance側はcorrectness修復後に、executeごとの6 pipeline lookupと13 input validationをconstructor-time bindingへ移す価値を独立測定します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
