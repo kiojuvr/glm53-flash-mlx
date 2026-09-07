@@ -1,0 +1,2562 @@
+{
+  "acceptance": {
+    "256k_native_host_saving_at_least_0_50ms": false,
+    "256k_native_wall_saving_at_least_0_50ms": false,
+    "2k_decode_at_least_15_tps": true,
+    "2k_native_host_saving_at_least_0_50ms": false,
+    "2k_native_wall_saving_at_least_0_50ms": false,
+    "2k_to_256k_retention_at_least_0_90": true,
+    "all_42_sparse_layers_use_fast_bf16_native_plan": true,
+    "all_full_model_logits_tokens_and_state_byte_exact": true,
+    "exact_fast_bf16_repair_source_accepted": true,
+    "fixed_arena_zero_execute_allocation_graph_shape_sync": true,
+    "official_16_128_oracle_exact_from_source": true,
+    "process_peak_at_most_340GB": true,
+    "production_abi_unchanged": true
+  },
+  "accepted": false,
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_full_vocab_logits_byte_exact": true,
+      "all_generated_tokens_exact": true,
+      "context_tokens": 2048,
+      "expected_sparse_moe_calls": 294,
+      "native_host_saving_ms": -2.028165999999999,
+      "native_indexpool_plan_evidence": {
+        "A_exact_composition": [
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981128416",
+              "4590758368",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981129136",
+              "4586770416",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981130336",
+              "4586780096",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981126736",
+              "4587363280",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134176",
+              "4586471904",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134416",
+              "4586481584",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134656",
+              "4587113920",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134896",
+              "4587123600",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135136",
+              "4587264416",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135376",
+              "4587274096",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135616",
+              "4587185536",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          }
+        ],
+        "B_native_packed_moe_plan": [
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135856",
+              "4590758368",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136096",
+              "4586770416",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981132736",
+              "4586780096",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981132496",
+              "4587363280",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136336",
+              "4586471904",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136576",
+              "4586481584",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136816",
+              "4587113920",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137056",
+              "4587123600",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137296",
+              "4587264416",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137536",
+              "4587274096",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137776",
+              "4587185536",
+              "576"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 61910,
+            "shape_discovery_count": 0
+          }
+        ]
+      },
+      "native_moe_execution_count": 294,
+      "native_moe_plan_count": 42,
+      "native_moe_plan_evidence": [
+        {
+          "buffer_identities": [
+            49084944320,
+            49084906816,
+            49083731456,
+            49085153280,
+            49085112640,
+            49083570752
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083275840,
+            49188022784,
+            49084905920,
+            49085161344,
+            49085065280,
+            49085208704
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085383552,
+            49085384000,
+            49085384448,
+            49084946560,
+            49085384896,
+            49085385344
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085203328,
+            49085388928,
+            49085389376,
+            49083491072,
+            49085389824,
+            49085390272
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085449984,
+            49085450432,
+            49085450880,
+            49085451328,
+            49085451776,
+            49085452672
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084950592,
+            49085455360,
+            49084160576,
+            49085455808,
+            49085456256,
+            49085456704
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085214976,
+            49085215424,
+            49085383104,
+            49085458944,
+            49085459392,
+            49085459840
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085202880,
+            49084060480,
+            49085105024,
+            49083417920,
+            49084216000,
+            49084211968
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085502272,
+            49085502720,
+            49085503168,
+            49085503616,
+            49085504512,
+            49085504960
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49188013376,
+            49085506752,
+            49084902784,
+            49085507200,
+            49085507648,
+            49085508096
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083734592,
+            49085509888,
+            49085216320,
+            49085510336,
+            49085510784,
+            49085511232
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49188012480,
+            49083739968,
+            49084994368,
+            49083421056,
+            49085397440,
+            49085499584
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085553664,
+            49085554112,
+            49085554560,
+            49085555456,
+            49085555904,
+            49085556352
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085453120,
+            49085558144,
+            49085119808,
+            49085558592,
+            49085559040,
+            49085559488
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085457600,
+            49085561280,
+            49085215872,
+            49085561728,
+            49085562176,
+            49085726720
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085460736,
+            49085728512,
+            49083272256,
+            49085728960,
+            49085729408,
+            49085729856
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085736576,
+            49085737024,
+            49085737472,
+            49085737920,
+            49085738368,
+            49085738816
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085505408,
+            49085106816,
+            49084900096,
+            49085741056,
+            49085741504,
+            49085741952
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085776320,
+            49085214528,
+            49085776768,
+            49085777216,
+            49085777664,
+            49085778112
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085511680,
+            49085779904,
+            49085162688,
+            49085780352,
+            49085780800,
+            49085781248
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085787968,
+            49085788416,
+            49085788864,
+            49085789312,
+            49085789760,
+            49085790208
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085556800,
+            49084947456,
+            49084161472,
+            49085972928,
+            49085973376,
+            49085973824
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085508544,
+            49085975616,
+            49085160896,
+            49085976064,
+            49085976512,
+            49085976960
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085727168,
+            49085059456,
+            49084905472,
+            49190811648,
+            49085732992,
+            49085785280
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085986816,
+            49085987264,
+            49085987712,
+            49085988160,
+            49086021632,
+            49086022080
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085739712,
+            49086023872,
+            49085453568,
+            49086024320,
+            49086024768,
+            49086025216
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083733696,
+            49086027008,
+            49085211392,
+            49086027456,
+            49086027904,
+            49086028352
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085778560,
+            49085448640,
+            49085461184,
+            49190800448,
+            49085784384,
+            49085984128
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086071232,
+            49086071680,
+            49086072128,
+            49086072576,
+            49086073024,
+            49086073472
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085791104,
+            49086075264,
+            49085505856,
+            49086075712,
+            49086076160,
+            49086076608
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085974272,
+            49086078400,
+            49085458048,
+            49086078848,
+            49086079296,
+            49086079744
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085977856,
+            49085501824,
+            49085512128,
+            49229917568,
+            49085983232,
+            49086035072
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086122624,
+            49086123072,
+            49086123520,
+            49086123968,
+            49086124416,
+            49086124864
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086022528,
+            49086126656,
+            49085557248,
+            49086127104,
+            49086127552,
+            49086128000
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086025664,
+            49085002880,
+            49085508992,
+            49086130240,
+            49086130688,
+            49086131136
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086028800,
+            49085553216,
+            49085727616,
+            49229913536,
+            49086034176,
+            49086086464
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086174016,
+            49086174464,
+            49086174912,
+            49086175360,
+            49086175808,
+            49086176256
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086073920,
+            49086178048,
+            49085740160,
+            49086178496,
+            49086178944,
+            49086179392
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086077056,
+            49086181184,
+            49085560384,
+            49086181632,
+            49086182080,
+            49086182528
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086080192,
+            49085787520,
+            49085779008,
+            49083853760,
+            49086086016,
+            49086170880
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086241792,
+            49086242240,
+            49086242688,
+            49086243136,
+            49086243584,
+            49086244032
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086125312,
+            49086245824,
+            49085791552,
+            49086246272,
+            49086246720,
+            49086247168
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        }
+      ],
+      "native_moe_scratch_bytes": 5332992,
+      "native_speedup": 0.9765633740033594,
+      "native_wall_saving_ms": -1.5188330000000008,
+      "post_state_byte_exact": true,
+      "reference_fused_sparse_moe_calls": 294,
+      "timing": {
+        "A_exact_composition": {
+          "median_host_submit_ms": 55.343834,
+          "median_wall_ms": 63.287125,
+          "samples": [
+            {
+              "host_submit_ms": 55.338792,
+              "wall_ms": 63.254583
+            },
+            {
+              "host_submit_ms": 55.3755,
+              "wall_ms": 63.314875
+            },
+            {
+              "host_submit_ms": 55.362375,
+              "wall_ms": 63.287125
+            },
+            {
+              "host_submit_ms": 55.298583,
+              "wall_ms": 63.24275
+            },
+            {
+              "host_submit_ms": 55.343834,
+              "wall_ms": 63.363834
+            }
+          ],
+          "tokens_per_second": 15.801002178563175
+        },
+        "B_native_packed_moe_plan": {
+          "median_host_submit_ms": 57.372,
+          "median_wall_ms": 64.805958,
+          "samples": [
+            {
+              "host_submit_ms": 57.273167,
+              "wall_ms": 64.813375
+            },
+            {
+              "host_submit_ms": 57.300333,
+              "wall_ms": 64.740125
+            },
+            {
+              "host_submit_ms": 57.489125,
+              "wall_ms": 64.8265
+            },
+            {
+              "host_submit_ms": 57.425166,
+              "wall_ms": 64.805958
+            },
+            {
+              "host_submit_ms": 57.372,
+              "wall_ms": 64.76575
+            }
+          ],
+          "tokens_per_second": 15.430680000132085
+        }
+      }
+    },
+    "262144": {
+      "all_full_vocab_logits_byte_exact": true,
+      "all_generated_tokens_exact": true,
+      "context_tokens": 262144,
+      "expected_sparse_moe_calls": 294,
+      "native_host_saving_ms": -2.4869580000000013,
+      "native_indexpool_plan_evidence": {
+        "A_exact_composition": [
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135856",
+              "4590758368",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136096",
+              "4586770416",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981132736",
+              "4586780096",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981132496",
+              "4587363280",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136336",
+              "4586471904",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136576",
+              "4586481584",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981136816",
+              "4587113920",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137056",
+              "4587123600",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137296",
+              "4587264416",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137536",
+              "4587274096",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981137776",
+              "4587185536",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          }
+        ],
+        "B_native_packed_moe_plan": [
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981128656",
+              "4590758368",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981128176",
+              "4586770416",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981128416",
+              "4586780096",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981129136",
+              "4587363280",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981130336",
+              "4586471904",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981126736",
+              "4586481584",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134176",
+              "4587113920",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134416",
+              "4587123600",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134656",
+              "4587264416",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981134896",
+              "4587274096",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          },
+          {
+            "buffer_identities_stable": true,
+            "dynamic_allocation_count": 0,
+            "execution_count": 7,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "key": [
+              "5981135136",
+              "4587185536",
+              "65600"
+            ],
+            "returned_intermediate_tensor_bytes": 0,
+            "scratch_bytes": 4353494,
+            "shape_discovery_count": 0
+          }
+        ]
+      },
+      "native_moe_execution_count": 294,
+      "native_moe_plan_count": 42,
+      "native_moe_plan_evidence": [
+        {
+          "buffer_identities": [
+            49083489728,
+            49084416448,
+            49084898304,
+            49084420032,
+            49084897856,
+            49084997504
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49076790912,
+            49083567616,
+            49084905920,
+            49084159680,
+            49083710336,
+            49086240000
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085210496,
+            49083579264,
+            49085214528,
+            49230351872,
+            49085104576,
+            49085105024
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085153728,
+            49083741760,
+            49085160896,
+            49086297664,
+            49084947008,
+            49085112192
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085153280,
+            49084253504,
+            49083487488,
+            49085975168,
+            49084906368,
+            49086239104
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084160128,
+            49084422720,
+            49085105920,
+            49188017856,
+            49085107264,
+            49085108608
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083695552,
+            49083570304,
+            49085976960,
+            49188019200,
+            49085977408,
+            49085977856
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085983232,
+            49083493760,
+            49085983680,
+            49085984128,
+            49085984576,
+            49085985024
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085160000,
+            49084480832,
+            49085388480,
+            49188023680,
+            49085105472,
+            49085109056
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083494656,
+            49083564032,
+            49085980992,
+            49188013824,
+            49085981440,
+            49085982784
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083486592,
+            49085211840,
+            49085060352,
+            49085060800,
+            49085061248,
+            49085061696
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085066624,
+            49188022784,
+            49085067072,
+            49085067520,
+            49085067968,
+            49085068416
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083709888,
+            49084422272,
+            49085976512,
+            49083426880,
+            49085978304,
+            49085987264
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085164032,
+            49084071232,
+            49085066176,
+            49083419712,
+            49084678144,
+            49085388032
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086246272,
+            49086285120,
+            49084684416,
+            49084684864,
+            49084685312,
+            49084685760
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084691584,
+            49084692032,
+            49084692480,
+            49084693376,
+            49084693824,
+            49086169088
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083483904,
+            49084055552,
+            49085064384,
+            49086176704,
+            49085064832,
+            49085070656
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084157440,
+            49083705408,
+            49085115328,
+            49083425536,
+            49085116672,
+            49085119808
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085979648,
+            49084688448,
+            49086178496,
+            49083429568,
+            49086178944,
+            49086179392
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086119936,
+            49086120384,
+            49086120832,
+            49086121280,
+            49086121728,
+            49086122176
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085161792,
+            49084328000,
+            49084690240,
+            49084591488,
+            49084691136,
+            49085114432
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49076783296,
+            49083270464,
+            49085062144,
+            49084593728,
+            49085986368,
+            49085974272
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085063040,
+            49086182080,
+            49086131136,
+            49086131584,
+            49086132032,
+            49086132480
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086023872,
+            49086024320,
+            49086024768,
+            49086025216,
+            49086025664,
+            49086026112
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083708544,
+            49188016960,
+            49086183872,
+            49084581632,
+            49086184768,
+            49085059904
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084996608,
+            49084416000,
+            49084689792,
+            49084587456,
+            49084686208,
+            49085056320
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084687552,
+            49086135616,
+            49086035072,
+            49086035520,
+            49086035968,
+            49086036416
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085780352,
+            49085780800,
+            49085781248,
+            49085781696,
+            49085782144,
+            49085782592
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085213184,
+            49084689344,
+            49086022976,
+            49084592384,
+            49086023424,
+            49084686656
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085979200,
+            49083854208,
+            49085785280,
+            49084594624,
+            49086183424,
+            49085058112
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086181184,
+            49085777664,
+            49085791104,
+            49085726720,
+            49085727168,
+            49085727616
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085733440,
+            49085733888,
+            49085734336,
+            49085734784,
+            49085735232,
+            49085735680
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49083486144,
+            49086182976,
+            49085779008,
+            49229906816,
+            49085779456,
+            49085779904
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085980544,
+            49083566720,
+            49086133376,
+            49229918016,
+            49086130688,
+            49084682176
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49086134720,
+            49085729856,
+            49085548288,
+            49085549184,
+            49085549632,
+            49085550080
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085555456,
+            49085555904,
+            49085556352,
+            49085556800,
+            49085557248,
+            49085557696
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085157760,
+            49086022080,
+            49085731648,
+            49085500480,
+            49085732992,
+            49086132928
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085063936,
+            49084064064,
+            49086034624,
+            49229917568,
+            49086175808,
+            49086128896
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085776768,
+            49085552768,
+            49085502272,
+            49229913536,
+            49085502720,
+            49085503168
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085508544,
+            49085508992,
+            49085509440,
+            49085509888,
+            49085510336,
+            49085510784
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49085155520,
+            49085778560,
+            49085555008,
+            49085453568,
+            49085775872,
+            49086037312
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        },
+        {
+          "buffer_identities": [
+            49084688896,
+            49086290048,
+            49085731200,
+            49083652224,
+            49085790656,
+            49086032832
+          ],
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 126976,
+          "shape_discovery_count": 0,
+          "uses_fast_bf16_routed_sigmoid": true,
+          "uses_shape_specialized_routed_gate_up": true
+        }
+      ],
+      "native_moe_scratch_bytes": 5332992,
+      "native_speedup": 0.978391642943661,
+      "native_wall_saving_ms": -1.4813330000000065,
+      "post_state_byte_exact": true,
+      "reference_fused_sparse_moe_calls": 294,
+      "timing": {
+        "A_exact_composition": {
+          "median_host_submit_ms": 58.800625,
+          "median_wall_ms": 67.072375,
+          "samples": [
+            {
+              "host_submit_ms": 58.81025,
+              "wall_ms": 67.006083
+            },
+            {
+              "host_submit_ms": 58.838583,
+              "wall_ms": 67.134208
+            },
+            {
+              "host_submit_ms": 58.786875,
+              "wall_ms": 67.072375
+            },
+            {
+              "host_submit_ms": 58.563541,
+              "wall_ms": 66.804
+            },
+            {
+              "host_submit_ms": 58.800625,
+              "wall_ms": 67.095917
+            }
+          ],
+          "tokens_per_second": 14.909267787222387
+        },
+        "B_native_packed_moe_plan": {
+          "median_host_submit_ms": 61.287583,
+          "median_wall_ms": 68.553708,
+          "samples": [
+            {
+              "host_submit_ms": 61.339583,
+              "wall_ms": 68.553708
+            },
+            {
+              "host_submit_ms": 61.36225,
+              "wall_ms": 68.603959
+            },
+            {
+              "host_submit_ms": 61.279792,
+              "wall_ms": 68.429208
+            },
+            {
+              "host_submit_ms": 60.812583,
+              "wall_ms": 68.017958
+            },
+            {
+              "host_submit_ms": 61.287583,
+              "wall_ms": 68.595833
+            }
+          ],
+          "tokens_per_second": 14.587103005427512
+        }
+      }
+    }
+  },
+  "date": "2026-09-07",
+  "decision": "stop_exact_native_packed_moe_execution_plan_on_performance",
+  "exact_repair_source": {
+    "accepted": true,
+    "artifact": "bench-results/m3ultra512-exact-native-routed-fast-sigmoid-repair-20260907.json",
+    "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+    "exact_layer_step_comparisons": 2856,
+    "formula": "fast_bf16",
+    "official_16_128_oracle_exact_both_arms": true
+  },
+  "failed_gates": [
+    "2k_native_wall_saving_at_least_0_50ms",
+    "256k_native_wall_saving_at_least_0_50ms",
+    "2k_native_host_saving_at_least_0_50ms",
+    "256k_native_host_saving_at_least_0_50ms"
+  ],
+  "gates": {
+    "maximum_process_peak_bytes": 340000000000,
+    "minimum_2k_to_256k_retention": 0.9,
+    "minimum_native_host_saving_ms": 0.5,
+    "minimum_native_wall_saving_ms": 0.5,
+    "target_2k_tokens_per_second": 15.0
+  },
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "performance_only": true,
+  "probe_only": true,
+  "process_peak_memory_bytes": 331556946899,
+  "reference_composition": {
+    "256k_tokens_per_second": 14.901232914600245,
+    "2k_tokens_per_second": 15.747659504106203,
+    "accepted": true,
+    "artifact": "bench-results/m3ultra512-native-fused-decode-composition-20260907.json"
+  },
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-exact-native-packed-moe-performance-requalification-v1"
+}

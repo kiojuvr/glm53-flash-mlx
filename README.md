@@ -1216,6 +1216,8 @@ uv run python scripts/requalify_exact_native_packed_moe_performance.py \
 
 この再測定ではcorrectness gateを緩めず、accepted repair artifactと同一checkpointを必須入力にします。2K/256Kのexact compositionとnative planを交互実行し、wall/host各0.50 ms以上の削減、2Kで15 tok/s以上、retention 0.90以上を固定gateとして判定します。公式16/128 oracleは直前のaccepted artifactを参照し、長いoracleを重複実行しません。
 
+performance requalificationでは、2Kでwallが1.519 ms、host submitが2.028 ms、256Kでwallが1.481 ms、host submitが2.487 ms悪化しました。correctness、15 tok/s、retention、peak、固定arenaは合格ですが、固定したwall/host各0.50 ms削減gateを満たさないため、この呼び出し形のnative planはSTOPです。次はexact kernelを変えず、immutable weightsと6 pipelineをplanへ一度だけbindし、per-token executeをactivation/router出力の3入力だけへ縮める境界を独立probeします。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

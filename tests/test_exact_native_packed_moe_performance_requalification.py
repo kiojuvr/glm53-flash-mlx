@@ -65,11 +65,23 @@ def test_requalification_is_probe_only_and_changes_no_production_abi():
 
 
 def test_performance_result_is_archived_when_present():
-    if not ARTIFACT.exists():
-        return
     artifact = json.loads(ARTIFACT.read_text())
     assert artifact["complete"] is True
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == (
+        "stop_exact_native_packed_moe_execution_plan_on_performance"
+    )
     assert artifact["exact_repair_source"]["accepted"] is True
     assert artifact["failed_gates"] == [
-        name for name, passed in artifact["acceptance"].items() if not passed
+        "2k_native_wall_saving_at_least_0_50ms",
+        "256k_native_wall_saving_at_least_0_50ms",
+        "2k_native_host_saving_at_least_0_50ms",
+        "256k_native_host_saving_at_least_0_50ms",
     ]
+    for context in ("2048", "262144"):
+        row = artifact["contexts"][context]
+        assert row["all_full_vocab_logits_byte_exact"]
+        assert row["all_generated_tokens_exact"]
+        assert row["post_state_byte_exact"]
+        assert row["native_wall_saving_ms"] < -1.0
+        assert row["native_host_saving_ms"] < -2.0
