@@ -83,7 +83,7 @@ def apply_runtime_patch() -> None:
 
             def reserve(value):
                 reserve_until = getattr(value, "reserve_until", None)
-                if callable(reserve_until):
+                if callable(reserve_until) and min_capacity_tokens is not None:
                     reserve_until(int(min_capacity_tokens))
                     dependencies = getattr(value, "dependency_arrays", None)
                     if callable(dependencies):

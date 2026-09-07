@@ -154,6 +154,28 @@ def test_left_padded_prefill_preserves_pool_validity_and_sentinel():
     ).item()
 
 
+def test_apc_clone_without_capacity_override_preserves_compact_state():
+    from mlx_vlm.apc_adapters import clone_cache_entry
+
+    indexer = _make_indexer(topk=32)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=64)
+    _append_combined(indexer, original, 0, 32)
+    eval_targets = []
+
+    restored = clone_cache_entry(
+        original,
+        min_capacity_tokens=None,
+        eval_targets=eval_targets,
+    )
+    mx.eval(*eval_targets)
+
+    assert restored is not None
+    _assert_tree_equal(original.state, restored.state)
+    assert original.meta_state == restored.meta_state
+    assert restored[0].physical_capacity_tokens >= restored[0].offset
+    assert restored[1].physical_capacity_rows >= restored[1].logical_pool_count
+
+
 def test_sparse_decode_indices_match_full_history_cache_for_16_steps():
     from mlx_vlm.models.cache import KVCache
 
