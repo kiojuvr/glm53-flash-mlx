@@ -11,6 +11,7 @@ reuse the guarded base prefix, and an exact warm repeat of that extended turn.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import sys
@@ -125,6 +126,32 @@ def _checkpoint_identity(model: Path) -> dict[str, str]:
     }
 
 
+def _messages_as_server_template_input(
+    messages: Sequence[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Mirror mlx-vlm's OpenAI tool-argument normalization for local hashes.
+
+    OpenAI history transports ``function.arguments`` as a JSON string.  Before
+    rendering, the server converts it to the mapping required by the official
+    GLM-5.3 template.  The qualification client must hash that normalized form
+    without changing the actual OpenAI-compatible HTTP payload.
+    """
+
+    normalized = copy.deepcopy(list(messages))
+    for message in normalized:
+        for tool_call in message.get("tool_calls") or ():
+            function = tool_call.get("function")
+            if not isinstance(function, dict):
+                continue
+            arguments = function.get("arguments", {})
+            if isinstance(arguments, str):
+                try:
+                    function["arguments"] = json.loads(arguments)
+                except (json.JSONDecodeError, TypeError):
+                    function["arguments"] = {}
+    return normalized
+
+
 def _initial_artifact(model: Path) -> dict[str, Any]:
     return {
         "schema": SCHEMA,
@@ -187,7 +214,9 @@ def _build_fixture(model: Path):
     )
     extended_messages = http_helpers._extended_messages(base_messages)
     base_ids = fixture_helpers._render_ids(tokenizer, base_messages)
-    extended_ids = fixture_helpers._render_ids(tokenizer, extended_messages)
+    extended_ids = fixture_helpers._render_ids(
+        tokenizer, _messages_as_server_template_input(extended_messages)
+    )
     if base_count != CONTEXT_TOKENS or len(base_ids) != CONTEXT_TOKENS:
         raise RuntimeError("coding-agent HTTP fixture is not exactly 32K tokens")
     return base_messages, extended_messages, {

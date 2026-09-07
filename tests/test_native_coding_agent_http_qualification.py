@@ -90,6 +90,31 @@ def test_workload_is_real_32k_coding_agent_multiturn_and_bounded():
     assert "has_tool_call_and_result_suffix" in source
 
 
+def test_openai_tool_arguments_are_normalized_only_for_template_rendering():
+    module = _module()
+    messages = [
+        {
+            "role": "assistant",
+            "tool_calls": [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "read_file",
+                        "arguments": '{"path":"README.md"}',
+                    },
+                }
+            ],
+        }
+    ]
+    normalized = module._messages_as_server_template_input(messages)
+    assert messages[0]["tool_calls"][0]["function"]["arguments"] == (
+        '{"path":"README.md"}'
+    )
+    assert normalized[0]["tool_calls"][0]["function"]["arguments"] == {
+        "path": "README.md"
+    }
+
+
 def test_phase_gates_prefix_reuse_native_execution_and_peak():
     module = _module()
     baseline = _phase_row(native=False)
