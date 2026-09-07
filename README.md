@@ -1178,6 +1178,17 @@ uv run python scripts/localize_native_routed_hidden_numerics.py \
 
 projectionで最初に分岐すればreduction/rounding、projectionがexactでsigmoid以降だけ分岐すればactivation roundingだけを修復します。診断instrumentationのhiddenがplan scratchを再現しない場合はstage帰属を採用せずfail closedします。
 
+正式な数値局所化ではgate/up projectionがともにbyte-exactで、`[selected=3, hidden=2017]`のsigmoidだけが`0x3a8c`ではなく`0x3a8b`へ丸まり、SiLUとactivated hiddenへ伝播していました。diagnostic hiddenはplan scratch、JIT activation diagnosticはexact hiddenとそれぞれ一致したため、instrumentationやreductionではなく通常AOT `metal::exp`の丸めが原因です。既存KDA sigmoid fixtureでMLX eagerとactual/syntheticの双方にexactだったmode 7を根拠に、GLM-5.3 specialized routed kernelだけを`metal::precise::exp`へ変更します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_exact_native_routed_sigmoid_repair.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+generic routed kernel、shared expert、gate/up projectionとreduction順は変更しません。全2,856 layer-stepがexactな場合だけ公式16/128 oracleへ進み、ここを通過してもperformance requalification前にはproductionへ昇格しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

@@ -203,8 +203,11 @@ inline float glm53_native_e4m3(uint8_t code) {
       float up_value = clamp(float(up_t), -kSwiGLULimit, kSwiGLULimit);
       bfloat16_t gate_activation = bfloat16_t(gate_value);
       bfloat16_t up_activation = bfloat16_t(up_value);
+      // MLX v0.32.2 eager sigmoid rounds through the precise exponential.
+      // The ordinary AOT intrinsic differs by one BF16 value for the recorded
+      // step-29/layer-41 routed activation.
       auto sigmoid_tail =
-          1 / (1 + metal::exp(metal::abs(gate_activation)));
+          1 / (1 + metal::precise::exp(metal::abs(gate_activation)));
       bfloat16_t sigmoid_value = gate_activation < 0
           ? sigmoid_tail
           : 1 - sigmoid_tail;

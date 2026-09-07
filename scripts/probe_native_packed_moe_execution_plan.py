@@ -285,6 +285,9 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
         "uses_shape_specialized_routed_gate_up": bool(
             plan.uses_shape_specialized_routed_gate_up
         ),
+        "uses_precise_routed_sigmoid": bool(
+            plan.uses_precise_routed_sigmoid
+        ),
         "buffer_identities_stable": list(plan.buffer_identities)
         == initial_identities,
     }
@@ -333,6 +336,9 @@ class _Registry:
                 "scratch_bytes": int(plan.scratch_bytes),
                 "uses_shape_specialized_routed_gate_up": bool(
                     plan.uses_shape_specialized_routed_gate_up
+                ),
+                "uses_precise_routed_sigmoid": bool(
+                    plan.uses_precise_routed_sigmoid
                 ),
                 "buffer_identities": list(plan.buffer_identities),
                 "buffer_identities_stable": list(plan.buffer_identities)
