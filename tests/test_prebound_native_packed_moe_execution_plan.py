@@ -111,14 +111,27 @@ def test_probe_is_probe_only_and_changes_no_production_abi():
 
 
 def test_prebound_result_is_archived_when_present():
-    if not ARTIFACT.exists():
-        return
     artifact = json.loads(ARTIFACT.read_text())
     assert artifact["complete"] is True
-    if artifact["decision"] == "abort_prebound_native_packed_moe_execution_plan":
-        assert artifact["accepted"] is False
-        assert artifact["error"]["type"]
-        return
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == "stop_prebound_native_packed_moe_execution_plan"
     assert artifact["failed_gates"] == [
-        name for name, passed in artifact["acceptance"].items() if not passed
+        "2k_prebound_wall_saving_vs_exact_at_least_0_50ms",
+        "256k_prebound_wall_saving_vs_exact_at_least_0_50ms",
+        "2k_prebound_host_saving_vs_exact_at_least_0_50ms",
+        "256k_prebound_host_saving_vs_exact_at_least_0_50ms",
+        "2k_prebinding_recovers_at_least_1_50ms_host_tax",
+        "256k_prebinding_recovers_at_least_1_50ms_host_tax",
     ]
+    for context in ("2048", "262144"):
+        row = artifact["contexts"][context]
+        assert row["all_full_vocab_logits_byte_exact"]
+        assert row["all_generated_tokens_exact"]
+        assert row["all_post_states_byte_exact"]
+        assert abs(row["prebound_vs_unbound_host_saving_ms"]) < 0.1
+        assert row["prebound_vs_exact_host_saving_ms"] < -2.0
+        assert all(
+            evidence["static_input_validation_count"] == 10
+            and evidence["pipeline_lookup_count"] == 6
+            for evidence in row["prebound_plan_evidence"]
+        )

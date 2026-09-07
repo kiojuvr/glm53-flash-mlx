@@ -1227,6 +1227,8 @@ uv run python scripts/probe_prebound_native_packed_moe_execution_plan.py \
 
 prebound probeはA=exact composition、B=従来unbound native、C=prebound nativeを同じ2K/256K cacheから交互実行します。CはFP8 bank/shared weightsの10入力検証と6 pipeline lookupをlayerごとの初回bindへ移し、steady executeでは`x`、expert IDs、router scoresだけを受け取ります。kernel、scratch、演算順は不変です。CがAよりwall/host各0.50 ms以上速く、かつBからhost taxを1.50 ms以上回収した場合だけproduction designへ進めます。
 
+preboundは42/42層でstatic validationを10回、pipeline lookupを6回の初回だけへ固定しましたが、unbound比の差は2Kでwall -0.007 ms / host +0.011 ms、256Kでwall -0.112 ms / host -0.084 msと実質ゼロでした。exact composition比では依然wallが約1.6 ms、hostが2.1–2.6 ms悪化します。lookup/validationは支配項ではなく、各layer activationを`mx.async_eval`でscheduleしてから42回Python→native submissionする境界が残っています。このeager native call形はSTOPとし、次は同じAOT planをMLX lazy graphの評価時にencodeするprimitive境界だけを試します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
