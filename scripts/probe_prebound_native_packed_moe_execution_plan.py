@@ -234,10 +234,10 @@ def _bound_call(registry: _BoundRegistry, moe, x):
         indices.reshape(-1).astype(mx.uint32), allow_col_major=False
     )
     flat_scores = mx.contiguous(scores.reshape(-1), allow_col_major=False)
-    mx.async_eval(flat[0], expert_ids, flat_scores)
-    return registry.get(moe).execute_bound(
-        flat[0], expert_ids, flat_scores
-    ).reshape(x.shape)
+    input_row = flat[0]
+    plan = registry.get(moe)
+    mx.async_eval(input_row, expert_ids, flat_scores)
+    return plan.execute_bound(input_row, expert_ids, flat_scores).reshape(x.shape)
 
 
 @contextlib.contextmanager

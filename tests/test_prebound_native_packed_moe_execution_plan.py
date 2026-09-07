@@ -48,6 +48,17 @@ def test_bound_execute_validates_only_three_dynamic_inputs():
     assert "dynamic_input_validation_count_ += 3" in body
 
 
+def test_probe_reuses_the_scheduled_input_row_handle_for_native_submission():
+    source = PROBE.read_text()
+    start = source.index("def _bound_call(")
+    stop = source.index("@contextlib.contextmanager", start)
+    body = source[start:stop]
+    assert "input_row = flat[0]" in body
+    assert "mx.async_eval(input_row, expert_ids, flat_scores)" in body
+    assert "plan.execute_bound(input_row, expert_ids, flat_scores)" in body
+    assert body.count("flat[0]") == 1
+
+
 def test_probe_attributes_unbound_tax_and_keeps_fixed_performance_gates():
     source = PROBE.read_text()
     ast.parse(source)
@@ -104,6 +115,10 @@ def test_prebound_result_is_archived_when_present():
         return
     artifact = json.loads(ARTIFACT.read_text())
     assert artifact["complete"] is True
+    if artifact["decision"] == "abort_prebound_native_packed_moe_execution_plan":
+        assert artifact["accepted"] is False
+        assert artifact["error"]["type"]
+        return
     assert artifact["failed_gates"] == [
         name for name, passed in artifact["acceptance"].items() if not passed
     ]
