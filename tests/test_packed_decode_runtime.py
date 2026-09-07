@@ -41,6 +41,8 @@ def test_packed_decode_apc_identity_is_storage_and_decode_only(monkeypatch):
     assert descriptor["moe_backend"] == "packed-decode"
     assert "packed_bank_abi" in descriptor
     assert "packed_decode_kernel_abi" in descriptor
+    assert "exact-gate-up-swiglu" in descriptor["packed_decode_kernel_abi"]
+    assert "exact-weighted-reduction" in descriptor["packed_decode_kernel_abi"]
     assert "grouped_kernel_abi" not in descriptor
     assert "grouped_min_routes" not in descriptor
 

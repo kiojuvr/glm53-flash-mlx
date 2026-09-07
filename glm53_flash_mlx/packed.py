@@ -97,6 +97,143 @@ _PACKED_SELECTED_DOWN_SOURCE = r"""
     }
 """
 
+_PACKED_SELECTED_FUSED_GATE_UP_SWIGLU_SOURCE = r"""
+    uint tid = thread_position_in_threadgroup.x;
+    uint lane = thread_index_in_simdgroup;
+    uint simd_id = simdgroup_index_in_threadgroup;
+    uint group_id = threadgroup_position_in_grid.x;
+    uint selected = group_id / OUT_FEATURES;
+    uint out_row = group_id % OUT_FEATURES;
+    if (selected >= TOP_K) return;
+
+    uint expert = expert_ids[selected];
+    const device uint8_t* gate_wr = weight
+        + (size_t(expert) * BANK_OUT_FEATURES + out_row) * IN_FEATURES;
+    const device uint8_t* up_wr = weight
+        + (size_t(expert) * BANK_OUT_FEATURES + OUT_FEATURES + out_row)
+        * IN_FEATURES;
+    float gate_acc = 0.0f;
+    float up_acc = 0.0f;
+    for (uint k = tid; k < IN_FEATURES; k += THREADS) {
+        uint scale_col = k / BLOCK_SIZE;
+        size_t gate_scale_offset =
+            (size_t(expert) * BANK_SCALE_ROWS + out_row / BLOCK_SIZE)
+            * SCALE_COLS + scale_col;
+        size_t up_scale_offset =
+            (size_t(expert) * BANK_SCALE_ROWS + SCALE_HALF_ROWS
+             + out_row / BLOCK_SIZE) * SCALE_COLS + scale_col;
+        gate_acc += float(x[k]) * glm53_fp8_lut[gate_wr[k]]
+            * scale_inv[gate_scale_offset];
+        up_acc += float(x[k]) * glm53_fp8_lut[up_wr[k]]
+            * scale_inv[up_scale_offset];
+    }
+    gate_acc = simd_sum(gate_acc);
+    up_acc = simd_sum(up_acc);
+    constexpr uint NSIMD = THREADS / 32;
+    threadgroup float gate_partial[NSIMD];
+    threadgroup float up_partial[NSIMD];
+    if (lane == 0) {
+        gate_partial[simd_id] = gate_acc;
+        up_partial[simd_id] = up_acc;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simd_id == 0) {
+        float gate_total = lane < NSIMD ? gate_partial[lane] : 0.0f;
+        float up_total = lane < NSIMD ? up_partial[lane] : 0.0f;
+        gate_total = simd_sum(gate_total);
+        up_total = simd_sum(up_total);
+        if (lane == 0) {
+            // Preserve the two BF16 projection stores and the eager MLX
+            // clamp/SiLU/multiply rounding sequence exactly.
+            T gate_t = T(gate_total);
+            T up_t = T(up_total);
+            constexpr float LIMIT_F = float(LIMIT);
+            float gate_value = min(float(gate_t), LIMIT_F);
+            float up_value = clamp(float(up_t), -LIMIT_F, LIMIT_F);
+            T gate_activation = T(gate_value);
+            T up_activation = T(up_value);
+            auto sigmoid_tail = 1 / (
+                1 + metal::exp(metal::abs(gate_activation))
+            );
+            T sigmoid_value = (gate_activation < 0)
+                ? sigmoid_tail
+                : 1 - sigmoid_tail;
+            T silu_value = gate_activation * sigmoid_value;
+            T activated = silu_value * up_activation;
+            hidden[size_t(selected) * OUT_FEATURES + out_row] = T(activated);
+        }
+    }
+"""
+
+_PACKED_SELECTED_WEIGHTED_REDUCTION_SOURCE = r"""
+    uint out_row = thread_position_in_grid.x;
+    if (out_row >= OUT_FEATURES) return;
+    float total = 0.0f;
+    for (uint selected = 0; selected < TOP_K; ++selected) {
+        float contribution = float(
+            down[size_t(selected) * OUT_FEATURES + out_row]
+        ) * float(scores[selected]);
+        total += contribution;
+    }
+    output[out_row] = T(total);
+"""
+
+_SHARED_FUSED_GATE_UP_SWIGLU_SOURCE = r"""
+    uint tid = thread_position_in_threadgroup.x;
+    uint lane = thread_index_in_simdgroup;
+    uint simd_id = simdgroup_index_in_threadgroup;
+    uint out_row = threadgroup_position_in_grid.x;
+    if (out_row >= OUT_FEATURES) return;
+
+    const device uint8_t* gate_wr = gate_weight
+        + size_t(out_row) * IN_FEATURES;
+    const device uint8_t* up_wr = up_weight
+        + size_t(out_row) * IN_FEATURES;
+    float gate_acc = 0.0f;
+    float up_acc = 0.0f;
+    for (uint k = tid; k < IN_FEATURES; k += THREADS) {
+        size_t scale_offset = size_t(out_row / BLOCK_SIZE) * SCALE_COLS
+            + k / BLOCK_SIZE;
+        gate_acc += float(x[k]) * glm53_fp8_lut[gate_wr[k]]
+            * gate_scale_inv[scale_offset];
+        up_acc += float(x[k]) * glm53_fp8_lut[up_wr[k]]
+            * up_scale_inv[scale_offset];
+    }
+    gate_acc = simd_sum(gate_acc);
+    up_acc = simd_sum(up_acc);
+    constexpr uint NSIMD = THREADS / 32;
+    threadgroup float gate_partial[NSIMD];
+    threadgroup float up_partial[NSIMD];
+    if (lane == 0) {
+        gate_partial[simd_id] = gate_acc;
+        up_partial[simd_id] = up_acc;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simd_id == 0) {
+        float gate_total = lane < NSIMD ? gate_partial[lane] : 0.0f;
+        float up_total = lane < NSIMD ? up_partial[lane] : 0.0f;
+        gate_total = simd_sum(gate_total);
+        up_total = simd_sum(up_total);
+        if (lane == 0) {
+            T gate_t = T(gate_total);
+            T up_t = T(up_total);
+            constexpr float LIMIT_F = float(LIMIT);
+            float gate_value = min(float(gate_t), LIMIT_F);
+            float up_value = clamp(float(up_t), -LIMIT_F, LIMIT_F);
+            T gate_activation = T(gate_value);
+            T up_activation = T(up_value);
+            auto sigmoid_tail = 1 / (
+                1 + metal::exp(metal::abs(gate_activation))
+            );
+            T sigmoid_value = (gate_activation < 0)
+                ? sigmoid_tail
+                : 1 - sigmoid_tail;
+            T silu_value = gate_activation * sigmoid_value;
+            hidden[out_row] = silu_value * up_activation;
+        }
+    }
+"""
+
 _packed_selected_kernel = (
     mx.fast.metal_kernel(
         name="glm53_packed_selected8_fp8_projection",
@@ -115,6 +252,48 @@ _packed_selected_down_kernel = (
         input_names=["hidden", "expert_ids", "weight", "scale_inv"],
         output_names=["output"],
         source=_PACKED_SELECTED_DOWN_SOURCE,
+        header=_FP8_LUT_HEADER,
+    )
+    if mx.metal.is_available()
+    else None
+)
+
+_packed_selected_fused_gate_up_swiglu_kernel = (
+    mx.fast.metal_kernel(
+        name="glm53_packed_selected8_exact_gate_up_swiglu",
+        input_names=["x", "expert_ids", "weight", "scale_inv"],
+        output_names=["hidden"],
+        source=_PACKED_SELECTED_FUSED_GATE_UP_SWIGLU_SOURCE,
+        header=_FP8_LUT_HEADER,
+    )
+    if mx.metal.is_available()
+    else None
+)
+
+_packed_selected_weighted_reduction_kernel = (
+    mx.fast.metal_kernel(
+        name="glm53_packed_selected8_exact_weighted_reduction",
+        input_names=["down", "scores"],
+        output_names=["output"],
+        source=_PACKED_SELECTED_WEIGHTED_REDUCTION_SOURCE,
+        header=_FP8_LUT_HEADER,
+    )
+    if mx.metal.is_available()
+    else None
+)
+
+_shared_fused_gate_up_swiglu_kernel = (
+    mx.fast.metal_kernel(
+        name="glm53_shared_exact_gate_up_swiglu",
+        input_names=[
+            "x",
+            "gate_weight",
+            "gate_scale_inv",
+            "up_weight",
+            "up_scale_inv",
+        ],
+        output_names=["hidden"],
+        source=_SHARED_FUSED_GATE_UP_SWIGLU_SOURCE,
         header=_FP8_LUT_HEADER,
     )
     if mx.metal.is_available()
@@ -358,6 +537,124 @@ def _packed_selected_down(hidden, scores, expert_ids, bank):
     )
 
 
+def _packed_selected_fused_gate_up_swiglu(x, expert_ids, bank, *, limit: float):
+    """Exact batch-1 routed gate/up/SiLU execution over the packed bank."""
+    if _packed_selected_fused_gate_up_swiglu_kernel is None:
+        raise RuntimeError("exact fused packed decode requires Metal")
+    if float(limit) != int(limit):
+        raise ValueError("exact fused packed decode requires an integral clamp limit")
+    x = _metal_input(x)
+    expert_ids = _metal_input(expert_ids)
+    weight = _metal_input(bank.gate_up_weight)
+    scales = _metal_input(bank.gate_up_scale_inv)
+    out_features = int(bank.intermediate_size)
+    return _packed_selected_fused_gate_up_swiglu_kernel(
+        inputs=[x, expert_ids, weight, scales],
+        template=[
+            ("T", x.dtype),
+            ("IN_FEATURES", int(x.shape[-1])),
+            ("OUT_FEATURES", out_features),
+            ("BANK_OUT_FEATURES", int(weight.shape[1])),
+            ("BANK_SCALE_ROWS", int(scales.shape[1])),
+            ("SCALE_HALF_ROWS", int(bank.intermediate_scale_rows)),
+            ("SCALE_COLS", int(scales.shape[2])),
+            ("TOP_K", DECODE_TOP_K),
+            ("BLOCK_SIZE", BLOCK_SIZE),
+            ("THREADS", THREADS),
+            ("LIMIT", int(limit)),
+        ],
+        grid=(DECODE_TOP_K * out_features * THREADS, 1, 1),
+        threadgroup=(THREADS, 1, 1),
+        output_shapes=[(DECODE_TOP_K, out_features)],
+        output_dtypes=[x.dtype],
+    )[0]
+
+
+def _packed_selected_down_raw(hidden, expert_ids, bank):
+    """Return the existing BF16 top-8 down projections before route reduction."""
+    if _packed_selected_down_kernel is None:
+        raise RuntimeError("packed selected expert path requires Metal")
+    out_features = int(bank.down_weight.shape[1])
+    return _packed_selected_down_kernel(
+        inputs=[
+            _metal_input(hidden),
+            _metal_input(expert_ids),
+            _metal_input(bank.down_weight),
+            _metal_input(bank.down_scale_inv),
+        ],
+        template=[
+            ("T", hidden.dtype),
+            ("IN_FEATURES", int(bank.down_weight.shape[2])),
+            ("OUT_FEATURES", out_features),
+            ("TOP_K", DECODE_TOP_K),
+            ("SCALE_ROWS", int(bank.down_scale_inv.shape[1])),
+            ("SCALE_COLS", int(bank.down_scale_inv.shape[2])),
+            ("BLOCK_SIZE", BLOCK_SIZE),
+            ("THREADS", THREADS),
+        ],
+        grid=(DECODE_TOP_K * out_features * THREADS, 1, 1),
+        threadgroup=(THREADS, 1, 1),
+        output_shapes=[(DECODE_TOP_K, out_features)],
+        output_dtypes=[hidden.dtype],
+    )[0]
+
+
+def _packed_selected_weighted_reduction(down, scores):
+    """Reproduce MLX FP32 route weighting and ordered top-8 reduction exactly."""
+    if _packed_selected_weighted_reduction_kernel is None:
+        raise RuntimeError("exact packed route reduction requires Metal")
+    down = _metal_input(down)
+    scores = _metal_input(scores)
+    out_features = int(down.shape[1])
+    return _packed_selected_weighted_reduction_kernel(
+        inputs=[down, scores],
+        template=[
+            ("T", down.dtype),
+            ("S", scores.dtype),
+            ("OUT_FEATURES", out_features),
+            ("TOP_K", DECODE_TOP_K),
+        ],
+        grid=(out_features, 1, 1),
+        threadgroup=(THREADS, 1, 1),
+        output_shapes=[(out_features,)],
+        output_dtypes=[down.dtype],
+    )[0]
+
+
+def _shared_fused_gate_up_swiglu(x, shared, *, limit: float):
+    """Exact batch-1 gate/up/SiLU for GLM's single shared FP8 expert."""
+    if _shared_fused_gate_up_swiglu_kernel is None:
+        raise RuntimeError("exact fused shared expert requires Metal")
+    if float(limit) != int(limit):
+        raise ValueError("exact fused shared expert requires an integral clamp limit")
+    gate = shared.gate_proj
+    up = shared.up_proj
+    x = _metal_input(x)
+    intermediate = int(gate.weight.shape[0])
+    return _shared_fused_gate_up_swiglu_kernel(
+        inputs=[
+            x,
+            _metal_input(gate.weight),
+            _metal_input(gate.weight_scale_inv),
+            _metal_input(up.weight),
+            _metal_input(up.weight_scale_inv),
+        ],
+        template=[
+            ("T", x.dtype),
+            ("IN_FEATURES", int(x.shape[-1])),
+            ("OUT_FEATURES", intermediate),
+            ("SCALE_COLS", int(gate.weight_scale_inv.shape[1])),
+            ("BLOCK_SIZE", BLOCK_SIZE),
+            ("THREADS", THREADS),
+            ("LIMIT", int(limit)),
+        ],
+        grid=(intermediate * THREADS, 1, 1),
+        threadgroup=(THREADS, 1, 1),
+        output_shapes=[(intermediate,)],
+        output_dtypes=[x.dtype],
+    )[0]
+
+
 class _PackedLinearView:
     def __init__(
         self,
@@ -580,7 +877,7 @@ class PackedFP8ExpertBank(nn.Module):
 
 
 class PackedFP8MoE(DirectFP8MoE):
-    """Existing MoE execution semantics backed by a contiguous expert bank."""
+    """Exact fused batch-1 decode and Direct semantics over a packed bank."""
 
     def __init__(self, bank, config, gate, shared_experts):
         nn.Module.__init__(self)
@@ -605,21 +902,22 @@ class PackedFP8MoE(DirectFP8MoE):
             return super().__call__(x)
         expert_ids = indices.reshape(-1).astype(mx.uint32)
         flat_scores = scores.reshape(-1)
-        gate = _packed_selected_projection(
-            flat_x[0], expert_ids, self.bank, row_offset=0
-        )
-        up = _packed_selected_projection(
+        hidden = _packed_selected_fused_gate_up_swiglu(
             flat_x[0],
             expert_ids,
             self.bank,
-            row_offset=self.bank.intermediate_size,
+            limit=self.config.swiglu_limit,
         )
-        hidden = nn.silu(mx.minimum(gate, self.config.swiglu_limit)) * mx.clip(
-            up, -self.config.swiglu_limit, self.config.swiglu_limit
-        )
-        result = _packed_selected_down(
-            hidden, flat_scores, expert_ids, self.bank
+        raw_down = _packed_selected_down_raw(hidden, expert_ids, self.bank)
+        result = _packed_selected_weighted_reduction(
+            raw_down, flat_scores
         ).reshape(x.shape)
         if self.shared_experts is not None:
-            result = result + self.shared_experts(x)
+            shared_hidden = _shared_fused_gate_up_swiglu(
+                flat_x[0],
+                self.shared_experts,
+                limit=self.config.swiglu_limit,
+            )
+            shared = self.shared_experts.down_proj(shared_hidden).reshape(x.shape)
+            result = result + shared
         return result

@@ -7,7 +7,12 @@ GROUPED_MIN_ROUTES = 256
 PACKED_EXPERT_BANK_ABI = (
     "glm53-packed-expert-bank-v2-gate-up-output-major-row-contiguous"
 )
-PACKED_DECODE_KERNEL_ABI = "glm53-packed-selected8-fp8-v1"
+PACKED_DECODE_KERNEL_ABI = (
+    "glm53-packed-selected8-fp8-v2"
+    "-exact-gate-up-swiglu"
+    "-exact-weighted-reduction"
+    "-exact-shared-gate-up-swiglu"
+)
 NOPE_DSA_CACHE_ABI_DIRECT = (
     "glm53-nope-dsa-v1"
     "-kv-latent512"

@@ -1240,6 +1240,13 @@ lazy primitiveはbound weights/pipelinesとfixed scratchを共有しながら、
 
 lazy primitiveはeager nativeから2Kで2.120 ms、256Kで2.572 msのhost submitを回収し、exact compositionよりもhost側は0.089/0.148 ms短くなりました。42層すべてが1 executionあたり1 lazy graph nodeを使い、logits/token/stateもbyte-exactです。一方、wallはeager nativeと実質同じで、exact compositionより2Kで1.554 ms、256Kで1.441 ms遅いままでした。したがって残差はPython→native schedulingではなく6-kernel AOT topologyのGPU実行側です。lazy/prebound/eagerを含むnative packed MoE系列はSTOPとし、accepted exact fused MLX compositionをproduction候補として扱います。
 
+exact fused topologyはexperimental packed-decode runtimeへv2 ABIとして実装します。batch-1 decodeではrouted gate+up+SwiGLU、BF16 down後のFP32 weighted top-8 reduction、shared gate+up+SwiGLUをそれぞれexact Metal境界にし、L>1は従来どおりDirect packed-bank semanticsへ戻ります。packed-grouped backend、default backend、prompt admission、cache ABIは変更しません。次のqualificationは旧Direct runtimeを独立oracleとして4,096-step decode、2K/256K frontier、RAM APC、prefill非回帰、fresh server startupを再実行し、加えて2Kで15 tok/sを要求します。
+
+```bash
+uv run python scripts/qualify_exact_fused_packed_decode_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
