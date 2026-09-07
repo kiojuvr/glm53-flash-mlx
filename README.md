@@ -1247,6 +1247,8 @@ uv run python scripts/qualify_exact_fused_packed_decode_runtime.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
+M3 Ultra qualificationでは、Direct比のdecode speedupが2Kで1.292×、256Kで1.277×、4,096-stepで1.306×となり、全correctness、RAM APC、prefill非回帰、memory、fresh server ready 176.823秒を含む従来runtime gateはすべて合格しました。4,096-stepのtoken/evidence logits/final stateもexactで、active driftは約2.0 MiBです。一方、2K absolute throughputは14.010 tok/s（71.378 ms/token）で、固定した15 tok/s gateには届きません。v2 fused pathは既存experimental backendのexactかつ大幅に速い実装として保持しますが、15 tok/s release-performance promotionはSTOPです。15 tok/sには2Kでさらに4.711 ms/tokenの短縮が必要です。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

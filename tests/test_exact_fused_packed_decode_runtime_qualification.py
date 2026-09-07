@@ -42,14 +42,31 @@ def test_qualification_keeps_prefill_grouped_and_defaults_unchanged():
     assert '"grouped_backend": False' in source
 
 
-def test_qualification_artifact_is_accepted_when_present():
+def test_qualification_artifact_records_exact_keep_and_15_tps_stop_when_present():
     if not ARTIFACT.exists():
         return
     artifact = json.loads(ARTIFACT.read_text())
     assert artifact["schema"] == "glm53-exact-fused-packed-decode-runtime-v2"
     assert artifact["complete"] is True
-    assert artifact["accepted"] is True
-    assert artifact["decision"] == "keep_exact_fused_packed_decode_runtime"
-    assert all(artifact["promotion_acceptance"].values())
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == "stop_or_requalify_exact_fused_packed_decode_runtime"
+    assert artifact["promotion_acceptance"] == {
+        "2k_decode_at_least_15_tps": False,
+        "delegated_runtime_qualification_accepted": True,
+        "source_fused_composition_prequalified": True,
+        "v2_exact_fused_kernel_abi": True,
+    }
     assert artifact["acceptance"]["accepted"] is True
+    assert all(
+        value
+        for name, value in artifact["acceptance"].items()
+        if name != "accepted"
+    )
+    assert artifact["comparisons"]["decode_2k_speedup"] >= 1.12
+    assert artifact["comparisons"]["decode_256k_speedup"] >= 1.10
+    assert artifact["comparisons"]["decode_4096_speedup"] >= 1.10
+    assert artifact["comparisons"]["packed_compact_2k_to_256k_retention"] >= 0.90
+    assert artifact["packed_decode"]["frontier"]["direct:2049"][
+        "tokens_per_second"
+    ] < 15.0
     assert artifact["promotion"]["grouped_kernel_calls"] == 0
