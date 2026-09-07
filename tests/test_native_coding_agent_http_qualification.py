@@ -72,6 +72,7 @@ def test_script_is_split_across_separate_baseline_and_native_servers():
     assert "/v1/cache/reset" in source
     assert "/v1/cache/stats" in source
     assert "/v1/metrics" in source
+    assert '"compact-nope-dsa" if phase == "native" else "direct"' in source
 
 
 def test_workload_is_real_32k_coding_agent_multiturn_and_bounded():

@@ -451,18 +451,63 @@ def test_apc_clone_trim_replay_attention_output_hash_matches(target_mod, tokens)
     _assert_equal(attention(x, cache=original), attention(x, cache=restored))
 
 
-def test_long_sparse_prefill_rejection_is_atomic_and_precedes_latent_update():
+@pytest.mark.parametrize("tokens", [33, 64, 257])
+def test_long_sparse_prefill_matches_direct_attention_and_indexpool(tokens):
+    from mlx_vlm.models.cache import KVCache
+
+    attention = _make_attention(topk=32)
+    direct = [KVCache(), KVCache()]
+    compact = make_compact_nope_dsa_cache(
+        attention.indexer, capacity_tokens=tokens
+    )
+    x, _ = _inputs(0, tokens)
+
+    expected = attention(x, cache=direct)
+    actual = attention(x, cache=compact)
+    _assert_equal(expected, actual)
+    _assert_equal(
+        direct[0].keys[..., :tokens, :],
+        compact[0].keys[..., :tokens, :],
+    )
+    for left, right in zip(
+        direct[1]._pool[:3], compact[1].logical_pool(), strict=True
+    ):
+        _assert_equal(left, right)
+
+
+def test_chunked_long_sparse_prefill_matches_direct_at_each_chunk():
+    from mlx_vlm.models.cache import KVCache
+
+    attention = _make_attention(topk=32)
+    direct = [KVCache(), KVCache()]
+    compact = make_compact_nope_dsa_cache(
+        attention.indexer, capacity_tokens=128
+    )
+    for start, tokens in ((0, 31), (31, 33), (64, 64)):
+        x, _ = _inputs(start, tokens)
+        expected = attention(x, cache=direct)
+        actual = attention(x, cache=compact)
+        _assert_equal(expected, actual)
+        if hasattr(direct[1], "_pool"):
+            for left, right in zip(
+                direct[1]._pool[:3], compact[1].logical_pool(), strict=True
+            ):
+                _assert_equal(left, right)
+
+
+def test_padded_long_sparse_prefill_rejection_is_atomic_and_precedes_latent_update():
     from mlx_vlm.models.glm5_next.language import Glm5NextSparseAttention
 
     attention = _make_attention(topk=32)
-    cache = make_compact_nope_dsa_cache(attention.indexer, capacity_tokens=16)
+    cache = make_compact_nope_dsa_cache(attention.indexer, capacity_tokens=64)
     x, _ = _inputs(0, 32)
     attention(x, cache=cache)
     before = _copy_tree((cache.state, cache.meta_state))
     x, _ = _inputs(32, 2)
+    padding = mx.array([[True, False]], dtype=mx.bool_)
 
-    with pytest.raises(ValueError, match="long sparse prefill"):
-        attention(x, cache=cache)
+    with pytest.raises(ValueError, match="unpadded"):
+        attention(x, mask=padding, cache=cache)
 
     _assert_tree_equal(before, (cache.state, cache.meta_state))
     sparse_source = inspect.getsource(Glm5NextSparseAttention.__call__)

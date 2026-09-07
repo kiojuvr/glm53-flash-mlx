@@ -1,6 +1,6 @@
 # GLM-5.3-Flash MLX runtime for M3 Ultra 512 GB
 
-`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。exactなpacked decode MoE、correctness未合格のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。sparse DSA prefillは未実装です。
+`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。exactなpacked decode MoE、correctness未合格のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。compactの長文sparse DSA prefillはbatch 1・unpadded inputだけを明示的に扱い、それ以外はcache mutation前にfail closedします。
 
 提供する主なendpointは次のとおりです。
 
@@ -802,7 +802,7 @@ tail/journal appendは全contextで114,620 bytesと一定で、phase retention�
 
 ### Opt-in production compact NoPE DSA cache
 
-production moduleはprobe scriptへ依存せず、`SingleNoPELatentCache`と`CompactIndexPoolCache`を実装します。前者はlatent 512を一つだけ保持し、後者はcontiguous pool keys/int64 indices/valid、最大3-token active tail、16-token rollback journalだけをauthoritative stateにします。decode/append/score/trim hot pathにNumPy、`.item()`、明示的`mx.eval`、CPU同期はありません。v4では容量を追加headroomではなくcache incarnation先頭からの絶対token位置として固定します。serverは最大prompt 256＋最大generation 4,096から両compact childへ4,352を渡し、追加容量は`reserve_until(absolute_token_capacity)`でのみ拡張します。v4 stateは絶対capacity、小さなcompress APE tensor、純粋pooling演算を保持するため、RAM APC clone直後もIndexer参照なしでtrimできます。CacheList rollbackとlong sparse prefill拒否は全cache mutation前にpreflightします。
+production moduleはprobe scriptへ依存せず、`SingleNoPELatentCache`と`CompactIndexPoolCache`を実装します。前者はlatent 512を一つだけ保持し、後者はcontiguous pool keys/int64 indices/valid、最大3-token active tail、16-token rollback journalだけをauthoritative stateにします。decode/append/score/trim hot pathにNumPy、`.item()`、明示的`mx.eval`、CPU同期はありません。v4では容量を追加headroomではなくcache incarnation先頭からの絶対token位置として固定します。serverは総context capacityを両compact childへ渡し、追加容量は`reserve_until(absolute_token_capacity)`でのみ拡張します。v4 stateは絶対capacity、小さなcompress APE tensor、純粋pooling演算を保持するため、RAM APC clone直後もIndexer参照なしでtrimできます。長文prefillはDirectと同じcausal pool visibility、score reduction、exact argsort、partial-tail順序を最大256 query rowsずつ処理し、full packed Indexer historyを保持しません。batch > 1または明示的なpadded long inputの拒否はlatentを含む全cache mutation前にpreflightします。
 
 prompt 1/16/128/256からの16-token decodeは全stepのfull-vocab logitsがDirectとbyte-identicalです。synthetic 2k sparse cacheでも5 measured stepのfull-model logits hashがDirectと一致しました。RAM APC restore位置mod 4 = 0/1/2/3は各16-token continuationがbyte-identicalで、prefill後のpacked Indexer full historyは存在せず、raw stateは最大19 tokenです。256-token caseのdecode中active memoryは増加せず、正のgrowth最大値はprompt 1の13.8 MBでした。
 
@@ -1287,7 +1287,7 @@ M3 Ultra qualificationでは、exact fused packed＋compactのMLX IndexPool基�
 
 ### Native backend coding-agent HTTP qualification
 
-KEEPしたnative IndexPool backendを、実repository text、system prompt、tool schema、conversation history、assistant tool call、tool resultを含む32K OpenAI-compatible workloadで最終比較します。baselineとnativeは320 GB級allocator stateを共有しない別server processで実行し、同じatomic artifactへ順に記録します。各armはcold 32K request、guarded 32K prefixを再利用するtool-result suffix、extended prefixを再利用する同一suffix warm repeatをそれぞれ256 token生成します。したがってcold 32K prefillは各processで1回だけです。
+KEEPしたnative IndexPool backendを、実repository text、system prompt、tool schema、conversation history、assistant tool call、tool resultを含む32K OpenAI-compatible workloadで最終比較します。baselineはaccepted Direct cache、nativeはcompact cache＋native IndexPoolとし、320 GB級allocator stateを共有しない別server processで同じatomic artifactへ順に記録します。native IndexPool単体のcompact MLX比較は上記component qualificationを正本とし、ここではcandidate stack全体をDirect HTTP oracleへ照合します。各armはcold 32K request、guarded 32K prefixを再利用するtool-result suffix、extended prefixを再利用する同一suffix warm repeatをそれぞれ256 token生成します。したがってcold 32K prefillは各processで1回だけです。
 
 baseline serverを起動し、別terminalでbaseline phaseを実行します。
 
@@ -1295,8 +1295,7 @@ baseline serverを起動し、別terminalでbaseline phaseを実行します。
 uv run glm53 serve \
   --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --apc \
-  --experimental-packed-decode-moe \
-  --experimental-compact-nope-dsa-cache
+  --experimental-packed-decode-moe
 
 uv run python scripts/qualify_native_coding_agent_http.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \

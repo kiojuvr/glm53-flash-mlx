@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Qualify the native IndexPool backend on a real 32K coding-agent HTTP flow.
 
-Run ``baseline`` against packed-decode + compact-cache + APC, then restart the
-server with the additional native IndexPool flag and run ``native``.  The two
+Run ``baseline`` against packed-decode + Direct cache + APC, then restart the
+server with compact cache and the native IndexPool flag for ``native``.  The two
 phases share one artifact but never keep two 320 GB model processes resident.
 Each arm performs one cold 32K request, a tool-result suffix request which must
 reuse the guarded base prefix, and an exact warm repeat of that extended turn.
@@ -168,6 +168,18 @@ def _initial_artifact(model: Path) -> dict[str, Any]:
             "prefill_alignment_tokens": PREFILL_ALIGNMENT,
             "expected_dsa_layers": EXPECTED_DSA_LAYERS,
             "server_processes_are_separate": True,
+            "arms": {
+                "baseline": {
+                    "moe_backend": "packed-decode",
+                    "cache_backend": "direct",
+                    "native_indexpool_update": False,
+                },
+                "native": {
+                    "moe_backend": "packed-decode",
+                    "cache_backend": "compact-nope-dsa",
+                    "native_indexpool_update": True,
+                },
+            },
         },
         "phases": {},
         "runtime_changes": {
@@ -199,7 +211,10 @@ def _load_artifact(path: Path, model: Path) -> dict[str, Any]:
             "existing output belongs to a different checkpoint identity"
         )
     artifact.update(
-        date=fresh["date"], source_native_runtime=fresh["source_native_runtime"]
+        date=fresh["date"],
+        source_native_runtime=fresh["source_native_runtime"],
+        configuration=fresh["configuration"],
+        runtime_changes=fresh["runtime_changes"],
     )
     return artifact
 
@@ -261,7 +276,9 @@ def _preflight(args, phase: str) -> dict[str, Any]:
     runtime = metrics.get("server", {}).get("glm53_runtime")
     expected = {
         "moe_backend": "packed-decode",
-        "cache_backend": "compact-nope-dsa",
+        "cache_backend": (
+            "compact-nope-dsa" if phase == "native" else "direct"
+        ),
         "native_indexpool_update": phase == "native",
     }
     if runtime != expected:

@@ -13,6 +13,7 @@ from .cache_geometry import (
     DEFAULT_NOPE_CACHE_TILE_ALIGNMENT,
     plan_nope_cache_capacity,
 )
+from .dsa_workspace import plan_dsa_indexer_workspace
 from .indexpool import INDEXPOOL_SENTINEL, expand_selected_pools
 from .native_indexpool_runtime import is_not_used, try_native_update
 
@@ -21,6 +22,7 @@ DEFAULT_CACHE_STEP = (
 )
 DEFAULT_ROLLBACK_WINDOW = 16
 DEFAULT_CAPACITY_TOKENS = 4352
+MAX_PREFILL_QUERY_BLOCK_ROWS = 256
 
 
 def _concat(left: mx.array | None, right: mx.array) -> mx.array:
@@ -311,7 +313,14 @@ class CompactIndexPoolCache:
         if indexer.index_kpool_compress_ape.shape != self.compress_ape.shape:
             raise ValueError("restored compact IndexPool APE shape does not match Indexer")
 
-    def validate_update(self, indexer, *, batch: int, length: int) -> bool:
+    def validate_update(
+        self,
+        indexer,
+        *,
+        batch: int,
+        length: int,
+        mask=None,
+    ) -> bool:
         if batch != 1:
             raise ValueError("compact NoPE DSA cache supports batch size 1 only")
         self._validate_indexer(indexer)
@@ -320,10 +329,16 @@ class CompactIndexPoolCache:
             getattr(indexer, "bypass_short", True)
             and resulting_tokens <= self.index_topk
         )
-        if length != 1 and not short_bypass:
+        if (
+            length != 1
+            and not short_bypass
+            and mask is not None
+            and mask.dtype == mx.bool_
+            and mask.shape == (batch, length)
+        ):
             raise ValueError(
-                "compact NoPE DSA sparse path supports incremental decode only; "
-                "long sparse prefill is not admitted"
+                "compact NoPE DSA long sparse prefill requires an unpadded "
+                "single-sequence input"
             )
         return short_bypass
 
@@ -484,10 +499,93 @@ class CompactIndexPoolCache:
         valid = valid & valid_cur[..., None]
         return mx.where(valid, topk, INDEXPOOL_SENTINEL)[:, None]
 
+    def _prefill_selection(self, indexer, x, qr):
+        """Select exact causal IndexPool rows without retaining token history."""
+
+        batch, length, _ = x.shape
+        if batch != 1 or length <= 1:
+            raise ValueError("compact prefill selection requires batch 1 and L > 1")
+        pool_keys, pool_indices, pool_valid = self.logical_pool()
+        pool_count = self.logical_pool_count
+        geometry = plan_dsa_indexer_workspace(
+            context_tokens=self.total_tokens,
+            num_query_rows=length,
+            index_kpool=self.index_kpool,
+            index_topk=self.index_topk,
+        )
+        query_block_rows = min(
+            MAX_PREFILL_QUERY_BLOCK_ROWS,
+            geometry.query_block_rows,
+        )
+        query = indexer.wq_b(qr).reshape(
+            1, length, indexer.n_heads, indexer.head_dim
+        )
+        pool_keys_t = pool_keys[:, None].swapaxes(-1, -2)
+        pool_end = mx.clip(pool_indices[..., -1], 0, self.total_tokens - 1)
+        select_k = min(self.index_topk // self.index_kpool, pool_count)
+        offset = self.total_tokens - length
+        tail_width = (
+            self.index_kpool - 1
+            if self.always_select_tail and self.index_kpool > 1
+            else 0
+        )
+        tail_offsets = mx.arange(tail_width, dtype=mx.int64)
+        outputs = []
+        for start in range(0, length, query_block_rows):
+            stop = min(start + query_block_rows, length)
+            absolute = offset + mx.arange(start, stop, dtype=mx.int64)
+            scores = query[:, start:stop] @ pool_keys_t
+            scores = mx.maximum(scores * indexer.softmax_scale, 0.0)
+            weights = indexer.weights_proj(x[:, start:stop]) * (
+                indexer.n_heads**-0.5
+            )
+            index_scores = mx.sum(weights[..., None] * scores, axis=2)
+            visible = pool_end[:, None, :] <= absolute[None, :, None]
+            valid_candidates = visible & pool_valid[:, None]
+            index_scores = mx.where(valid_candidates, index_scores, -1e30)
+            order = mx.argsort(-index_scores, axis=-1)
+            selected = order[..., :select_k]
+            selected_valid = mx.take_along_axis(
+                valid_candidates, selected, axis=-1
+            )
+
+            if tail_width:
+                tail_count = (absolute + 1) % self.index_kpool
+                tail_start = absolute + 1 - tail_count
+                tail_positions = tail_start[:, None] + tail_offsets[None]
+                tail_valid = tail_offsets[None] < tail_count[:, None]
+                tail_positions = tail_positions[None]
+                tail_valid = tail_valid[None]
+            else:
+                width = stop - start
+                tail_positions = mx.zeros((1, width, 0), dtype=mx.int64)
+                tail_valid = mx.zeros((1, width, 0), dtype=mx.bool_)
+            expanded, _ = expand_selected_pools(
+                selected,
+                pool_indices,
+                selected_valid,
+                kv_len=self.total_tokens,
+                index_topk=self.index_topk,
+                index_kpool=self.index_kpool,
+                tail_positions=tail_positions,
+                tail_valid=tail_valid,
+                always_select_tail=self.always_select_tail,
+            )
+            outputs.append(expanded)
+        selected = (
+            outputs[0]
+            if len(outputs) == 1
+            else mx.concatenate(outputs, axis=1)
+        )
+        return selected[:, None].astype(mx.int32)
+
     def update(self, indexer, x: mx.array, qr: mx.array, mask=None):
         length = int(x.shape[1])
         short_bypass = self.validate_update(
-            indexer, batch=int(x.shape[0]), length=length
+            indexer,
+            batch=int(x.shape[0]),
+            length=length,
+            mask=mask,
         )
         native = try_native_update(
             self,
@@ -508,6 +606,8 @@ class CompactIndexPoolCache:
         self._append_projected(keys, gates, valid)
         if short_bypass:
             return None
+        if length != 1:
+            return self._prefill_selection(indexer, x, qr)
         return self._decode_selection(indexer, x, qr, valid)
 
     def is_trimmable(self) -> bool:

@@ -209,7 +209,12 @@ def apply_runtime_patch() -> None:
 
             if cache is not None and isinstance(cache[1], CompactIndexPoolCache):
                 # Preflight before either the latent or IndexPool cache mutates.
-                cache[1].validate_update(self.indexer, batch=B, length=L)
+                cache[1].validate_update(
+                    self.indexer,
+                    batch=B,
+                    length=L,
+                    mask=mask,
+                )
 
             qr = self.q_a_layernorm(self.q_a_proj(x))
             q = self.q_b_proj(qr)
