@@ -282,6 +282,9 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
             plan.returned_intermediate_tensor_bytes
         ),
         "scratch_bytes": int(plan.scratch_bytes),
+        "uses_shape_specialized_routed_gate_up": bool(
+            plan.uses_shape_specialized_routed_gate_up
+        ),
         "buffer_identities_stable": list(plan.buffer_identities)
         == initial_identities,
     }
@@ -328,6 +331,9 @@ class _Registry:
                     plan.returned_intermediate_tensor_bytes
                 ),
                 "scratch_bytes": int(plan.scratch_bytes),
+                "uses_shape_specialized_routed_gate_up": bool(
+                    plan.uses_shape_specialized_routed_gate_up
+                ),
                 "buffer_identities": list(plan.buffer_identities),
                 "buffer_identities_stable": list(plan.buffer_identities)
                 == self.initial_identities[key],

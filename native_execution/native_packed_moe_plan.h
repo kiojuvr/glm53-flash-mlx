@@ -43,6 +43,11 @@ public:
   uint64_t returned_intermediate_tensor_bytes() const { return 0; }
   uint64_t scratch_bytes() const;
   std::vector<uint64_t> buffer_identities() const;
+  bool uses_shape_specialized_routed_gate_up() const {
+    return hidden_size_ == 4096 && intermediate_size_ == 2048 &&
+        intermediate_scale_rows_ == 16 && hidden_scale_rows_ == 32 &&
+        swiglu_limit_ == 10;
+  }
   mx::array debug_routed_hidden() const { return routed_hidden_; }
   mx::array debug_routed_down() const { return routed_down_; }
   mx::array debug_routed_output() const { return routed_output_; }

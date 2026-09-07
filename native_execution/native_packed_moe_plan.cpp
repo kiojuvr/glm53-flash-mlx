@@ -143,8 +143,10 @@ mx::array NativePackedMoEDecodePlan::execute(
   auto &device = mx::metal::device(stream_.device);
   auto *library =
       device.get_library("glm53_native_execution", current_binary_dir());
-  auto *routed_gate_up = device.get_kernel(
-      "glm53_native_packed_selected8_gate_up_swiglu", library);
+  const char *routed_gate_up_name = uses_shape_specialized_routed_gate_up()
+      ? "glm53_native_glm53_packed_selected8_gate_up_swiglu"
+      : "glm53_native_packed_selected8_gate_up_swiglu";
+  auto *routed_gate_up = device.get_kernel(routed_gate_up_name, library);
   auto *routed_down =
       device.get_kernel("glm53_native_packed_selected8_down", library);
   auto *aggregate = device.get_kernel(

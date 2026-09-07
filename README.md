@@ -1156,6 +1156,17 @@ uv run python scripts/localize_native_packed_moe_divergence.py \
 
 step 68以前の別stageで最初の差が見つかればそのstageだけを修復し、時系列replayが全件exactならnative算術を変更せずfull graph/fixed-arena consumer lifetimeへ移ります。この診断は約5,712個のowned activation/outputを一時保持しますがcheckpointやcache payloadは保存せず、runtime/server/APC/cache/kernel production ABIを変更しません。
 
+実機局所化では1,214 layer-stepがexactだった後、step 29・layer 41のrouted hiddenで最初の差を検出しました。最大差はBF16の`6.103515625e-05`で、shared hidden/downはexactだったため、fixed arena、down、weighted reduction、final addではなくrouted gate/up/SwiGLU境界へ原因を限定しました。exact JIT oracleはhidden/intermediate/scale geometryとSwiGLU limitをMetal compile-time定数として生成する一方、AOT native planはruntime bufferで受けていたため、GLM-5.3の4096/2048/block-128/limit-10 geometryだけをcompile-time specializeしたrepair armを追加します。generic kernelは人工ABI fixture用に維持します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_shape_specialized_native_moe_repair.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+repair armは保存済み正本と同じtrajectoryから2,856 layer-stepをreplayし、その全件がbyte-exactの場合だけ公式16/128-token oracleへ進みます。両gateを通過してもproduction昇格はせず、2K/256K wall/host性能を改めてqualificationします。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
