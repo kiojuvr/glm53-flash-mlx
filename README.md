@@ -1283,6 +1283,8 @@ uv run python scripts/qualify_native_indexpool_runtime.py \
 
 component gateは2K非劣化、256K wall 0.75 ms/token以上短縮、両contextの全logits/token/cache state exact、全11 DSA層のnative execute、4,096-stepと16 materialization checkpoint exact、公式16/128 oracle、fresh server ready 190秒以内、peak 340 GB以内です。2K 15 tok/sは独立したrelease gateとして固定し、component採用条件と混同しません。
 
+M3 Ultra qualificationでは、exact fused packed＋compactのMLX IndexPool基準に対して、native runtimeは2Kを70.316→63.495 ms/token（14.222→15.749 tok/s、1.107×）、256Kを73.381→67.227 ms/token（13.627→14.875 tok/s、1.092×）へ短縮しました。2K→256K retentionは0.944、全screen logits/token/cache stateと公式16/128 oracleはbyte-exactです。4,096-step differentialでも45,056/45,056 native DSA executions、16/16 materialization checkpoint、全step full-vocab logits/token、最終cache stateがexactで、NaNは0、peakは320.788 GBでした。fresh serverは174.952秒でreadyとなり、health/metrics HTTP 200とnative runtime ABIを確認しました。component gateと固定15 tok/s release gateの双方を通過したため、この組合せをexact opt-in production backendとしてKEEPします。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

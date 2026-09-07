@@ -1,0 +1,640 @@
+{
+  "accepted": true,
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "date": "2026-09-07",
+  "decision": "keep_native_indexpool_runtime_and_pass_15_tps",
+  "extension": {
+    "abi": "glm53-native-indexpool-update-island-v1-decode-raw19-kpool4-exact-bf16-softmax-reduction-tier1-score-selection-mlx0322-explicit-opt-in-v1",
+    "extension": "/Volumes/SDXC-512/glm53-flash-mlx/native_execution/glm53_native_execution/__init__.py",
+    "mlx_version": "0.32.2"
+  },
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "native_runtime_abi": "glm53-native-indexpool-update-island-v1-decode-raw19-kpool4-exact-bf16-softmax-reduction-tier1-score-selection-mlx0322-explicit-opt-in-v1",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "phases": {
+    "long": {
+      "accepted": true,
+      "complete": true,
+      "evidence": {
+        "1024": {
+          "logits_hash": "5c93946a53720362ed153b5ad50cdcf9a7973db627bde2d79680ae5cb8ea8c73",
+          "state_exact": true
+        },
+        "1280": {
+          "logits_hash": "4c8b0deaf94b51bb02f3d881cc90b448b109a7764e0a065dafe6bf8aa3b155b9",
+          "state_exact": true
+        },
+        "1536": {
+          "logits_hash": "420652e38f5fb806b0b32be1e4054d40d4e93d21ab0ce4f73cd3d270bf130bc9",
+          "state_exact": true
+        },
+        "1792": {
+          "logits_hash": "7950960c38bd8cd15ddcde8d2aed7c82161e4fef42fe35ac4ec3c149e15eb425",
+          "state_exact": true
+        },
+        "2048": {
+          "logits_hash": "5bafd0462e27069ae9e6d3163b13d8e0e07c0a7dbcd5077ebae188d6acfdc21f",
+          "state_exact": true
+        },
+        "2304": {
+          "logits_hash": "52ae7e38886c27acf1629bab530c40f15069e8bba46bb61ac6050f5b101d3a04",
+          "state_exact": true
+        },
+        "256": {
+          "logits_hash": "143b44afeb9d3b08943596ab1e6c956c5d08f6a7c8dec19c68aec3b4c58deea0",
+          "state_exact": true
+        },
+        "2560": {
+          "logits_hash": "58349c530637064dc3c040307a6712ceb21eabc7dd20509b9e10e83cafe4de7e",
+          "state_exact": true
+        },
+        "2816": {
+          "logits_hash": "3edaa48514740d3b90ea76de6c9c81243c52fd9464c4d8974a7cea03c1fcec72",
+          "state_exact": true
+        },
+        "3072": {
+          "logits_hash": "2e6dbe3d1184220e908e6ecb3ca226c5bad20aebd8c366d2d49ac93833b8f583",
+          "state_exact": true
+        },
+        "3328": {
+          "logits_hash": "5cf3285e6efa70e09d29dd1bacc32bd9261a05ca7771107bbcbe4c83cfe00e83",
+          "state_exact": true
+        },
+        "3584": {
+          "logits_hash": "99f574538c16e80d746b1723fc420df9cdc76e7ed47ca132302e6f43bf9a88df",
+          "state_exact": true
+        },
+        "3840": {
+          "logits_hash": "9aa2b6ddaf9b87c73807478d0d89f29da32b66af29de98a3ddeb374a8d89d392",
+          "state_exact": true
+        },
+        "4096": {
+          "logits_hash": "8c2a404c0619610168551b3f554950d7fb455220fdfa35a5ebe402a18319bed0",
+          "state_exact": true
+        },
+        "512": {
+          "logits_hash": "8d74224595c88597d09652455c2854770e660008bdf6057eb7dce9c09f1644ca",
+          "state_exact": true
+        },
+        "768": {
+          "logits_hash": "376def9c3dd9307ffc306edc1cdc3a634d10a67bc0ecd118f3f68c1bade7e9fe",
+          "state_exact": true
+        }
+      },
+      "expected_native_execution_count": 45056,
+      "first_divergence": null,
+      "gates": {
+        "4096_steps_completed": true,
+        "all_11_dsa_layers_executed_each_step": true,
+        "all_16_materialization_checkpoints_exact": true,
+        "all_full_vocab_logits_and_tokens_exact": true,
+        "final_cache_state_exact": true,
+        "nan_count_zero": true,
+        "process_peak_at_most_340GB": true
+      },
+      "materialization_count": 16,
+      "nan_count": 0,
+      "native_execution_count_delta": 45056,
+      "process_peak_memory_bytes": 320787777951,
+      "restored_capacity": {
+        "mlx": [
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 3,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 7,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 11,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 15,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 19,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 23,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 27,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 31,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 35,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 39,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 43,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          }
+        ],
+        "native": [
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 3,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 7,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 11,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 15,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 19,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 23,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 27,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 31,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 35,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 39,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          },
+          {
+            "latent_physical_tokens": 8448,
+            "layer": 43,
+            "pool_physical_rows": 2112,
+            "pool_physical_tokens": 8448,
+            "required_tokens": 8256,
+            "reserved": true
+          }
+        ]
+      },
+      "steps_completed": 4096
+    },
+    "screen": {
+      "accepted": true,
+      "complete": true,
+      "contexts": {
+        "2048": {
+          "all_full_vocab_logits_byte_exact": true,
+          "all_generated_tokens_exact": true,
+          "context_tokens": 2048,
+          "expected_native_execution_count": 77,
+          "native_execution_count_delta": 77,
+          "native_registry": {
+            "abi": "glm53-native-indexpool-update-island-v1-decode-raw19-kpool4-exact-bf16-softmax-reduction-tier1-score-selection-mlx0322-explicit-opt-in-v1",
+            "execution_count": 77,
+            "live_plan_count": 11,
+            "scratch_bytes": 681010
+          },
+          "native_speedup": 1.1074259219836446,
+          "native_wall_saving_ms": 6.820999999999998,
+          "post_state_byte_exact": true,
+          "timing": {
+            "mlx": {
+              "median_host_submit_ms": 4.477125,
+              "median_wall_ms": 70.315917,
+              "samples": [
+                {
+                  "host_submit_ms": 4.502667,
+                  "wall_ms": 70.138208
+                },
+                {
+                  "host_submit_ms": 4.477125,
+                  "wall_ms": 70.410542
+                },
+                {
+                  "host_submit_ms": 4.493625,
+                  "wall_ms": 70.30175
+                },
+                {
+                  "host_submit_ms": 4.465166,
+                  "wall_ms": 70.504833
+                },
+                {
+                  "host_submit_ms": 4.443542,
+                  "wall_ms": 70.315917
+                }
+              ],
+              "tokens_per_second": 14.22153109373515
+            },
+            "native": {
+              "median_host_submit_ms": 55.542042,
+              "median_wall_ms": 63.494917,
+              "samples": [
+                {
+                  "host_submit_ms": 55.62775,
+                  "wall_ms": 63.600667
+                },
+                {
+                  "host_submit_ms": 55.444209,
+                  "wall_ms": 63.390959
+                },
+                {
+                  "host_submit_ms": 55.542042,
+                  "wall_ms": 63.494917
+                },
+                {
+                  "host_submit_ms": 55.4765,
+                  "wall_ms": 63.443
+                },
+                {
+                  "host_submit_ms": 55.634583,
+                  "wall_ms": 63.596333
+                }
+              ],
+              "tokens_per_second": 15.749292183498719
+            }
+          }
+        },
+        "262144": {
+          "all_full_vocab_logits_byte_exact": true,
+          "all_generated_tokens_exact": true,
+          "context_tokens": 262144,
+          "expected_native_execution_count": 77,
+          "native_execution_count_delta": 77,
+          "native_registry": {
+            "abi": "glm53-native-indexpool-update-island-v1-decode-raw19-kpool4-exact-bf16-softmax-reduction-tier1-score-selection-mlx0322-explicit-opt-in-v1",
+            "execution_count": 77,
+            "live_plan_count": 11,
+            "scratch_bytes": 47888434
+          },
+          "native_speedup": 1.0915472589403736,
+          "native_wall_saving_ms": 6.154417000000009,
+          "post_state_byte_exact": true,
+          "timing": {
+            "mlx": {
+              "median_host_submit_ms": 4.466417,
+              "median_wall_ms": 73.381083,
+              "samples": [
+                {
+                  "host_submit_ms": 4.571917,
+                  "wall_ms": 73.40925
+                },
+                {
+                  "host_submit_ms": 4.460959,
+                  "wall_ms": 73.466167
+                },
+                {
+                  "host_submit_ms": 4.466417,
+                  "wall_ms": 73.22475
+                },
+                {
+                  "host_submit_ms": 4.462041,
+                  "wall_ms": 73.381083
+                },
+                {
+                  "host_submit_ms": 4.486083,
+                  "wall_ms": 73.369625
+                }
+              ],
+              "tokens_per_second": 13.627490343798822
+            },
+            "native": {
+              "median_host_submit_ms": 58.925083,
+              "median_wall_ms": 67.226666,
+              "samples": [
+                {
+                  "host_submit_ms": 59.02675,
+                  "wall_ms": 67.308209
+                },
+                {
+                  "host_submit_ms": 58.841208,
+                  "wall_ms": 67.066291
+                },
+                {
+                  "host_submit_ms": 58.918083,
+                  "wall_ms": 67.226666
+                },
+                {
+                  "host_submit_ms": 58.950167,
+                  "wall_ms": 67.256125
+                },
+                {
+                  "host_submit_ms": 58.925083,
+                  "wall_ms": 67.218667
+                }
+              ],
+              "tokens_per_second": 14.875049731010014
+            }
+          }
+        }
+      },
+      "gates": {
+        "256k_wall_saving_at_least_0_75ms": true,
+        "2k_regression_at_most_1_percent": true,
+        "both_contexts_execute_all_11_dsa_layers": true,
+        "both_contexts_logits_tokens_state_exact": true,
+        "official_16_128_oracle_exact": true,
+        "process_peak_at_most_340GB": true
+      },
+      "official_oracle": {
+        "all_full_vocab_logits_hashes_match": true,
+        "elapsed_seconds": 8.634918125113472,
+        "executed": true,
+        "failures_128": [],
+        "failures_16": [],
+        "first_16_match": true,
+        "full_128_match": true,
+        "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+        "prompt_tokens": 17
+      },
+      "process_peak_memory_bytes": 331490296484,
+      "release_15_tps_gate": true
+    },
+    "server": {
+      "accepted": true,
+      "command": [
+        "/Volumes/SDXC-512/glm53-flash-mlx/.venv/bin/glm53-serve",
+        "--model",
+        "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18084",
+        "--experimental-packed-decode-moe",
+        "--experimental-compact-nope-dsa-cache",
+        "--experimental-native-indexpool-update"
+      ],
+      "complete": true,
+      "error": null,
+      "gates": {
+        "health_http_200": true,
+        "metrics_http_200": true,
+        "native_runtime_abi_reported": true,
+        "ready_at_most_190_seconds": true
+      },
+      "health": {
+        "apc_enabled": false,
+        "configured_context_limit": 36864,
+        "continuous_batching_enabled": true,
+        "effective_context_limit": 36864,
+        "loaded_adapter": null,
+        "loaded_context_size": 1048576,
+        "loaded_model": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+        "loaded_models": {
+          "text_generation": {
+            "adapter": null,
+            "model": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+            "model_kind": "text_generation"
+          }
+        },
+        "loaded_tool_parser": "glm47",
+        "status": "healthy"
+      },
+      "health_http_status": 200,
+      "log_tail": [
+        "2026-09-07 23:24:45,461 INFO glm53_flash_mlx.loader: packed-decode MoE layer=16 active=101.869 GB peak=109.119 GB",
+        "2026-09-07 23:24:45,929 INFO glm53_flash_mlx.loader: packed-decode MoE layer=17 active=109.119 GB peak=116.368 GB",
+        "2026-09-07 23:24:46,387 INFO glm53_flash_mlx.loader: packed-decode MoE layer=18 active=116.368 GB peak=123.618 GB",
+        "2026-09-07 23:24:46,859 INFO glm53_flash_mlx.loader: packed-decode MoE layer=19 active=123.618 GB peak=130.867 GB",
+        "2026-09-07 23:24:47,325 INFO glm53_flash_mlx.loader: packed-decode MoE layer=20 active=130.867 GB peak=138.117 GB",
+        "2026-09-07 23:24:47,776 INFO glm53_flash_mlx.loader: packed-decode MoE layer=21 active=138.117 GB peak=145.366 GB",
+        "2026-09-07 23:24:48,248 INFO glm53_flash_mlx.loader: packed-decode MoE layer=22 active=145.366 GB peak=152.616 GB",
+        "2026-09-07 23:24:48,703 INFO glm53_flash_mlx.loader: packed-decode MoE layer=23 active=152.616 GB peak=159.865 GB",
+        "2026-09-07 23:24:49,175 INFO glm53_flash_mlx.loader: packed-decode MoE layer=24 active=159.865 GB peak=167.115 GB",
+        "2026-09-07 23:24:49,628 INFO glm53_flash_mlx.loader: packed-decode MoE layer=25 active=167.115 GB peak=174.364 GB",
+        "2026-09-07 23:24:50,086 INFO glm53_flash_mlx.loader: packed-decode MoE layer=26 active=174.364 GB peak=181.614 GB",
+        "2026-09-07 23:24:50,557 INFO glm53_flash_mlx.loader: packed-decode MoE layer=27 active=181.614 GB peak=188.863 GB",
+        "2026-09-07 23:24:51,025 INFO glm53_flash_mlx.loader: packed-decode MoE layer=28 active=188.863 GB peak=196.113 GB",
+        "2026-09-07 23:24:51,505 INFO glm53_flash_mlx.loader: packed-decode MoE layer=29 active=196.113 GB peak=203.363 GB",
+        "2026-09-07 23:24:51,977 INFO glm53_flash_mlx.loader: packed-decode MoE layer=30 active=203.363 GB peak=210.612 GB",
+        "2026-09-07 23:24:52,465 INFO glm53_flash_mlx.loader: packed-decode MoE layer=31 active=210.612 GB peak=217.862 GB",
+        "2026-09-07 23:24:52,948 INFO glm53_flash_mlx.loader: packed-decode MoE layer=32 active=217.862 GB peak=225.111 GB",
+        "2026-09-07 23:24:53,646 INFO glm53_flash_mlx.loader: packed-decode MoE layer=33 active=225.111 GB peak=232.361 GB",
+        "2026-09-07 23:24:54,694 INFO glm53_flash_mlx.loader: packed-decode MoE layer=34 active=232.361 GB peak=239.610 GB",
+        "2026-09-07 23:24:55,858 INFO glm53_flash_mlx.loader: packed-decode MoE layer=35 active=239.610 GB peak=246.860 GB",
+        "2026-09-07 23:24:57,018 INFO glm53_flash_mlx.loader: packed-decode MoE layer=36 active=246.860 GB peak=254.109 GB",
+        "2026-09-07 23:24:58,186 INFO glm53_flash_mlx.loader: packed-decode MoE layer=37 active=254.109 GB peak=261.359 GB",
+        "2026-09-07 23:24:59,343 INFO glm53_flash_mlx.loader: packed-decode MoE layer=38 active=261.359 GB peak=268.608 GB",
+        "2026-09-07 23:25:00,497 INFO glm53_flash_mlx.loader: packed-decode MoE layer=39 active=268.608 GB peak=275.858 GB",
+        "2026-09-07 23:25:01,654 INFO glm53_flash_mlx.loader: packed-decode MoE layer=40 active=275.858 GB peak=283.107 GB",
+        "2026-09-07 23:25:02,814 INFO glm53_flash_mlx.loader: packed-decode MoE layer=41 active=283.107 GB peak=290.357 GB",
+        "2026-09-07 23:25:03,977 INFO glm53_flash_mlx.loader: packed-decode MoE layer=42 active=290.357 GB peak=297.606 GB",
+        "2026-09-07 23:25:05,132 INFO glm53_flash_mlx.loader: packed-decode MoE layer=43 active=297.606 GB peak=304.856 GB",
+        "2026-09-07 23:25:06,285 INFO glm53_flash_mlx.loader: packed-decode MoE layer=44 active=304.856 GB peak=312.105 GB",
+        "2026-09-07 23:25:09,069 INFO glm53_flash_mlx.loader: FP8 residency 297.7/297.7 GiB",
+        "2026-09-07 23:25:09,070 INFO mlx_vlm.server: Model and processor loaded successfully.",
+        "2026-09-07 23:25:09,070 INFO mlx_vlm.server: Language model ready, continuous batching enabled.",
+        "INFO:     Application startup complete.",
+        "INFO:     Uvicorn running on http://127.0.0.1:18084 (Press CTRL+C to quit)",
+        "INFO:     127.0.0.1:51394 - \"GET /health HTTP/1.1\" 200 OK",
+        "INFO:     127.0.0.1:51395 - \"GET /v1/metrics HTTP/1.1\" 200 OK",
+        "INFO:     Shutting down",
+        "INFO:     Waiting for application shutdown.",
+        "INFO:     Application shutdown complete.",
+        "INFO:     Finished server process [26363]"
+      ],
+      "metrics": {
+        "latest": null,
+        "recent": [],
+        "server": {
+          "admission": {
+            "max_context_tokens": 36864,
+            "max_generation_tokens": 4096,
+            "max_prompt_tokens_at_max_generation": 32768,
+            "policy": "prompt-plus-generation-v1"
+          },
+          "apc": {
+            "enabled": false
+          },
+          "audio_queue_depth": 0,
+          "configured_context_limit": 36864,
+          "continuous_batching_enabled": true,
+          "effective_context_limit": 36864,
+          "exact_apc": {
+            "checkpoint_alignment_tokens": 2048,
+            "prefix_guard_tokens": 16,
+            "store_policy": "aligned-guarded-prefill-checkpoint-v1"
+          },
+          "loaded_adapter": null,
+          "loaded_context_size": 1048576,
+          "loaded_model": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+          "loaded_models": {
+            "text_generation": {
+              "adapter": null,
+              "model": "/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash",
+              "model_kind": "text_generation"
+            }
+          },
+          "loaded_tool_parser": "glm47",
+          "long_prefill": {
+            "token_queue_timeout_seconds": 1800.0
+          },
+          "model_kind": "text_generation",
+          "native_indexpool_update": {
+            "abi": "glm53-native-indexpool-update-island-v1-decode-raw19-kpool4-exact-bf16-softmax-reduction-tier1-score-selection-mlx0322-explicit-opt-in-v1",
+            "execution_count": 0,
+            "live_plan_count": 0,
+            "scratch_bytes": 0
+          },
+          "preload_failures": {},
+          "recurrent_state_materialization": {
+            "completed_materializations": 0,
+            "configured_interval_tokens": 256,
+            "decode_steps_since_materialization": 0,
+            "last_boundary_active_bytes": null,
+            "last_boundary_cache_bytes": null,
+            "last_boundary_peak_bytes": null,
+            "last_materialization_step": null,
+            "metal_buffer_count_api_available": false,
+            "policy": "nested-cache-eval-clear-v1"
+          },
+          "request_queue_depth": 0
+        },
+        "summary": {
+          "avg_decode_tok_s": 0.0,
+          "avg_request_time_s": 0.0,
+          "avg_request_tok_s": 0.0,
+          "completion_tokens_total": 0,
+          "generated_tokens_total": 0,
+          "in_flight": 0,
+          "last_error": null,
+          "last_request_at": null,
+          "prompt_tokens_total": 0,
+          "requests_completed": 0,
+          "requests_failed": 0,
+          "requests_started": 0,
+          "streaming_requests": 0,
+          "uptime_s": 33.31675100326538
+        }
+      },
+      "metrics_http_status": 200,
+      "ready_seconds": 174.95236954186112
+    }
+  },
+  "release_15_tps_accepted": true,
+  "runtime_changes": {
+    "admission": false,
+    "cache_abi": false,
+    "default_backend": false,
+    "opt_in_native_indexpool_runtime": true,
+    "packed_moe_abi": false
+  },
+  "schema": "glm53-native-indexpool-runtime-qualification-v1",
+  "source_artifacts": {
+    "exact_fused_packed_runtime": {
+      "correctness_accepted": true,
+      "path": "bench-results/m3ultra512-exact-fused-packed-decode-runtime-20260907.json",
+      "release_15_tps_accepted": false,
+      "sha256": "932dee95986ae3b926107afe11a1dfff067dfb185857c9fe70a527010281da72"
+    },
+    "native_indexpool_island": {
+      "decision": "keep_native_indexpool_update_submission_island",
+      "path": "bench-results/m3ultra512-native-indexpool-update-submission-island-20260907.json",
+      "sha256": "702809e77b67c7ff391507aee35f8e1d558c5f5af1c18fdfb7fd9375c37395cf"
+    }
+  }
+}
