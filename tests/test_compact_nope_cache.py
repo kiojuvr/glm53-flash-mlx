@@ -324,6 +324,28 @@ def test_clone_trim_replay_preserves_absolute_physical_capacity():
     )
 
 
+def test_custom_cache_clone_honors_larger_minimum_capacity():
+    from mlx_vlm.apc_adapters import clone_cache_entry
+
+    indexer = _make_indexer(topk=2048)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=2049)
+    _append_combined(indexer, original, 0, 65)
+    eval_targets = []
+    restored = clone_cache_entry(
+        original, min_capacity_tokens=8256, eval_targets=eval_targets
+    )
+    mx.eval(*eval_targets)
+
+    assert restored[0].capacity_tokens == 8256
+    assert restored[1].capacity_tokens == 8256
+    assert restored[0].physical_capacity_tokens >= 8256
+    assert restored[1].physical_capacity_rows * restored[1].index_kpool >= 8256
+    _assert_tree_equal(original.state, restored.state)
+    assert restored[0].offset == original[0].offset
+    assert restored[1].total_tokens == original[1].total_tokens
+    assert restored[1].logical_pool_count == original[1].logical_pool_count
+
+
 def test_trim_over_window_fails_before_either_cache_changes():
     indexer = _make_indexer(topk=2048)
     combined = make_compact_nope_dsa_cache(indexer, capacity_tokens=16)

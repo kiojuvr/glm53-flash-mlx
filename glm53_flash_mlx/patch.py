@@ -23,6 +23,7 @@ def apply_runtime_patch() -> None:
 
         import mlx.core as mx
         import mlx.nn as nn
+        from mlx_vlm import apc_adapters
         from mlx_vlm.models import switch_layers
         from mlx_vlm.models.cache import ArraysCache, CacheList
         from mlx_vlm.models.deepseek_v32 import language as dsv32
@@ -60,6 +61,45 @@ def apply_runtime_patch() -> None:
             return original_cache_list_trim(self, tokens)
 
         CacheList.trim = atomic_cache_list_trim
+
+        # mlx-vlm's generic state/meta_state clone detaches custom cache state,
+        # but historically ignored its own min_capacity_tokens argument.  That
+        # is unsafe for a fixed-address native execution plan: a restored cache
+        # can otherwise reach its copied physical edge even though the caller
+        # explicitly reserved a longer continuation.  Honor the public clone
+        # contract for cache components exposing reserve_until().
+        original_clone_cache_entry = apc_adapters.clone_cache_entry
+
+        def capacity_aware_clone_cache_entry(
+            cache, *, min_capacity_tokens, eval_targets
+        ):
+            cloned = original_clone_cache_entry(
+                cache,
+                min_capacity_tokens=min_capacity_tokens,
+                eval_targets=eval_targets,
+            )
+            if cloned is None:
+                return None
+
+            def reserve(value):
+                reserve_until = getattr(value, "reserve_until", None)
+                if callable(reserve_until):
+                    reserve_until(int(min_capacity_tokens))
+                    dependencies = getattr(value, "dependency_arrays", None)
+                    if callable(dependencies):
+                        eval_targets.extend(dependencies())
+                children = getattr(value, "caches", None)
+                if children is not None:
+                    for child in children:
+                        reserve(child)
+                elif isinstance(value, tuple):
+                    for child in value:
+                        reserve(child)
+
+            reserve(cloned)
+            return cloned
+
+        apc_adapters.clone_cache_entry = capacity_aware_clone_cache_entry
 
         class ClampedSwiGLU(nn.Module):
             def __init__(self, limit: float):

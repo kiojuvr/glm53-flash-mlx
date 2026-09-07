@@ -98,6 +98,12 @@ def _has_qualified_geometry(cache, indexer) -> bool:
     )
 
 
+def _has_writable_pool_row(cache) -> bool:
+    """The native fixed arena cannot grow the persistent pool in execute()."""
+    capacity = int(cache.pool_keys.shape[1])
+    return int(cache.total_tokens) // int(cache.index_kpool) < capacity
+
+
 def try_native_update(cache, indexer, x, qr, *, mask, short_bypass):
     """Execute the qualified L=1/raw19 path or return the private sentinel."""
     if not enabled():
@@ -109,6 +115,11 @@ def try_native_update(cache, indexer, x, qr, *, mask, short_bypass):
     if cache.pool_keys is None or cache.pool_indices is None or cache.pool_valid is None:
         raise RuntimeError("native IndexPool update requires allocated pool storage")
     if not _has_qualified_geometry(cache, indexer):
+        return _NOT_USED
+    # A manually constructed or minimally restored cache may reach its current
+    # physical edge.  Let the eager path perform its normal aligned growth;
+    # the following token will create a new native plan for the larger arena.
+    if not _has_writable_pool_row(cache):
         return _NOT_USED
 
     key = indexer.k_norm(indexer.wk(x)).reshape(1, 1, cache.head_dim)

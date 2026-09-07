@@ -42,3 +42,4 @@ def test_long_phase_checks_every_materialization_boundary():
     assert "MATERIALIZATION_INTERVAL = 256" in source
     assert '"all_16_materialization_checkpoints_exact"' in source
     assert "11 * LONG_STEPS" in source
+    assert "_compact_capacity_evidence(cache, 8_256)" in source

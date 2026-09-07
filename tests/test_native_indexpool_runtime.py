@@ -55,13 +55,17 @@ def test_native_path_has_fixed_qualified_geometry_and_no_silent_error_fallback()
 
 
 def test_qualified_geometry_is_explicit_and_rejects_unmeasured_shapes():
-    from glm53_flash_mlx.native_indexpool_runtime import _has_qualified_geometry
+    from glm53_flash_mlx.native_indexpool_runtime import (
+        _has_qualified_geometry,
+        _has_writable_pool_row,
+    )
 
     cache = SimpleNamespace(
         index_kpool=4,
         index_topk=2_048,
         head_dim=128,
         raw_state_window=19,
+        total_tokens=2_048,
         pool_keys=SimpleNamespace(shape=(1, 576, 128)),
     )
     indexer = SimpleNamespace(n_heads=32, head_dim=128)
@@ -71,6 +75,8 @@ def test_qualified_geometry_is_explicit_and_rejects_unmeasured_shapes():
     cache.pool_keys = SimpleNamespace(shape=(1, 576, 128))
     indexer.n_heads = 2
     assert not _has_qualified_geometry(cache, indexer)
+    cache.total_tokens = 576 * 4
+    assert not _has_writable_pool_row(cache)
 
 
 def test_server_flag_requires_packed_decode_and_compact_cache(monkeypatch):

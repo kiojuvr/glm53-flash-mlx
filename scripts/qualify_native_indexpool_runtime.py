@@ -256,6 +256,33 @@ def _load_runtime_model(model_path: Path, capacity: int):
     return model, processor
 
 
+def _compact_capacity_evidence(cache, required_tokens: int) -> list[dict]:
+    rows = []
+    for layer, entry in enumerate(cache):
+        if not hasattr(entry, "caches") or len(entry.caches) != 2:
+            continue
+        latent, pool = entry.caches
+        if not hasattr(pool, "physical_capacity_rows"):
+            continue
+        row = {
+            "layer": layer,
+            "required_tokens": int(required_tokens),
+            "latent_physical_tokens": int(latent.physical_capacity_tokens),
+            "pool_physical_rows": int(pool.physical_capacity_rows),
+            "pool_physical_tokens": int(
+                pool.physical_capacity_rows * pool.index_kpool
+            ),
+        }
+        row["reserved"] = (
+            row["latent_physical_tokens"] >= required_tokens
+            and row["pool_physical_tokens"] >= required_tokens
+        )
+        rows.append(row)
+    if len(rows) != 11 or not all(row["reserved"] for row in rows):
+        raise RuntimeError("restored compact cache did not honor minimum capacity")
+    return rows
+
+
 def _run_screen(args, artifact):
     oracle_probe, boundary, tier0 = _load_helpers()
     _progress("load_model", phase_group="screen")
@@ -328,6 +355,10 @@ def _run_long(args, artifact):
     caches = {
         "mlx": boundary._clone_cache(source, 8_256),
         "native": boundary._clone_cache(source, 8_256),
+    }
+    capacity_evidence = {
+        arm: _compact_capacity_evidence(cache, 8_256)
+        for arm, cache in caches.items()
     }
     source.clear()
     before = registry_snapshot()
@@ -407,6 +438,7 @@ def _run_long(args, artifact):
         - before["execution_count"],
         "expected_native_execution_count": expected_executes,
         "process_peak_memory_bytes": int(mx.get_peak_memory()),
+        "restored_capacity": capacity_evidence,
         "gates": gates,
         "accepted": all(gates.values()),
     }
@@ -558,15 +590,18 @@ def main() -> int:
                 _run_long(args, artifact)
             else:
                 _run_server(args, artifact)
+            artifact.pop("last_error", None)
             _finalize(artifact)
             _atomic_write(args.output, artifact)
     except Exception as error:
-        artifact["last_error"] = {
+        failure = {
             "phase": args.phase,
             "type": type(error).__name__,
             "message": str(error),
             "traceback": traceback.format_exc(),
         }
+        artifact["last_error"] = failure
+        artifact.setdefault("phase_failures", []).append(failure)
         _finalize(artifact)
         _atomic_write(args.output, artifact)
         raise
