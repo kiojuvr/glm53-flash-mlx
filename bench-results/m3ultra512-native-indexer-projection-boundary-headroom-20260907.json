@@ -1,0 +1,831 @@
+{
+  "acceptance": {
+    "256k_projection_boundary_headroom_at_least_0_75ms": false,
+    "2k_counterfactual_regression_at_most_1_percent": false,
+    "all_counterfactual_logits_and_state_byte_exact": true,
+    "official_oracle_exact": true,
+    "process_peak_at_most_340GB": true,
+    "production_abi_unchanged": true
+  },
+  "accepted": false,
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_logits_and_post_state_byte_exact": true,
+      "context_tokens": 2048,
+      "native_plan_evidence": [
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931195904",
+            "4555328080",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196144",
+            "4555337760",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196384",
+            "4554020400",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196624",
+            "4554030080",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196864",
+            "4553433616",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197104",
+            "4554410016",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197344",
+            "4554419696",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197584",
+            "4554380288",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197824",
+            "4554389968",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198064",
+            "4554268640",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198304",
+            "4552377840",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198544",
+            "4555328080",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198784",
+            "4555337760",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199024",
+            "4554020400",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199264",
+            "4554030080",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199504",
+            "4553433616",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199744",
+            "4554410016",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199984",
+            "4554419696",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200224",
+            "4554380288",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200464",
+            "4554389968",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200704",
+            "4554268640",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200944",
+            "4552377840",
+            "576"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 61910,
+          "shape_discovery_count": 0
+        }
+      ],
+      "precomputed_projection_bytes": 675213,
+      "projection_boundary_headroom_ms": -4.955207999999999,
+      "recorded_dsa_projections": 77,
+      "recorded_steps": 7,
+      "timing": {
+        "A_native_update_with_mlx_projections": {
+          "median_host_submit_ms": 63.453708,
+          "median_wall_ms": 71.421833,
+          "samples": [
+            {
+              "host_submit_ms": 63.45725,
+              "wall_ms": 71.466167
+            },
+            {
+              "host_submit_ms": 63.399417,
+              "wall_ms": 71.287708
+            },
+            {
+              "host_submit_ms": 63.453708,
+              "wall_ms": 71.429875
+            },
+            {
+              "host_submit_ms": 63.492666,
+              "wall_ms": 71.421833
+            },
+            {
+              "host_submit_ms": 63.392833,
+              "wall_ms": 71.380667
+            }
+          ]
+        },
+        "B_precomputed_projections_native_update": {
+          "median_host_submit_ms": 4.261792,
+          "median_wall_ms": 76.377041,
+          "samples": [
+            {
+              "host_submit_ms": 4.243875,
+              "wall_ms": 76.377041
+            },
+            {
+              "host_submit_ms": 4.309125,
+              "wall_ms": 76.451417
+            },
+            {
+              "host_submit_ms": 4.261792,
+              "wall_ms": 76.420417
+            },
+            {
+              "host_submit_ms": 4.25525,
+              "wall_ms": 76.300458
+            },
+            {
+              "host_submit_ms": 4.293708,
+              "wall_ms": 76.341292
+            }
+          ]
+        }
+      }
+    },
+    "262144": {
+      "all_logits_and_post_state_byte_exact": true,
+      "context_tokens": 262144,
+      "native_plan_evidence": [
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931193984",
+            "4555328080",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931194224",
+            "4555337760",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931194464",
+            "4554020400",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931194704",
+            "4554030080",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198544",
+            "4553433616",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931198784",
+            "4554410016",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199024",
+            "4554419696",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199264",
+            "4554380288",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199504",
+            "4554389968",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199744",
+            "4554268640",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931199984",
+            "4552377840",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200224",
+            "4555328080",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200464",
+            "4555337760",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200704",
+            "4554020400",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931200944",
+            "4554030080",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931195904",
+            "4553433616",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196144",
+            "4554410016",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196384",
+            "4554419696",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196624",
+            "4554380288",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931196864",
+            "4554389968",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197104",
+            "4554268640",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        },
+        {
+          "buffer_identities_stable": true,
+          "dynamic_allocation_count": 0,
+          "execution_count": 7,
+          "graph_node_count": 0,
+          "host_synchronization_count": 0,
+          "key": [
+            "4931197344",
+            "4552377840",
+            "65600"
+          ],
+          "returned_intermediate_tensor_bytes": 0,
+          "scratch_bytes": 4353494,
+          "shape_discovery_count": 0
+        }
+      ],
+      "precomputed_projection_bytes": 675213,
+      "projection_boundary_headroom_ms": -4.963250000000002,
+      "recorded_dsa_projections": 77,
+      "recorded_steps": 7,
+      "timing": {
+        "A_native_update_with_mlx_projections": {
+          "median_host_submit_ms": 67.002292,
+          "median_wall_ms": 75.309,
+          "samples": [
+            {
+              "host_submit_ms": 67.002292,
+              "wall_ms": 75.309
+            },
+            {
+              "host_submit_ms": 67.132625,
+              "wall_ms": 75.347125
+            },
+            {
+              "host_submit_ms": 67.017958,
+              "wall_ms": 75.322791
+            },
+            {
+              "host_submit_ms": 66.933291,
+              "wall_ms": 75.23975
+            },
+            {
+              "host_submit_ms": 66.87625,
+              "wall_ms": 75.174584
+            }
+          ]
+        },
+        "B_precomputed_projections_native_update": {
+          "median_host_submit_ms": 4.274583,
+          "median_wall_ms": 80.27225,
+          "samples": [
+            {
+              "host_submit_ms": 4.306208,
+              "wall_ms": 79.816125
+            },
+            {
+              "host_submit_ms": 4.274583,
+              "wall_ms": 79.816833
+            },
+            {
+              "host_submit_ms": 4.245333,
+              "wall_ms": 80.27225
+            },
+            {
+              "host_submit_ms": 4.29525,
+              "wall_ms": 80.308542
+            },
+            {
+              "host_submit_ms": 4.251334,
+              "wall_ms": 80.376
+            }
+          ]
+        }
+      }
+    }
+  },
+  "counterfactual": "exact precomputed BF16 key/gate/query/mixture-weight projections; capture/copy/ownership excluded from timing; accepted native IndexPool-update/Tier-1 island unchanged",
+  "date": "2026-09-07",
+  "decision": "stop_native_indexer_projection_boundary",
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "official_oracle": {
+    "all_full_vocab_logits_hashes_match": true,
+    "elapsed_seconds": 9.739339540945366,
+    "executed": true,
+    "failures_128": [],
+    "failures_16": [],
+    "first_16_match": true,
+    "full_128_match": true,
+    "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+    "prompt_tokens": 17
+  },
+  "process_peak_memory_bytes": 334835130327,
+  "profiling_only": true,
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-native-indexer-projection-boundary-headroom-v1"
+}
