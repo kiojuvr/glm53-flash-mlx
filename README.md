@@ -1229,6 +1229,15 @@ prebound probeはA=exact composition、B=従来unbound native、C=prebound nativ
 
 preboundは42/42層でstatic validationを10回、pipeline lookupを6回の初回だけへ固定しましたが、unbound比の差は2Kでwall -0.007 ms / host +0.011 ms、256Kでwall -0.112 ms / host -0.084 msと実質ゼロでした。exact composition比では依然wallが約1.6 ms、hostが2.1–2.6 ms悪化します。lookup/validationは支配項ではなく、各layer activationを`mx.async_eval`でscheduleしてから42回Python→native submissionする境界が残っています。このeager native call形はSTOPとし、次は同じAOT planをMLX lazy graphの評価時にencodeするprimitive境界だけを試します。
 
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_lazy_native_packed_moe_primitive.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+lazy primitiveはbound weights/pipelinesとfixed scratchを共有しながら、unscheduledな`x`、expert IDs、router scoresをgraph inputとして保持し、6-kernel AOT topologyを`eval_gpu`時にencodeします。Python側のper-layer `mx.async_eval`は0です。A=exact composition、B=eager prebound、C=lazy preboundを比較し、CがAよりwall/host各0.50 ms以上速く、Bからwall 1.0 ms・host 1.50 ms以上を回収した場合だけ、より大きいnative layer execution islandへ進めます。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

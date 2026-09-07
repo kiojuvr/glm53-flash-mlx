@@ -7,6 +7,7 @@
 
 #include "mlx/allocator.h"
 #include "mlx/backend/metal/device.h"
+#include "mlx/primitives.h"
 
 namespace glm53::native_execution {
 
@@ -54,6 +55,45 @@ int checked_dimension(int value, const char *name) {
 
 } // namespace
 
+class NativePackedMoELazyPrimitive : public mx::Primitive {
+public:
+  NativePackedMoELazyPrimitive(mx::Stream stream,
+                               NativePackedMoEDecodePlan *plan)
+      : mx::Primitive(stream), plan_(plan) {}
+
+  void eval_cpu(const std::vector<mx::array> &,
+                std::vector<mx::array> &) override {
+    throw std::runtime_error("native packed MoE lazy primitive is GPU-only");
+  }
+
+  void eval_gpu(const std::vector<mx::array> &inputs,
+                std::vector<mx::array> &outputs) override {
+    if (inputs.size() != 3 || outputs.size() != 1 || !plan_->weights_bound()) {
+      throw std::runtime_error("native packed MoE lazy graph is invalid");
+    }
+    outputs[0].set_data(mx::allocator::malloc(outputs[0].nbytes()));
+    NativePackedMoEDecodePlan::WeightRefs weights{
+        plan_->bound_weights_[0], plan_->bound_weights_[1],
+        plan_->bound_weights_[2], plan_->bound_weights_[3],
+        plan_->bound_weights_[4], plan_->bound_weights_[5],
+        plan_->bound_weights_[6], plan_->bound_weights_[7],
+        plan_->bound_weights_[8], plan_->bound_weights_[9],
+    };
+    plan_->encode(inputs[0], inputs[1], inputs[2], weights,
+                  plan_->bound_pipelines_, outputs[0]);
+  }
+
+  std::vector<mx::Shape>
+  output_shapes(const std::vector<mx::array> &) override {
+    return {{1, 1, plan_->hidden_size()}};
+  }
+
+  const char *name() const override { return "NativePackedMoELazyPrimitive"; }
+
+private:
+  NativePackedMoEDecodePlan *plan_;
+};
+
 NativePackedMoEDecodePlan::NativePackedMoEDecodePlan(
     int hidden_size, int intermediate_size, int shared_intermediate_size,
     int expert_count, int swiglu_limit)
@@ -87,6 +127,16 @@ NativePackedMoEDecodePlan::NativePackedMoEDecodePlan(
 void NativePackedMoEDecodePlan::validate_input(
     const mx::array &array, const char *name, mx::Dtype dtype,
     size_t elements) const {
+  validate_input_descriptor(array, name, dtype, elements);
+  if (array.status() == mx::array::Status::unscheduled) {
+    throw std::invalid_argument(std::string(name) +
+                                " must be scheduled before native submission");
+  }
+}
+
+void NativePackedMoEDecodePlan::validate_input_descriptor(
+    const mx::array &array, const char *name, mx::Dtype dtype,
+    size_t elements) const {
   if (array.dtype() != dtype) {
     throw std::invalid_argument(std::string(name) + " dtype mismatch");
   }
@@ -95,10 +145,6 @@ void NativePackedMoEDecodePlan::validate_input(
   }
   if (!array.flags().row_contiguous) {
     throw std::invalid_argument(std::string(name) + " must be row-contiguous");
-  }
-  if (array.status() == mx::array::Status::unscheduled) {
-    throw std::invalid_argument(std::string(name) +
-                                " must be scheduled before native submission");
   }
 }
 
@@ -123,7 +169,7 @@ mx::array NativePackedMoEDecodePlan::execute(
       shared_down_scale_inv,
   };
   validate_static_weights(weights);
-  return encode(x, expert_ids, scores, weights, resolve_pipelines());
+  return encode(x, expert_ids, scores, weights, resolve_pipelines(), output_);
 }
 
 void NativePackedMoEDecodePlan::validate_static_weights(
@@ -230,13 +276,34 @@ mx::array NativePackedMoEDecodePlan::execute_bound(
       bound_weights_[6], bound_weights_[7], bound_weights_[8],
       bound_weights_[9],
   };
-  return encode(x, expert_ids, scores, weights, bound_pipelines_);
+  return encode(x, expert_ids, scores, weights, bound_pipelines_, output_);
+}
+
+mx::array NativePackedMoEDecodePlan::execute_lazy(
+    const mx::array &x, const mx::array &expert_ids,
+    const mx::array &scores) {
+  if (!weights_bound()) {
+    throw std::logic_error("native packed MoE weights are not bound");
+  }
+  dynamic_input_validation_count_ += 3;
+  validate_input_descriptor(x, "x", mx::bfloat16, hidden_size_);
+  validate_input_descriptor(expert_ids, "expert_ids", mx::uint32, kTopK);
+  validate_input_descriptor(scores, "scores", mx::float32, kTopK);
+  if (!bound_weight_identities_stable()) {
+    throw std::runtime_error("native packed MoE bound weight identity changed");
+  }
+  lazy_graph_count_++;
+  auto primitive =
+      std::make_shared<NativePackedMoELazyPrimitive>(stream_, this);
+  return mx::array({1, 1, hidden_size_}, mx::bfloat16, std::move(primitive),
+                   {x, expert_ids, scores});
 }
 
 mx::array NativePackedMoEDecodePlan::encode(
     const mx::array &x, const mx::array &expert_ids,
     const mx::array &scores, const WeightRefs &weights,
-    const std::array<MTL::ComputePipelineState *, 6> &pipelines) {
+    const std::array<MTL::ComputePipelineState *, 6> &pipelines,
+    mx::array &final_output) {
   auto &encoder = mx::metal::get_command_encoder(stream_);
 
   encoder.set_compute_pipeline_state(pipelines[0]);
@@ -307,7 +374,7 @@ mx::array NativePackedMoEDecodePlan::encode(
   encoder.set_compute_pipeline_state(pipelines[5]);
   encoder.set_input_array(routed_output_, 0);
   encoder.set_input_array(shared_down_, 1);
-  encoder.set_output_array(output_, 2);
+  encoder.set_output_array(final_output, 2);
   encoder.set_bytes(hidden_size_, 3);
   encoder.dispatch_threads(MTL::Size(hidden_size_, 1, 1),
                            MTL::Size(kThreads, 1, 1));
@@ -317,7 +384,7 @@ mx::array NativePackedMoEDecodePlan::encode(
     throw std::runtime_error(
         "native packed MoE plan buffer identity changed during execute");
   }
-  return output_;
+  return final_output;
 }
 
 bool NativePackedMoEDecodePlan::scratch_buffer_identities_stable() const {

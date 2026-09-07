@@ -192,6 +192,8 @@ NB_MODULE(_ext, module) {
            "shared_down_scale_inv"_a)
       .def("execute_bound", &NativePackedMoEDecodePlan::execute_bound, "x"_a,
            "expert_ids"_a, "scores"_a)
+      .def("execute_lazy", &NativePackedMoEDecodePlan::execute_lazy, "x"_a,
+           "expert_ids"_a, "scores"_a)
       .def_prop_ro("hidden_size", &NativePackedMoEDecodePlan::hidden_size)
       .def_prop_ro("intermediate_size",
                    &NativePackedMoEDecodePlan::intermediate_size)
@@ -216,6 +218,8 @@ NB_MODULE(_ext, module) {
                    &NativePackedMoEDecodePlan::dynamic_input_validation_count)
       .def_prop_ro("pipeline_lookup_count",
                    &NativePackedMoEDecodePlan::pipeline_lookup_count)
+      .def_prop_ro("lazy_graph_count",
+                   &NativePackedMoEDecodePlan::lazy_graph_count)
       .def_prop_ro("weights_bound", &NativePackedMoEDecodePlan::weights_bound)
       .def_prop_ro("bound_weight_identities_stable",
                    &NativePackedMoEDecodePlan::bound_weight_identities_stable)

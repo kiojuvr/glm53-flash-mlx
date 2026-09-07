@@ -272,12 +272,21 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
     plan.bind_weights(*dependencies[3:])
     bound_candidate = plan.execute_bound(*dependencies[:3])
     _eval(bound_candidate)
+    lazy_x = x + mx.zeros(x.shape, dtype=x.dtype)
+    lazy_expert_ids = expert_ids + mx.zeros(
+        expert_ids.shape, dtype=expert_ids.dtype
+    )
+    lazy_scores = scores + mx.zeros(scores.shape, dtype=scores.dtype)
+    lazy_candidate = plan.execute_lazy(lazy_x, lazy_expert_ids, lazy_scores)
+    _eval(lazy_candidate)
     return {
         "output_byte_exact": _exact(reference, candidate)
-        and _exact(reference, bound_candidate),
+        and _exact(reference, bound_candidate)
+        and _exact(reference, lazy_candidate),
         "reference_hash": tier0._hash(reference),
         "candidate_hash": tier0._hash(candidate),
         "bound_candidate_hash": tier0._hash(bound_candidate),
+        "lazy_candidate_hash": tier0._hash(lazy_candidate),
         "execution_count": int(plan.execution_count),
         "dynamic_allocation_count": int(plan.dynamic_allocation_count),
         "graph_node_count": int(plan.graph_node_count),
@@ -302,6 +311,7 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
             plan.dynamic_input_validation_count
         ),
         "pipeline_lookup_count": int(plan.pipeline_lookup_count),
+        "lazy_graph_count": int(plan.lazy_graph_count),
         "buffer_identities_stable": list(plan.buffer_identities)
         == initial_identities,
     }

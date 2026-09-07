@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Probe a prebound exact native packed-MoE execution plan."""
+"""Probe an exact lazy MLX primitive around the native packed-MoE plan."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ import contextlib
 import gc
 import importlib.metadata
 import json
-import statistics
 import sys
 import tempfile
 import time
@@ -31,23 +30,19 @@ DEFAULT_MODEL = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
 DEFAULT_OUTPUT = (
     ROOT
     / "bench-results"
+    / "m3ultra512-lazy-native-packed-moe-primitive-20260907.json"
+)
+PREBOUND_ARTIFACT = (
+    ROOT
+    / "bench-results"
     / "m3ultra512-prebound-native-packed-moe-execution-plan-20260907.json"
-)
-EXACT_REPAIR_ARTIFACT = (
-    ROOT
-    / "bench-results"
-    / "m3ultra512-exact-native-routed-fast-sigmoid-repair-20260907.json"
-)
-REJECTED_PERFORMANCE_ARTIFACT = (
-    ROOT
-    / "bench-results"
-    / "m3ultra512-exact-native-packed-moe-performance-requalification-20260907.json"
 )
 CONTEXTS = (2_048, 262_144)
 TARGET_2K_TPS = 15.0
 MIN_WALL_SAVING_VS_EXACT_MS = 0.50
 MIN_HOST_SAVING_VS_EXACT_MS = 0.50
-MIN_HOST_SAVING_VS_UNBOUND_MS = 1.50
+MIN_WALL_RECOVERY_VS_EAGER_MS = 1.00
+MIN_HOST_RECOVERY_VS_EAGER_MS = 1.50
 MIN_CONTEXT_RETENTION = 0.90
 MAX_PROCESS_PEAK_BYTES = 340_000_000_000
 
@@ -80,6 +75,7 @@ def _load_helpers():
     import probe_native_execution_engine_feasibility as tier0
     import probe_native_indexpool_update_submission_island as update_island
     import probe_native_packed_moe_execution_plan as native_moe
+    import probe_prebound_native_packed_moe_execution_plan as prebound
     import probe_residual_packed_decode_moe_fusion as residual
 
     return (
@@ -90,181 +86,84 @@ def _load_helpers():
         tier0,
         update_island,
         native_moe,
+        prebound,
         residual,
     )
 
 
-def _validate_sources() -> dict:
-    exact = json.loads(EXACT_REPAIR_ARTIFACT.read_text())
-    performance = json.loads(REJECTED_PERFORMANCE_ARTIFACT.read_text())
-    if not exact["complete"] or not exact["accepted"]:
-        raise RuntimeError("fast-BF16 native repair is not accepted")
-    if not all(exact["acceptance"].values()):
-        raise RuntimeError("fast-BF16 native repair has a failed exactness gate")
-    if performance["decision"] != (
-        "stop_exact_native_packed_moe_execution_plan_on_performance"
-    ):
-        raise RuntimeError("prebinding requires the recorded performance stop")
-    expected_failures = {
-        "2k_native_wall_saving_at_least_0_50ms",
-        "256k_native_wall_saving_at_least_0_50ms",
-        "2k_native_host_saving_at_least_0_50ms",
-        "256k_native_host_saving_at_least_0_50ms",
+def _validate_source() -> dict:
+    source = json.loads(PREBOUND_ARTIFACT.read_text())
+    if source["decision"] != "stop_prebound_native_packed_moe_execution_plan":
+        raise RuntimeError("lazy primitive requires the recorded prebound stop")
+    if not source["acceptance"][
+        "all_three_arms_logits_tokens_and_state_byte_exact"
+    ]:
+        raise RuntimeError("prebound source is not exact")
+    if not source["acceptance"][
+        "all_42_layers_prebound_once_and_execute_dynamic_only"
+    ]:
+        raise RuntimeError("prebound source did not close static binding")
+    expected = {
+        "2k_prebound_wall_saving_vs_exact_at_least_0_50ms",
+        "256k_prebound_wall_saving_vs_exact_at_least_0_50ms",
+        "2k_prebound_host_saving_vs_exact_at_least_0_50ms",
+        "256k_prebound_host_saving_vs_exact_at_least_0_50ms",
+        "2k_prebinding_recovers_at_least_1_50ms_host_tax",
+        "256k_prebinding_recovers_at_least_1_50ms_host_tax",
     }
-    if set(performance["failed_gates"]) != expected_failures:
-        raise RuntimeError("native plan failed outside the expected boundary tax")
+    if set(source["failed_gates"]) != expected:
+        raise RuntimeError("prebound source failed outside the eager boundary")
     return {
-        "exact_repair": {
-            "artifact": str(EXACT_REPAIR_ARTIFACT.relative_to(ROOT)),
-            "accepted": True,
-            "checkpoint_fingerprint": exact["checkpoint_fingerprint"],
-            "formula": exact["repair"]["formula"],
-        },
-        "unbound_performance": {
-            "artifact": str(REJECTED_PERFORMANCE_ARTIFACT.relative_to(ROOT)),
-            "accepted": False,
-            "failed_gates": performance["failed_gates"],
-            "contexts": {
-                context: {
-                    "native_wall_saving_ms": row["native_wall_saving_ms"],
-                    "native_host_saving_ms": row["native_host_saving_ms"],
-                }
-                for context, row in performance["contexts"].items()
-            },
+        "artifact": str(PREBOUND_ARTIFACT.relative_to(ROOT)),
+        "accepted": False,
+        "checkpoint_fingerprint": source["checkpoint_fingerprint"],
+        "failed_gates": source["failed_gates"],
+        "eager_prebound_boundary": {
+            context: {
+                "wall_saving_vs_exact_ms": row[
+                    "prebound_vs_exact_wall_saving_ms"
+                ],
+                "host_saving_vs_exact_ms": row[
+                    "prebound_vs_exact_host_saving_ms"
+                ],
+            }
+            for context, row in source["contexts"].items()
         },
     }
-
-
-def _weights(moe) -> tuple[mx.array, ...]:
-    shared = moe.shared_experts
-    return (
-        moe.bank.gate_up_weight,
-        moe.bank.gate_up_scale_inv,
-        moe.bank.down_weight,
-        moe.bank.down_scale_inv,
-        shared.gate_proj.weight,
-        shared.gate_proj.weight_scale_inv,
-        shared.up_proj.weight,
-        shared.up_proj.weight_scale_inv,
-        shared.down_proj.weight,
-        shared.down_proj.weight_scale_inv,
-    )
-
-
-class _BoundRegistry:
-    def __init__(self, plan_type):
-        self.plan_type = plan_type
-        self.plans = {}
-        self.initial_scratch = {}
-        self.initial_weights = {}
-
-    def get(self, moe):
-        key = id(moe)
-        plan = self.plans.get(key)
-        if plan is None:
-            shared = moe.shared_experts
-            if shared is None:
-                raise RuntimeError("prebound native plan requires one shared expert")
-            limit = float(moe.config.swiglu_limit)
-            if limit != int(limit):
-                raise RuntimeError("prebound native plan requires integral SwiGLU limit")
-            plan = self.plan_type(
-                int(moe.bank.down_weight.shape[1]),
-                int(moe.bank.intermediate_size),
-                int(shared.gate_proj.weight.shape[0]),
-                int(moe.bank.expert_count),
-                int(limit),
-            )
-            weights = _weights(moe)
-            mx.async_eval(*weights)
-            plan.bind_weights(*weights)
-            self.plans[key] = plan
-            self.initial_scratch[key] = list(plan.buffer_identities)
-            self.initial_weights[key] = list(plan.bound_weight_identities)
-        return plan
-
-    def evidence(self) -> list[dict]:
-        return [
-            {
-                "execution_count": int(plan.execution_count),
-                "dynamic_allocation_count": int(plan.dynamic_allocation_count),
-                "graph_node_count": int(plan.graph_node_count),
-                "shape_discovery_count": int(plan.shape_discovery_count),
-                "host_synchronization_count": int(plan.host_synchronization_count),
-                "returned_intermediate_tensor_bytes": int(
-                    plan.returned_intermediate_tensor_bytes
-                ),
-                "static_input_validation_count": int(
-                    plan.static_input_validation_count
-                ),
-                "dynamic_input_validation_count": int(
-                    plan.dynamic_input_validation_count
-                ),
-                "pipeline_lookup_count": int(plan.pipeline_lookup_count),
-                "lazy_graph_count": int(plan.lazy_graph_count),
-                "weights_bound": bool(plan.weights_bound),
-                "bound_weight_identities_stable": bool(
-                    plan.bound_weight_identities_stable
-                ),
-                "uses_shape_specialized_routed_gate_up": bool(
-                    plan.uses_shape_specialized_routed_gate_up
-                ),
-                "uses_fast_bf16_routed_sigmoid": bool(
-                    plan.uses_fast_bf16_routed_sigmoid
-                ),
-                "scratch_buffer_identities_stable": list(plan.buffer_identities)
-                == self.initial_scratch[key],
-                "bound_weight_handles_stable": list(plan.bound_weight_identities)
-                == self.initial_weights[key],
-            }
-            for key, plan in self.plans.items()
-        ]
 
 
 _ORIGINAL_PACKED_CALL = PackedFP8MoE.__call__
 
 
-def _bound_call(registry: _BoundRegistry, moe, x):
+def _lazy_call(registry, moe, x):
     flat = mx.contiguous(x.reshape(-1, x.shape[-1]), allow_col_major=False)
     if int(flat.shape[0]) != 1 or moe.shared_experts is None:
         return _ORIGINAL_PACKED_CALL(moe, x)
     indices, scores = moe.gate(x)
     if int(indices.shape[-1]) != 8:
         return _ORIGINAL_PACKED_CALL(moe, x)
+    input_row = flat[0]
     expert_ids = mx.contiguous(
         indices.reshape(-1).astype(mx.uint32), allow_col_major=False
     )
     flat_scores = mx.contiguous(scores.reshape(-1), allow_col_major=False)
-    input_row = flat[0]
-    plan = registry.get(moe)
-    mx.async_eval(input_row, expert_ids, flat_scores)
-    return plan.execute_bound(input_row, expert_ids, flat_scores).reshape(x.shape)
+    return registry.get(moe).execute_lazy(
+        input_row, expert_ids, flat_scores
+    ).reshape(x.shape)
 
 
 @contextlib.contextmanager
-def _prebound_native_arm(registry):
+def _lazy_native_arm(registry):
     previous = PackedFP8MoE.__call__
 
     def wrapped(moe, x):
-        return _bound_call(registry, moe, x)
+        return _lazy_call(registry, moe, x)
 
     PackedFP8MoE.__call__ = wrapped
     try:
         yield
     finally:
         PackedFP8MoE.__call__ = previous
-
-
-def _median(rows: list[dict]) -> dict:
-    wall = statistics.median(row["wall_ms"] for row in rows)
-    return {
-        "median_wall_ms": wall,
-        "median_host_submit_ms": statistics.median(
-            row["host_submit_ms"] for row in rows
-        ),
-        "tokens_per_second": 1_000.0 / wall,
-        "samples": rows,
-    }
 
 
 def _context_case(
@@ -278,6 +177,7 @@ def _context_case(
     tier0,
     update_island,
     native_moe,
+    prebound,
     residual,
     reference_arm,
     warmups,
@@ -285,8 +185,8 @@ def _context_case(
 ) -> dict:
     arms = (
         "A_exact_composition",
-        "B_unbound_native_plan",
-        "C_prebound_native_plan",
+        "B_eager_prebound_native",
+        "C_lazy_prebound_native",
     )
     caches = {
         arm: boundary._clone_cache(source, context + warmups + samples + 16)
@@ -295,8 +195,8 @@ def _context_case(
     index_registries = {
         arm: update_island._Registry(index_plan_type) for arm in arms
     }
-    unbound_registry = native_moe._Registry(moe_plan_type)
-    prebound_registry = _BoundRegistry(moe_plan_type)
+    eager_registry = prebound._BoundRegistry(moe_plan_type)
+    lazy_registry = prebound._BoundRegistry(moe_plan_type)
     measured = {arm: [] for arm in arms}
     hashes = {arm: [] for arm in arms}
     token_ids = {arm: [] for arm in arms}
@@ -314,9 +214,9 @@ def _context_case(
                 if arm == arms[0]:
                     stack.enter_context(residual._runtime(reference_arm))
                 elif arm == arms[1]:
-                    stack.enter_context(native_moe._native_moe_arm(unbound_registry))
+                    stack.enter_context(prebound._prebound_native_arm(eager_registry))
                 else:
-                    stack.enter_context(_prebound_native_arm(prebound_registry))
+                    stack.enter_context(_lazy_native_arm(lazy_registry))
                 output = model(token, cache=caches[arm])
             submitted = time.perf_counter_ns()
             native_moe._eval(output.logits)
@@ -331,25 +231,24 @@ def _context_case(
                     }
                 )
 
-    timing = {arm: _median(rows) for arm, rows in measured.items()}
+    timing = {arm: prebound._median(rows) for arm, rows in measured.items()}
     exact = timing[arms[0]]
-    unbound = timing[arms[1]]
-    prebound = timing[arms[2]]
-    unbound_evidence = unbound_registry.evidence()
-    prebound_evidence = prebound_registry.evidence()
+    eager = timing[arms[1]]
+    lazy = timing[arms[2]]
+    eager_evidence = eager_registry.evidence()
+    lazy_evidence = lazy_registry.evidence()
     result = {
         "context_tokens": context,
         "timing": timing,
-        "prebound_vs_exact_wall_saving_ms": exact["median_wall_ms"]
-        - prebound["median_wall_ms"],
-        "prebound_vs_exact_host_saving_ms": exact["median_host_submit_ms"]
-        - prebound["median_host_submit_ms"],
-        "prebound_vs_unbound_wall_saving_ms": unbound["median_wall_ms"]
-        - prebound["median_wall_ms"],
-        "prebound_vs_unbound_host_saving_ms": unbound["median_host_submit_ms"]
-        - prebound["median_host_submit_ms"],
-        "prebound_speedup_vs_exact": exact["median_wall_ms"]
-        / prebound["median_wall_ms"],
+        "lazy_vs_exact_wall_saving_ms": exact["median_wall_ms"]
+        - lazy["median_wall_ms"],
+        "lazy_vs_exact_host_saving_ms": exact["median_host_submit_ms"]
+        - lazy["median_host_submit_ms"],
+        "lazy_vs_eager_wall_saving_ms": eager["median_wall_ms"]
+        - lazy["median_wall_ms"],
+        "lazy_vs_eager_host_saving_ms": eager["median_host_submit_ms"]
+        - lazy["median_host_submit_ms"],
+        "lazy_speedup_vs_exact": exact["median_wall_ms"] / lazy["median_wall_ms"],
         "all_full_vocab_logits_byte_exact": len(set(map(tuple, hashes.values())))
         == 1,
         "all_generated_tokens_exact": len(set(map(tuple, token_ids.values())))
@@ -359,10 +258,10 @@ def _context_case(
         )
         and boundary._cache_exact(caches[arms[0]], caches[arms[2]]),
         "expected_sparse_moe_calls_per_arm": 42 * (warmups + samples),
-        "unbound_plan_count": len(unbound_evidence),
-        "prebound_plan_count": len(prebound_evidence),
-        "unbound_plan_evidence": unbound_evidence,
-        "prebound_plan_evidence": prebound_evidence,
+        "eager_plan_count": len(eager_evidence),
+        "lazy_plan_count": len(lazy_evidence),
+        "eager_plan_evidence": eager_evidence,
+        "lazy_plan_evidence": lazy_evidence,
     }
     caches.clear()
     gc.collect()
@@ -375,19 +274,19 @@ def _acceptance(artifact: dict) -> dict:
     short = artifact.get("contexts", {}).get("2048", {})
     long = artifact.get("contexts", {}).get("262144", {})
     cases = (short, long)
-    short_tps = short.get("timing", {}).get("C_prebound_native_plan", {}).get(
+    short_tps = short.get("timing", {}).get("C_lazy_prebound_native", {}).get(
         "tokens_per_second", 0.0
     )
-    long_tps = long.get("timing", {}).get("C_prebound_native_plan", {}).get(
+    long_tps = long.get("timing", {}).get("C_lazy_prebound_native", {}).get(
         "tokens_per_second", 0.0
     )
-    prebound_rows = [
-        row for case in cases for row in case.get("prebound_plan_evidence", [])
+    lazy_rows = [
+        row for case in cases for row in case.get("lazy_plan_evidence", [])
     ]
     return {
-        "source_exactness_and_failure_localization_accepted": bool(
-            artifact.get("source_evidence")
-        ),
+        "artificial_lazy_native_output_byte_exact": artifact.get(
+            "artificial_lazy_contract", {}
+        ).get("output_byte_exact", False),
         "all_three_arms_logits_tokens_and_state_byte_exact": bool(short)
         and bool(long)
         and all(
@@ -396,53 +295,60 @@ def _acceptance(artifact: dict) -> dict:
             and case.get("all_post_states_byte_exact")
             for case in cases
         ),
-        "all_42_layers_prebound_once_and_execute_dynamic_only": bool(
-            prebound_rows
-        )
+        "all_42_layers_use_one_lazy_graph_node_per_execution": bool(lazy_rows)
         and all(
-            case.get("prebound_plan_count") == 42
-            and sum(row["execution_count"] for row in case["prebound_plan_evidence"])
+            case.get("lazy_plan_count") == 42
+            and sum(row["execution_count"] for row in case["lazy_plan_evidence"])
+            == case["expected_sparse_moe_calls_per_arm"]
+            and sum(row["lazy_graph_count"] for row in case["lazy_plan_evidence"])
             == case["expected_sparse_moe_calls_per_arm"]
             for case in cases
+        ),
+        "2k_lazy_decode_at_least_15_tps": short_tps >= TARGET_2K_TPS,
+        "2k_lazy_wall_saving_vs_exact_at_least_0_50ms": short.get(
+            "lazy_vs_exact_wall_saving_ms", -1e9
         )
+        >= MIN_WALL_SAVING_VS_EXACT_MS,
+        "256k_lazy_wall_saving_vs_exact_at_least_0_50ms": long.get(
+            "lazy_vs_exact_wall_saving_ms", -1e9
+        )
+        >= MIN_WALL_SAVING_VS_EXACT_MS,
+        "2k_lazy_host_saving_vs_exact_at_least_0_50ms": short.get(
+            "lazy_vs_exact_host_saving_ms", -1e9
+        )
+        >= MIN_HOST_SAVING_VS_EXACT_MS,
+        "256k_lazy_host_saving_vs_exact_at_least_0_50ms": long.get(
+            "lazy_vs_exact_host_saving_ms", -1e9
+        )
+        >= MIN_HOST_SAVING_VS_EXACT_MS,
+        "2k_lazy_recovers_at_least_1ms_wall_from_eager": short.get(
+            "lazy_vs_eager_wall_saving_ms", -1e9
+        )
+        >= MIN_WALL_RECOVERY_VS_EAGER_MS,
+        "256k_lazy_recovers_at_least_1ms_wall_from_eager": long.get(
+            "lazy_vs_eager_wall_saving_ms", -1e9
+        )
+        >= MIN_WALL_RECOVERY_VS_EAGER_MS,
+        "2k_lazy_recovers_at_least_1_50ms_host_from_eager": short.get(
+            "lazy_vs_eager_host_saving_ms", -1e9
+        )
+        >= MIN_HOST_RECOVERY_VS_EAGER_MS,
+        "256k_lazy_recovers_at_least_1_50ms_host_from_eager": long.get(
+            "lazy_vs_eager_host_saving_ms", -1e9
+        )
+        >= MIN_HOST_RECOVERY_VS_EAGER_MS,
+        "2k_to_256k_retention_at_least_0_90": bool(short_tps)
+        and long_tps / short_tps >= MIN_CONTEXT_RETENTION,
+        "lazy_plans_keep_bound_resources_and_fixed_scratch": bool(lazy_rows)
         and all(
             row["weights_bound"]
             and row["bound_weight_identities_stable"]
             and row["bound_weight_handles_stable"]
             and row["scratch_buffer_identities_stable"]
             and row["static_input_validation_count"] == 10
-            and row["dynamic_input_validation_count"]
-            == 3 * row["execution_count"]
             and row["pipeline_lookup_count"] == 6
-            for row in prebound_rows
+            for row in lazy_rows
         ),
-        "2k_prebound_decode_at_least_15_tps": short_tps >= TARGET_2K_TPS,
-        "2k_prebound_wall_saving_vs_exact_at_least_0_50ms": short.get(
-            "prebound_vs_exact_wall_saving_ms", -1e9
-        )
-        >= MIN_WALL_SAVING_VS_EXACT_MS,
-        "256k_prebound_wall_saving_vs_exact_at_least_0_50ms": long.get(
-            "prebound_vs_exact_wall_saving_ms", -1e9
-        )
-        >= MIN_WALL_SAVING_VS_EXACT_MS,
-        "2k_prebound_host_saving_vs_exact_at_least_0_50ms": short.get(
-            "prebound_vs_exact_host_saving_ms", -1e9
-        )
-        >= MIN_HOST_SAVING_VS_EXACT_MS,
-        "256k_prebound_host_saving_vs_exact_at_least_0_50ms": long.get(
-            "prebound_vs_exact_host_saving_ms", -1e9
-        )
-        >= MIN_HOST_SAVING_VS_EXACT_MS,
-        "2k_prebinding_recovers_at_least_1_50ms_host_tax": short.get(
-            "prebound_vs_unbound_host_saving_ms", -1e9
-        )
-        >= MIN_HOST_SAVING_VS_UNBOUND_MS,
-        "256k_prebinding_recovers_at_least_1_50ms_host_tax": long.get(
-            "prebound_vs_unbound_host_saving_ms", -1e9
-        )
-        >= MIN_HOST_SAVING_VS_UNBOUND_MS,
-        "2k_to_256k_retention_at_least_0_90": bool(short_tps)
-        and long_tps / short_tps >= MIN_CONTEXT_RETENTION,
         "process_peak_at_most_340GB": artifact.get(
             "process_peak_memory_bytes", 1 << 60
         )
@@ -469,7 +375,7 @@ def main() -> int:
     args = parser.parse_args()
 
     artifact = {
-        "schema": "glm53-prebound-native-packed-moe-execution-plan-v1",
+        "schema": "glm53-lazy-native-packed-moe-primitive-v1",
         "date": date.today().isoformat(),
         "complete": False,
         "accepted": False,
@@ -487,13 +393,13 @@ def main() -> int:
         },
         "boundary_change": {
             "kernels": False,
-            "immutable_weight_binding": "once per layer",
-            "pipeline_lookup": "once per layer",
-            "steady_execute_inputs": ["x", "expert_ids", "scores"],
+            "forced_async_eval_per_layer": False,
+            "native_encode_phase": "MLX primitive eval_gpu",
+            "lazy_inputs": ["x", "expert_ids", "scores"],
         },
     }
     try:
-        artifact["source_evidence"] = _validate_sources()
+        artifact["source_evidence"] = _validate_source()
         (
             index_plan_type,
             moe_plan_type,
@@ -502,24 +408,26 @@ def main() -> int:
             tier0,
             update_island,
             native_moe,
+            prebound,
             residual,
         ) = _load_helpers()
         reference_arm, artifact["reference_composition"] = (
             native_moe._qualified_reference_arm(residual)
         )
-        _progress("artificial_prebound_contract")
-        artifact["artificial_prebound_contract"] = native_moe._artificial_contract(
+        _progress("artificial_lazy_contract")
+        artifact["artificial_lazy_contract"] = native_moe._artificial_contract(
             moe_plan_type, d99f, residual, tier0
         )
-        if not artifact["artificial_prebound_contract"]["output_byte_exact"]:
-            raise RuntimeError("prebound native artificial output is not exact")
+        if not artifact["artificial_lazy_contract"]["output_byte_exact"]:
+            raise RuntimeError("lazy native artificial output is not exact")
+
         report = inspect_checkpoint(args.model, require_server_ready=True)
         artifact["checkpoint_fingerprint"] = report.fingerprint
         artifact["official_hf_revision"] = report.official_revision
-        if report.fingerprint != artifact["source_evidence"]["exact_repair"][
+        if report.fingerprint != artifact["source_evidence"][
             "checkpoint_fingerprint"
         ]:
-            raise RuntimeError("probe checkpoint differs from exact repair")
+            raise RuntimeError("probe checkpoint differs from prebound source")
 
         mx.set_wired_limit(int(args.wired_limit_gb * 1e9))
         mx.set_cache_limit(int(args.cache_limit_gb * 1e9))
@@ -545,6 +453,7 @@ def main() -> int:
                 tier0=tier0,
                 update_island=update_island,
                 native_moe=native_moe,
+                prebound=prebound,
                 residual=residual,
                 reference_arm=reference_arm,
                 warmups=args.warmups,
@@ -564,15 +473,15 @@ def main() -> int:
             name for name, passed in artifact["acceptance"].items() if not passed
         ]
         artifact["decision"] = (
-            "advance_prebound_exact_native_moe_to_production_design"
+            "advance_lazy_exact_native_moe_primitive_to_production_design"
             if artifact["accepted"]
-            else "stop_prebound_native_packed_moe_execution_plan"
+            else "stop_lazy_native_packed_moe_primitive"
         )
     except Exception as error:
         artifact.update(
             complete=True,
             accepted=False,
-            decision="abort_prebound_native_packed_moe_execution_plan",
+            decision="abort_lazy_native_packed_moe_primitive",
             error={
                 "type": type(error).__name__,
                 "message": str(error),

@@ -14,6 +14,8 @@ namespace glm53::native_execution {
 
 namespace mx = mlx::core;
 
+class NativePackedMoELazyPrimitive;
+
 // Decode-only exact packed MoE plan.  Routing remains the authoritative MLX
 // implementation; selected routed experts and the shared expert execute in a
 // fixed-address scratch arena under one native command topology.
@@ -45,6 +47,8 @@ public:
       const mx::array &shared_down_scale_inv);
   mx::array execute_bound(const mx::array &x, const mx::array &expert_ids,
                           const mx::array &scores);
+  mx::array execute_lazy(const mx::array &x, const mx::array &expert_ids,
+                         const mx::array &scores);
 
   int hidden_size() const { return hidden_size_; }
   int intermediate_size() const { return intermediate_size_; }
@@ -63,6 +67,7 @@ public:
     return dynamic_input_validation_count_;
   }
   uint64_t pipeline_lookup_count() const { return pipeline_lookup_count_; }
+  uint64_t lazy_graph_count() const { return lazy_graph_count_; }
   bool weights_bound() const { return bound_weights_.size() == 10; }
   bool bound_weight_identities_stable() const;
   uint64_t scratch_bytes() const;
@@ -110,6 +115,7 @@ private:
   uint64_t static_input_validation_count_{0};
   uint64_t dynamic_input_validation_count_{0};
   uint64_t pipeline_lookup_count_{0};
+  uint64_t lazy_graph_count_{0};
 
   struct WeightRefs {
     const mx::array &gate_up_weight;
@@ -126,12 +132,17 @@ private:
 
   void validate_input(const mx::array &array, const char *name,
                       mx::Dtype dtype, size_t elements) const;
+  void validate_input_descriptor(const mx::array &array, const char *name,
+                                 mx::Dtype dtype, size_t elements) const;
   void validate_static_weights(const WeightRefs &weights);
   std::array<MTL::ComputePipelineState *, 6> resolve_pipelines();
   mx::array encode(const mx::array &x, const mx::array &expert_ids,
                    const mx::array &scores, const WeightRefs &weights,
-                   const std::array<MTL::ComputePipelineState *, 6> &pipelines);
+                   const std::array<MTL::ComputePipelineState *, 6> &pipelines,
+                   mx::array &final_output);
   bool scratch_buffer_identities_stable() const;
+
+  friend class NativePackedMoELazyPrimitive;
 };
 
 // One-shot diagnostic for the GLM-5.3 routed gate/up/SwiGLU boundary.  It is
