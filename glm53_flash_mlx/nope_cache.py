@@ -14,6 +14,7 @@ from .cache_geometry import (
     plan_nope_cache_capacity,
 )
 from .indexpool import INDEXPOOL_SENTINEL, expand_selected_pools
+from .native_indexpool_runtime import is_not_used, try_native_update
 
 DEFAULT_CACHE_STEP = (
     DEFAULT_NOPE_CACHE_TILE_ALIGNMENT.allocation_alignment_tokens
@@ -488,6 +489,16 @@ class CompactIndexPoolCache:
         short_bypass = self.validate_update(
             indexer, batch=int(x.shape[0]), length=length
         )
+        native = try_native_update(
+            self,
+            indexer,
+            x,
+            qr,
+            mask=mask,
+            short_bypass=short_bypass,
+        )
+        if not is_not_used(native):
+            return native
         keys = indexer.k_norm(indexer.wk(x)).reshape(1, length, self.head_dim)
         gates = x @ indexer.index_kpool_compress_gate.swapaxes(-1, -2)
         if mask is not None and mask.dtype == mx.bool_ and mask.shape == (1, length):

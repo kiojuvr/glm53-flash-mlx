@@ -122,6 +122,14 @@ def test_compact_nope_dsa_cache_is_explicitly_opt_in():
     ).experimental_compact_nope_dsa_cache
 
 
+def test_native_indexpool_update_is_explicitly_opt_in():
+    parser = build_parser()
+    assert not parser.parse_args([]).experimental_native_indexpool_update
+    assert parser.parse_args(
+        ["--experimental-native-indexpool-update"]
+    ).experimental_native_indexpool_update
+
+
 def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
     assert NOPE_DSA_CACHE_ABI == (
         "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1"

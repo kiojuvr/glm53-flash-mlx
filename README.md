@@ -65,6 +65,20 @@ uv run glm53 serve \
 
 `L=1`は連続bankを直接読むgate/up/downの3 kernel、`L>1`はDirectと同じexpert bucket、tiled-GEMM/GEMV、BF16 reduction順を使います。grouped kernelは呼びません。`--experimental-packed-grouped-moe`とは排他的で、どちらも指定しない既定backendはDirectのままです。
 
+別buildのnative extensionで、sparse decode時のcompact IndexPool更新とqualified Tier-1 selectionを一つのsubmission islandへ移す場合は、先にextensionをbuildして3つのopt-in flagを同時指定します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --experimental-packed-decode-moe \
+  --experimental-compact-nope-dsa-cache \
+  --experimental-native-indexpool-update
+```
+
+native IndexPool pathはMLX 0.32.2、batch 1、L=1、maskなし、`index_kpool=4`、`index_topk=2048`、32 heads × head dim 128、raw19、および64-row aligned physical pool 512–65,600に限定します。範囲外geometryは既存MLX実装へfallbackし、extension欠落・MLX ABI不一致はserver起動前にfail closedします。このflagも既定offです。
+
 全42 routed MoE層を層単位で連続FP8 bankへ移行し、GPU sorted grouped prefillを使う場合だけ次を指定します。公式FP8＋FP32 scaleのままで、BF16 weight copyは作りません。
 
 ```bash
@@ -1248,6 +1262,26 @@ uv run python scripts/qualify_exact_fused_packed_decode_runtime.py \
 ```
 
 M3 Ultra qualificationでは、Direct比のdecode speedupが2Kで1.292×、256Kで1.277×、4,096-stepで1.306×となり、全correctness、RAM APC、prefill非回帰、memory、fresh server ready 176.823秒を含む従来runtime gateはすべて合格しました。4,096-stepのtoken/evidence logits/final stateもexactで、active driftは約2.0 MiBです。一方、2K absolute throughputは14.010 tok/s（71.378 ms/token）で、固定した15 tok/s gateには届きません。v2 fused pathは既存experimental backendのexactかつ大幅に速い実装として保持しますが、15 tok/s release-performance promotionはSTOPです。15 tok/sには2Kでさらに4.711 ms/tokenの短縮が必要です。
+
+accepted native IndexPool update/Tier-1 islandを実際の`CompactIndexPoolCache.update()`へ接続したopt-in runtimeは、screen、4,096-step differential、fresh serverを別processで実行できる分割qualificationで判定します。既存artifactへphase結果をatomic追記するため、長期phaseをCodexのbackground processへ残す必要はありません。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/qualify_native_indexpool_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase screen
+
+uv run python scripts/qualify_native_indexpool_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase long
+
+uv run python scripts/qualify_native_indexpool_runtime.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase server
+```
+
+component gateは2K非劣化、256K wall 0.75 ms/token以上短縮、両contextの全logits/token/cache state exact、全11 DSA層のnative execute、4,096-stepと16 materialization checkpoint exact、公式16/128 oracle、fresh server ready 190秒以内、peak 340 GB以内です。2K 15 tok/sは独立したrelease gateとして固定し、component採用条件と混同しません。
 
 ### Cache restore under allocation pressure
 

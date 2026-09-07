@@ -7,7 +7,7 @@ if __name__ == "__main__":
     setup(
         name="glm53-native-execution",
         version="0.0.1",
-        description="Probe-only native Metal execution bridge for GLM-5.3",
+        description="Opt-in native Metal execution bridge for GLM-5.3",
         ext_modules=[
             extension.CMakeExtension(
                 "glm53_native_execution._ext", sourcedir="."

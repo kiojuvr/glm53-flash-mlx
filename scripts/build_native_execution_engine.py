@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the probe-only native execution extension in place."""
+"""Build the ABI-pinned native execution extension in place."""
 
 from __future__ import annotations
 

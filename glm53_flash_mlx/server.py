@@ -34,6 +34,11 @@ from .materialization import (
     install_bounded_recurrent_materialization_policy,
     materialization_snapshot,
 )
+from .native_indexpool_runtime import (
+    ENVIRONMENT_FLAG as NATIVE_INDEXPOOL_ENVIRONMENT_FLAG,
+    NATIVE_INDEXPOOL_RUNTIME_ABI,
+    require_available as require_native_indexpool_available,
+)
 from .patch import apply_runtime_patch, patch_status
 
 DEFAULT_SOURCE = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
@@ -208,6 +213,8 @@ def _disk_cache_descriptor(
                 "grouped_min_routes": GROUPED_MIN_ROUTES,
             }
         )
+    if os.environ.get(NATIVE_INDEXPOOL_ENVIRONMENT_FLAG) == "1":
+        descriptor["native_indexpool_runtime_abi"] = NATIVE_INDEXPOOL_RUNTIME_ABI
     return descriptor
 
 
@@ -238,12 +245,21 @@ def configure_m3_ultra(
     experimental_packed_grouped_moe: bool,
     experimental_compact_nope_dsa_cache: bool,
     max_context_tokens: int,
+    experimental_native_indexpool_update: bool = False,
 ) -> None:
     """Set runtime knobs before mlx-vlm imports its server configuration."""
     if experimental_packed_decode_moe and experimental_packed_grouped_moe:
         raise ValueError(
             "--experimental-packed-decode-moe and "
             "--experimental-packed-grouped-moe are mutually exclusive"
+        )
+    if experimental_native_indexpool_update and not (
+        experimental_packed_decode_moe and experimental_compact_nope_dsa_cache
+    ):
+        raise ValueError(
+            "--experimental-native-indexpool-update requires both "
+            "--experimental-packed-decode-moe and "
+            "--experimental-compact-nope-dsa-cache"
         )
     os.environ["MLX_VLM_PRELOAD_MODEL"] = str(model)
     os.environ["MLX_VLM_MAX_NUM_SEQS"] = "1"
@@ -290,6 +306,9 @@ def configure_m3_ultra(
     )
     os.environ["GLM53_CACHE_BACKEND"] = (
         "compact-nope-dsa" if experimental_compact_nope_dsa_cache else "direct"
+    )
+    os.environ[NATIVE_INDEXPOOL_ENVIRONMENT_FLAG] = (
+        "1" if experimental_native_indexpool_update else "0"
     )
     if api_key:
         os.environ["MLX_VLM_SERVER_API_KEY"] = api_key
@@ -427,6 +446,10 @@ def _install_server_loader() -> None:
     def runtime_snapshot_with_materialization():
         snapshot = stock_runtime_snapshot()
         snapshot["recurrent_state_materialization"] = materialization_snapshot()
+        if os.environ.get("GLM53_EXPERIMENTAL_NATIVE_INDEXPOOL_UPDATE") == "1":
+            from .native_indexpool_runtime import registry_snapshot
+
+            snapshot["native_indexpool_update"] = registry_snapshot()
         generation_limit = int(os.environ["GLM53_MAX_GENERATION_TOKENS"])
         context_limit = int(os.environ["MAX_KV_SIZE"])
         snapshot["admission"] = admission_snapshot(
@@ -485,6 +508,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p.add_argument(
+        "--experimental-native-indexpool-update",
+        action="store_true",
+        help=(
+            "use the separately built exact native L=1 IndexPool update and "
+            "Tier-1 selection island; requires packed decode and compact cache"
+        ),
+    )
+    p.add_argument(
         "--experimental-disk-apc",
         action="store_true",
         help="allow disk APC using the mandatory attested checkpoint identity",
@@ -506,6 +537,15 @@ def main(argv: list[str] | None = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     try:
+        if args.experimental_native_indexpool_update and not (
+            args.experimental_packed_decode_moe
+            and args.experimental_compact_nope_dsa_cache
+        ):
+            raise ValueError(
+                "--experimental-native-indexpool-update requires both "
+                "--experimental-packed-decode-moe and "
+                "--experimental-compact-nope-dsa-cache"
+            )
         validate_cache_apc_policy(
             apc=args.apc,
             apc_disk_path=args.apc_disk_path,
@@ -515,7 +555,9 @@ def main(argv: list[str] | None = None) -> int:
             ),
         )
         report = inspect_checkpoint(args.model, require_server_ready=True)
-    except (ManifestError, ValueError) as exc:
+        if args.experimental_native_indexpool_update:
+            require_native_indexpool_available()
+    except (ManifestError, RuntimeError, ValueError) as exc:
         print(f"glm53-serve: {exc}", file=sys.stderr)
         return 2
     if args.max_context_tokens <= 0 or args.max_tokens <= 0:
@@ -539,6 +581,9 @@ def main(argv: list[str] | None = None) -> int:
             args.experimental_compact_nope_dsa_cache
         ),
         max_context_tokens=args.max_context_tokens,
+        experimental_native_indexpool_update=(
+            args.experimental_native_indexpool_update
+        ),
     )
     logging.getLogger(__name__).warning(
         "Attesting every checkpoint shard against the pinned official revision"
