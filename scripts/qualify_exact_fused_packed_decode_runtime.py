@@ -83,6 +83,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--wired-limit-gb", type=float, default=440.0)
     parser.add_argument("--cache-limit-gb", type=float, default=32.0)
+    parser.add_argument("--server-port", type=int, default=18083)
     parser.add_argument("--skip-server-smoke", action="store_true")
     args = parser.parse_args()
 
@@ -101,6 +102,8 @@ def main() -> int:
         str(args.wired_limit_gb),
         "--cache-limit-gb",
         str(args.cache_limit_gb),
+        "--server-port",
+        str(args.server_port),
     ]
     if args.skip_server_smoke:
         delegated.append("--skip-server-smoke")

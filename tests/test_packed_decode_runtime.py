@@ -22,6 +22,7 @@ def test_probe_covers_required_correctness_and_performance_frontiers():
     assert "decode_2k_speedup_at_least_1_12" in source
     assert "decode_256k_speedup_at_least_1_10" in source
     assert "server_ready_at_most_190_seconds" in source
+    assert 'parser.add_argument("--server-port", type=int, default=SERVER_PORT)' in source
 
 
 def test_packed_decode_policy_has_no_grouped_prefill_dispatch():

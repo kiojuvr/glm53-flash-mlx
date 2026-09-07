@@ -20,6 +20,7 @@ def test_qualification_reuses_the_full_direct_vs_packed_runtime_suite():
     assert "TARGET_2K_TPS = 15.0" in source
     assert '"2k_decode_at_least_15_tps"' in source
     assert '"delegated_runtime_qualification_accepted"' in source
+    assert 'parser.add_argument("--server-port", type=int, default=18083)' in source
 
 
 def test_qualification_requires_both_prequalified_fused_sources():

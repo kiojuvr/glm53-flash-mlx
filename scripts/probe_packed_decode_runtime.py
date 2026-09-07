@@ -334,7 +334,9 @@ def _storage_invariants(model, report) -> dict:
     }
 
 
-def _server_smoke(model_path: Path, *, timeout_seconds: float = 240.0) -> dict:
+def _server_smoke(
+    model_path: Path, *, port: int = SERVER_PORT, timeout_seconds: float = 240.0
+) -> dict:
     executable = Path(sys.executable).with_name("glm53-serve")
     command = [
         str(executable),
@@ -343,7 +345,7 @@ def _server_smoke(model_path: Path, *, timeout_seconds: float = 240.0) -> dict:
         "--host",
         "127.0.0.1",
         "--port",
-        str(SERVER_PORT),
+        str(port),
         "--experimental-packed-decode-moe",
         "--experimental-compact-nope-dsa-cache",
     ]
@@ -367,7 +369,7 @@ def _server_smoke(model_path: Path, *, timeout_seconds: float = 240.0) -> dict:
                     break
                 try:
                     with urllib.request.urlopen(
-                        f"http://127.0.0.1:{SERVER_PORT}/health", timeout=2
+                        f"http://127.0.0.1:{port}/health", timeout=2
                     ) as response:
                         status = int(response.status)
                         body = json.loads(response.read().decode())
@@ -473,6 +475,7 @@ def main() -> int:
     parser.add_argument("--wired-limit-gb", type=float, default=440.0)
     parser.add_argument("--cache-limit-gb", type=float, default=32.0)
     parser.add_argument("--skip-server-smoke", action="store_true")
+    parser.add_argument("--server-port", type=int, default=SERVER_PORT)
     parser.add_argument("--refresh-prefill-existing", action="store_true")
     args = parser.parse_args()
 
@@ -594,7 +597,7 @@ def main() -> int:
     server = (
         {"skipped": True, "ready_seconds": None, "health_http_status": None}
         if args.skip_server_smoke
-        else _server_smoke(args.model)
+        else _server_smoke(args.model, port=args.server_port)
     )
     acceptance = {
         "prompt_1_16_128_256_full_vocab_logits_byte_identical": all(
