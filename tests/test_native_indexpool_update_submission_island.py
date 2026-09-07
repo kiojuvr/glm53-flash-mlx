@@ -1,4 +1,5 @@
 import ast
+import json
 from pathlib import Path
 
 from glm53_flash_mlx.native_execution import (
@@ -11,6 +12,11 @@ from glm53_flash_mlx.native_execution import (
 ROOT = Path(__file__).resolve().parents[1]
 NATIVE = ROOT / "native_execution"
 PROBE = ROOT / "scripts" / "probe_native_indexpool_update_submission_island.py"
+ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-native-indexpool-update-submission-island-20260907.json"
+)
 
 
 def test_update_plan_has_explicit_external_cache_state_and_private_raw19():
@@ -91,3 +97,29 @@ def test_probe_has_exactness_first_screen_and_fixed_full_model_gate():
     assert "or mask is not None" in source
     for component in ("runtime", "server", "apc", "cache_abi", "kernel_abi"):
         assert f'"{component}": False' in source
+
+
+def test_m3ultra_update_island_is_exact_and_clears_fixed_wall_gate():
+    result = json.loads(ARTIFACT.read_text())
+    assert result["complete"] is True
+    assert result["accepted"] is True
+    assert result["decision"] == "keep_native_indexpool_update_submission_island"
+    assert all(result["acceptance"].values())
+    assert result["artificial_native_contract"]["all_exact"] is True
+    short = result["contexts"]["2048"]
+    long = result["contexts"]["262144"]
+    for row in (short, long):
+        assert row["all_logits_byte_exact"] is True
+        assert row["post_state_byte_exact"] is True
+        assert all(
+            plan["buffer_identities_stable"]
+            and plan["dynamic_allocation_count"] == 0
+            and plan["graph_node_count"] == 0
+            and plan["shape_discovery_count"] == 0
+            and plan["host_synchronization_count"] == 0
+            for plan in row["native_plan_evidence"]
+        )
+    assert short["native_wall_saving_ms"] > 0.0
+    assert long["native_wall_saving_ms"] >= 0.75
+    assert result["process_peak_memory_bytes"] <= 340_000_000_000
+    assert result["official_oracle"]["all_full_vocab_logits_hashes_match"] is True

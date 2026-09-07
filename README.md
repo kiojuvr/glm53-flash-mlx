@@ -1101,6 +1101,10 @@ uv run python scripts/probe_native_indexpool_update_submission_island.py \
 
 固定KEEP gateは256KでTier 1比0.75 ms/token以上の追加短縮、2K回帰1%以内、全logits/cache stateと公式16/128 oracle exact、peak 340 GB以内です。これを満たすまでruntime/server/APC/cache/kernel production ABIは変更しません。
 
+M3 Ultra qualificationでは、2KのTier 1 baseline 71.962 ms/tokenを71.434 msへ0.528 ms短縮し、256Kでは76.330→75.201 ms/tokenへ1.129 ms短縮しました。host submitはそれぞれ64.234→63.492 ms、68.207→66.895 msです。人工4境界、実full-modelの全logits/cache state、公式16/128 oracleはbyte-exactで、全11 DSA planのbuffer identityは不変、execute内allocation/graph/shape discovery/syncは0、process peakは331.532 GBでした。固定0.75 ms gateを長文側で通過したため、このislandをexact nonproduction native baselineとしてKEEPします。
+
+残るIndexer入力投影は`wk→k_norm`、compress gate、`wq_b`、mixture weightsの4本です。次のcounterfactualでは同一trajectoryからこれらのmaterialized BF16出力を事前供給し、KEEP済みupdate/Tier 1 islandを一切変えずfull-model上限を測ります。capture/copyは測定外であり、投影をnative化したとは主張しません。256Kで0.75 ms/token以上の追加headroomがある場合だけ、immutable weight handleと固定出力arenaをnative planへ追加します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
