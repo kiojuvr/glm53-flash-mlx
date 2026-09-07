@@ -96,7 +96,25 @@ def test_lazy_result_is_archived_when_present():
         return
     artifact = json.loads(ARTIFACT.read_text())
     assert artifact["complete"] is True
-    if "acceptance" in artifact:
-        assert artifact["failed_gates"] == [
-            name for name, passed in artifact["acceptance"].items() if not passed
-        ]
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == "stop_lazy_native_packed_moe_primitive"
+    assert set(artifact["failed_gates"]) == {
+        name for name, passed in artifact["acceptance"].items() if not passed
+    }
+    acceptance = artifact["acceptance"]
+    assert acceptance["all_three_arms_logits_tokens_and_state_byte_exact"]
+    assert acceptance["all_42_layers_use_one_lazy_graph_node_per_execution"]
+    assert acceptance["lazy_plans_keep_bound_resources_and_fixed_scratch"]
+    assert acceptance["2k_lazy_recovers_at_least_1_50ms_host_from_eager"]
+    assert acceptance["256k_lazy_recovers_at_least_1_50ms_host_from_eager"]
+    assert not acceptance["2k_lazy_wall_saving_vs_exact_at_least_0_50ms"]
+    assert not acceptance["256k_lazy_wall_saving_vs_exact_at_least_0_50ms"]
+
+    short = artifact["contexts"]["2048"]
+    long = artifact["contexts"]["262144"]
+    assert short["lazy_vs_eager_host_saving_ms"] >= 1.50
+    assert long["lazy_vs_eager_host_saving_ms"] >= 1.50
+    assert short["lazy_vs_exact_host_saving_ms"] > 0
+    assert long["lazy_vs_exact_host_saving_ms"] > 0
+    assert short["lazy_vs_exact_wall_saving_ms"] < -1.0
+    assert long["lazy_vs_exact_wall_saving_ms"] < -1.0

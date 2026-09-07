@@ -1238,6 +1238,8 @@ uv run python scripts/probe_lazy_native_packed_moe_primitive.py \
 
 lazy primitiveはbound weights/pipelinesとfixed scratchを共有しながら、unscheduledな`x`、expert IDs、router scoresをgraph inputとして保持し、6-kernel AOT topologyを`eval_gpu`時にencodeします。Python側のper-layer `mx.async_eval`は0です。A=exact composition、B=eager prebound、C=lazy preboundを比較し、CがAよりwall/host各0.50 ms以上速く、Bからwall 1.0 ms・host 1.50 ms以上を回収した場合だけ、より大きいnative layer execution islandへ進めます。
 
+lazy primitiveはeager nativeから2Kで2.120 ms、256Kで2.572 msのhost submitを回収し、exact compositionよりもhost側は0.089/0.148 ms短くなりました。42層すべてが1 executionあたり1 lazy graph nodeを使い、logits/token/stateもbyte-exactです。一方、wallはeager nativeと実質同じで、exact compositionより2Kで1.554 ms、256Kで1.441 ms遅いままでした。したがって残差はPython→native schedulingではなく6-kernel AOT topologyのGPU実行側です。lazy/prebound/eagerを含むnative packed MoE系列はSTOPとし、accepted exact fused MLX compositionをproduction候補として扱います。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
