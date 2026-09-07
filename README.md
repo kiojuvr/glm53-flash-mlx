@@ -1105,6 +1105,13 @@ M3 Ultra qualificationでは、2KのTier 1 baseline 71.962 ms/tokenを71.434 ms�
 
 残るIndexer入力投影は`wk→k_norm`、compress gate、`wq_b`、mixture weightsの4本です。次のcounterfactualでは同一trajectoryからこれらのmaterialized BF16出力を事前供給し、KEEP済みupdate/Tier 1 islandを一切変えずfull-model上限を測ります。capture/copyは測定外であり、投影をnative化したとは主張しません。256Kで0.75 ms/token以上の追加headroomがある場合だけ、immutable weight handleと固定出力arenaをnative planへ追加します。
 
+```bash
+uv run python scripts/probe_native_indexer_projection_boundary_headroom.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+2K/256Kで各7 step×11 DSA層のkey、compress gate、query、mixture-weight、validityをuntimed owned snapshotへ記録します。通常のnative update islandとprojection replay armを同一token列で交互測定し、両armと記録trajectoryの全logitsおよび最終KDA/DSA/IndexPool stateがbyte-exactであることを要求します。projection capture/copyの時間とbytesはartifactへ明記しますがwallから除外します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
