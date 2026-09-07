@@ -1114,6 +1114,15 @@ uv run python scripts/probe_native_indexer_projection_boundary_headroom.py \
 
 M3 Ultraのcounterfactual qualificationでは、projectionを事前供給するとhost submitは2Kで63.454→4.262 ms、256Kで67.002→4.275 msへ減りましたが、full-model wallは逆に71.422→76.377 ms、75.309→80.272 msへそれぞれ約4.96 ms悪化しました。両contextの全step logits/stateと公式16/128 oracleはbyte-exact、process peakは334.835 GBです。従ってこれはprojection算術のheadroomではなく、layer-local inputからprojectionへ続く依存を切断した際のGPU execution topology penaltyを測ったnegative evidenceです。固定gateを緩めず、4 projectionを独立native boundaryとして実装する経路を停止します。projectionは将来、consumerと中間bufferを共有するより大きなlayer-native islandの内部でのみ再検討し、precompute armを算術下限とは扱いません。
 
+次のscreenでは新しいnative境界を増やさず、KEEP済みnative IndexPool update/Tier-1 islandと、既に4,096-token exact qualificationを通したnonproduction packed MoE topologyを合成します。候補はrouted gate+up+SwiGLU、B1 exact weighted reduction、shared gate+up+SwiGLUを有効にし、production packed-decode armをoracleとします。2K/256K synthetic stateで同一token列を交互実行し、全step full-vocab logits、generated token、最終KDA/DSA/IndexPool state、公式16/128 oracleをbyte-exact比較します。
+
+```bash
+uv run python scripts/probe_native_fused_decode_composition.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+固定gateは2Kで15 tok/s（66.667 ms/token）以上、256Kでproduction packed/native IndexPool基準から5 ms/token以上の追加短縮、2K→256K retention 0.90以上、全42 sparse layerがfused pathを通ること、peak 340 GB以内です。これはexact nonproduction composition baselineであり、合格してもruntimeへ直接昇格しません。合格時は同じMoE topologyをnative executor内部へ移し、packed weight、scratch、command ownershipを一つのexecution planとしてproduction qualificationします。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
