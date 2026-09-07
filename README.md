@@ -1125,6 +1125,24 @@ uv run python scripts/probe_native_fused_decode_composition.py \
 
 M3 Ultra qualificationでは全42 sparse layerが候補pathを通り、2Kは71.330→63.502 ms/token（14.019→15.748 tok/s）、256Kは75.100→67.109 ms/token（13.316→14.901 tok/s）でした。追加短縮はそれぞれ7.829 msと7.992 ms、2K→256K retentionは0.946です。両contextの全step full-vocab logits、generated token、最終KDA/DSA/IndexPool state、両armの公式16/128 oracleはbyte-exactで、native IndexPool planのfixed arena/zero-allocation契約も維持し、process peakは331.539 GBでした。15 tok/sはexact nonproduction compositionとして初めて到達しました。次はこの数値をoracleとして、fused MoEの中間hidden/down scratchとdispatch topologyをC++ native planへ移します。
 
+`NativePackedMoEDecodePlan`はauthoritativeなMLX Float32 routerを境界外に維持し、そのselected expert ID/scoreからrouted gate+up+SwiGLU、routed down、B1 weighted reduction、shared gate+up+SwiGLU、shared down、最終加算までを一つのC++ command topologyへ収めます。42層それぞれがrouted hidden/down/outputとshared hidden/down/outputの固定arenaを所有し、execute中allocation、MLX graph、shape discovery、host synchronization、中間tensor返却を行いません。packed uint8 E4M3 weightは複製せず既存resident bankを入力handleとして使います。
+
+Metal kernelはprobeで確立した256-entry E4M3 LUT、256-thread/8-SIMD reduction、projection後BF16 store、安定化sigmoid、top-8順のFP32 weighted sumをそのまま固定します。まずH256/I128の人工fixtureで既存exact compositionとの最終BF16出力をbit比較し、合格後だけ320GB modelへ進みます。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+# checkpointをロードしない先行gate
+uv run python scripts/probe_native_packed_moe_execution_plan.py \
+  --artificial-only
+
+# 2K/256K・全42層・full-model qualification
+uv run python scripts/probe_native_packed_moe_execution_plan.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+人工gateはreference/native hash `7e8d533842dc9d182f1a3b40afe490782395922dfce97919305f426b550a25fc`でbyte-exact、固定scratch 7,936 bytes、execute counterはallocation/graph/shape/sync/intermediate全て0でした。full-modelの固定KEEP gateは2Kで15 tok/s以上、exact composition比で2K/256Kともwall 0.50 msおよびhost submit 0.50 ms以上短縮、context retention 0.90以上、全42 plan実行、全logits/token/cache stateと両arm公式oracle exact、peak 340 GB以内です。合格するまでproduction runtime/server/APC/cache/kernel ABIは変更しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

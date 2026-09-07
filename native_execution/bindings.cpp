@@ -6,6 +6,7 @@
 #include "native_dsa_score_plan.h"
 #include "native_indexpool_update_plan.h"
 #include "native_indexer_plan.h"
+#include "native_packed_moe_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -13,6 +14,7 @@ using glm53::native_execution::NativeDSAScoreSelectionPlan;
 using glm53::native_execution::NativeDSASparseAttentionPlan;
 using glm53::native_execution::NativeIndexSelectionPlan;
 using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
+using glm53::native_execution::NativePackedMoEDecodePlan;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
@@ -167,4 +169,38 @@ NB_MODULE(_ext, module) {
                    &NativeDSASparseAttentionPlan::debug_attention_scores)
       .def_prop_ro("buffer_identities",
                    &NativeDSASparseAttentionPlan::buffer_identities);
+
+  nb::class_<NativePackedMoEDecodePlan>(module,
+                                        "NativePackedMoEDecodePlan")
+      .def(nb::init<int, int, int, int, int>(), "hidden_size"_a,
+           "intermediate_size"_a, "shared_intermediate_size"_a,
+           "expert_count"_a, "swiglu_limit"_a)
+      .def("execute", &NativePackedMoEDecodePlan::execute, "x"_a,
+           "expert_ids"_a, "scores"_a, "gate_up_weight"_a,
+           "gate_up_scale_inv"_a, "down_weight"_a,
+           "down_scale_inv"_a, "shared_gate_weight"_a,
+           "shared_gate_scale_inv"_a, "shared_up_weight"_a,
+           "shared_up_scale_inv"_a, "shared_down_weight"_a,
+           "shared_down_scale_inv"_a)
+      .def_prop_ro("hidden_size", &NativePackedMoEDecodePlan::hidden_size)
+      .def_prop_ro("intermediate_size",
+                   &NativePackedMoEDecodePlan::intermediate_size)
+      .def_prop_ro("shared_intermediate_size",
+                   &NativePackedMoEDecodePlan::shared_intermediate_size)
+      .def_prop_ro("expert_count", &NativePackedMoEDecodePlan::expert_count)
+      .def_prop_ro("execution_count",
+                   &NativePackedMoEDecodePlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePackedMoEDecodePlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePackedMoEDecodePlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePackedMoEDecodePlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePackedMoEDecodePlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativePackedMoEDecodePlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativePackedMoEDecodePlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePackedMoEDecodePlan::buffer_identities);
 }

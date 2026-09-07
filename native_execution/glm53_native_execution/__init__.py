@@ -9,6 +9,7 @@ from ._ext import (
     NativeDSASparseAttentionPlan,
     NativeIndexSelectionPlan,
     NativeIndexPoolUpdateSelectionPlan,
+    NativePackedMoEDecodePlan,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "NativeDSASparseAttentionPlan",
     "NativeIndexSelectionPlan",
     "NativeIndexPoolUpdateSelectionPlan",
+    "NativePackedMoEDecodePlan",
 ]

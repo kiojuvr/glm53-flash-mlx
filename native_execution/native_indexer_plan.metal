@@ -15,6 +15,278 @@ constant uint kSelectedWidth = 2051;
 constant uint kIndexerHeads = 32;
 constant uint kIndexPoolHeadDim = 128;
 constant uint kIndexPoolRawWindow = 19;
+constant float kNativeE4M3[256] = {
+    0.0f,0.001953125f,0.00390625f,0.005859375f,0.0078125f,0.009765625f,0.01171875f,0.013671875f,0.015625f,0.017578125f,0.01953125f,0.021484375f,0.0234375f,0.025390625f,0.02734375f,0.029296875f,
+    0.03125f,0.03515625f,0.0390625f,0.04296875f,0.046875f,0.05078125f,0.0546875f,0.05859375f,0.0625f,0.0703125f,0.078125f,0.0859375f,0.09375f,0.1015625f,0.109375f,0.1171875f,
+    0.125f,0.140625f,0.15625f,0.171875f,0.1875f,0.203125f,0.21875f,0.234375f,0.25f,0.28125f,0.3125f,0.34375f,0.375f,0.40625f,0.4375f,0.46875f,
+    0.5f,0.5625f,0.625f,0.6875f,0.75f,0.8125f,0.875f,0.9375f,1.0f,1.125f,1.25f,1.375f,1.5f,1.625f,1.75f,1.875f,
+    2.0f,2.25f,2.5f,2.75f,3.0f,3.25f,3.5f,3.75f,4.0f,4.5f,5.0f,5.5f,6.0f,6.5f,7.0f,7.5f,
+    8.0f,9.0f,10.0f,11.0f,12.0f,13.0f,14.0f,15.0f,16.0f,18.0f,20.0f,22.0f,24.0f,26.0f,28.0f,30.0f,
+    32.0f,36.0f,40.0f,44.0f,48.0f,52.0f,56.0f,60.0f,64.0f,72.0f,80.0f,88.0f,96.0f,104.0f,112.0f,120.0f,
+    128.0f,144.0f,160.0f,176.0f,192.0f,208.0f,224.0f,240.0f,256.0f,288.0f,320.0f,352.0f,384.0f,416.0f,448.0f,480.0f,
+    -0.0f,-0.001953125f,-0.00390625f,-0.005859375f,-0.0078125f,-0.009765625f,-0.01171875f,-0.013671875f,-0.015625f,-0.017578125f,-0.01953125f,-0.021484375f,-0.0234375f,-0.025390625f,-0.02734375f,-0.029296875f,
+    -0.03125f,-0.03515625f,-0.0390625f,-0.04296875f,-0.046875f,-0.05078125f,-0.0546875f,-0.05859375f,-0.0625f,-0.0703125f,-0.078125f,-0.0859375f,-0.09375f,-0.1015625f,-0.109375f,-0.1171875f,
+    -0.125f,-0.140625f,-0.15625f,-0.171875f,-0.1875f,-0.203125f,-0.21875f,-0.234375f,-0.25f,-0.28125f,-0.3125f,-0.34375f,-0.375f,-0.40625f,-0.4375f,-0.46875f,
+    -0.5f,-0.5625f,-0.625f,-0.6875f,-0.75f,-0.8125f,-0.875f,-0.9375f,-1.0f,-1.125f,-1.25f,-1.375f,-1.5f,-1.625f,-1.75f,-1.875f,
+    -2.0f,-2.25f,-2.5f,-2.75f,-3.0f,-3.25f,-3.5f,-3.75f,-4.0f,-4.5f,-5.0f,-5.5f,-6.0f,-6.5f,-7.0f,-7.5f,
+    -8.0f,-9.0f,-10.0f,-11.0f,-12.0f,-13.0f,-14.0f,-15.0f,-16.0f,-18.0f,-20.0f,-22.0f,-24.0f,-26.0f,-28.0f,-30.0f,
+    -32.0f,-36.0f,-40.0f,-44.0f,-48.0f,-52.0f,-56.0f,-60.0f,-64.0f,-72.0f,-80.0f,-88.0f,-96.0f,-104.0f,-112.0f,-120.0f,
+    -128.0f,-144.0f,-160.0f,-176.0f,-192.0f,-208.0f,-224.0f,-240.0f,-256.0f,-288.0f,-320.0f,-352.0f,-384.0f,-416.0f,-448.0f,-480.0f};
+
+// Canonical E4M3 decode used by the checkpoint.  Normal values are assembled
+// directly as IEEE binary32 so this is bit-equivalent to the probe LUT without
+// a transcendental or arithmetic decode in the inner projection loop.
+inline float glm53_native_e4m3(uint8_t code) {
+  return kNativeE4M3[uint(code)];
+}
+
+[[kernel]] void glm53_native_packed_selected8_gate_up_swiglu(
+    device const bfloat16_t* x [[buffer(0)]],
+    device const uint* expert_ids [[buffer(1)]],
+    device const uint8_t* weight [[buffer(2)]],
+    device const float* scale_inv [[buffer(3)]],
+    device bfloat16_t* hidden [[buffer(4)]],
+    constant const int& hidden_size [[buffer(5)]],
+    constant const int& intermediate_size [[buffer(6)]],
+    constant const int& intermediate_scale_rows [[buffer(7)]],
+    constant const int& hidden_scale_rows [[buffer(8)]],
+    constant const int& swiglu_limit [[buffer(9)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  uint selected = group_id / uint(intermediate_size);
+  uint out_row = group_id % uint(intermediate_size);
+  if (selected >= 8u) return;
+  uint expert = expert_ids[selected];
+  uint bank_out_features = 2u * uint(intermediate_size);
+  uint bank_scale_rows = 2u * uint(intermediate_scale_rows);
+  const device uint8_t* gate_wr = weight +
+      (size_t(expert) * bank_out_features + out_row) * uint(hidden_size);
+  const device uint8_t* up_wr = weight +
+      (size_t(expert) * bank_out_features + uint(intermediate_size) + out_row) *
+          uint(hidden_size);
+  float gate_acc = 0.0f;
+  float up_acc = 0.0f;
+  for (uint k = tid; k < uint(hidden_size); k += 256u) {
+    uint scale_col = k / 128u;
+    size_t gate_scale_offset =
+        (size_t(expert) * bank_scale_rows + out_row / 128u) *
+            uint(hidden_scale_rows) +
+        scale_col;
+    size_t up_scale_offset =
+        (size_t(expert) * bank_scale_rows + uint(intermediate_scale_rows) +
+         out_row / 128u) *
+            uint(hidden_scale_rows) +
+        scale_col;
+    gate_acc += float(x[k]) * glm53_native_e4m3(gate_wr[k]) *
+        scale_inv[gate_scale_offset];
+    up_acc += float(x[k]) * glm53_native_e4m3(up_wr[k]) *
+        scale_inv[up_scale_offset];
+  }
+  gate_acc = simd_sum(gate_acc);
+  up_acc = simd_sum(up_acc);
+  threadgroup float gate_partial[8];
+  threadgroup float up_partial[8];
+  if (lane == 0) {
+    gate_partial[simd_id] = gate_acc;
+    up_partial[simd_id] = up_acc;
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    float gate_total = lane < 8u ? gate_partial[lane] : 0.0f;
+    float up_total = lane < 8u ? up_partial[lane] : 0.0f;
+    gate_total = simd_sum(gate_total);
+    up_total = simd_sum(up_total);
+    if (lane == 0) {
+      bfloat16_t gate_t = bfloat16_t(gate_total);
+      bfloat16_t up_t = bfloat16_t(up_total);
+      float limit = float(swiglu_limit);
+      float gate_value = min(float(gate_t), limit);
+      float up_value = clamp(float(up_t), -limit, limit);
+      bfloat16_t gate_activation = bfloat16_t(gate_value);
+      bfloat16_t up_activation = bfloat16_t(up_value);
+      auto sigmoid_tail =
+          1 / (1 + metal::exp(metal::abs(gate_activation)));
+      bfloat16_t sigmoid_value = gate_activation < 0
+          ? sigmoid_tail
+          : 1 - sigmoid_tail;
+      bfloat16_t silu_value = gate_activation * sigmoid_value;
+      bfloat16_t activated = silu_value * up_activation;
+      hidden[size_t(selected) * uint(intermediate_size) + out_row] =
+          bfloat16_t(activated);
+    }
+  }
+}
+
+[[kernel]] void glm53_native_packed_selected8_down(
+    device const bfloat16_t* hidden [[buffer(0)]],
+    device const uint* expert_ids [[buffer(1)]],
+    device const uint8_t* weight [[buffer(2)]],
+    device const float* scale_inv [[buffer(3)]],
+    device bfloat16_t* output [[buffer(4)]],
+    constant const int& intermediate_size [[buffer(5)]],
+    constant const int& hidden_size [[buffer(6)]],
+    constant const int& intermediate_scale_rows [[buffer(7)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  uint selected = group_id / uint(hidden_size);
+  uint out_row = group_id % uint(hidden_size);
+  if (selected >= 8u) return;
+  uint expert = expert_ids[selected];
+  const device uint8_t* wr = weight +
+      (size_t(expert) * uint(hidden_size) + out_row) * uint(intermediate_size);
+  const device bfloat16_t* xr =
+      hidden + size_t(selected) * uint(intermediate_size);
+  float acc = 0.0f;
+  for (uint k = tid; k < uint(intermediate_size); k += 256u) {
+    size_t scale_offset =
+        (size_t(expert) * uint(hidden_size / 128) + out_row / 128u) *
+            uint(intermediate_scale_rows) +
+        k / 128u;
+    acc += float(xr[k]) * glm53_native_e4m3(wr[k]) *
+        scale_inv[scale_offset];
+  }
+  acc = simd_sum(acc);
+  threadgroup float partial[8];
+  if (lane == 0) partial[simd_id] = acc;
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    float reduced = lane < 8u ? partial[lane] : 0.0f;
+    reduced = simd_sum(reduced);
+    if (lane == 0) {
+      output[size_t(selected) * uint(hidden_size) + out_row] =
+          bfloat16_t(reduced);
+    }
+  }
+}
+
+[[kernel]] void glm53_native_packed_selected8_weighted_reduction(
+    device const bfloat16_t* down [[buffer(0)]],
+    device const float* scores [[buffer(1)]],
+    device bfloat16_t* output [[buffer(2)]],
+    constant const int& hidden_size [[buffer(3)]],
+    uint out_row [[thread_position_in_grid]]) {
+  if (out_row >= uint(hidden_size)) return;
+  float total = 0.0f;
+  for (uint selected = 0; selected < 8u; ++selected) {
+    float contribution =
+        float(down[size_t(selected) * uint(hidden_size) + out_row]) *
+        scores[selected];
+    total += contribution;
+  }
+  output[out_row] = bfloat16_t(total);
+}
+
+[[kernel]] void glm53_native_shared_gate_up_swiglu(
+    device const bfloat16_t* x [[buffer(0)]],
+    device const uint8_t* gate_weight [[buffer(1)]],
+    device const float* gate_scale_inv [[buffer(2)]],
+    device const uint8_t* up_weight [[buffer(3)]],
+    device const float* up_scale_inv [[buffer(4)]],
+    device bfloat16_t* hidden [[buffer(5)]],
+    constant const int& hidden_size [[buffer(6)]],
+    constant const int& intermediate_size [[buffer(7)]],
+    constant const int& hidden_scale_rows [[buffer(8)]],
+    constant const int& swiglu_limit [[buffer(9)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint out_row [[threadgroup_position_in_grid]]) {
+  if (out_row >= uint(intermediate_size)) return;
+  const device uint8_t* gate_wr =
+      gate_weight + size_t(out_row) * uint(hidden_size);
+  const device uint8_t* up_wr =
+      up_weight + size_t(out_row) * uint(hidden_size);
+  float gate_acc = 0.0f;
+  float up_acc = 0.0f;
+  for (uint k = tid; k < uint(hidden_size); k += 256u) {
+    size_t scale_offset = size_t(out_row / 128u) *
+        uint(hidden_scale_rows) + k / 128u;
+    gate_acc += float(x[k]) * glm53_native_e4m3(gate_wr[k]) *
+        gate_scale_inv[scale_offset];
+    up_acc += float(x[k]) * glm53_native_e4m3(up_wr[k]) *
+        up_scale_inv[scale_offset];
+  }
+  gate_acc = simd_sum(gate_acc);
+  up_acc = simd_sum(up_acc);
+  threadgroup float gate_partial[8];
+  threadgroup float up_partial[8];
+  if (lane == 0) {
+    gate_partial[simd_id] = gate_acc;
+    up_partial[simd_id] = up_acc;
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    float gate_total = lane < 8u ? gate_partial[lane] : 0.0f;
+    float up_total = lane < 8u ? up_partial[lane] : 0.0f;
+    gate_total = simd_sum(gate_total);
+    up_total = simd_sum(up_total);
+    if (lane == 0) {
+      bfloat16_t gate_t = bfloat16_t(gate_total);
+      bfloat16_t up_t = bfloat16_t(up_total);
+      float limit = float(swiglu_limit);
+      float gate_value = min(float(gate_t), limit);
+      float up_value = clamp(float(up_t), -limit, limit);
+      bfloat16_t gate_activation = bfloat16_t(gate_value);
+      bfloat16_t up_activation = bfloat16_t(up_value);
+      auto sigmoid_tail =
+          1 / (1 + metal::exp(metal::abs(gate_activation)));
+      bfloat16_t sigmoid_value = gate_activation < 0
+          ? sigmoid_tail
+          : 1 - sigmoid_tail;
+      bfloat16_t silu_value = gate_activation * sigmoid_value;
+      hidden[out_row] = bfloat16_t(silu_value * up_activation);
+    }
+  }
+}
+
+[[kernel]] void glm53_native_shared_down(
+    device const bfloat16_t* hidden [[buffer(0)]],
+    device const uint8_t* weight [[buffer(1)]],
+    device const float* scale_inv [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    constant const int& intermediate_size [[buffer(4)]],
+    constant const int& hidden_size [[buffer(5)]],
+    constant const int& intermediate_scale_rows [[buffer(6)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint out_row [[threadgroup_position_in_grid]]) {
+  if (out_row >= uint(hidden_size)) return;
+  const device uint8_t* wr =
+      weight + size_t(out_row) * uint(intermediate_size);
+  float acc = 0.0f;
+  for (uint k = tid; k < uint(intermediate_size); k += 256u) {
+    size_t scale_offset = size_t(out_row / 128u) *
+        uint(intermediate_scale_rows) + k / 128u;
+    acc += float(hidden[k]) * glm53_native_e4m3(wr[k]) *
+        scale_inv[scale_offset];
+  }
+  acc = simd_sum(acc);
+  threadgroup float partial[8];
+  if (lane == 0) partial[simd_id] = acc;
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    float reduced = lane < 8u ? partial[lane] : 0.0f;
+    reduced = simd_sum(reduced);
+    if (lane == 0) output[out_row] = bfloat16_t(reduced);
+  }
+}
+
+[[kernel]] void glm53_native_add_routed_shared(
+    device const bfloat16_t* routed [[buffer(0)]],
+    device const bfloat16_t* shared [[buffer(1)]],
+    device bfloat16_t* output [[buffer(2)]],
+    constant const int& hidden_size [[buffer(3)]],
+    uint position [[thread_position_in_grid]]) {
+  if (position < uint(hidden_size)) {
+    output[position] = bfloat16_t(
+        float(routed[position]) + float(shared[position]));
+  }
+}
 
 // Advance the bounded rollback representation without concatenating a new
 // MLX graph.  Keys/gates use a ping-pong destination; metadata is copied by

@@ -28,7 +28,8 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_indexer_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_indexpool_update_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_dsa_score_plan.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/native_dsa_attention_plan.cpp)
+  ${CMAKE_CURRENT_LIST_DIR}/native_dsa_attention_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp)
 target_include_directories(
   glm53_native_execution_core PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(glm53_native_execution_core PUBLIC mlx)
