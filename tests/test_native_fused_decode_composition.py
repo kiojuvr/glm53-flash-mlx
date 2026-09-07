@@ -1,9 +1,15 @@
 import ast
+import json
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBE = ROOT / "scripts" / "probe_native_fused_decode_composition.py"
+ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-native-fused-decode-composition-20260907.json"
+)
 
 
 def test_composition_reuses_only_prequalified_exact_components():
@@ -46,3 +52,39 @@ def test_composition_keeps_native_update_for_both_arms():
     assert "A_native_indexpool_production_packed" in source
     assert "B_native_indexpool_exact_fused_packed" in source
     assert "advance_fused_moe_topology_into_native_executor" in source
+
+
+def test_composition_qualification_crosses_15_tps_with_exact_state():
+    artifact = json.loads(ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is True
+    assert artifact["decision"] == "advance_fused_moe_topology_into_native_executor"
+    assert all(artifact["acceptance"].values())
+    assert artifact["process_peak_memory_bytes"] <= 340_000_000_000
+    assert artifact["runtime_changes"] == {
+        "runtime": False,
+        "server": False,
+        "apc": False,
+        "cache_abi": False,
+        "kernel_abi": False,
+    }
+
+    short = artifact["contexts"]["2048"]
+    long = artifact["contexts"]["262144"]
+    for row in (short, long):
+        assert row["all_full_vocab_logits_byte_exact"]
+        assert row["all_generated_tokens_exact"]
+        assert row["post_state_byte_exact"]
+        assert row["fused_sparse_moe_calls"] == row[
+            "expected_fused_sparse_moe_calls"
+        ]
+    short_candidate = short["timing"]["B_native_indexpool_exact_fused_packed"]
+    long_candidate = long["timing"]["B_native_indexpool_exact_fused_packed"]
+    assert short_candidate["tokens_per_second"] >= 15.0
+    assert short["candidate_wall_saving_ms"] >= 5.0
+    assert long["candidate_wall_saving_ms"] >= 5.0
+    assert (
+        long_candidate["tokens_per_second"]
+        / short_candidate["tokens_per_second"]
+        >= 0.90
+    )

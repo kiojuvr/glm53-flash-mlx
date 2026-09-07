@@ -1123,6 +1123,8 @@ uv run python scripts/probe_native_fused_decode_composition.py \
 
 固定gateは2Kで15 tok/s（66.667 ms/token）以上、256Kでproduction packed/native IndexPool基準から5 ms/token以上の追加短縮、2K→256K retention 0.90以上、全42 sparse layerがfused pathを通ること、peak 340 GB以内です。これはexact nonproduction composition baselineであり、合格してもruntimeへ直接昇格しません。合格時は同じMoE topologyをnative executor内部へ移し、packed weight、scratch、command ownershipを一つのexecution planとしてproduction qualificationします。
 
+M3 Ultra qualificationでは全42 sparse layerが候補pathを通り、2Kは71.330→63.502 ms/token（14.019→15.748 tok/s）、256Kは75.100→67.109 ms/token（13.316→14.901 tok/s）でした。追加短縮はそれぞれ7.829 msと7.992 ms、2K→256K retentionは0.946です。両contextの全step full-vocab logits、generated token、最終KDA/DSA/IndexPool state、両armの公式16/128 oracleはbyte-exactで、native IndexPool planのfixed arena/zero-allocation契約も維持し、process peakは331.539 GBでした。15 tok/sはexact nonproduction compositionとして初めて到達しました。次はこの数値をoracleとして、fused MoEの中間hidden/down scratchとdispatch topologyをC++ native planへ移します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
