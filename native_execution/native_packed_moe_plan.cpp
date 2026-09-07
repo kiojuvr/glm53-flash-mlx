@@ -112,33 +112,55 @@ mx::array NativePackedMoEDecodePlan::execute(
     const mx::array &shared_up_scale_inv,
     const mx::array &shared_down_weight,
     const mx::array &shared_down_scale_inv) {
+  dynamic_input_validation_count_ += 3;
   validate_input(x, "x", mx::bfloat16, hidden_size_);
   validate_input(expert_ids, "expert_ids", mx::uint32, kTopK);
   validate_input(scores, "scores", mx::float32, kTopK);
-  validate_input(gate_up_weight, "gate_up_weight", mx::uint8,
+  WeightRefs weights{
+      gate_up_weight,          gate_up_scale_inv,    down_weight,
+      down_scale_inv,          shared_gate_weight,   shared_gate_scale_inv,
+      shared_up_weight,        shared_up_scale_inv,  shared_down_weight,
+      shared_down_scale_inv,
+  };
+  validate_static_weights(weights);
+  return encode(x, expert_ids, scores, weights, resolve_pipelines());
+}
+
+void NativePackedMoEDecodePlan::validate_static_weights(
+    const WeightRefs &weights) {
+  static_input_validation_count_ += 10;
+  validate_input(weights.gate_up_weight, "gate_up_weight", mx::uint8,
                  static_cast<size_t>(expert_count_) * 2 * intermediate_size_ *
                      hidden_size_);
-  validate_input(gate_up_scale_inv, "gate_up_scale_inv", mx::float32,
+  validate_input(weights.gate_up_scale_inv, "gate_up_scale_inv", mx::float32,
                  static_cast<size_t>(expert_count_) * 2 *
                      intermediate_scale_rows_ * hidden_scale_rows_);
-  validate_input(down_weight, "down_weight", mx::uint8,
+  validate_input(weights.down_weight, "down_weight", mx::uint8,
                  static_cast<size_t>(expert_count_) * hidden_size_ *
                      intermediate_size_);
-  validate_input(down_scale_inv, "down_scale_inv", mx::float32,
+  validate_input(weights.down_scale_inv, "down_scale_inv", mx::float32,
                  static_cast<size_t>(expert_count_) * hidden_scale_rows_ *
                      intermediate_scale_rows_);
-  validate_input(shared_gate_weight, "shared_gate_weight", mx::uint8,
+  validate_input(weights.shared_gate_weight, "shared_gate_weight", mx::uint8,
                  static_cast<size_t>(shared_intermediate_size_) * hidden_size_);
-  validate_input(shared_gate_scale_inv, "shared_gate_scale_inv", mx::float32,
+  validate_input(weights.shared_gate_scale_inv, "shared_gate_scale_inv",
+                 mx::float32,
                  static_cast<size_t>(shared_scale_rows_) * hidden_scale_rows_);
-  validate_input(shared_up_weight, "shared_up_weight", mx::uint8,
+  validate_input(weights.shared_up_weight, "shared_up_weight", mx::uint8,
                  static_cast<size_t>(shared_intermediate_size_) * hidden_size_);
-  validate_input(shared_up_scale_inv, "shared_up_scale_inv", mx::float32,
+  validate_input(weights.shared_up_scale_inv, "shared_up_scale_inv",
+                 mx::float32,
                  static_cast<size_t>(shared_scale_rows_) * hidden_scale_rows_);
-  validate_input(shared_down_weight, "shared_down_weight", mx::uint8,
+  validate_input(weights.shared_down_weight, "shared_down_weight", mx::uint8,
                  static_cast<size_t>(hidden_size_) * shared_intermediate_size_);
-  validate_input(shared_down_scale_inv, "shared_down_scale_inv", mx::float32,
+  validate_input(weights.shared_down_scale_inv, "shared_down_scale_inv",
+                 mx::float32,
                  static_cast<size_t>(hidden_scale_rows_) * shared_scale_rows_);
+}
+
+std::array<MTL::ComputePipelineState *, 6>
+NativePackedMoEDecodePlan::resolve_pipelines() {
+  pipeline_lookup_count_ += 6;
 
   auto &device = mx::metal::device(stream_.device);
   auto *library =
@@ -156,13 +178,72 @@ mx::array NativePackedMoEDecodePlan::execute(
   auto *shared_down =
       device.get_kernel("glm53_native_shared_down", library);
   auto *add = device.get_kernel("glm53_native_add_routed_shared", library);
+  return {routed_gate_up, routed_down, aggregate,
+          shared_gate_up, shared_down, add};
+}
+
+void NativePackedMoEDecodePlan::bind_weights(
+    const mx::array &gate_up_weight, const mx::array &gate_up_scale_inv,
+    const mx::array &down_weight, const mx::array &down_scale_inv,
+    const mx::array &shared_gate_weight,
+    const mx::array &shared_gate_scale_inv,
+    const mx::array &shared_up_weight,
+    const mx::array &shared_up_scale_inv,
+    const mx::array &shared_down_weight,
+    const mx::array &shared_down_scale_inv) {
+  if (weights_bound()) {
+    throw std::logic_error("native packed MoE weights are already bound");
+  }
+  WeightRefs weights{
+      gate_up_weight,          gate_up_scale_inv,    down_weight,
+      down_scale_inv,          shared_gate_weight,   shared_gate_scale_inv,
+      shared_up_weight,        shared_up_scale_inv,  shared_down_weight,
+      shared_down_scale_inv,
+  };
+  validate_static_weights(weights);
+  bound_weights_.reserve(10);
+  bound_weights_.insert(
+      bound_weights_.end(),
+      {gate_up_weight, gate_up_scale_inv, down_weight, down_scale_inv,
+       shared_gate_weight, shared_gate_scale_inv, shared_up_weight,
+       shared_up_scale_inv, shared_down_weight, shared_down_scale_inv});
+  initial_bound_weight_identities_ = bound_weight_identities();
+  bound_pipelines_ = resolve_pipelines();
+}
+
+mx::array NativePackedMoEDecodePlan::execute_bound(
+    const mx::array &x, const mx::array &expert_ids,
+    const mx::array &scores) {
+  if (!weights_bound()) {
+    throw std::logic_error("native packed MoE weights are not bound");
+  }
+  dynamic_input_validation_count_ += 3;
+  validate_input(x, "x", mx::bfloat16, hidden_size_);
+  validate_input(expert_ids, "expert_ids", mx::uint32, kTopK);
+  validate_input(scores, "scores", mx::float32, kTopK);
+  if (!bound_weight_identities_stable()) {
+    throw std::runtime_error("native packed MoE bound weight identity changed");
+  }
+  WeightRefs weights{
+      bound_weights_[0], bound_weights_[1], bound_weights_[2],
+      bound_weights_[3], bound_weights_[4], bound_weights_[5],
+      bound_weights_[6], bound_weights_[7], bound_weights_[8],
+      bound_weights_[9],
+  };
+  return encode(x, expert_ids, scores, weights, bound_pipelines_);
+}
+
+mx::array NativePackedMoEDecodePlan::encode(
+    const mx::array &x, const mx::array &expert_ids,
+    const mx::array &scores, const WeightRefs &weights,
+    const std::array<MTL::ComputePipelineState *, 6> &pipelines) {
   auto &encoder = mx::metal::get_command_encoder(stream_);
 
-  encoder.set_compute_pipeline_state(routed_gate_up);
+  encoder.set_compute_pipeline_state(pipelines[0]);
   encoder.set_input_array(x, 0);
   encoder.set_input_array(expert_ids, 1);
-  encoder.set_input_array(gate_up_weight, 2);
-  encoder.set_input_array(gate_up_scale_inv, 3);
+  encoder.set_input_array(weights.gate_up_weight, 2);
+  encoder.set_input_array(weights.gate_up_scale_inv, 3);
   encoder.set_output_array(routed_hidden_, 4);
   encoder.set_bytes(hidden_size_, 5);
   encoder.set_bytes(intermediate_size_, 6);
@@ -174,11 +255,11 @@ mx::array NativePackedMoEDecodePlan::execute(
       MTL::Size(kThreads, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(routed_down);
+  encoder.set_compute_pipeline_state(pipelines[1]);
   encoder.set_input_array(routed_hidden_, 0);
   encoder.set_input_array(expert_ids, 1);
-  encoder.set_input_array(down_weight, 2);
-  encoder.set_input_array(down_scale_inv, 3);
+  encoder.set_input_array(weights.down_weight, 2);
+  encoder.set_input_array(weights.down_scale_inv, 3);
   encoder.set_output_array(routed_down_, 4);
   encoder.set_bytes(intermediate_size_, 5);
   encoder.set_bytes(hidden_size_, 6);
@@ -187,7 +268,7 @@ mx::array NativePackedMoEDecodePlan::execute(
                                 MTL::Size(kThreads, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(aggregate);
+  encoder.set_compute_pipeline_state(pipelines[2]);
   encoder.set_input_array(routed_down_, 0);
   encoder.set_input_array(scores, 1);
   encoder.set_output_array(routed_output_, 2);
@@ -196,12 +277,12 @@ mx::array NativePackedMoEDecodePlan::execute(
                            MTL::Size(kThreads, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(shared_gate_up);
+  encoder.set_compute_pipeline_state(pipelines[3]);
   encoder.set_input_array(x, 0);
-  encoder.set_input_array(shared_gate_weight, 1);
-  encoder.set_input_array(shared_gate_scale_inv, 2);
-  encoder.set_input_array(shared_up_weight, 3);
-  encoder.set_input_array(shared_up_scale_inv, 4);
+  encoder.set_input_array(weights.shared_gate_weight, 1);
+  encoder.set_input_array(weights.shared_gate_scale_inv, 2);
+  encoder.set_input_array(weights.shared_up_weight, 3);
+  encoder.set_input_array(weights.shared_up_scale_inv, 4);
   encoder.set_output_array(shared_hidden_, 5);
   encoder.set_bytes(hidden_size_, 6);
   encoder.set_bytes(shared_intermediate_size_, 7);
@@ -211,10 +292,10 @@ mx::array NativePackedMoEDecodePlan::execute(
                                 MTL::Size(kThreads, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(shared_down);
+  encoder.set_compute_pipeline_state(pipelines[4]);
   encoder.set_input_array(shared_hidden_, 0);
-  encoder.set_input_array(shared_down_weight, 1);
-  encoder.set_input_array(shared_down_scale_inv, 2);
+  encoder.set_input_array(weights.shared_down_weight, 1);
+  encoder.set_input_array(weights.shared_down_scale_inv, 2);
   encoder.set_output_array(shared_down_, 3);
   encoder.set_bytes(shared_intermediate_size_, 4);
   encoder.set_bytes(hidden_size_, 5);
@@ -223,7 +304,7 @@ mx::array NativePackedMoEDecodePlan::execute(
                                 MTL::Size(kThreads, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(add);
+  encoder.set_compute_pipeline_state(pipelines[5]);
   encoder.set_input_array(routed_output_, 0);
   encoder.set_input_array(shared_down_, 1);
   encoder.set_output_array(output_, 2);
@@ -232,11 +313,34 @@ mx::array NativePackedMoEDecodePlan::execute(
                            MTL::Size(kThreads, 1, 1));
 
   execution_count_++;
-  if (buffer_identities() != initial_buffer_identities_) {
+  if (!scratch_buffer_identities_stable()) {
     throw std::runtime_error(
         "native packed MoE plan buffer identity changed during execute");
   }
   return output_;
+}
+
+bool NativePackedMoEDecodePlan::scratch_buffer_identities_stable() const {
+  return initial_buffer_identities_.size() == 6 &&
+      buffer_identity(routed_hidden_) == initial_buffer_identities_[0] &&
+      buffer_identity(routed_down_) == initial_buffer_identities_[1] &&
+      buffer_identity(routed_output_) == initial_buffer_identities_[2] &&
+      buffer_identity(shared_hidden_) == initial_buffer_identities_[3] &&
+      buffer_identity(shared_down_) == initial_buffer_identities_[4] &&
+      buffer_identity(output_) == initial_buffer_identities_[5];
+}
+
+bool NativePackedMoEDecodePlan::bound_weight_identities_stable() const {
+  if (!weights_bound() || initial_bound_weight_identities_.size() != 10) {
+    return false;
+  }
+  for (size_t index = 0; index < bound_weights_.size(); ++index) {
+    if (buffer_identity(bound_weights_[index]) !=
+        initial_bound_weight_identities_[index]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 uint64_t NativePackedMoEDecodePlan::scratch_bytes() const {
@@ -249,6 +353,16 @@ std::vector<uint64_t> NativePackedMoEDecodePlan::buffer_identities() const {
   return {buffer_identity(routed_hidden_), buffer_identity(routed_down_),
           buffer_identity(routed_output_), buffer_identity(shared_hidden_),
           buffer_identity(shared_down_), buffer_identity(output_)};
+}
+
+std::vector<uint64_t>
+NativePackedMoEDecodePlan::bound_weight_identities() const {
+  std::vector<uint64_t> identities;
+  identities.reserve(bound_weights_.size());
+  for (const auto &weight : bound_weights_) {
+    identities.push_back(buffer_identity(weight));
+  }
+  return identities;
 }
 
 NativePackedMoERoutedDiagnostic::NativePackedMoERoutedDiagnostic(

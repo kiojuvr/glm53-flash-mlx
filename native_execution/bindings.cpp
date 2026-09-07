@@ -184,6 +184,14 @@ NB_MODULE(_ext, module) {
            "shared_gate_scale_inv"_a, "shared_up_weight"_a,
            "shared_up_scale_inv"_a, "shared_down_weight"_a,
            "shared_down_scale_inv"_a)
+      .def("bind_weights", &NativePackedMoEDecodePlan::bind_weights,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a, "down_weight"_a,
+           "down_scale_inv"_a, "shared_gate_weight"_a,
+           "shared_gate_scale_inv"_a, "shared_up_weight"_a,
+           "shared_up_scale_inv"_a, "shared_down_weight"_a,
+           "shared_down_scale_inv"_a)
+      .def("execute_bound", &NativePackedMoEDecodePlan::execute_bound, "x"_a,
+           "expert_ids"_a, "scores"_a)
       .def_prop_ro("hidden_size", &NativePackedMoEDecodePlan::hidden_size)
       .def_prop_ro("intermediate_size",
                    &NativePackedMoEDecodePlan::intermediate_size)
@@ -202,6 +210,15 @@ NB_MODULE(_ext, module) {
                    &NativePackedMoEDecodePlan::host_synchronization_count)
       .def_prop_ro("returned_intermediate_tensor_bytes",
                    &NativePackedMoEDecodePlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("static_input_validation_count",
+                   &NativePackedMoEDecodePlan::static_input_validation_count)
+      .def_prop_ro("dynamic_input_validation_count",
+                   &NativePackedMoEDecodePlan::dynamic_input_validation_count)
+      .def_prop_ro("pipeline_lookup_count",
+                   &NativePackedMoEDecodePlan::pipeline_lookup_count)
+      .def_prop_ro("weights_bound", &NativePackedMoEDecodePlan::weights_bound)
+      .def_prop_ro("bound_weight_identities_stable",
+                   &NativePackedMoEDecodePlan::bound_weight_identities_stable)
       .def_prop_ro("scratch_bytes", &NativePackedMoEDecodePlan::scratch_bytes)
       .def_prop_ro(
           "uses_shape_specialized_routed_gate_up",
@@ -219,7 +236,9 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("debug_shared_down",
                    &NativePackedMoEDecodePlan::debug_shared_down)
       .def_prop_ro("buffer_identities",
-                   &NativePackedMoEDecodePlan::buffer_identities);
+                   &NativePackedMoEDecodePlan::buffer_identities)
+      .def_prop_ro("bound_weight_identities",
+                   &NativePackedMoEDecodePlan::bound_weight_identities);
 
   nb::class_<NativePackedMoERoutedDiagnostic>(
       module, "NativePackedMoERoutedDiagnostic")

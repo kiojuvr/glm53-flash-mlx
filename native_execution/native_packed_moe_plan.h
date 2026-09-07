@@ -1,7 +1,10 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <vector>
+
+#include <Metal/Metal.hpp>
 
 #include "mlx/array.h"
 #include "mlx/device.h"
@@ -31,6 +34,18 @@ public:
       const mx::array &shared_down_weight,
       const mx::array &shared_down_scale_inv);
 
+  void bind_weights(
+      const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+      const mx::array &shared_gate_scale_inv,
+      const mx::array &shared_up_weight,
+      const mx::array &shared_up_scale_inv,
+      const mx::array &shared_down_weight,
+      const mx::array &shared_down_scale_inv);
+  mx::array execute_bound(const mx::array &x, const mx::array &expert_ids,
+                          const mx::array &scores);
+
   int hidden_size() const { return hidden_size_; }
   int intermediate_size() const { return intermediate_size_; }
   int shared_intermediate_size() const { return shared_intermediate_size_; }
@@ -41,8 +56,18 @@ public:
   uint64_t shape_discovery_count() const { return 0; }
   uint64_t host_synchronization_count() const { return 0; }
   uint64_t returned_intermediate_tensor_bytes() const { return 0; }
+  uint64_t static_input_validation_count() const {
+    return static_input_validation_count_;
+  }
+  uint64_t dynamic_input_validation_count() const {
+    return dynamic_input_validation_count_;
+  }
+  uint64_t pipeline_lookup_count() const { return pipeline_lookup_count_; }
+  bool weights_bound() const { return bound_weights_.size() == 10; }
+  bool bound_weight_identities_stable() const;
   uint64_t scratch_bytes() const;
   std::vector<uint64_t> buffer_identities() const;
+  std::vector<uint64_t> bound_weight_identities() const;
   bool uses_shape_specialized_routed_gate_up() const {
     return hidden_size_ == 4096 && intermediate_size_ == 2048 &&
         intermediate_scale_rows_ == 16 && hidden_scale_rows_ == 32 &&
@@ -78,10 +103,35 @@ private:
   mx::array shared_down_;
   mx::array output_;
   std::vector<uint64_t> initial_buffer_identities_;
+  std::vector<mx::array> bound_weights_;
+  std::vector<uint64_t> initial_bound_weight_identities_;
+  std::array<MTL::ComputePipelineState *, 6> bound_pipelines_{};
   uint64_t execution_count_{0};
+  uint64_t static_input_validation_count_{0};
+  uint64_t dynamic_input_validation_count_{0};
+  uint64_t pipeline_lookup_count_{0};
+
+  struct WeightRefs {
+    const mx::array &gate_up_weight;
+    const mx::array &gate_up_scale_inv;
+    const mx::array &down_weight;
+    const mx::array &down_scale_inv;
+    const mx::array &shared_gate_weight;
+    const mx::array &shared_gate_scale_inv;
+    const mx::array &shared_up_weight;
+    const mx::array &shared_up_scale_inv;
+    const mx::array &shared_down_weight;
+    const mx::array &shared_down_scale_inv;
+  };
 
   void validate_input(const mx::array &array, const char *name,
                       mx::Dtype dtype, size_t elements) const;
+  void validate_static_weights(const WeightRefs &weights);
+  std::array<MTL::ComputePipelineState *, 6> resolve_pipelines();
+  mx::array encode(const mx::array &x, const mx::array &expert_ids,
+                   const mx::array &scores, const WeightRefs &weights,
+                   const std::array<MTL::ComputePipelineState *, 6> &pipelines);
+  bool scratch_buffer_identities_stable() const;
 };
 
 // One-shot diagnostic for the GLM-5.3 routed gate/up/SwiGLU boundary.  It is

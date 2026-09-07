@@ -1218,6 +1218,15 @@ uv run python scripts/requalify_exact_native_packed_moe_performance.py \
 
 performance requalificationでは、2Kでwallが1.519 ms、host submitが2.028 ms、256Kでwallが1.481 ms、host submitが2.487 ms悪化しました。correctness、15 tok/s、retention、peak、固定arenaは合格ですが、固定したwall/host各0.50 ms削減gateを満たさないため、この呼び出し形のnative planはSTOPです。次はexact kernelを変えず、immutable weightsと6 pipelineをplanへ一度だけbindし、per-token executeをactivation/router出力の3入力だけへ縮める境界を独立probeします。
 
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/probe_prebound_native_packed_moe_execution_plan.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+prebound probeはA=exact composition、B=従来unbound native、C=prebound nativeを同じ2K/256K cacheから交互実行します。CはFP8 bank/shared weightsの10入力検証と6 pipeline lookupをlayerごとの初回bindへ移し、steady executeでは`x`、expert IDs、router scoresだけを受け取ります。kernel、scratch、演算順は不変です。CがAよりwall/host各0.50 ms以上速く、かつBからhost taxを1.50 ms以上回収した場合だけproduction designへ進めます。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

@@ -269,10 +269,15 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
     mx.async_eval(*dependencies)
     candidate = plan.execute(*dependencies)
     _eval((reference, candidate))
+    plan.bind_weights(*dependencies[3:])
+    bound_candidate = plan.execute_bound(*dependencies[:3])
+    _eval(bound_candidate)
     return {
-        "output_byte_exact": _exact(reference, candidate),
+        "output_byte_exact": _exact(reference, candidate)
+        and _exact(reference, bound_candidate),
         "reference_hash": tier0._hash(reference),
         "candidate_hash": tier0._hash(candidate),
+        "bound_candidate_hash": tier0._hash(bound_candidate),
         "execution_count": int(plan.execution_count),
         "dynamic_allocation_count": int(plan.dynamic_allocation_count),
         "graph_node_count": int(plan.graph_node_count),
@@ -288,6 +293,15 @@ def _artificial_contract(plan_type, d99f, residual, tier0) -> dict:
         "uses_fast_bf16_routed_sigmoid": bool(
             plan.uses_fast_bf16_routed_sigmoid
         ),
+        "weights_bound": bool(plan.weights_bound),
+        "bound_weight_identities_stable": bool(
+            plan.bound_weight_identities_stable
+        ),
+        "static_input_validation_count": int(plan.static_input_validation_count),
+        "dynamic_input_validation_count": int(
+            plan.dynamic_input_validation_count
+        ),
+        "pipeline_lookup_count": int(plan.pipeline_lookup_count),
         "buffer_identities_stable": list(plan.buffer_identities)
         == initial_identities,
     }
