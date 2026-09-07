@@ -1,4 +1,5 @@
 import ast
+import json
 from pathlib import Path
 
 
@@ -7,6 +8,11 @@ PROBE = ROOT / "scripts" / "probe_shape_specialized_native_moe_repair.py"
 METAL = ROOT / "native_execution" / "native_indexer_plan.metal"
 PLAN = ROOT / "native_execution" / "native_packed_moe_plan.cpp"
 HEADER = ROOT / "native_execution" / "native_packed_moe_plan.h"
+ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-shape-specialized-native-moe-repair-20260907.json"
+)
 
 
 def test_repair_probe_requires_the_recorded_first_divergence():
@@ -50,3 +56,22 @@ def test_repair_remains_probe_only_until_oracle_and_performance_requalification(
         "production_kernel_abi",
     ):
         assert f'"{component}": False' in source
+
+
+def test_shape_specialization_is_archived_as_an_exact_negative_result():
+    if not ARTIFACT.exists():
+        return
+    artifact = json.loads(ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is False
+    assert artifact["decision"] == "stop_or_relocalize_native_routed_hidden_repair"
+    replay = artifact["owned_activation_replay"]
+    assert replay["exact_layer_step_comparisons"] == 1214
+    assert replay["specialization"] == {
+        "all_fixed_arena_invariants": True,
+        "all_shape_specialized": True,
+        "plan_count": 42,
+    }
+    first = replay["first_divergence"]
+    assert (first["step"], first["layer"]) == (29, 41)
+    assert first["stage_localization"]["first_differing_stage"] == "routed_hidden"

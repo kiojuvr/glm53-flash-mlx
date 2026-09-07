@@ -1,0 +1,135 @@
+{
+  "acceptance": {
+    "all_2856_owned_layer_steps_byte_exact": false,
+    "all_42_plans_use_shape_specialized_kernel": true,
+    "fixed_arena_invariants_preserved": true,
+    "localization_source_reproduced": true,
+    "official_16_128_oracle_exact_both_arms": false,
+    "official_native_plans_all_shape_specialized": false
+  },
+  "accepted": false,
+  "capture_reproduces_localization_source": {
+    "generated_tokens_exact": true,
+    "generated_tokens_sha256": "77a9baaeb5b5fc809d7951629d84c280f07126b1ef2ec77b2e6cf11a62e695d0",
+    "target_logits_exact": true,
+    "target_logits_hash": "679a378f1af052a2e355e121238346fb888058307040cfe902b101c75defa14e"
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "date": "2026-09-07",
+  "decision": "stop_or_relocalize_native_routed_hidden_repair",
+  "expected_first_divergence": {
+    "layer": 41,
+    "stage": "routed_hidden",
+    "step": 29
+  },
+  "localization_source": "bench-results/m3ultra512-native-packed-moe-divergence-localization-20260907.json",
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "owned_activation_replay": {
+    "exact_layer_step_comparisons": 1214,
+    "expected_comparisons": 2856,
+    "first_divergence": {
+      "candidate_output_hash": "0549a0c6d4af1c3866cc63df46860531ca2b78c8fd30d7847527a6082bb74322",
+      "layer": 41,
+      "reference_output_hash": "cfedb622d22daa07a51c1d41757fceba2f21406d152db35255815621d7bc51a6",
+      "stage_localization": {
+        "first_differing_stage": "routed_hidden",
+        "router_indices_hash": "e794d8acdc41991c5adfa6728028f5a6bb4a1a0ede69a0e10c7b099edfaf1911",
+        "router_scores_hash": "d01c6704049f71baa2327620b4626deba5c392d6e2109f7fdfc9b756622445d3",
+        "stages": {
+          "final_output": {
+            "actual_hash": "0549a0c6d4af1c3866cc63df46860531ca2b78c8fd30d7847527a6082bb74322",
+            "byte_identical": false,
+            "max_abs": 0.0009765625,
+            "reference_hash": "cfedb622d22daa07a51c1d41757fceba2f21406d152db35255815621d7bc51a6",
+            "relative_l2": 4.0946080844150856e-05,
+            "shape": [
+              1,
+              1,
+              4096
+            ]
+          },
+          "routed_down": {
+            "actual_hash": "af73c12a472ce411e870cc5901c590e067e6c1c09b4185ce8df05fb7f319015c",
+            "byte_identical": false,
+            "max_abs": 0.0009765625,
+            "reference_hash": "c98b4300af709eea883ee34d24bf2f7d22822473ef75c029799737d7ae6989a0",
+            "relative_l2": 2.4733519239816815e-05,
+            "shape": [
+              8,
+              4096
+            ]
+          },
+          "routed_hidden": {
+            "actual_hash": "b794e3773394e623d9d50cfe47db90fe4e9d5849fcedad6903be6f237bf89330",
+            "byte_identical": false,
+            "max_abs": 6.103515625e-05,
+            "reference_hash": "244436859192c4f91d108e6f797f56acfdd469c00aff7c2597586efdd62035f2",
+            "relative_l2": 1.350446268588712e-06,
+            "shape": [
+              8,
+              2048
+            ]
+          },
+          "routed_output": {
+            "actual_hash": "5ecba45d5fc8e4d6c5e0365f6b7e4fa63af1d641337a8cbd79db840a2d77076a",
+            "byte_identical": false,
+            "max_abs": 0.00048828125,
+            "reference_hash": "8cce1aa3d89fc9d1d881b9f4d839f9b6f7c5777df8dfd1f0527a1cc4a1c4c3d9",
+            "relative_l2": 2.33626997214742e-05,
+            "shape": [
+              4096
+            ]
+          },
+          "shared_down": {
+            "actual_hash": "67f4dd16ac5d0186e464196a7d2ddc788fb4ff617c730abf46534bbd7a3a0264",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "67f4dd16ac5d0186e464196a7d2ddc788fb4ff617c730abf46534bbd7a3a0264",
+            "relative_l2": 0.0,
+            "shape": [
+              4096
+            ]
+          },
+          "shared_hidden": {
+            "actual_hash": "68f8b81b40c65af0c3df2d01c749acee8f88b813d5cbb000a817488979d3af4c",
+            "byte_identical": true,
+            "max_abs": 0.0,
+            "reference_hash": "68f8b81b40c65af0c3df2d01c749acee8f88b813d5cbb000a817488979d3af4c",
+            "relative_l2": 0.0,
+            "shape": [
+              2048
+            ]
+          }
+        }
+      },
+      "step": 29
+    },
+    "specialization": {
+      "all_fixed_arena_invariants": true,
+      "all_shape_specialized": true,
+      "plan_count": 42
+    }
+  },
+  "probe_only": true,
+  "process_peak_memory_bytes": 319996843913,
+  "repair": {
+    "boundary": "routed gate+up projection and SwiGLU",
+    "hidden_scale_rows": 32,
+    "hidden_size": 4096,
+    "intermediate_scale_rows": 16,
+    "intermediate_size": 2048,
+    "strategy": "compile-time GLM-5.3 execution geometry",
+    "swiglu_limit": 10
+  },
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "production_kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-shape-specialized-native-moe-repair-v1"
+}
