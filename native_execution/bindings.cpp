@@ -15,6 +15,7 @@ using glm53::native_execution::NativeDSASparseAttentionPlan;
 using glm53::native_execution::NativeIndexSelectionPlan;
 using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 using glm53::native_execution::NativePackedMoEDecodePlan;
+using glm53::native_execution::NativePackedMoERoutedDiagnostic;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
@@ -216,4 +217,21 @@ NB_MODULE(_ext, module) {
                    &NativePackedMoEDecodePlan::debug_shared_down)
       .def_prop_ro("buffer_identities",
                    &NativePackedMoEDecodePlan::buffer_identities);
+
+  nb::class_<NativePackedMoERoutedDiagnostic>(
+      module, "NativePackedMoERoutedDiagnostic")
+      .def(nb::init<int>(), "expert_count"_a)
+      .def("execute", &NativePackedMoERoutedDiagnostic::execute, "x"_a,
+           "expert_ids"_a, "gate_up_weight"_a, "gate_up_scale_inv"_a)
+      .def_prop_ro("gate", &NativePackedMoERoutedDiagnostic::gate)
+      .def_prop_ro("up", &NativePackedMoERoutedDiagnostic::up)
+      .def_prop_ro("sigmoid", &NativePackedMoERoutedDiagnostic::sigmoid)
+      .def_prop_ro("silu", &NativePackedMoERoutedDiagnostic::silu)
+      .def_prop_ro("hidden", &NativePackedMoERoutedDiagnostic::hidden)
+      .def_prop_ro("execution_count",
+                   &NativePackedMoERoutedDiagnostic::execution_count)
+      .def_prop_ro("scratch_bytes",
+                   &NativePackedMoERoutedDiagnostic::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePackedMoERoutedDiagnostic::buffer_identities);
 }

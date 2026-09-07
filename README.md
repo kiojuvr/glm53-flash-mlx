@@ -1167,6 +1167,17 @@ uv run python scripts/probe_shape_specialized_native_moe_repair.py \
 
 repair armは保存済み正本と同じtrajectoryから2,856 layer-stepをreplayし、その全件がbyte-exactの場合だけ公式16/128-token oracleへ進みます。両gateを通過してもproduction昇格はせず、2K/256K wall/host性能を改めてqualificationします。
 
+shape-specialized armは42/42 planで選択されましたが、step 29・layer 41のrouted hidden hashと最大差はgeneric AOT planから変化しませんでした。この仮説はSTOPとし、次は同じtarget activationについてAOT側のgate/up projection、sigmoid、SiLU、activated hiddenをBF16境界ごとに取り出します。診断kernel自身がcode generationを変えていないことを、diagnostic hiddenと本来のplan scratchのbyte一致で同時に検証します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/localize_native_routed_hidden_numerics.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+projectionで最初に分岐すればreduction/rounding、projectionがexactでsigmoid以降だけ分岐すればactivation roundingだけを修復します。診断instrumentationのhiddenがplan scratchを再現しない場合はstage帰属を採用せずfail closedします。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

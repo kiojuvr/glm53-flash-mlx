@@ -251,4 +251,81 @@ std::vector<uint64_t> NativePackedMoEDecodePlan::buffer_identities() const {
           buffer_identity(shared_down_), buffer_identity(output_)};
 }
 
+NativePackedMoERoutedDiagnostic::NativePackedMoERoutedDiagnostic(
+    int expert_count)
+    : expert_count_(expert_count),
+      stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
+      gate_(owned_array({kTopK, kIntermediateSize}, mx::bfloat16)),
+      up_(owned_array({kTopK, kIntermediateSize}, mx::bfloat16)),
+      sigmoid_(owned_array({kTopK, kIntermediateSize}, mx::bfloat16)),
+      silu_(owned_array({kTopK, kIntermediateSize}, mx::bfloat16)),
+      hidden_(owned_array({kTopK, kIntermediateSize}, mx::bfloat16)) {
+  if (expert_count_ < kTopK) {
+    throw std::invalid_argument("expert_count must cover selected top-8");
+  }
+  initial_buffer_identities_ = buffer_identities();
+}
+
+mx::array NativePackedMoERoutedDiagnostic::execute(
+    const mx::array &x, const mx::array &expert_ids,
+    const mx::array &gate_up_weight,
+    const mx::array &gate_up_scale_inv) {
+  auto require = [](const mx::array &array, const char *name, mx::Dtype dtype,
+                    size_t elements) {
+    if (array.dtype() != dtype || array.size() != elements ||
+        !array.flags().row_contiguous ||
+        array.status() == mx::array::Status::unscheduled) {
+      throw std::invalid_argument(std::string(name) +
+                                  " violates routed diagnostic ABI");
+    }
+  };
+  require(x, "x", mx::bfloat16, kHiddenSize);
+  require(expert_ids, "expert_ids", mx::uint32, kTopK);
+  require(gate_up_weight, "gate_up_weight", mx::uint8,
+          static_cast<size_t>(expert_count_) * 2 * kIntermediateSize *
+              kHiddenSize);
+  require(gate_up_scale_inv, "gate_up_scale_inv", mx::float32,
+          static_cast<size_t>(expert_count_) * 2 *
+              (kIntermediateSize / kBlockSize) *
+              (kHiddenSize / kBlockSize));
+
+  auto &device = mx::metal::device(stream_.device);
+  auto *library =
+      device.get_library("glm53_native_execution", current_binary_dir());
+  auto *kernel = device.get_kernel(
+      "glm53_native_glm53_packed_selected8_gate_up_swiglu_diagnostic",
+      library);
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.set_compute_pipeline_state(kernel);
+  encoder.set_input_array(x, 0);
+  encoder.set_input_array(expert_ids, 1);
+  encoder.set_input_array(gate_up_weight, 2);
+  encoder.set_input_array(gate_up_scale_inv, 3);
+  encoder.set_output_array(gate_, 4);
+  encoder.set_output_array(up_, 5);
+  encoder.set_output_array(sigmoid_, 6);
+  encoder.set_output_array(silu_, 7);
+  encoder.set_output_array(hidden_, 8);
+  encoder.dispatch_threadgroups(
+      MTL::Size(kTopK * kIntermediateSize, 1, 1), MTL::Size(256, 1, 1));
+  execution_count_++;
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error(
+        "routed diagnostic buffer identity changed during execute");
+  }
+  return hidden_;
+}
+
+uint64_t NativePackedMoERoutedDiagnostic::scratch_bytes() const {
+  return gate_.nbytes() + up_.nbytes() + sigmoid_.nbytes() + silu_.nbytes() +
+      hidden_.nbytes();
+}
+
+std::vector<uint64_t>
+NativePackedMoERoutedDiagnostic::buffer_identities() const {
+  return {buffer_identity(gate_), buffer_identity(up_),
+          buffer_identity(sigmoid_), buffer_identity(silu_),
+          buffer_identity(hidden_)};
+}
+
 } // namespace glm53::native_execution

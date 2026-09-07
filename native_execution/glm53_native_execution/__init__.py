@@ -10,6 +10,7 @@ from ._ext import (
     NativeIndexSelectionPlan,
     NativeIndexPoolUpdateSelectionPlan,
     NativePackedMoEDecodePlan,
+    NativePackedMoERoutedDiagnostic,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "NativeIndexSelectionPlan",
     "NativeIndexPoolUpdateSelectionPlan",
     "NativePackedMoEDecodePlan",
+    "NativePackedMoERoutedDiagnostic",
 ]

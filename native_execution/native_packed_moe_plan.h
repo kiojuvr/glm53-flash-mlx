@@ -81,4 +81,40 @@ private:
                       mx::Dtype dtype, size_t elements) const;
 };
 
+// One-shot diagnostic for the GLM-5.3 routed gate/up/SwiGLU boundary.  It is
+// intentionally separate from NativePackedMoEDecodePlan so instrumentation
+// never changes the rejected plan's command topology or fixed scratch arena.
+class NativePackedMoERoutedDiagnostic {
+public:
+  explicit NativePackedMoERoutedDiagnostic(int expert_count);
+
+  mx::array execute(const mx::array &x, const mx::array &expert_ids,
+                    const mx::array &gate_up_weight,
+                    const mx::array &gate_up_scale_inv);
+
+  mx::array gate() const { return gate_; }
+  mx::array up() const { return up_; }
+  mx::array sigmoid() const { return sigmoid_; }
+  mx::array silu() const { return silu_; }
+  mx::array hidden() const { return hidden_; }
+  uint64_t execution_count() const { return execution_count_; }
+  uint64_t scratch_bytes() const;
+  std::vector<uint64_t> buffer_identities() const;
+
+private:
+  static constexpr int kHiddenSize = 4096;
+  static constexpr int kIntermediateSize = 2048;
+  static constexpr int kTopK = 8;
+  static constexpr int kBlockSize = 128;
+  int expert_count_;
+  mx::Stream stream_;
+  mx::array gate_;
+  mx::array up_;
+  mx::array sigmoid_;
+  mx::array silu_;
+  mx::array hidden_;
+  std::vector<uint64_t> initial_buffer_identities_;
+  uint64_t execution_count_{0};
+};
+
 } // namespace glm53::native_execution

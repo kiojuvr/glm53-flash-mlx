@@ -215,6 +215,98 @@ inline float glm53_native_e4m3(uint8_t code) {
   }
 }
 
+[[kernel]] void
+glm53_native_glm53_packed_selected8_gate_up_swiglu_diagnostic(
+    device const bfloat16_t* x [[buffer(0)]],
+    device const uint* expert_ids [[buffer(1)]],
+    device const uint8_t* weight [[buffer(2)]],
+    device const float* scale_inv [[buffer(3)]],
+    device bfloat16_t* gate_output [[buffer(4)]],
+    device bfloat16_t* up_output [[buffer(5)]],
+    device bfloat16_t* sigmoid_output [[buffer(6)]],
+    device bfloat16_t* silu_output [[buffer(7)]],
+    device bfloat16_t* hidden [[buffer(8)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHiddenSize = 4096u;
+  constexpr uint kIntermediateSize = 2048u;
+  constexpr uint kIntermediateScaleRows = 16u;
+  constexpr uint kHiddenScaleRows = 32u;
+  constexpr uint kBankOutFeatures = 4096u;
+  constexpr uint kBankScaleRows = 32u;
+  constexpr uint kThreads = 256u;
+  constexpr uint kBlockSize = 128u;
+  constexpr uint kTopK = 8u;
+  constexpr uint kNSimd = kThreads / 32u;
+  constexpr float kSwiGLULimit = 10.0f;
+
+  uint selected = group_id / kIntermediateSize;
+  uint out_row = group_id % kIntermediateSize;
+  if (selected >= kTopK) return;
+  uint expert = expert_ids[selected];
+  const device uint8_t* gate_wr = weight +
+      (size_t(expert) * kBankOutFeatures + out_row) * kHiddenSize;
+  const device uint8_t* up_wr = weight +
+      (size_t(expert) * kBankOutFeatures + kIntermediateSize + out_row) *
+          kHiddenSize;
+  float gate_acc = 0.0f;
+  float up_acc = 0.0f;
+  for (uint k = tid; k < kHiddenSize; k += kThreads) {
+    uint scale_col = k / kBlockSize;
+    size_t gate_scale_offset =
+        (size_t(expert) * kBankScaleRows + out_row / kBlockSize) *
+            kHiddenScaleRows +
+        scale_col;
+    size_t up_scale_offset =
+        (size_t(expert) * kBankScaleRows + kIntermediateScaleRows +
+         out_row / kBlockSize) *
+            kHiddenScaleRows +
+        scale_col;
+    gate_acc += float(x[k]) * glm53_native_e4m3(gate_wr[k]) *
+        scale_inv[gate_scale_offset];
+    up_acc += float(x[k]) * glm53_native_e4m3(up_wr[k]) *
+        scale_inv[up_scale_offset];
+  }
+  gate_acc = simd_sum(gate_acc);
+  up_acc = simd_sum(up_acc);
+  threadgroup float gate_partial[kNSimd];
+  threadgroup float up_partial[kNSimd];
+  if (lane == 0) {
+    gate_partial[simd_id] = gate_acc;
+    up_partial[simd_id] = up_acc;
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    float gate_total = lane < kNSimd ? gate_partial[lane] : 0.0f;
+    float up_total = lane < kNSimd ? up_partial[lane] : 0.0f;
+    gate_total = simd_sum(gate_total);
+    up_total = simd_sum(up_total);
+    if (lane == 0) {
+      size_t offset = size_t(selected) * kIntermediateSize + out_row;
+      bfloat16_t gate_t = bfloat16_t(gate_total);
+      bfloat16_t up_t = bfloat16_t(up_total);
+      float gate_value = min(float(gate_t), kSwiGLULimit);
+      float up_value = clamp(float(up_t), -kSwiGLULimit, kSwiGLULimit);
+      bfloat16_t gate_activation = bfloat16_t(gate_value);
+      bfloat16_t up_activation = bfloat16_t(up_value);
+      auto sigmoid_tail =
+          1 / (1 + metal::exp(metal::abs(gate_activation)));
+      bfloat16_t sigmoid_value = gate_activation < 0
+          ? sigmoid_tail
+          : 1 - sigmoid_tail;
+      bfloat16_t silu_value = gate_activation * sigmoid_value;
+      bfloat16_t activated = silu_value * up_activation;
+      gate_output[offset] = gate_t;
+      up_output[offset] = up_t;
+      sigmoid_output[offset] = sigmoid_value;
+      silu_output[offset] = silu_value;
+      hidden[offset] = activated;
+    }
+  }
+}
+
 [[kernel]] void glm53_native_packed_selected8_down(
     device const bfloat16_t* hidden [[buffer(0)]],
     device const uint* expert_ids [[buffer(1)]],
