@@ -1,4 +1,5 @@
 import ast
+import json
 from pathlib import Path
 
 
@@ -8,6 +9,11 @@ METAL = ROOT / "native_execution" / "native_indexer_plan.metal"
 HEADER = ROOT / "native_execution" / "native_packed_moe_plan.h"
 BINDINGS = ROOT / "native_execution" / "bindings.cpp"
 PACKAGE = ROOT / "native_execution" / "glm53_native_execution" / "__init__.py"
+ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-native-routed-hidden-numerical-localization-20260907.json"
+)
 
 
 def test_diagnostic_targets_the_first_reproducible_routed_hidden_difference():
@@ -68,3 +74,21 @@ def test_diagnostic_is_probe_only_and_has_explicit_next_decisions():
         "production_kernel_abi",
     ):
         assert f'"{component}": False' in source
+
+
+def test_native_routed_hidden_localization_is_archived_at_sigmoid_bf16():
+    if not ARTIFACT.exists():
+        return
+    artifact = json.loads(ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is True
+    assert artifact["decision"] == "repair_native_routed_sigmoid_rounding"
+    evidence = artifact["evidence"]
+    assert evidence["diagnostic_hidden_matches_plan_hidden"]
+    assert evidence["jit_activation_diagnostic_matches_exact_hidden"]
+    assert evidence["first_differing_stage"] == "sigmoid_bf16"
+    assert evidence["stages"]["gate_projection_bf16"]["byte_identical"]
+    assert evidence["stages"]["up_projection_bf16"]["byte_identical"]
+    sigmoid = evidence["stages"]["sigmoid_bf16"]
+    assert sigmoid["different_elements"] == 1
+    assert sigmoid["first_difference"]["coordinate"] == [3, 2017]

@@ -1,0 +1,134 @@
+{
+  "accepted": true,
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "date": "2026-09-07",
+  "decision": "repair_native_routed_sigmoid_rounding",
+  "diagnostic_only": true,
+  "evidence": {
+    "diagnostic_buffer_identities": [
+      42441831552,
+      42441832000,
+      42441832448,
+      42441832896,
+      42441833344
+    ],
+    "diagnostic_execution_count": 1,
+    "diagnostic_hidden_matches_plan_hidden": true,
+    "diagnostic_scratch_bytes": 163840,
+    "first_differing_stage": "sigmoid_bf16",
+    "jit_activation_diagnostic_matches_exact_hidden": true,
+    "router_indices_hash": "e794d8acdc41991c5adfa6728028f5a6bb4a1a0ede69a0e10c7b099edfaf1911",
+    "router_scores_hash": "d01c6704049f71baa2327620b4626deba5c392d6e2109f7fdfc9b756622445d3",
+    "source_moe_output_mismatch_reproduced": true,
+    "stages": {
+      "activated_hidden_bf16": {
+        "actual_hash": "cc8282ceaccd1314e5dc65e5ecd93a714f660199280ef789fc5980bcca2a6e31",
+        "byte_identical": false,
+        "different_elements": 1,
+        "first_difference": {
+          "actual_bf16_bits": "0xbc02",
+          "actual_value_f32": -0.0079345703125,
+          "coordinate": [
+            3,
+            2017
+          ],
+          "flat_index": 8161,
+          "reference_bf16_bits": "0xbc03",
+          "reference_value_f32": -0.00799560546875
+        },
+        "max_abs": 6.103515625e-05,
+        "reference_hash": "b9836cf3f71619c7e5417d58307ad938383da5636738b4de394c86d02f2be64d",
+        "shape": [
+          8,
+          2048
+        ]
+      },
+      "gate_projection_bf16": {
+        "actual_hash": "a7299d8ed13bd93e1e30e90479d89a9e67a9960f2842807eab818a8bc4505ec0",
+        "byte_identical": true,
+        "different_elements": 0,
+        "first_difference": null,
+        "max_abs": 0.0,
+        "reference_hash": "a7299d8ed13bd93e1e30e90479d89a9e67a9960f2842807eab818a8bc4505ec0",
+        "shape": [
+          8,
+          2048
+        ]
+      },
+      "sigmoid_bf16": {
+        "actual_hash": "6920a8ef8867cf196d6ac8443041fc8ac8ce3c1f3e5bd182392e9f426c4fda27",
+        "byte_identical": false,
+        "different_elements": 1,
+        "first_difference": {
+          "actual_bf16_bits": "0x3a8b",
+          "actual_value_f32": 0.00106048583984375,
+          "coordinate": [
+            3,
+            2017
+          ],
+          "flat_index": 8161,
+          "reference_bf16_bits": "0x3a8c",
+          "reference_value_f32": 0.001068115234375
+        },
+        "max_abs": 7.62939453125e-06,
+        "reference_hash": "a0c458fce122688e160e819772f7c4575919dce54c7f59566ec670fce3599ff2",
+        "shape": [
+          8,
+          2048
+        ]
+      },
+      "silu_bf16": {
+        "actual_hash": "619b44450f97982a6db6d71fe5f25e743bd052c7025cc34b0a4ab457fcbb9ce9",
+        "byte_identical": false,
+        "different_elements": 1,
+        "first_difference": {
+          "actual_bf16_bits": "0xbbee",
+          "actual_value_f32": -0.00726318359375,
+          "coordinate": [
+            3,
+            2017
+          ],
+          "flat_index": 8161,
+          "reference_bf16_bits": "0xbbf0",
+          "reference_value_f32": -0.00732421875
+        },
+        "max_abs": 6.103515625e-05,
+        "reference_hash": "cc899c1285ef4474305dda028acaead63b6e139da3555cd3e1b82a992fd4e2ba",
+        "shape": [
+          8,
+          2048
+        ]
+      },
+      "up_projection_bf16": {
+        "actual_hash": "d56f912723ea3545ccc102bc2cb8e9982c81d6c50ca5feca9f6ef9a014195356",
+        "byte_identical": true,
+        "different_elements": 0,
+        "first_difference": null,
+        "max_abs": 0.0,
+        "reference_hash": "d56f912723ea3545ccc102bc2cb8e9982c81d6c50ca5feca9f6ef9a014195356",
+        "shape": [
+          8,
+          2048
+        ]
+      }
+    }
+  },
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "process_peak_memory_bytes": 319970390351,
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "production_kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-native-routed-hidden-numerical-localization-v1",
+  "source_artifact": "bench-results/m3ultra512-shape-specialized-native-moe-repair-20260907.json",
+  "target": {
+    "layer": 41,
+    "step": 29
+  }
+}
