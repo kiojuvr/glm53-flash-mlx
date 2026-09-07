@@ -4,6 +4,7 @@
 
 #include "native_dsa_attention_plan.h"
 #include "native_dsa_score_plan.h"
+#include "native_indexpool_update_plan.h"
 #include "native_indexer_plan.h"
 
 namespace nb = nanobind;
@@ -11,6 +12,7 @@ using namespace nb::literals;
 using glm53::native_execution::NativeDSAScoreSelectionPlan;
 using glm53::native_execution::NativeDSASparseAttentionPlan;
 using glm53::native_execution::NativeIndexSelectionPlan;
+using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
@@ -74,6 +76,49 @@ NB_MODULE(_ext, module) {
           "Diagnostic-only view; execute() never returns score scratch")
       .def_prop_ro("buffer_identities",
                    &NativeDSAScoreSelectionPlan::buffer_identities);
+
+  nb::class_<NativeIndexPoolUpdateSelectionPlan>(
+      module, "NativeIndexPoolUpdateSelectionPlan")
+      .def(nb::init<int, float>(), "physical_pool_rows"_a,
+           "softmax_scale"_a)
+      .def("execute", &NativeIndexPoolUpdateSelectionPlan::execute,
+           "key"_a, "gate"_a, "current_valid"_a, "query"_a,
+           "mixture_weights"_a, "pool_keys"_a, "pool_indices"_a,
+           "pool_valid"_a, "raw_keys"_a, "raw_gates"_a, "raw_valid"_a,
+           "raw_positions"_a, "compress_ape"_a,
+           "previous_total_tokens"_a)
+      .def_prop_ro("physical_pool_rows",
+                   &NativeIndexPoolUpdateSelectionPlan::physical_pool_rows)
+      .def_prop_ro("selected_width",
+                   &NativeIndexPoolUpdateSelectionPlan::selected_width)
+      .def_prop_ro("execution_count",
+                   &NativeIndexPoolUpdateSelectionPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeIndexPoolUpdateSelectionPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeIndexPoolUpdateSelectionPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeIndexPoolUpdateSelectionPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeIndexPoolUpdateSelectionPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeIndexPoolUpdateSelectionPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativeIndexPoolUpdateSelectionPlan::scratch_bytes)
+      .def_prop_ro("debug_pool_logits",
+                   &NativeIndexPoolUpdateSelectionPlan::debug_pool_logits)
+      .def_prop_ro("debug_pool_probabilities",
+                   &NativeIndexPoolUpdateSelectionPlan::debug_pool_probabilities)
+      .def_prop_ro("current_raw_keys",
+                   &NativeIndexPoolUpdateSelectionPlan::current_raw_keys)
+      .def_prop_ro("current_raw_gates",
+                   &NativeIndexPoolUpdateSelectionPlan::current_raw_gates)
+      .def_prop_ro("current_raw_valid",
+                   &NativeIndexPoolUpdateSelectionPlan::current_raw_valid)
+      .def_prop_ro("current_raw_positions",
+                   &NativeIndexPoolUpdateSelectionPlan::current_raw_positions)
+      .def_prop_ro("buffer_identities",
+                   &NativeIndexPoolUpdateSelectionPlan::buffer_identities);
 
   nb::class_<NativeDSASparseAttentionPlan>(module,
                                            "NativeDSASparseAttentionPlan")

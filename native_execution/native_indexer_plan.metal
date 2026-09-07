@@ -13,6 +13,123 @@ constant uint kSelectedPools = 512;
 constant uint kIndexKPool = 4;
 constant uint kSelectedWidth = 2051;
 constant uint kIndexerHeads = 32;
+constant uint kIndexPoolHeadDim = 128;
+constant uint kIndexPoolRawWindow = 19;
+
+// Advance the bounded rollback representation without concatenating a new
+// MLX graph.  Keys/gates use a ping-pong destination; metadata is copied by
+// the first 19 lanes of the same dispatch.
+[[kernel]] void glm53_native_advance_indexpool_raw19(
+    device const bfloat16_t* raw_keys [[buffer(0)]],
+    device const bfloat16_t* raw_gates [[buffer(1)]],
+    device const bool* raw_valid [[buffer(2)]],
+    device const long* raw_positions [[buffer(3)]],
+    device const bfloat16_t* current_key [[buffer(4)]],
+    device const bfloat16_t* current_gate [[buffer(5)]],
+    device const bool* current_valid [[buffer(6)]],
+    device bfloat16_t* next_keys [[buffer(7)]],
+    device bfloat16_t* next_gates [[buffer(8)]],
+    device bool* next_valid [[buffer(9)]],
+    device long* next_positions [[buffer(10)]],
+    constant const int& previous_total_tokens [[buffer(11)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kElements = kIndexPoolRawWindow * kIndexPoolHeadDim;
+  if (position < kElements) {
+    uint row = position / kIndexPoolHeadDim;
+    uint column = position % kIndexPoolHeadDim;
+    if (row + 1 < kIndexPoolRawWindow) {
+      uint source = (row + 1) * kIndexPoolHeadDim + column;
+      next_keys[position] = raw_keys[source];
+      next_gates[position] = raw_gates[source];
+    } else {
+      next_keys[position] = current_key[column];
+      next_gates[position] = current_gate[column];
+    }
+  }
+  if (position < kIndexPoolRawWindow) {
+    if (position + 1 < kIndexPoolRawWindow) {
+      next_valid[position] = raw_valid[position + 1];
+      next_positions[position] = raw_positions[position + 1];
+    } else {
+      next_valid[position] = current_valid[0];
+      next_positions[position] = long(previous_total_tokens);
+    }
+  }
+}
+
+// Decode-specialized kpool=4 update.  Eager MLX keeps the BF16 boundaries of
+// subtraction, exp, reduction, division, product, and final reduction; using
+// the FP32-accumulating attention softmax changes pool bytes.  One thread owns
+// one head dimension so the four-lane order is explicit and durable.
+[[kernel]] void glm53_native_update_indexpool_row_bfloat16(
+    device const bfloat16_t* raw_keys [[buffer(0)]],
+    device const bfloat16_t* raw_gates [[buffer(1)]],
+    device const bool* raw_valid [[buffer(2)]],
+    device const bfloat16_t* compress_ape [[buffer(3)]],
+    device bfloat16_t* debug_logits [[buffer(4)]],
+    device bfloat16_t* debug_probabilities [[buffer(5)]],
+    device bfloat16_t* pool_keys [[buffer(6)]],
+    device long* pool_indices [[buffer(7)]],
+    device bool* pool_valid [[buffer(8)]],
+    constant const int& pool_row [[buffer(9)]],
+    constant const int& active_count [[buffer(10)]],
+    uint dimension [[thread_position_in_grid]]) {
+  if (dimension >= kIndexPoolHeadDim) return;
+  bfloat16_t logits[kIndexKPool];
+  bfloat16_t maximum = Limits<bfloat16_t>::finite_min;
+  bool lane_valid[kIndexKPool];
+  bool all_valid = active_count == int(kIndexKPool);
+  for (uint lane = 0; lane < kIndexKPool; ++lane) {
+    int source_row = int(kIndexPoolRawWindow) - active_count + int(lane);
+    bool valid = int(lane) < active_count && source_row >= 0 &&
+        raw_valid[source_row];
+    lane_valid[lane] = valid;
+    all_valid = all_valid && valid;
+    if (valid) {
+      bfloat16_t gate =
+          raw_gates[uint(source_row) * kIndexPoolHeadDim + dimension];
+      bfloat16_t ape = compress_ape[lane * kIndexPoolHeadDim + dimension];
+      logits[lane] = bfloat16_t(float(gate) + float(ape));
+    } else {
+      logits[lane] = bfloat16_t(-1.0e30f);
+    }
+    maximum = maximum < logits[lane] ? logits[lane] : maximum;
+    debug_logits[dimension * kIndexKPool + lane] = logits[lane];
+  }
+  bfloat16_t exponentials[kIndexKPool];
+  bfloat16_t normalizer = bfloat16_t(0.0f);
+  for (uint lane = 0; lane < kIndexKPool; ++lane) {
+    bfloat16_t delta = bfloat16_t(float(logits[lane]) - float(maximum));
+    exponentials[lane] = bfloat16_t(fast::exp(float(delta)));
+    normalizer =
+        bfloat16_t(float(normalizer) + float(exponentials[lane]));
+  }
+  bfloat16_t total = bfloat16_t(0.0f);
+  for (uint lane = 0; lane < kIndexKPool; ++lane) {
+    bfloat16_t probability = bfloat16_t(
+        float(exponentials[lane]) / float(normalizer));
+    debug_probabilities[dimension * kIndexKPool + lane] = probability;
+    int source_row = int(kIndexPoolRawWindow) - active_count + int(lane);
+    // Eager take_along_axis clips missing lanes to the final suffix token.
+    // This matters when every lane is invalid: softmax is uniform and the
+    // invalid pool row still has an authoritative (though unselectable) key.
+    uint safe_row = lane_valid[lane]
+        ? uint(source_row)
+        : uint(kIndexPoolRawWindow - 1);
+    bfloat16_t key = raw_keys[safe_row * kIndexPoolHeadDim + dimension];
+    bfloat16_t product =
+        bfloat16_t(float(probability) * float(key));
+    total = bfloat16_t(float(total) + float(product));
+  }
+  pool_keys[size_t(pool_row) * kIndexPoolHeadDim + dimension] = total;
+  if (dimension < kIndexKPool) {
+    uint lane = dimension;
+    pool_indices[size_t(pool_row) * kIndexKPool + lane] = lane_valid[lane]
+        ? long(pool_row * int(kIndexKPool) + int(lane))
+        : long(-1);
+  }
+  if (dimension == 0) pool_valid[pool_row] = all_valid;
+}
 
 // The matmul itself is the same MLX Steel kernel selected on apple-gpu-d for
 // this BF16 nt geometry.  This tail fixes the eager BF16 materialization

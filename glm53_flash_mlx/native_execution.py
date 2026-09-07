@@ -33,6 +33,12 @@ NATIVE_DSA_SPARSE_ATTENTION_ISLAND_ABI = (
     "-mlx0322-steel-precise-softmax"
     "-fixed-arena"
 )
+NATIVE_INDEXPOOL_UPDATE_ISLAND_ABI = (
+    "glm53-native-indexpool-update-island-v1"
+    "-decode-raw19-kpool4"
+    "-exact-bf16-softmax-reduction"
+    "-tier1-score-selection"
+)
 
 
 class NativeExecutionContractError(ValueError):
@@ -48,6 +54,7 @@ class NativeBufferRole(str, Enum):
     INPUT = "input"
     IMMUTABLE_WEIGHT = "immutable-weight"
     MUTABLE_STATE = "mutable-state"
+    EXTERNAL_MUTABLE_STATE = "external-mutable-state"
     SCRATCH = "scratch"
     OUTPUT = "output"
 
@@ -146,6 +153,13 @@ class NativeExecutionPlan:
             } and (not buffer.owned_by_plan or not buffer.stable_address):
                 raise NativeExecutionContractError(
                     f"mutable native buffer {buffer.name} must be owned and stable"
+                )
+            if (
+                buffer.role is NativeBufferRole.EXTERNAL_MUTABLE_STATE
+                and (buffer.owned_by_plan or not buffer.stable_address)
+            ):
+                raise NativeExecutionContractError(
+                    f"external mutable buffer {buffer.name} must be cache-owned and stable"
                 )
             if buffer.role is NativeBufferRole.SCRATCH and buffer.returned_to_mlx:
                 raise NativeExecutionContractError(
@@ -647,6 +661,149 @@ def plan_native_dsa_sparse_attention_island(
             "mlx0322-steel-splitk-nn-bf16-fp32",
             ("attention_scores", "gathered_latent"),
             ("splitk_accum", "attention_output"),
+        ),
+    )
+    return NativeExecutionPlan(
+        mode=NativeExecutionMode.DECODE,
+        query_rows=1,
+        logical_capacity_tokens=logical_capacity_tokens,
+        physical_pool_rows=pool_rows,
+        selected_pool_rows=512,
+        selected_token_width=2051,
+        buffers=buffers,
+        stages=stages,
+    )
+
+
+def plan_native_indexpool_update_island(
+    *, logical_capacity_tokens: int
+) -> NativeExecutionPlan:
+    """Plan decode raw19/kpool4 update through accepted Tier-1 selection."""
+
+    capacity = plan_nope_cache_capacity(logical_capacity_tokens)
+    pool_rows = capacity.physical_pool_rows
+
+    def input_buffer(name: str, dtype: str, shape: tuple[int, ...]):
+        return NativeBufferSpec(
+            name,
+            NativeBufferRole.INPUT,
+            dtype,
+            shape,
+            True,
+            False,
+            False,
+            False,
+        )
+
+    def external_state(name: str, dtype: str, shape: tuple[int, ...]):
+        return NativeBufferSpec(
+            name,
+            NativeBufferRole.EXTERNAL_MUTABLE_STATE,
+            dtype,
+            shape,
+            True,
+            False,
+            True,
+            False,
+        )
+
+    def scratch(name: str, dtype: str, shape: tuple[int, ...]):
+        return NativeBufferSpec(
+            name,
+            NativeBufferRole.SCRATCH,
+            dtype,
+            shape,
+            True,
+            True,
+            True,
+            False,
+        )
+
+    buffers = (
+        input_buffer("key", "bfloat16", (1, 1, 128)),
+        input_buffer("gate", "bfloat16", (1, 1, 128)),
+        input_buffer("current_valid", "bool", (1, 1)),
+        input_buffer("query", "bfloat16", (1, 1, 32, 128)),
+        input_buffer("mixture_weights", "bfloat16", (1, 1, 32)),
+        input_buffer("compress_ape", "bfloat16", (4, 128)),
+        external_state("pool_keys", "bfloat16", (1, pool_rows, 128)),
+        external_state("pool_indices", "int64", (1, pool_rows, 4)),
+        external_state("pool_valid", "bool", (1, pool_rows)),
+        scratch("raw_keys_a", "bfloat16", (1, 19, 128)),
+        scratch("raw_keys_b", "bfloat16", (1, 19, 128)),
+        scratch("raw_gates_a", "bfloat16", (1, 19, 128)),
+        scratch("raw_gates_b", "bfloat16", (1, 19, 128)),
+        scratch("raw_valid_a", "bool", (1, 19)),
+        scratch("raw_valid_b", "bool", (1, 19)),
+        scratch("raw_positions_a", "int64", (1, 19)),
+        scratch("raw_positions_b", "int64", (1, 19)),
+        scratch("pool_logits", "bfloat16", (128, 4)),
+        scratch("pool_probabilities", "bfloat16", (128, 4)),
+        scratch("head_scores", "bfloat16", (32, pool_rows)),
+        scratch("index_scores", "bfloat16", (1, 1, pool_rows)),
+        scratch("selected_pool_scratch", "uint32", (1, 1, 512)),
+        NativeBufferSpec(
+            "selected_token_indices",
+            NativeBufferRole.OUTPUT,
+            "int32",
+            (1, 1, 2051),
+            True,
+            True,
+            True,
+            True,
+        ),
+        NativeBufferSpec(
+            "selected_token_valid",
+            NativeBufferRole.OUTPUT,
+            "bool",
+            (1, 1, 2051),
+            True,
+            True,
+            True,
+            True,
+        ),
+    )
+    stages = (
+        NativeStageSpec(
+            "advance-raw19",
+            "glm53_native_advance_indexpool_raw19",
+            ("key", "gate", "current_valid"),
+            (
+                "raw_keys_a",
+                "raw_keys_b",
+                "raw_gates_a",
+                "raw_gates_b",
+                "raw_valid_a",
+                "raw_valid_b",
+                "raw_positions_a",
+                "raw_positions_b",
+            ),
+        ),
+        NativeStageSpec(
+            "update-kpool4-row",
+            "glm53_native_update_indexpool_row_bfloat16",
+            (
+                "raw_keys_a",
+                "raw_keys_b",
+                "raw_gates_a",
+                "raw_gates_b",
+                "raw_valid_a",
+                "raw_valid_b",
+                "compress_ape",
+            ),
+            ("pool_logits", "pool_probabilities", "pool_keys", "pool_indices", "pool_valid"),
+        ),
+        NativeStageSpec(
+            "tier1-score-selection",
+            NATIVE_DSA_SCORE_ISLAND_ABI,
+            ("query", "mixture_weights", "pool_keys", "pool_indices", "pool_valid"),
+            (
+                "head_scores",
+                "index_scores",
+                "selected_pool_scratch",
+                "selected_token_indices",
+                "selected_token_valid",
+            ),
         ),
     )
     return NativeExecutionPlan(
