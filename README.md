@@ -1145,6 +1145,17 @@ uv run python scripts/probe_native_packed_moe_execution_plan.py \
 
 実モデルqualificationでは2K/256Kの各7-step differentialは全logits/token/cache state exactで2Kは15.299 tok/sを維持しましたが、公式128-token oracleはstep 68からlogits hashが分岐し、step 105からtokenも分岐しました。さらにexact composition比で2Kは63.804→65.364 ms、256Kは67.490→68.987 msへ約1.5 ms悪化し、host submitもそれぞれ2.113 ms、2.627 ms増えました。peak 331.563 GB、固定arena契約は正常です。短いexact screenを根拠にgateを緩めず、native planはSTOPとします。次はstep 1–68の実activation/outputをexact compositionからowned captureし、同じ42 native planへ時系列replayして最初の層・stageを特定します。performance側はcorrectness修復後に、executeごとの6 pipeline lookupと13 input validationをconstructor-time bindingへ移す価値を独立測定します。
 
+局所化probeは公式greedy trajectoryのstep 1–68について、42 sparse layerのMoE入力とexact-composition出力をowned tensorとして保存します。その後full modelを再実行せず、同じ42 persistent native planへactivationを時系列順にreplayし、最初の不一致でrouter、routed hidden/down/B1 reduction、shared hidden/down、最終加算をbit比較します。これによりrare numerical boundaryとfixed-arena reuse/lifetime問題を分離します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run python scripts/localize_native_packed_moe_divergence.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+step 68以前の別stageで最初の差が見つかればそのstageだけを修復し、時系列replayが全件exactならnative算術を変更せずfull graph/fixed-arena consumer lifetimeへ移ります。この診断は約5,712個のowned activation/outputを一時保持しますがcheckpointやcache payloadは保存せず、runtime/server/APC/cache/kernel production ABIを変更しません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

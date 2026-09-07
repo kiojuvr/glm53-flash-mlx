@@ -43,6 +43,11 @@ public:
   uint64_t returned_intermediate_tensor_bytes() const { return 0; }
   uint64_t scratch_bytes() const;
   std::vector<uint64_t> buffer_identities() const;
+  mx::array debug_routed_hidden() const { return routed_hidden_; }
+  mx::array debug_routed_down() const { return routed_down_; }
+  mx::array debug_routed_output() const { return routed_output_; }
+  mx::array debug_shared_hidden() const { return shared_hidden_; }
+  mx::array debug_shared_down() const { return shared_down_; }
 
 private:
   static constexpr int kTopK = 8;

@@ -201,6 +201,16 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("returned_intermediate_tensor_bytes",
                    &NativePackedMoEDecodePlan::returned_intermediate_tensor_bytes)
       .def_prop_ro("scratch_bytes", &NativePackedMoEDecodePlan::scratch_bytes)
+      .def_prop_ro("debug_routed_hidden",
+                   &NativePackedMoEDecodePlan::debug_routed_hidden)
+      .def_prop_ro("debug_routed_down",
+                   &NativePackedMoEDecodePlan::debug_routed_down)
+      .def_prop_ro("debug_routed_output",
+                   &NativePackedMoEDecodePlan::debug_routed_output)
+      .def_prop_ro("debug_shared_hidden",
+                   &NativePackedMoEDecodePlan::debug_shared_hidden)
+      .def_prop_ro("debug_shared_down",
+                   &NativePackedMoEDecodePlan::debug_shared_down)
       .def_prop_ro("buffer_identities",
                    &NativePackedMoEDecodePlan::buffer_identities);
 }
