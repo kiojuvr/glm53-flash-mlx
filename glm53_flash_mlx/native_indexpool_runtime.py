@@ -23,6 +23,8 @@ ENVIRONMENT_FLAG = "GLM53_EXPERIMENTAL_NATIVE_INDEXPOOL_UPDATE"
 _NOT_USED = object()
 _PLAN_LOCK = threading.Lock()
 _PLANS: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
+_CUMULATIVE_PLAN_COUNT = 0
+_CUMULATIVE_EXECUTION_COUNT = 0
 
 _QUALIFIED_HEAD_DIM = 128
 _QUALIFIED_INDEX_HEADS = 32
@@ -72,6 +74,7 @@ def require_available() -> dict[str, str]:
 
 
 def _plan_for(cache, indexer):
+    global _CUMULATIVE_PLAN_COUNT
     capacity = int(cache.pool_keys.shape[1])
     with _PLAN_LOCK:
         existing = _PLANS.get(cache)
@@ -80,6 +83,7 @@ def _plan_for(cache, indexer):
         plan_type = _extension_package().NativeIndexPoolUpdateSelectionPlan
         plan = plan_type(capacity, float(indexer.softmax_scale))
         _PLANS[cache] = (capacity, plan)
+        _CUMULATIVE_PLAN_COUNT += 1
         return plan
 
 
@@ -106,6 +110,7 @@ def _has_writable_pool_row(cache) -> bool:
 
 def try_native_update(cache, indexer, x, qr, *, mask, short_bypass):
     """Execute the qualified L=1/raw19 path or return the private sentinel."""
+    global _CUMULATIVE_EXECUTION_COUNT
     if not enabled():
         return _NOT_USED
     if short_bypass or int(x.shape[1]) != 1 or mask is not None:
@@ -171,6 +176,8 @@ def try_native_update(cache, indexer, x, qr, *, mask, short_bypass):
     cache.logical_pool_count = (
         cache.total_tokens + cache.index_kpool - 1
     ) // cache.index_kpool
+    with _PLAN_LOCK:
+        _CUMULATIVE_EXECUTION_COUNT += 1
     return selected[:, None]
 
 
@@ -181,9 +188,14 @@ def is_not_used(value) -> bool:
 def registry_snapshot() -> dict[str, int | str]:
     with _PLAN_LOCK:
         plans = [entry[1] for entry in _PLANS.values()]
+        cumulative_plan_count = _CUMULATIVE_PLAN_COUNT
+        cumulative_execution_count = _CUMULATIVE_EXECUTION_COUNT
     return {
         "abi": NATIVE_INDEXPOOL_RUNTIME_ABI,
         "live_plan_count": len(plans),
-        "execution_count": sum(int(plan.execution_count) for plan in plans),
+        "live_execution_count": sum(int(plan.execution_count) for plan in plans),
+        "execution_count": cumulative_execution_count,
+        "cumulative_plan_count": cumulative_plan_count,
+        "cumulative_execution_count": cumulative_execution_count,
         "scratch_bytes": sum(int(plan.scratch_bytes) for plan in plans),
     }

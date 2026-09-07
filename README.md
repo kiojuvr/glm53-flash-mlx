@@ -1285,6 +1285,43 @@ component gateは2K非劣化、256K wall 0.75 ms/token以上短縮、両context�
 
 M3 Ultra qualificationでは、exact fused packed＋compactのMLX IndexPool基準に対して、native runtimeは2Kを70.316→63.495 ms/token（14.222→15.749 tok/s、1.107×）、256Kを73.381→67.227 ms/token（13.627→14.875 tok/s、1.092×）へ短縮しました。2K→256K retentionは0.944、全screen logits/token/cache stateと公式16/128 oracleはbyte-exactです。4,096-step differentialでも45,056/45,056 native DSA executions、16/16 materialization checkpoint、全step full-vocab logits/token、最終cache stateがexactで、NaNは0、peakは320.788 GBでした。fresh serverは174.952秒でreadyとなり、health/metrics HTTP 200とnative runtime ABIを確認しました。component gateと固定15 tok/s release gateの双方を通過したため、この組合せをexact opt-in production backendとしてKEEPします。
 
+### Native backend coding-agent HTTP qualification
+
+KEEPしたnative IndexPool backendを、実repository text、system prompt、tool schema、conversation history、assistant tool call、tool resultを含む32K OpenAI-compatible workloadで最終比較します。baselineとnativeは320 GB級allocator stateを共有しない別server processで実行し、同じatomic artifactへ順に記録します。各armはcold 32K request、guarded 32K prefixを再利用するtool-result suffix、extended prefixを再利用する同一suffix warm repeatをそれぞれ256 token生成します。したがってcold 32K prefillは各processで1回だけです。
+
+baseline serverを起動し、別terminalでbaseline phaseを実行します。
+
+```bash
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --apc \
+  --experimental-packed-decode-moe \
+  --experimental-compact-nope-dsa-cache
+
+uv run python scripts/qualify_native_coding_agent_http.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase baseline
+```
+
+baseline serverを停止してから、native flagを追加したfresh serverを起動し、native phaseを実行します。extensionが未buildなら先に`build_native_execution_engine.py`を実行します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+
+uv run glm53 serve \
+  --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --apc \
+  --experimental-packed-decode-moe \
+  --experimental-compact-nope-dsa-cache \
+  --experimental-native-indexpool-update
+
+uv run python scripts/qualify_native_coding_agent_http.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
+  --phase native
+```
+
+scriptはrequestごとにartifactをatomic保存し、accepted済みbaselineなしのnative実行、誤ったbackend構成、native ABI不一致を長いprefillの前にfail closedします。hard gateは全HTTP choice/logprobsとusageのcross-backend exact、APC prefix hit exact、全11 DSA層について`(completion_tokens - 1)`回のnative execution、warm tool-result decode 15 tok/s以上、peak 340 GB以内、APC reject/eviction 0です。process lifetime counterを使うため、request終了時にlive cacheやnative planが解放されても実行証拠は失われません。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

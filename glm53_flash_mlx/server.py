@@ -445,6 +445,14 @@ def _install_server_loader() -> None:
 
     def runtime_snapshot_with_materialization():
         snapshot = stock_runtime_snapshot()
+        snapshot["glm53_runtime"] = {
+            "moe_backend": os.environ["GLM53_MOE_BACKEND"],
+            "cache_backend": os.environ["GLM53_CACHE_BACKEND"],
+            "native_indexpool_update": (
+                os.environ.get("GLM53_EXPERIMENTAL_NATIVE_INDEXPOOL_UPDATE")
+                == "1"
+            ),
+        }
         snapshot["recurrent_state_materialization"] = materialization_snapshot()
         if os.environ.get("GLM53_EXPERIMENTAL_NATIVE_INDEXPOOL_UPDATE") == "1":
             from .native_indexpool_runtime import registry_snapshot

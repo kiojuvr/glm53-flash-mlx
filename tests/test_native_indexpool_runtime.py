@@ -133,6 +133,17 @@ def test_disk_apc_identity_separates_native_execution_policy(monkeypatch):
     assert native_identity != mlx_identity
 
 
+def test_registry_exposes_process_lifetime_counters():
+    from glm53_flash_mlx.native_indexpool_runtime import registry_snapshot
+
+    snapshot = registry_snapshot()
+    assert snapshot["execution_count"] == snapshot["cumulative_execution_count"]
+    assert snapshot["cumulative_plan_count"] >= snapshot["live_plan_count"]
+    assert snapshot["cumulative_execution_count"] >= snapshot[
+        "live_execution_count"
+    ]
+
+
 def test_native_extension_is_available_after_the_required_build_step():
     from glm53_flash_mlx.native_indexpool_runtime import require_available
 

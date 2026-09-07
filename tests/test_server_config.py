@@ -130,6 +130,15 @@ def test_native_indexpool_update_is_explicitly_opt_in():
     ).experimental_native_indexpool_update
 
 
+def test_runtime_metrics_expose_backend_identity():
+    root = Path(__file__).resolve().parents[1]
+    source = (root / "glm53_flash_mlx" / "server.py").read_text()
+    assert 'snapshot["glm53_runtime"]' in source
+    assert '"moe_backend": os.environ["GLM53_MOE_BACKEND"]' in source
+    assert '"cache_backend": os.environ["GLM53_CACHE_BACKEND"]' in source
+    assert '"native_indexpool_update": (' in source
+
+
 def test_disk_cache_identity_separates_direct_and_grouped_moe(monkeypatch):
     assert NOPE_DSA_CACHE_ABI == (
         "glm53-nope-dsa-v1-kv-latent512-sentinel-minus1"
