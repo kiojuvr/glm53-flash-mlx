@@ -12,6 +12,11 @@ ARTIFACT = (
     / "bench-results"
     / "m3ultra512-exact-native-routed-sigmoid-repair-20260907.json"
 )
+FAST_ARTIFACT = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-exact-native-routed-fast-sigmoid-repair-20260907.json"
+)
 
 
 def test_repair_changes_only_the_specialized_routed_sigmoid_intrinsic():
@@ -73,3 +78,28 @@ def test_precise_bf16_exp_repair_is_archived_as_a_negative_result():
     first = replay["first_divergence"]
     assert (first["step"], first["layer"]) == (29, 41)
     assert first["stage_localization"]["first_differing_stage"] == "routed_hidden"
+
+
+def test_fast_bf16_exp_repair_closes_the_full_correctness_gate():
+    artifact = json.loads(FAST_ARTIFACT.read_text())
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is True
+    assert artifact["decision"] == (
+        "advance_exact_native_moe_to_performance_requalification"
+    )
+    assert all(artifact["acceptance"].values())
+    replay = artifact["owned_activation_replay"]
+    assert replay["exact_layer_step_comparisons"] == 2_856
+    assert replay["expected_comparisons"] == 2_856
+    assert replay["first_divergence"] is None
+    assert replay["plan_evidence"] == {
+        "all_fixed_arena_invariants": True,
+        "all_use_fast_bf16_routed_sigmoid": True,
+        "all_use_shape_specialized_kernel": True,
+        "plan_count": 42,
+    }
+    oracle = artifact["official_oracle"]
+    assert oracle["A_exact_composition"]["all_full_vocab_logits_hashes_match"]
+    assert oracle["B_fast_bf16_sigmoid_native"][
+        "all_full_vocab_logits_hashes_match"
+    ]

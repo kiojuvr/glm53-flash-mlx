@@ -1,0 +1,104 @@
+{
+  "acceptance": {
+    "all_2856_owned_layer_steps_byte_exact": true,
+    "all_42_plans_use_fast_bf16_routed_sigmoid": true,
+    "fixed_arena_invariants_preserved": true,
+    "official_16_128_oracle_exact_both_arms": true,
+    "official_native_plans_all_fast_bf16": true
+  },
+  "accepted": true,
+  "capture": {
+    "generated_tokens_sha256": "77a9baaeb5b5fc809d7951629d84c280f07126b1ef2ec77b2e6cf11a62e695d0",
+    "owned_activation_count": 2856,
+    "owned_output_count": 2856,
+    "target_logits_hash": "679a378f1af052a2e355e121238346fb888058307040cfe902b101c75defa14e"
+  },
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "complete": true,
+  "date": "2026-09-07",
+  "decision": "advance_exact_native_moe_to_performance_requalification",
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "official_oracle": {
+    "A_exact_composition": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 8.632811625022441,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "B_fast_bf16_sigmoid_native": {
+      "all_full_vocab_logits_hashes_match": true,
+      "elapsed_seconds": 8.224184708902612,
+      "executed": true,
+      "failures_128": [],
+      "failures_16": [],
+      "first_16_match": true,
+      "full_128_match": true,
+      "generated_token_sha256": "0c064317b95fe621fd3f53536cd1f7ec52d3cf0d0f0faa92f963c3dec291c784",
+      "prompt_tokens": 17
+    },
+    "plan_evidence": {
+      "all_fixed_arena_invariants": true,
+      "all_use_fast_bf16_routed_sigmoid": true,
+      "all_use_shape_specialized_kernel": true,
+      "plan_count": 42
+    }
+  },
+  "owned_activation_replay": {
+    "exact_layer_step_comparisons": 2856,
+    "expected_comparisons": 2856,
+    "first_divergence": null,
+    "plan_evidence": {
+      "all_fixed_arena_invariants": true,
+      "all_use_fast_bf16_routed_sigmoid": true,
+      "all_use_shape_specialized_kernel": true,
+      "plan_count": 42
+    }
+  },
+  "probe_only": true,
+  "process_peak_memory_bytes": 319996856197,
+  "repair": {
+    "change": "metal::exp to metal::fast::exp",
+    "formula": "fast_bf16",
+    "generic_kernel_changed": false,
+    "projection_reduction_changed": false,
+    "shared_expert_kernel_changed": false,
+    "stage": "routed sigmoid BF16"
+  },
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "production_kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-exact-native-routed-fast-sigmoid-repair-v2",
+  "source_artifacts": {
+    "native_sigmoid_formula_sweep": "bench-results/m3ultra512-native-routed-sigmoid-formula-sweep-20260907.json",
+    "numerical_localization": "bench-results/m3ultra512-native-routed-hidden-numerical-localization-20260907.json"
+  },
+  "source_evidence": {
+    "different_sigmoid_elements": 1,
+    "first_difference": {
+      "actual_bf16_bits": "0x3a8b",
+      "actual_value_f32": 0.00106048583984375,
+      "coordinate": [
+        3,
+        2017
+      ],
+      "flat_index": 8161,
+      "reference_bf16_bits": "0x3a8c",
+      "reference_value_f32": 0.001068115234375
+    },
+    "first_differing_stage": "sigmoid_bf16",
+    "formula_domain_elements": 33346,
+    "selected_formula": "fast_bf16"
+  },
+  "target_step": 68
+}

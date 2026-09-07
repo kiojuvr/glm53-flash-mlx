@@ -1207,6 +1207,8 @@ uv run python scripts/probe_exact_native_routed_sigmoid_repair.py \
   /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
 ```
 
+full repairは2,856/2,856 layer-step、42/42 native plan、公式16/128-token oracleの両armでbyte-exactでした。first divergenceはなく、固定arena invariantも維持し、process peakは約320.0 GBです。これでnative packed MoEのnumerical repairを完了し、次は2K/256Kのperformance requalificationだけを行います。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。
