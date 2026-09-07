@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Probe the exact precise-exp repair for native routed-MoE sigmoid."""
+"""Probe the exact fast-BF16 repair for native routed-MoE sigmoid."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ DEFAULT_MODEL = Path("/Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash")
 DEFAULT_OUTPUT = (
     ROOT
     / "bench-results"
-    / "m3ultra512-exact-native-routed-sigmoid-repair-20260907.json"
+    / "m3ultra512-exact-native-routed-fast-sigmoid-repair-20260907.json"
 )
 LOCALIZATION_ARTIFACT = (
     ROOT
@@ -39,7 +39,7 @@ LOCALIZATION_ARTIFACT = (
 SIGMOID_FORMULA_ARTIFACT = (
     ROOT
     / "bench-results"
-    / "m3ultra512-exact-sigmoid-gate-metal-barrier-20260902.json"
+    / "m3ultra512-native-routed-sigmoid-formula-sweep-20260907.json"
 )
 TARGET_STEP = 68
 
@@ -92,10 +92,12 @@ def _validate_sources() -> dict:
         raise RuntimeError("gate projection must be exact before sigmoid repair")
     if not evidence["stages"]["up_projection_bf16"]["byte_identical"]:
         raise RuntimeError("up projection must be exact before sigmoid repair")
-    if formula["sigmoid_formula"]["selected_mode"] != 7:
-        raise RuntimeError("precise-exp sigmoid mode is not the recorded oracle")
-    if not formula["acceptance"]["actual_and_synthetic_sigmoid_bits_exact"]:
-        raise RuntimeError("precise-exp sigmoid formula evidence is not exact")
+    if not formula["complete"] or not formula["accepted"]:
+        raise RuntimeError("native sigmoid formula sweep is not accepted")
+    if formula["selected_formula"] != "fast_bf16":
+        raise RuntimeError("fast BF16 sigmoid is not the unique recorded formula")
+    if formula["exact_formulas"] != ["fast_bf16"]:
+        raise RuntimeError("native sigmoid formula sweep is not unique")
     return {
         "localization": localization,
         "formula": formula,
@@ -107,8 +109,8 @@ def _plan_evidence(rows: list[dict]) -> dict:
         "plan_count": len(rows),
         "all_use_shape_specialized_kernel": bool(rows)
         and all(row["uses_shape_specialized_routed_gate_up"] for row in rows),
-        "all_use_precise_routed_sigmoid": bool(rows)
-        and all(row["uses_precise_routed_sigmoid"] for row in rows),
+        "all_use_fast_bf16_routed_sigmoid": bool(rows)
+        and all(row["uses_fast_bf16_routed_sigmoid"] for row in rows),
         "all_fixed_arena_invariants": bool(rows)
         and all(
             row["buffer_identities_stable"]
@@ -130,7 +132,7 @@ def main() -> int:
     parser.add_argument("--cache-limit-gb", type=float, default=32.0)
     args = parser.parse_args()
     artifact = {
-        "schema": "glm53-exact-native-routed-sigmoid-repair-v1",
+        "schema": "glm53-exact-native-routed-fast-sigmoid-repair-v2",
         "date": date.today().isoformat(),
         "complete": False,
         "accepted": False,
@@ -138,14 +140,14 @@ def main() -> int:
         "target_step": TARGET_STEP,
         "source_artifacts": {
             "numerical_localization": str(LOCALIZATION_ARTIFACT.relative_to(ROOT)),
-            "exact_sigmoid_formula": str(
+            "native_sigmoid_formula_sweep": str(
                 SIGMOID_FORMULA_ARTIFACT.relative_to(ROOT)
             ),
         },
         "repair": {
             "stage": "routed sigmoid BF16",
-            "formula_mode": 7,
-            "change": "metal::exp to metal::precise::exp",
+            "formula": "fast_bf16",
+            "change": "metal::exp to metal::fast::exp",
             "generic_kernel_changed": False,
             "shared_expert_kernel_changed": False,
             "projection_reduction_changed": False,
@@ -172,9 +174,8 @@ def main() -> int:
             "first_difference": sources["localization"]["evidence"]["stages"][
                 "sigmoid_bf16"
             ]["first_difference"],
-            "selected_formula_mode": sources["formula"]["sigmoid_formula"][
-                "selected_mode"
-            ],
+            "selected_formula": sources["formula"]["selected_formula"],
+            "formula_domain_elements": sources["formula"]["domain"]["elements"],
         }
         (
             localizer,
@@ -214,7 +215,7 @@ def main() -> int:
                 len(values) for values in capture.outputs.values()
             ),
         }
-        _progress("replay_precise_sigmoid_native_plans", target_step=TARGET_STEP)
+        _progress("replay_fast_bf16_sigmoid_native_plans", target_step=TARGET_STEP)
         divergence, comparisons, evidence = localizer._replay(
             model,
             capture,
@@ -242,7 +243,7 @@ def main() -> int:
                 reference_oracle = oracle_probe._official_oracle(
                     model, processor, report
                 )
-            _progress("official_oracle", arm="precise-sigmoid-native", tokens=128)
+            _progress("official_oracle", arm="fast-bf16-sigmoid-native", tokens=128)
             oracle_registry = native_probe._Registry(plan_type)
             with native_probe._native_moe_arm(oracle_registry):
                 candidate_oracle = oracle_probe._official_oracle(
@@ -250,7 +251,7 @@ def main() -> int:
                 )
             artifact["official_oracle"] = {
                 "A_exact_composition": reference_oracle,
-                "B_precise_sigmoid_native": candidate_oracle,
+                "B_fast_bf16_sigmoid_native": candidate_oracle,
                 "plan_evidence": _plan_evidence(oracle_registry.evidence()),
             }
 
@@ -263,20 +264,20 @@ def main() -> int:
                 and replay["exact_layer_step_comparisons"]
                 == replay["expected_comparisons"]
             ),
-            "all_42_plans_use_precise_routed_sigmoid": plans["plan_count"] == 42
+            "all_42_plans_use_fast_bf16_routed_sigmoid": plans["plan_count"] == 42
             and plans["all_use_shape_specialized_kernel"]
-            and plans["all_use_precise_routed_sigmoid"],
+            and plans["all_use_fast_bf16_routed_sigmoid"],
             "fixed_arena_invariants_preserved": plans[
                 "all_fixed_arena_invariants"
             ],
             "official_16_128_oracle_exact_both_arms": bool(official)
             and official["A_exact_composition"]["all_full_vocab_logits_hashes_match"]
-            and official["B_precise_sigmoid_native"][
+            and official["B_fast_bf16_sigmoid_native"][
                 "all_full_vocab_logits_hashes_match"
             ],
-            "official_native_plans_all_precise": bool(official)
+            "official_native_plans_all_fast_bf16": bool(official)
             and official["plan_evidence"]["plan_count"] == 42
-            and official["plan_evidence"]["all_use_precise_routed_sigmoid"],
+            and official["plan_evidence"]["all_use_fast_bf16_routed_sigmoid"],
         }
         artifact["process_peak_memory_bytes"] = int(mx.get_peak_memory())
         artifact["complete"] = True
@@ -284,7 +285,7 @@ def main() -> int:
         artifact["decision"] = (
             "advance_exact_native_moe_to_performance_requalification"
             if artifact["accepted"]
-            else "stop_or_relocalize_precise_native_sigmoid_repair"
+            else "stop_or_relocalize_fast_bf16_native_sigmoid_repair"
         )
     except Exception as error:
         artifact.update(

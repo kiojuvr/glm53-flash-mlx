@@ -48,7 +48,7 @@ public:
         intermediate_scale_rows_ == 16 && hidden_scale_rows_ == 32 &&
         swiglu_limit_ == 10;
   }
-  bool uses_precise_routed_sigmoid() const {
+  bool uses_fast_bf16_routed_sigmoid() const {
     return uses_shape_specialized_routed_gate_up();
   }
   mx::array debug_routed_hidden() const { return routed_hidden_; }

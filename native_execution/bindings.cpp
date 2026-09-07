@@ -206,8 +206,8 @@ NB_MODULE(_ext, module) {
       .def_prop_ro(
           "uses_shape_specialized_routed_gate_up",
           &NativePackedMoEDecodePlan::uses_shape_specialized_routed_gate_up)
-      .def_prop_ro("uses_precise_routed_sigmoid",
-                   &NativePackedMoEDecodePlan::uses_precise_routed_sigmoid)
+      .def_prop_ro("uses_fast_bf16_routed_sigmoid",
+                   &NativePackedMoEDecodePlan::uses_fast_bf16_routed_sigmoid)
       .def_prop_ro("debug_routed_hidden",
                    &NativePackedMoEDecodePlan::debug_routed_hidden)
       .def_prop_ro("debug_routed_down",
