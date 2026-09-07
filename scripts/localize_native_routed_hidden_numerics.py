@@ -76,12 +76,21 @@ def _progress(phase: str, **values) -> None:
 
 
 def _atomic_write(path: Path, value: dict) -> None:
+    def json_default(item):
+        if isinstance(item, np.generic):
+            return item.item()
+        if isinstance(item, np.ndarray):
+            return item.tolist()
+        raise TypeError(f"Object of type {type(item).__name__} is not JSON serializable")
+
+    # Serialize before creating the temporary file.  A diagnostic conversion
+    # bug must not leave a truncated artifact that looks recoverable.
+    payload = json.dumps(value, indent=2, sort_keys=True, default=json_default)
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
         mode="w", encoding="utf-8", dir=path.parent, delete=False
     ) as handle:
-        json.dump(value, handle, indent=2, sort_keys=True)
-        handle.write("\n")
+        handle.write(payload + "\n")
         temporary = Path(handle.name)
     temporary.replace(path)
 
@@ -133,7 +142,10 @@ def _metrics(reference: mx.array, actual: mx.array) -> dict:
     }
     if different.size:
         flat_index = int(different[0])
-        coordinate = list(np.unravel_index(flat_index, reference.shape))
+        coordinate = [
+            int(value)
+            for value in np.unravel_index(flat_index, reference.shape)
+        ]
         result["first_difference"] = {
             "flat_index": flat_index,
             "coordinate": coordinate,

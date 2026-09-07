@@ -18,6 +18,17 @@ def test_diagnostic_targets_the_first_reproducible_routed_hidden_difference():
     assert '"source_moe_output_mismatch_reproduced"' in source
     assert '"diagnostic_hidden_matches_plan_hidden"' in source
     assert '"jit_activation_diagnostic_matches_exact_hidden"' in source
+    assert "for value in np.unravel_index" in source
+
+
+def test_diagnostic_serializes_before_publishing_atomic_artifact():
+    source = PROBE.read_text()
+    assert "if isinstance(item, np.generic)" in source
+    assert "return item.item()" in source
+    assert "payload = json.dumps(" in source
+    assert source.index("payload = json.dumps(") < source.index(
+        "tempfile.NamedTemporaryFile("
+    )
 
 
 def test_diagnostic_exposes_every_durable_projection_activation_boundary():
