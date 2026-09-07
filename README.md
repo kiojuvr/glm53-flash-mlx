@@ -1189,6 +1189,15 @@ uv run python scripts/probe_exact_native_routed_sigmoid_repair.py \
 
 generic routed kernel、shared expert、gate/up projectionとreduction順は変更しません。全2,856 layer-stepがexactな場合だけ公式16/128 oracleへ進み、ここを通過してもperformance requalification前にはproductionへ昇格しません。
 
+`precise::exp`をBF16入力へ直接適用するarmは42/42 planで有効でしたが、通常exp版と全hashが同一で同じ1要素差を残しました。full modelを再試行する前に、clamp後に到達可能な全有限BF16 bit pattern（`[-10, 10]`）を使い、通常/precise expとBF16/FP32入力昇格を直交した4 armでAOT式をsweepします。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+uv run python scripts/probe_native_routed_sigmoid_formula_sweep.py
+```
+
+referenceはunit upを与えたexact JIT activationで、sigmoid BF16そのものを比較します。通常/precise BF16は全33,346 pattern中、実modelと同じgate `0xc0db`（-6.84375）の1点だけJITと異なり、FP32昇格は990点を変えました。AOT metallibの`-fno-fast-math`とJIT math modeの差を確認するため、明示的な`metal::fast::exp`のBF16/FP32 armを追加します。全domain byte-exactの式が存在する場合だけ、その式をfull routed kernelへ入れて2,856 replayをやり直します。
+
 ### Cache restore under allocation pressure
 
 長期prefixをpersistent cacheへ保存した後、live backingを解放し、同じshapeのallocationをmaterialize・解放してallocator reuse pressureを与え、復元後にsparse attentionを再実行するsilent-corruption classを独立gateにします。production同型のDirect cacheで32K coding-agent prefixを一度cold prefillし、16-token greedy continuationを正本として保存します。その後、mlx-vlm exact RAM APCとRAM-owned semantic snapshotの双方を各100世代restore/replayします。

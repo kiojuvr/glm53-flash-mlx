@@ -22,7 +22,6 @@ def test_repair_changes_only_the_specialized_routed_sigmoid_intrinsic():
     assert '"generic_kernel_changed": False' in source
     assert '"shared_expert_kernel_changed": False' in source
     assert '"projection_reduction_changed": False' in source
-    assert metal.count("metal::precise::exp") == 1
     precise = metal.index("metal::precise::exp")
     specialized = metal.index(
         "glm53_native_glm53_packed_selected8_gate_up_swiglu("

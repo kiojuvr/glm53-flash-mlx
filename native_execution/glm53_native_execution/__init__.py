@@ -11,6 +11,7 @@ from ._ext import (
     NativeIndexPoolUpdateSelectionPlan,
     NativePackedMoEDecodePlan,
     NativePackedMoERoutedDiagnostic,
+    NativeRoutedSigmoidFormulaSweep,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "NativeIndexPoolUpdateSelectionPlan",
     "NativePackedMoEDecodePlan",
     "NativePackedMoERoutedDiagnostic",
+    "NativeRoutedSigmoidFormulaSweep",
 ]

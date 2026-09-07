@@ -16,6 +16,7 @@ using glm53::native_execution::NativeIndexSelectionPlan;
 using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 using glm53::native_execution::NativePackedMoEDecodePlan;
 using glm53::native_execution::NativePackedMoERoutedDiagnostic;
+using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
@@ -236,4 +237,22 @@ NB_MODULE(_ext, module) {
                    &NativePackedMoERoutedDiagnostic::scratch_bytes)
       .def_prop_ro("buffer_identities",
                    &NativePackedMoERoutedDiagnostic::buffer_identities);
+
+  nb::class_<NativeRoutedSigmoidFormulaSweep>(
+      module, "NativeRoutedSigmoidFormulaSweep")
+      .def(nb::init<int>(), "elements"_a)
+      .def("execute", &NativeRoutedSigmoidFormulaSweep::execute, "gate"_a)
+      .def_prop_ro("standard_bf16",
+                   &NativeRoutedSigmoidFormulaSweep::standard_bf16)
+      .def_prop_ro("precise_bf16",
+                   &NativeRoutedSigmoidFormulaSweep::precise_bf16)
+      .def_prop_ro("standard_f32",
+                   &NativeRoutedSigmoidFormulaSweep::standard_f32)
+      .def_prop_ro("precise_f32",
+                   &NativeRoutedSigmoidFormulaSweep::precise_f32)
+      .def_prop_ro("fast_bf16",
+                   &NativeRoutedSigmoidFormulaSweep::fast_bf16)
+      .def_prop_ro("fast_f32",
+                   &NativeRoutedSigmoidFormulaSweep::fast_f32)
+      .def_prop_ro("elements", &NativeRoutedSigmoidFormulaSweep::elements);
 }

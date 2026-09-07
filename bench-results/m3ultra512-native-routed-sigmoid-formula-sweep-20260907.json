@@ -1,0 +1,105 @@
+{
+  "accepted": true,
+  "complete": true,
+  "date": "2026-09-07",
+  "decision": "repair_native_routed_sigmoid_with_fast_bf16",
+  "domain": {
+    "bits_sha256": "7c87863d00758f5f623550b5d729c4e340be98433771545ac05f59ef3e9a5898",
+    "definition": "all finite BF16 values in closed interval [-10, 10]",
+    "elements": 33346,
+    "maximum_bits": "0xc120",
+    "minimum_bits": "0x0000"
+  },
+  "exact_formulas": [
+    "fast_bf16"
+  ],
+  "formulas": [
+    "standard_bf16",
+    "precise_bf16",
+    "standard_f32",
+    "precise_f32",
+    "fast_bf16",
+    "fast_f32"
+  ],
+  "mlx_version": "0.32.2",
+  "probe_only": true,
+  "reference": {
+    "execution": "mx.fast JIT literal routed activation ordering",
+    "sigmoid_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af",
+    "unit_up_hidden_equals_silu": true
+  },
+  "results": {
+    "fast_bf16": {
+      "actual_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af",
+      "byte_identical": true,
+      "different_elements": 0,
+      "first_difference": null,
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    },
+    "fast_f32": {
+      "actual_hash": "651ff9794d82aba892f76c6c63ec771ae6af953ad307c5c9bacedb41b9519d65",
+      "byte_identical": false,
+      "different_elements": 990,
+      "first_difference": {
+        "actual_bits": "0x3f01",
+        "index": 15361,
+        "reference_bits": "0x3f00"
+      },
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    },
+    "precise_bf16": {
+      "actual_hash": "323e6b3ddd3af4581e2c3f54dd64db18983aeffe0282b6aab6a9ae56b88c26bc",
+      "byte_identical": false,
+      "different_elements": 1,
+      "first_difference": {
+        "actual_bits": "0x3a8b",
+        "index": 33276,
+        "reference_bits": "0x3a8c"
+      },
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    },
+    "precise_f32": {
+      "actual_hash": "651ff9794d82aba892f76c6c63ec771ae6af953ad307c5c9bacedb41b9519d65",
+      "byte_identical": false,
+      "different_elements": 990,
+      "first_difference": {
+        "actual_bits": "0x3f01",
+        "index": 15361,
+        "reference_bits": "0x3f00"
+      },
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    },
+    "standard_bf16": {
+      "actual_hash": "323e6b3ddd3af4581e2c3f54dd64db18983aeffe0282b6aab6a9ae56b88c26bc",
+      "byte_identical": false,
+      "different_elements": 1,
+      "first_difference": {
+        "actual_bits": "0x3a8b",
+        "index": 33276,
+        "reference_bits": "0x3a8c"
+      },
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    },
+    "standard_f32": {
+      "actual_hash": "651ff9794d82aba892f76c6c63ec771ae6af953ad307c5c9bacedb41b9519d65",
+      "byte_identical": false,
+      "different_elements": 990,
+      "first_difference": {
+        "actual_bits": "0x3f01",
+        "index": 15361,
+        "reference_bits": "0x3f00"
+      },
+      "reference_hash": "ef6da17a2f47ef96008e4163fd8e4deda209c115f6d1a4b934a526c449a061af"
+    }
+  },
+  "runtime_changes": {
+    "apc": false,
+    "cache_abi": false,
+    "production_kernel_abi": false,
+    "runtime": false,
+    "server": false
+  },
+  "schema": "glm53-native-routed-sigmoid-formula-sweep-v1",
+  "selected_formula": "fast_bf16",
+  "source_artifact": "bench-results/m3ultra512-native-routed-hidden-numerical-localization-20260907.json"
+}

@@ -328,4 +328,44 @@ NativePackedMoERoutedDiagnostic::buffer_identities() const {
           buffer_identity(hidden_)};
 }
 
+NativeRoutedSigmoidFormulaSweep::NativeRoutedSigmoidFormulaSweep(int elements)
+    : elements_(elements),
+      stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
+      standard_bf16_(owned_array({elements_}, mx::bfloat16)),
+      precise_bf16_(owned_array({elements_}, mx::bfloat16)),
+      standard_f32_(owned_array({elements_}, mx::bfloat16)),
+      precise_f32_(owned_array({elements_}, mx::bfloat16)),
+      fast_bf16_(owned_array({elements_}, mx::bfloat16)),
+      fast_f32_(owned_array({elements_}, mx::bfloat16)) {
+  if (elements_ <= 0) {
+    throw std::invalid_argument("sigmoid formula sweep requires elements > 0");
+  }
+}
+
+mx::array
+NativeRoutedSigmoidFormulaSweep::execute(const mx::array &gate) {
+  if (gate.dtype() != mx::bfloat16 || gate.size() != elements_ ||
+      !gate.flags().row_contiguous ||
+      gate.status() == mx::array::Status::unscheduled) {
+    throw std::invalid_argument("gate violates sigmoid formula sweep ABI");
+  }
+  auto &device = mx::metal::device(stream_.device);
+  auto *library =
+      device.get_library("glm53_native_execution", current_binary_dir());
+  auto *kernel =
+      device.get_kernel("glm53_native_routed_sigmoid_formula_sweep", library);
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.set_compute_pipeline_state(kernel);
+  encoder.set_input_array(gate, 0);
+  encoder.set_output_array(standard_bf16_, 1);
+  encoder.set_output_array(precise_bf16_, 2);
+  encoder.set_output_array(standard_f32_, 3);
+  encoder.set_output_array(precise_f32_, 4);
+  encoder.set_output_array(fast_bf16_, 5);
+  encoder.set_output_array(fast_f32_, 6);
+  encoder.set_bytes(elements_, 7);
+  encoder.dispatch_threads(MTL::Size(elements_, 1, 1), MTL::Size(256, 1, 1));
+  return precise_f32_;
+}
+
 } // namespace glm53::native_execution

@@ -310,6 +310,51 @@ glm53_native_glm53_packed_selected8_gate_up_swiglu_diagnostic(
   }
 }
 
+[[kernel]] void glm53_native_routed_sigmoid_formula_sweep(
+    device const bfloat16_t* gate [[buffer(0)]],
+    device bfloat16_t* standard_bf16 [[buffer(1)]],
+    device bfloat16_t* precise_bf16 [[buffer(2)]],
+    device bfloat16_t* standard_f32 [[buffer(3)]],
+    device bfloat16_t* precise_f32 [[buffer(4)]],
+    device bfloat16_t* fast_bf16 [[buffer(5)]],
+    device bfloat16_t* fast_f32 [[buffer(6)]],
+    constant const int& elements [[buffer(7)]],
+    uint index [[thread_position_in_grid]]) {
+  if (index >= uint(elements)) return;
+  bfloat16_t value_bf16 = gate[index];
+  auto standard_bf16_tail =
+      1 / (1 + metal::exp(metal::abs(value_bf16)));
+  auto precise_bf16_tail =
+      1 / (1 + metal::precise::exp(metal::abs(value_bf16)));
+  float value_f32 = float(value_bf16);
+  auto standard_f32_tail =
+      1 / (1 + metal::exp(metal::abs(value_f32)));
+  auto precise_f32_tail =
+      1 / (1 + metal::precise::exp(metal::abs(value_f32)));
+  auto fast_bf16_tail =
+      1 / (1 + metal::fast::exp(metal::abs(value_bf16)));
+  auto fast_f32_tail =
+      1 / (1 + metal::fast::exp(metal::abs(value_f32)));
+  standard_bf16[index] = value_bf16 < 0
+      ? standard_bf16_tail
+      : 1 - standard_bf16_tail;
+  precise_bf16[index] = value_bf16 < 0
+      ? precise_bf16_tail
+      : 1 - precise_bf16_tail;
+  standard_f32[index] = bfloat16_t(value_f32 < 0
+      ? standard_f32_tail
+      : 1 - standard_f32_tail);
+  precise_f32[index] = bfloat16_t(value_f32 < 0
+      ? precise_f32_tail
+      : 1 - precise_f32_tail);
+  fast_bf16[index] = value_bf16 < 0
+      ? fast_bf16_tail
+      : 1 - fast_bf16_tail;
+  fast_f32[index] = bfloat16_t(value_f32 < 0
+      ? fast_f32_tail
+      : 1 - fast_f32_tail);
+}
+
 [[kernel]] void glm53_native_packed_selected8_down(
     device const bfloat16_t* hidden [[buffer(0)]],
     device const uint* expert_ids [[buffer(1)]],

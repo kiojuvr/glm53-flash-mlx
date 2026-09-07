@@ -120,4 +120,28 @@ private:
   uint64_t execution_count_{0};
 };
 
+class NativeRoutedSigmoidFormulaSweep {
+public:
+  explicit NativeRoutedSigmoidFormulaSweep(int elements);
+  mx::array execute(const mx::array &gate);
+
+  mx::array standard_bf16() const { return standard_bf16_; }
+  mx::array precise_bf16() const { return precise_bf16_; }
+  mx::array standard_f32() const { return standard_f32_; }
+  mx::array precise_f32() const { return precise_f32_; }
+  mx::array fast_bf16() const { return fast_bf16_; }
+  mx::array fast_f32() const { return fast_f32_; }
+  int elements() const { return elements_; }
+
+private:
+  int elements_;
+  mx::Stream stream_;
+  mx::array standard_bf16_;
+  mx::array precise_bf16_;
+  mx::array standard_f32_;
+  mx::array precise_f32_;
+  mx::array fast_bf16_;
+  mx::array fast_f32_;
+};
+
 } // namespace glm53::native_execution
