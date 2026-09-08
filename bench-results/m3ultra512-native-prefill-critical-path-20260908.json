@@ -1,0 +1,4995 @@
+{
+  "acceptance": {
+    "32k_128k_320k_representative_chunks_measured": true,
+    "all_45_layers_and_final_boundary_attributed": true,
+    "instrumentation_logits_state_offsets_exact": true,
+    "process_peak_at_most_340gb": false,
+    "profile_repeats_are_exact": true,
+    "runtime_server_cache_abi_admission_unchanged": true,
+    "synchronized_stage_sum_not_claimed_as_production_wall": true,
+    "uninstrumented_wall_and_host_build_recorded": true
+  },
+  "accepted": false,
+  "capacity_contract": "glm53-native-context-capacity-v1-total512k-prompt320k-generation128k-compact-kpool4-workspace64mib-no-production-promotion-before-native-qualification",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": false,
+  "contexts": {
+    "131072": {
+      "context_tokens_after_chunk": 131072,
+      "dominant_synchronized_stage": "routed_moe",
+      "exactness": {
+        "instrumentation_diagnostic_state_exact": true,
+        "instrumentation_dsa_offsets_exact": true,
+        "instrumentation_final_logits_exact": true
+      },
+      "instrumented": {
+        "attribution": {
+          "maximum_absolute_peak_bytes": 339785653041,
+          "stage_sum_is_uninstrumented_wall": false,
+          "stages": {
+            "dense_ffn": {
+              "call_count": 3,
+              "cpu_graph_build_sum_ms": 0.16549999999999998,
+              "diagnostic_share": 0.036248385465634074,
+              "maximum_working_peak_bytes": 14680070,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.052625,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 124.129583,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.0715,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 124.535583,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.041375,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.339667,
+                  "working_peak_bytes": 14680070
+                }
+              ],
+              "synchronized_wall_median_ms": 124.129583,
+              "synchronized_wall_sum_ms": 372.004833
+            },
+            "dsa_attention": {
+              "call_count": 11,
+              "cpu_graph_build_sum_ms": 2.631835,
+              "diagnostic_share": 0.44878865757954894,
+              "maximum_working_peak_bytes": 13699175136,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.256625,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 525.647125,
+                  "working_peak_bytes": 12996215045
+                },
+                {
+                  "cpu_graph_build_ms": 0.246459,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 401.882875,
+                  "working_peak_bytes": 13699175088
+                },
+                {
+                  "cpu_graph_build_ms": 0.254792,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 402.899792,
+                  "working_peak_bytes": 13699175088
+                },
+                {
+                  "cpu_graph_build_ms": 0.242375,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 413.482291,
+                  "working_peak_bytes": 13699175088
+                },
+                {
+                  "cpu_graph_build_ms": 0.233625,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 414.250125,
+                  "working_peak_bytes": 13699175104
+                },
+                {
+                  "cpu_graph_build_ms": 0.225792,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 412.274834,
+                  "working_peak_bytes": 13699175116
+                },
+                {
+                  "cpu_graph_build_ms": 0.2405,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 402.618042,
+                  "working_peak_bytes": 13699175116
+                },
+                {
+                  "cpu_graph_build_ms": 0.234417,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 414.618958,
+                  "working_peak_bytes": 13699175132
+                },
+                {
+                  "cpu_graph_build_ms": 0.235792,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 403.022958,
+                  "working_peak_bytes": 13699175132
+                },
+                {
+                  "cpu_graph_build_ms": 0.230625,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 413.030917,
+                  "working_peak_bytes": 13699175136
+                },
+                {
+                  "cpu_graph_build_ms": 0.230833,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 402.037208,
+                  "working_peak_bytes": 13699175136
+                }
+              ],
+              "synchronized_wall_median_ms": 412.274834,
+              "synchronized_wall_sum_ms": 4605.765125
+            },
+            "final_norm_lm_head": {
+              "call_count": 1,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.0016117248358714577,
+              "maximum_working_peak_bytes": 123338752,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": null,
+                  "output_temporary_bytes": 309760,
+                  "synchronized_wall_ms": 16.540583,
+                  "working_peak_bytes": 123338752
+                }
+              ],
+              "synchronized_wall_median_ms": 16.540583,
+              "synchronized_wall_sum_ms": 16.540583
+            },
+            "kda_attention": {
+              "call_count": 34,
+              "cpu_graph_build_sum_ms": 2.448833,
+              "diagnostic_share": 0.016614346119888764,
+              "maximum_working_peak_bytes": 181944856,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.101292,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 7.850208,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.084959,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.878125,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.065958,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.957041,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.074542,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.8855,
+                  "working_peak_bytes": 181928472
+                },
+                {
+                  "cpu_graph_build_ms": 0.080708,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.957417,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.081416,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.924541,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.078583,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.908292,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.071459,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.97075,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.076875,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.906917,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.075583,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.982708,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.076375,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.938583,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.078792,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.964458,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.069917,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.900042,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.066333,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.955083,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.068625,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.92625,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072041,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.943625,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.054875,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.933666,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.058208,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.942667,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.066042,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.917959,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.067167,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.892459,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.063875,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.894125,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.075292,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.890292,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.074834,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.953709,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072166,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.094583,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.066833,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.872542,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.073125,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.955375,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072792,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.930708,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072958,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.929292,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.067208,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.892916,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072625,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.919166,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.065333,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.928125,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.071875,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.92275,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.070208,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.891417,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.059959,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.896084,
+                  "working_peak_bytes": 181944856
+                }
+              ],
+              "synchronized_wall_median_ms": 4.9271875,
+              "synchronized_wall_sum_ms": 170.507375
+            },
+            "layer_handoff_attention_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.0028465133574899514,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.151958,
+                  "working_peak_bytes": 33869824
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.563042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.656208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.593917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.625375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.59975,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.62475,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.752,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.596584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.611083,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60325,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.591,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.784792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.645292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.571625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.579959,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.742458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.600208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.590458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.567916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.632083,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.670542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.729458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.591709,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.591167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.59475,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.585459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.596292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.627084,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.593875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.732709,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.736917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.594666,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.624417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.602167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.907917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.734042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.592167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.746959,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.646083,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60175,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.580166,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.601334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.638667,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.60325,
+              "synchronized_wall_sum_ms": 29.212797000000002
+            },
+            "post_attention_ffn_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.002919629883376183,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.458916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.659666,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.61275,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.694959,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.575584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.593541,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.690875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60725,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.592417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.729333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.726708,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.5815,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60475,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.693875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.609667,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.742,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.731458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.603542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.5955,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.614209,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.742208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.597125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.618125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.606375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.733417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.603459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.584916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.579334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605416,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.74175,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.615167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.918334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.723625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.602542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.59675,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.602042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60325,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.609416,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.923875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.601541,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.608375,
+              "synchronized_wall_sum_ms": 29.963167
+            },
+            "routed_moe": {
+              "call_count": 42,
+              "cpu_graph_build_sum_ms": 254.54853500000002,
+              "diagnostic_share": 0.49097074275819064,
+              "maximum_working_peak_bytes": 29125934,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 9.864625,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.911083,
+                  "working_peak_bytes": 17865080
+                },
+                {
+                  "cpu_graph_build_ms": 8.73475,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.254125,
+                  "working_peak_bytes": 18060458
+                },
+                {
+                  "cpu_graph_build_ms": 8.697167,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.956167,
+                  "working_peak_bytes": 18192580
+                },
+                {
+                  "cpu_graph_build_ms": 8.429125,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.025833,
+                  "working_peak_bytes": 18810294
+                },
+                {
+                  "cpu_graph_build_ms": 6.166791,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.648708,
+                  "working_peak_bytes": 20898940
+                },
+                {
+                  "cpu_graph_build_ms": 7.46125,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.236125,
+                  "working_peak_bytes": 20746972
+                },
+                {
+                  "cpu_graph_build_ms": 8.052542,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.284792,
+                  "working_peak_bytes": 19611560
+                },
+                {
+                  "cpu_graph_build_ms": 8.185541,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.568416,
+                  "working_peak_bytes": 19702488
+                },
+                {
+                  "cpu_graph_build_ms": 7.525167,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 124.474917,
+                  "working_peak_bytes": 20619850
+                },
+                {
+                  "cpu_graph_build_ms": 6.789916,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.536041,
+                  "working_peak_bytes": 21469124
+                },
+                {
+                  "cpu_graph_build_ms": 5.623291,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.177166,
+                  "working_peak_bytes": 23065910
+                },
+                {
+                  "cpu_graph_build_ms": 7.388375,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.992334,
+                  "working_peak_bytes": 21225838
+                },
+                {
+                  "cpu_graph_build_ms": 6.768,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.268375,
+                  "working_peak_bytes": 23675942
+                },
+                {
+                  "cpu_graph_build_ms": 6.092625,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.673375,
+                  "working_peak_bytes": 19251888
+                },
+                {
+                  "cpu_graph_build_ms": 4.391334,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.435292,
+                  "working_peak_bytes": 24390560
+                },
+                {
+                  "cpu_graph_build_ms": 4.653875,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.045417,
+                  "working_peak_bytes": 25464486
+                },
+                {
+                  "cpu_graph_build_ms": 4.661,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.264542,
+                  "working_peak_bytes": 29125934
+                },
+                {
+                  "cpu_graph_build_ms": 3.75375,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.610958,
+                  "working_peak_bytes": 22305924
+                },
+                {
+                  "cpu_graph_build_ms": 2.662792,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 115.247,
+                  "working_peak_bytes": 28661596
+                },
+                {
+                  "cpu_graph_build_ms": 3.194708,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.422,
+                  "working_peak_bytes": 23663006
+                },
+                {
+                  "cpu_graph_build_ms": 4.508042,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.096292,
+                  "working_peak_bytes": 26237054
+                },
+                {
+                  "cpu_graph_build_ms": 4.654041,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.624708,
+                  "working_peak_bytes": 23698676
+                },
+                {
+                  "cpu_graph_build_ms": 4.404833,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.421708,
+                  "working_peak_bytes": 25531830
+                },
+                {
+                  "cpu_graph_build_ms": 4.568208,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.181,
+                  "working_peak_bytes": 24561352
+                },
+                {
+                  "cpu_graph_build_ms": 6.064416,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.417041,
+                  "working_peak_bytes": 19927408
+                },
+                {
+                  "cpu_graph_build_ms": 6.217708,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.450125,
+                  "working_peak_bytes": 21356470
+                },
+                {
+                  "cpu_graph_build_ms": 6.468375,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.182208,
+                  "working_peak_bytes": 25195838
+                },
+                {
+                  "cpu_graph_build_ms": 6.2415,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.812917,
+                  "working_peak_bytes": 24807480
+                },
+                {
+                  "cpu_graph_build_ms": 6.357792,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.146417,
+                  "working_peak_bytes": 18599828
+                },
+                {
+                  "cpu_graph_build_ms": 6.499541,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.105791,
+                  "working_peak_bytes": 18268138
+                },
+                {
+                  "cpu_graph_build_ms": 6.177208,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.393083,
+                  "working_peak_bytes": 21881120
+                },
+                {
+                  "cpu_graph_build_ms": 5.989083,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.601125,
+                  "working_peak_bytes": 24624968
+                },
+                {
+                  "cpu_graph_build_ms": 6.404958,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.407542,
+                  "working_peak_bytes": 21622786
+                },
+                {
+                  "cpu_graph_build_ms": 6.4225,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.597291,
+                  "working_peak_bytes": 20267626
+                },
+                {
+                  "cpu_graph_build_ms": 6.27025,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.437167,
+                  "working_peak_bytes": 23965950
+                },
+                {
+                  "cpu_graph_build_ms": 5.599958,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.466583,
+                  "working_peak_bytes": 22073592
+                },
+                {
+                  "cpu_graph_build_ms": 5.988875,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 124.192417,
+                  "working_peak_bytes": 21865106
+                },
+                {
+                  "cpu_graph_build_ms": 5.85075,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.781708,
+                  "working_peak_bytes": 18017738
+                },
+                {
+                  "cpu_graph_build_ms": 5.421416,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.4565,
+                  "working_peak_bytes": 20907326
+                },
+                {
+                  "cpu_graph_build_ms": 4.497458,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.3,
+                  "working_peak_bytes": 23106330
+                },
+                {
+                  "cpu_graph_build_ms": 5.426833,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.022167,
+                  "working_peak_bytes": 19157812
+                },
+                {
+                  "cpu_graph_build_ms": 5.418166,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.539041,
+                  "working_peak_bytes": 20989522
+                }
+              ],
+              "synchronized_wall_median_ms": 120.1643125,
+              "synchronized_wall_sum_ms": 5038.665497
+            }
+          },
+          "synchronized_stage_sum_ms": 10262.659377,
+          "timing_note": "each boundary is synchronized independently; use only for attribution, never as additive production wall"
+        },
+        "diagnostic_wall_ms": 10266.061541,
+        "final_logits_sha256": "8f5d3608a49e0bde09603d1e0a8d39e99b51343d2e2b16d31611ce476c13cb11",
+        "state": {
+          "cache_leaf_count": 167,
+          "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+          "diagnostic_state_sha256": "e1b38330a790eb9be526cf1bbd71938631156cf08d6aec1c75359d5be6f1bca0",
+          "dsa_offsets": [
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 3
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 7
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 11
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 15
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 19
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 23
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 27
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 31
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 35
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 39
+            },
+            {
+              "indexpool": 131072,
+              "latent": 131072,
+              "layer": 43
+            }
+          ]
+        }
+      },
+      "representative_chunk_tokens": 256,
+      "synthetic_prefix_tokens": 130816,
+      "synthetic_source_peak_bytes": 323032457276,
+      "uninstrumented": {
+        "maximum_absolute_peak_bytes": 339785653041,
+        "maximum_working_peak_bytes": 14307258932,
+        "median_host_graph_build_ms": 9793.23175,
+        "median_tokens_per_second": 25.799395465239755,
+        "median_wall_ms": 9922.713125,
+        "repeat_logits_exact": true,
+        "repeat_state_exact": true,
+        "sample_count": 3,
+        "samples": [
+          {
+            "absolute_peak_bytes": 339785653041,
+            "final_logits_sha256": "8f5d3608a49e0bde09603d1e0a8d39e99b51343d2e2b16d31611ce476c13cb11",
+            "host_graph_build_ms": 9793.23175,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "e1b38330a790eb9be526cf1bbd71938631156cf08d6aec1c75359d5be6f1bca0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 25.799395465239755,
+            "wall_ms": 9922.713125,
+            "working_peak_bytes": 14307258932
+          },
+          {
+            "absolute_peak_bytes": 339785653041,
+            "final_logits_sha256": "8f5d3608a49e0bde09603d1e0a8d39e99b51343d2e2b16d31611ce476c13cb11",
+            "host_graph_build_ms": 9789.4755,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "e1b38330a790eb9be526cf1bbd71938631156cf08d6aec1c75359d5be6f1bca0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 25.80887943493908,
+            "wall_ms": 9919.066833,
+            "working_peak_bytes": 14307257928
+          },
+          {
+            "absolute_peak_bytes": 339785653041,
+            "final_logits_sha256": "8f5d3608a49e0bde09603d1e0a8d39e99b51343d2e2b16d31611ce476c13cb11",
+            "host_graph_build_ms": 9870.058167,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "e1b38330a790eb9be526cf1bbd71938631156cf08d6aec1c75359d5be6f1bca0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 131072,
+                  "latent": 131072,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 25.600866269312387,
+            "wall_ms": 9999.661625,
+            "working_peak_bytes": 14307257928
+          }
+        ]
+      }
+    },
+    "32768": {
+      "context_tokens_after_chunk": 32768,
+      "dominant_synchronized_stage": "routed_moe",
+      "exactness": {
+        "instrumentation_diagnostic_state_exact": true,
+        "instrumentation_dsa_offsets_exact": true,
+        "instrumentation_final_logits_exact": true
+      },
+      "instrumented": {
+        "attribution": {
+          "maximum_absolute_peak_bytes": 325499853657,
+          "stage_sum_is_uninstrumented_wall": false,
+          "stages": {
+            "dense_ffn": {
+              "call_count": 3,
+              "cpu_graph_build_sum_ms": 0.120333,
+              "diagnostic_share": 0.0474341155532368,
+              "maximum_working_peak_bytes": 14680070,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.052875,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 86.134375,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.04,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.835,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.027458,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.987958,
+                  "working_peak_bytes": 14680070
+                }
+              ],
+              "synchronized_wall_median_ms": 121.987958,
+              "synchronized_wall_sum_ms": 331.957333
+            },
+            "dsa_attention": {
+              "call_count": 11,
+              "cpu_graph_build_sum_ms": 2.616375,
+              "diagnostic_share": 0.20093409703783632,
+              "maximum_working_peak_bytes": 3473254144,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.2405,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 136.746709,
+                  "working_peak_bytes": 3257173254
+                },
+                {
+                  "cpu_graph_build_ms": 0.244,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 126.357666,
+                  "working_peak_bytes": 3473254128
+                },
+                {
+                  "cpu_graph_build_ms": 0.255417,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 127.480167,
+                  "working_peak_bytes": 3473254128
+                },
+                {
+                  "cpu_graph_build_ms": 0.247791,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 126.396291,
+                  "working_peak_bytes": 3473254128
+                },
+                {
+                  "cpu_graph_build_ms": 0.249542,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 126.765625,
+                  "working_peak_bytes": 3473254136
+                },
+                {
+                  "cpu_graph_build_ms": 0.234917,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 127.103625,
+                  "working_peak_bytes": 3473254136
+                },
+                {
+                  "cpu_graph_build_ms": 0.227958,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 127.508625,
+                  "working_peak_bytes": 3473254140
+                },
+                {
+                  "cpu_graph_build_ms": 0.231917,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 127.285375,
+                  "working_peak_bytes": 3473254140
+                },
+                {
+                  "cpu_graph_build_ms": 0.224208,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 126.802417,
+                  "working_peak_bytes": 3473254144
+                },
+                {
+                  "cpu_graph_build_ms": 0.235083,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 126.371,
+                  "working_peak_bytes": 3473254144
+                },
+                {
+                  "cpu_graph_build_ms": 0.225042,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 127.376042,
+                  "working_peak_bytes": 3473254144
+                }
+              ],
+              "synchronized_wall_median_ms": 127.103625,
+              "synchronized_wall_sum_ms": 1406.193542
+            },
+            "final_norm_lm_head": {
+              "call_count": 1,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.0023569652106130747,
+              "maximum_working_peak_bytes": 123338752,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": null,
+                  "output_temporary_bytes": 309760,
+                  "synchronized_wall_ms": 16.494708,
+                  "working_peak_bytes": 123338752
+                }
+              ],
+              "synchronized_wall_median_ms": 16.494708,
+              "synchronized_wall_sum_ms": 16.494708
+            },
+            "kda_attention": {
+              "call_count": 34,
+              "cpu_graph_build_sum_ms": 2.480127,
+              "diagnostic_share": 0.02405102093897573,
+              "maximum_working_peak_bytes": 181961240,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.087458,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.5175,
+                  "working_peak_bytes": 167232024
+                },
+                {
+                  "cpu_graph_build_ms": 0.079083,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.936041,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.053709,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.880459,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.091709,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.975375,
+                  "working_peak_bytes": 181944856
+                },
+                {
+                  "cpu_graph_build_ms": 0.072416,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.01475,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.075209,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.943917,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.069083,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.930417,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.076792,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.994417,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.072292,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.938208,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.085375,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.99025,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.071917,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.927875,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.084625,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.926,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.082666,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.022875,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.068667,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.970333,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.081958,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.966958,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.068542,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.909958,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.0635,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.915584,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.056125,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.926334,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.0665,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.914292,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.071,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.863834,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.065583,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.920167,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.075625,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.964083,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.066542,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.950833,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.075334,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.9475,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.07575,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.928625,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.068,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.867583,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.070916,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.903,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.075959,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.925417,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.066417,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.825875,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.069,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.954458,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.07425,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.925834,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.07,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.856542,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.077,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.940958,
+                  "working_peak_bytes": 181961240
+                },
+                {
+                  "cpu_graph_build_ms": 0.071125,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.939583,
+                  "working_peak_bytes": 181961240
+                }
+              ],
+              "synchronized_wall_median_ms": 4.933229000000001,
+              "synchronized_wall_sum_ms": 168.315835
+            },
+            "layer_handoff_attention_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.004289618160383976,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.064667,
+                  "working_peak_bytes": 33869824
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.66425,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.61875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.616666,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.616167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.741791,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.751917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.619958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.626833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6165,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6505,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.620792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.624167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.749875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.625333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.701,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.614209,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.613292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.617,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.607584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.910584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.603958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.736083,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6545,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.749542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.611125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.598125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.740709,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.662667,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.752583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.616375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.654958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.635042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.743208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.675583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.68325,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.618083,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6145,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.754542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.602042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.611334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605416,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.611041,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.624167,
+              "synchronized_wall_sum_ms": 30.019959
+            },
+            "post_attention_ffn_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.004159818595806936,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.231417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.607542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.614542,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.64225,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.623209,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.628,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.62575,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.621917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.612375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.620916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.618916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.612583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.740375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.754875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.612958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.614125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.610458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.624666,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.622292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.682417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.617167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.598667,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.622833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6195,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.635292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.885792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.589375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.608958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.619,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.601417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.615833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.62375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.613917,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.756334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.600625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.629,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.623709,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.620291,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.611584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.629625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.59375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.606916,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.625792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.624958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.615917,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.620291,
+              "synchronized_wall_sum_ms": 29.111585
+            },
+            "routed_moe": {
+              "call_count": 42,
+              "cpu_graph_build_sum_ms": 253.848454,
+              "diagnostic_share": 0.716774364503147,
+              "maximum_working_peak_bytes": 29782290,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 10.627333,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.616166,
+                  "working_peak_bytes": 18962514
+                },
+                {
+                  "cpu_graph_build_ms": 8.700375,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.369,
+                  "working_peak_bytes": 18537638
+                },
+                {
+                  "cpu_graph_build_ms": 8.475791,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.796541,
+                  "working_peak_bytes": 17896434
+                },
+                {
+                  "cpu_graph_build_ms": 8.321542,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.609708,
+                  "working_peak_bytes": 17902048
+                },
+                {
+                  "cpu_graph_build_ms": 5.9955,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.490375,
+                  "working_peak_bytes": 20733982
+                },
+                {
+                  "cpu_graph_build_ms": 7.696458,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.733708,
+                  "working_peak_bytes": 25171010
+                },
+                {
+                  "cpu_graph_build_ms": 7.915791,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.354041,
+                  "working_peak_bytes": 19111872
+                },
+                {
+                  "cpu_graph_build_ms": 7.778958,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.86175,
+                  "working_peak_bytes": 18065752
+                },
+                {
+                  "cpu_graph_build_ms": 7.412208,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.812666,
+                  "working_peak_bytes": 19100988
+                },
+                {
+                  "cpu_graph_build_ms": 6.451792,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.957709,
+                  "working_peak_bytes": 19482518
+                },
+                {
+                  "cpu_graph_build_ms": 5.17525,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.056208,
+                  "working_peak_bytes": 19726120
+                },
+                {
+                  "cpu_graph_build_ms": 7.035333,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.54175,
+                  "working_peak_bytes": 25757482
+                },
+                {
+                  "cpu_graph_build_ms": 6.855333,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.498542,
+                  "working_peak_bytes": 20177368
+                },
+                {
+                  "cpu_graph_build_ms": 5.833083,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.232125,
+                  "working_peak_bytes": 18770594
+                },
+                {
+                  "cpu_graph_build_ms": 4.265166,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.956625,
+                  "working_peak_bytes": 21794322
+                },
+                {
+                  "cpu_graph_build_ms": 4.992959,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.490167,
+                  "working_peak_bytes": 23092122
+                },
+                {
+                  "cpu_graph_build_ms": 4.180625,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 114.78775,
+                  "working_peak_bytes": 24343822
+                },
+                {
+                  "cpu_graph_build_ms": 3.8175,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.011292,
+                  "working_peak_bytes": 27583592
+                },
+                {
+                  "cpu_graph_build_ms": 3.069375,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 115.680334,
+                  "working_peak_bytes": 29782290
+                },
+                {
+                  "cpu_graph_build_ms": 3.017542,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 114.737875,
+                  "working_peak_bytes": 24330690
+                },
+                {
+                  "cpu_graph_build_ms": 4.688333,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.984166,
+                  "working_peak_bytes": 22862882
+                },
+                {
+                  "cpu_graph_build_ms": 4.460708,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 115.741458,
+                  "working_peak_bytes": 21375556
+                },
+                {
+                  "cpu_graph_build_ms": 4.576041,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.64125,
+                  "working_peak_bytes": 16999992
+                },
+                {
+                  "cpu_graph_build_ms": 4.897,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.021084,
+                  "working_peak_bytes": 25225406
+                },
+                {
+                  "cpu_graph_build_ms": 5.86575,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.443208,
+                  "working_peak_bytes": 17154526
+                },
+                {
+                  "cpu_graph_build_ms": 6.044041,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.5505,
+                  "working_peak_bytes": 21175524
+                },
+                {
+                  "cpu_graph_build_ms": 6.24825,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.34575,
+                  "working_peak_bytes": 21776804
+                },
+                {
+                  "cpu_graph_build_ms": 6.058208,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.516958,
+                  "working_peak_bytes": 23671774
+                },
+                {
+                  "cpu_graph_build_ms": 6.238667,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.401833,
+                  "working_peak_bytes": 20417952
+                },
+                {
+                  "cpu_graph_build_ms": 6.23975,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.908792,
+                  "working_peak_bytes": 20832096
+                },
+                {
+                  "cpu_graph_build_ms": 5.85975,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.095666,
+                  "working_peak_bytes": 21454882
+                },
+                {
+                  "cpu_graph_build_ms": 6.239083,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.309875,
+                  "working_peak_bytes": 24490058
+                },
+                {
+                  "cpu_graph_build_ms": 6.670875,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.222584,
+                  "working_peak_bytes": 19866416
+                },
+                {
+                  "cpu_graph_build_ms": 6.797584,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.701792,
+                  "working_peak_bytes": 22650556
+                },
+                {
+                  "cpu_graph_build_ms": 6.635958,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.1005,
+                  "working_peak_bytes": 22667508
+                },
+                {
+                  "cpu_graph_build_ms": 6.183083,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.892833,
+                  "working_peak_bytes": 21930862
+                },
+                {
+                  "cpu_graph_build_ms": 6.463666,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.078625,
+                  "working_peak_bytes": 22510726
+                },
+                {
+                  "cpu_graph_build_ms": 5.740542,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.694959,
+                  "working_peak_bytes": 20995244
+                },
+                {
+                  "cpu_graph_build_ms": 5.698292,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.48825,
+                  "working_peak_bytes": 22927750
+                },
+                {
+                  "cpu_graph_build_ms": 4.35275,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.7905,
+                  "working_peak_bytes": 27673588
+                },
+                {
+                  "cpu_graph_build_ms": 5.317125,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.82925,
+                  "working_peak_bytes": 20587396
+                },
+                {
+                  "cpu_graph_build_ms": 4.955084,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.835209,
+                  "working_peak_bytes": 19359162
+                }
+              ],
+              "synchronized_wall_median_ms": 119.726958,
+              "synchronized_wall_sum_ms": 5016.189374
+            }
+          },
+          "synchronized_stage_sum_ms": 6998.282336,
+          "timing_note": "each boundary is synchronized independently; use only for attribution, never as additive production wall"
+        },
+        "diagnostic_wall_ms": 7001.86275,
+        "final_logits_sha256": "cd5ee9826a0f03f58cb50ee4d1c23b8b7a3b4a5e94a17067e0c690c9ec747d79",
+        "state": {
+          "cache_leaf_count": 167,
+          "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+          "diagnostic_state_sha256": "161101a8a92bae156e58d63263527c93be4091b98c9c442496fde7752b251ea0",
+          "dsa_offsets": [
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 3
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 7
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 11
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 15
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 19
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 23
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 27
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 31
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 35
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 39
+            },
+            {
+              "indexpool": 32768,
+              "latent": 32768,
+              "layer": 43
+            }
+          ]
+        }
+      },
+      "representative_chunk_tokens": 256,
+      "synthetic_prefix_tokens": 32512,
+      "synthetic_source_peak_bytes": 320932556571,
+      "uninstrumented": {
+        "maximum_absolute_peak_bytes": 325499853657,
+        "maximum_working_peak_bytes": 4132458800,
+        "median_host_graph_build_ms": 6672.271542,
+        "median_tokens_per_second": 37.63752513324949,
+        "median_wall_ms": 6801.722459,
+        "repeat_logits_exact": true,
+        "repeat_state_exact": true,
+        "sample_count": 3,
+        "samples": [
+          {
+            "absolute_peak_bytes": 324964498137,
+            "final_logits_sha256": "cd5ee9826a0f03f58cb50ee4d1c23b8b7a3b4a5e94a17067e0c690c9ec747d79",
+            "host_graph_build_ms": 6713.595417,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "161101a8a92bae156e58d63263527c93be4091b98c9c442496fde7752b251ea0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 37.41103302877257,
+            "wall_ms": 6842.901125,
+            "working_peak_bytes": 3597187044
+          },
+          {
+            "absolute_peak_bytes": 325499853657,
+            "final_logits_sha256": "cd5ee9826a0f03f58cb50ee4d1c23b8b7a3b4a5e94a17067e0c690c9ec747d79",
+            "host_graph_build_ms": 6667.615667,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "161101a8a92bae156e58d63263527c93be4091b98c9c442496fde7752b251ea0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 37.66272161956934,
+            "wall_ms": 6797.172084,
+            "working_peak_bytes": 4132458800
+          },
+          {
+            "absolute_peak_bytes": 325499853657,
+            "final_logits_sha256": "cd5ee9826a0f03f58cb50ee4d1c23b8b7a3b4a5e94a17067e0c690c9ec747d79",
+            "host_graph_build_ms": 6672.271542,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "161101a8a92bae156e58d63263527c93be4091b98c9c442496fde7752b251ea0",
+              "dsa_offsets": [
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 32768,
+                  "latent": 32768,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 37.63752513324949,
+            "wall_ms": 6801.722459,
+            "working_peak_bytes": 4132458800
+          }
+        ]
+      }
+    },
+    "327680": {
+      "context_tokens_after_chunk": 327680,
+      "dominant_synchronized_stage": "dsa_attention",
+      "exactness": {
+        "instrumentation_diagnostic_state_exact": true,
+        "instrumentation_dsa_offsets_exact": true,
+        "instrumentation_final_logits_exact": true
+      },
+      "instrumented": {
+        "attribution": {
+          "maximum_absolute_peak_bytes": 367183048783,
+          "stage_sum_is_uninstrumented_wall": false,
+          "stages": {
+            "dense_ffn": {
+              "call_count": 3,
+              "cpu_graph_build_sum_ms": 0.123416,
+              "diagnostic_share": 0.018888297256553426,
+              "maximum_working_peak_bytes": 14680070,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.053125,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 79.342625,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.037166,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.111083,
+                  "working_peak_bytes": 14680070
+                },
+                {
+                  "cpu_graph_build_ms": 0.033125,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.116,
+                  "working_peak_bytes": 14680070
+                }
+              ],
+              "synchronized_wall_median_ms": 123.111083,
+              "synchronized_wall_sum_ms": 325.569708
+            },
+            "dsa_attention": {
+              "call_count": 11,
+              "cpu_graph_build_sum_ms": 3.1988760000000003,
+              "diagnostic_share": 0.6586796720256074,
+              "maximum_working_peak_bytes": 32824731270,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.307084,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1306.57025,
+                  "working_peak_bytes": 32388546818
+                },
+                {
+                  "cpu_graph_build_ms": 0.291917,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 981.499083,
+                  "working_peak_bytes": 32824454110
+                },
+                {
+                  "cpu_graph_build_ms": 0.295833,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1042.274291,
+                  "working_peak_bytes": 32823781710
+                },
+                {
+                  "cpu_graph_build_ms": 0.28975,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 985.066166,
+                  "working_peak_bytes": 32824698614
+                },
+                {
+                  "cpu_graph_build_ms": 0.275959,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 980.315417,
+                  "working_peak_bytes": 32824665562
+                },
+                {
+                  "cpu_graph_build_ms": 0.270125,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 975.671917,
+                  "working_peak_bytes": 32824731270
+                },
+                {
+                  "cpu_graph_build_ms": 0.290333,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1038.085583,
+                  "working_peak_bytes": 32824191022
+                },
+                {
+                  "cpu_graph_build_ms": 0.301709,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 977.952542,
+                  "working_peak_bytes": 32824273278
+                },
+                {
+                  "cpu_graph_build_ms": 0.298,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 981.296042,
+                  "working_peak_bytes": 32824715130
+                },
+                {
+                  "cpu_graph_build_ms": 0.296125,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1044.564041,
+                  "working_peak_bytes": 32824109886
+                },
+                {
+                  "cpu_graph_build_ms": 0.282041,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1040.091666,
+                  "working_peak_bytes": 32824157970
+                }
+              ],
+              "synchronized_wall_median_ms": 985.066166,
+              "synchronized_wall_sum_ms": 11353.386998
+            },
+            "final_norm_lm_head": {
+              "call_count": 1,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.000950364800732894,
+              "maximum_working_peak_bytes": 123338752,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": null,
+                  "output_temporary_bytes": 309760,
+                  "synchronized_wall_ms": 16.381042,
+                  "working_peak_bytes": 123338752
+                }
+              ],
+              "synchronized_wall_median_ms": 16.381042,
+              "synchronized_wall_sum_ms": 16.381042
+            },
+            "kda_attention": {
+              "call_count": 34,
+              "cpu_graph_build_sum_ms": 2.769831,
+              "diagnostic_share": 0.01002134504006924,
+              "maximum_working_peak_bytes": 181912288,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.099334,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 7.499334,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.066791,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.862208,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.0585,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.907625,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.082542,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.262667,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.075416,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.880666,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.07525,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.885042,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.124666,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.272166,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.074625,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.922375,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.071375,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.904208,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.101,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.301125,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.076958,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.897875,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.066083,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.920167,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.105375,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.17975,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.07575,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.920083,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.060375,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.886708,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.09125,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.199667,
+                  "working_peak_bytes": 181912288
+                },
+                {
+                  "cpu_graph_build_ms": 0.063209,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.912625,
+                  "working_peak_bytes": 181912288
+                },
+                {
+                  "cpu_graph_build_ms": 0.0545,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.096375,
+                  "working_peak_bytes": 181912288
+                },
+                {
+                  "cpu_graph_build_ms": 0.085375,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.104,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.097875,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.824,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.08425,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.974958,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.114708,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.143333,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.079625,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.9125,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.080291,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.92275,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.093583,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.046208,
+                  "working_peak_bytes": 181912116
+                },
+                {
+                  "cpu_graph_build_ms": 0.084417,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.971292,
+                  "working_peak_bytes": 181912116
+                },
+                {
+                  "cpu_graph_build_ms": 0.071583,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.916916,
+                  "working_peak_bytes": 181912116
+                },
+                {
+                  "cpu_graph_build_ms": 0.087167,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.216209,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.066666,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.926416,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.079042,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.861792,
+                  "working_peak_bytes": 181912088
+                },
+                {
+                  "cpu_graph_build_ms": 0.08825,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.196125,
+                  "working_peak_bytes": 181912164
+                },
+                {
+                  "cpu_graph_build_ms": 0.071625,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.912625,
+                  "working_peak_bytes": 181912164
+                },
+                {
+                  "cpu_graph_build_ms": 0.078958,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 4.888208,
+                  "working_peak_bytes": 181912092
+                },
+                {
+                  "cpu_graph_build_ms": 0.083417,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 5.20575,
+                  "working_peak_bytes": 181912088
+                }
+              ],
+              "synchronized_wall_median_ms": 4.9225625,
+              "synchronized_wall_sum_ms": 172.733748
+            },
+            "layer_handoff_attention_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.0016637699359577322,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.188917,
+                  "working_peak_bytes": 33869824
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.580291,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.592875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.598875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.55775,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.630375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6845,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.598333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.635458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.592958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.903708,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.616,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.574833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.740792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.604167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.650708,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.623833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.603292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.752333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.657334,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.551167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.749459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.625833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6065,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.5865,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.612958,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.618042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.600209,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.630208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.596333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.59225,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.612458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.554792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.589291,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.60275,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.605459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.590417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.636042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.617625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.61825,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.590459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.743333,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.596584,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.583833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.579625,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.605459,
+              "synchronized_wall_sum_ms": 28.677709
+            },
+            "post_attention_ffn_shell": {
+              "call_count": 45,
+              "cpu_graph_build_sum_ms": 0.0,
+              "diagnostic_share": 0.016118335987308274,
+              "maximum_working_peak_bytes": 65327104,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 0,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 1.206458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 1,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.559625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 2,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.599458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.894666,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.558292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6095,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.598417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 23.774375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.589417,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.613167,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.6275,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.946583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.580375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.616583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.631292,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 25.30575,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.570042,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.615833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.623833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 23.114208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.57875,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.62825,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.618709,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.795791,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.583,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.599041,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.615459,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.991458,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.586792,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.751,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.619375,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 23.040667,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.706541,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.655,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.692208,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.897,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.633959,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.604125,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.623625,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 22.770833,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.5935,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.75,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.5995,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 23.630166,
+                  "working_peak_bytes": 65327104
+                },
+                {
+                  "cpu_graph_build_ms": 0.0,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 0.624917,
+                  "working_peak_bytes": 65327104
+                }
+              ],
+              "synchronized_wall_median_ms": 0.623833,
+              "synchronized_wall_sum_ms": 277.82504
+            },
+            "routed_moe": {
+              "call_count": 42,
+              "cpu_graph_build_sum_ms": 276.376499,
+              "diagnostic_share": 0.293678214953771,
+              "maximum_working_peak_bytes": 28572384,
+              "samples": [
+                {
+                  "cpu_graph_build_ms": 10.265917,
+                  "layer": 3,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.187917,
+                  "working_peak_bytes": 19100040
+                },
+                {
+                  "cpu_graph_build_ms": 8.63125,
+                  "layer": 4,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.992417,
+                  "working_peak_bytes": 17762036
+                },
+                {
+                  "cpu_graph_build_ms": 8.958625,
+                  "layer": 5,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.372917,
+                  "working_peak_bytes": 17412090
+                },
+                {
+                  "cpu_graph_build_ms": 8.497958,
+                  "layer": 6,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.584,
+                  "working_peak_bytes": 18687328
+                },
+                {
+                  "cpu_graph_build_ms": 6.524708,
+                  "layer": 7,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.40725,
+                  "working_peak_bytes": 22753676
+                },
+                {
+                  "cpu_graph_build_ms": 8.286959,
+                  "layer": 8,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.20275,
+                  "working_peak_bytes": 22518336
+                },
+                {
+                  "cpu_graph_build_ms": 8.21925,
+                  "layer": 9,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.720792,
+                  "working_peak_bytes": 21636516
+                },
+                {
+                  "cpu_graph_build_ms": 8.350208,
+                  "layer": 10,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.862125,
+                  "working_peak_bytes": 20854388
+                },
+                {
+                  "cpu_graph_build_ms": 8.854041,
+                  "layer": 11,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.242333,
+                  "working_peak_bytes": 19373972
+                },
+                {
+                  "cpu_graph_build_ms": 7.179083,
+                  "layer": 12,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.341333,
+                  "working_peak_bytes": 21870926
+                },
+                {
+                  "cpu_graph_build_ms": 5.607625,
+                  "layer": 13,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.254625,
+                  "working_peak_bytes": 18206470
+                },
+                {
+                  "cpu_graph_build_ms": 6.805166,
+                  "layer": 14,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.728083,
+                  "working_peak_bytes": 24236834
+                },
+                {
+                  "cpu_graph_build_ms": 8.337208,
+                  "layer": 15,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 124.381833,
+                  "working_peak_bytes": 19763064
+                },
+                {
+                  "cpu_graph_build_ms": 6.05875,
+                  "layer": 16,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.156333,
+                  "working_peak_bytes": 19432200
+                },
+                {
+                  "cpu_graph_build_ms": 4.720667,
+                  "layer": 17,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.100084,
+                  "working_peak_bytes": 21440216
+                },
+                {
+                  "cpu_graph_build_ms": 4.66825,
+                  "layer": 18,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.039959,
+                  "working_peak_bytes": 23418258
+                },
+                {
+                  "cpu_graph_build_ms": 5.644042,
+                  "layer": 19,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.647458,
+                  "working_peak_bytes": 27617458
+                },
+                {
+                  "cpu_graph_build_ms": 3.903917,
+                  "layer": 20,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 117.743333,
+                  "working_peak_bytes": 21742994
+                },
+                {
+                  "cpu_graph_build_ms": 3.193334,
+                  "layer": 21,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 115.884917,
+                  "working_peak_bytes": 22857518
+                },
+                {
+                  "cpu_graph_build_ms": 3.305542,
+                  "layer": 22,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 115.266709,
+                  "working_peak_bytes": 28572384
+                },
+                {
+                  "cpu_graph_build_ms": 5.885625,
+                  "layer": 23,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.736167,
+                  "working_peak_bytes": 28135932
+                },
+                {
+                  "cpu_graph_build_ms": 4.892375,
+                  "layer": 24,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 116.669334,
+                  "working_peak_bytes": 22844384
+                },
+                {
+                  "cpu_graph_build_ms": 5.158167,
+                  "layer": 25,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.834625,
+                  "working_peak_bytes": 17839274
+                },
+                {
+                  "cpu_graph_build_ms": 4.620916,
+                  "layer": 26,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.788166,
+                  "working_peak_bytes": 27182710
+                },
+                {
+                  "cpu_graph_build_ms": 6.766291,
+                  "layer": 27,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.868125,
+                  "working_peak_bytes": 22171616
+                },
+                {
+                  "cpu_graph_build_ms": 6.104458,
+                  "layer": 28,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.869417,
+                  "working_peak_bytes": 18200540
+                },
+                {
+                  "cpu_graph_build_ms": 6.67725,
+                  "layer": 29,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.696958,
+                  "working_peak_bytes": 23882900
+                },
+                {
+                  "cpu_graph_build_ms": 6.527417,
+                  "layer": 30,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.387375,
+                  "working_peak_bytes": 24324392
+                },
+                {
+                  "cpu_graph_build_ms": 7.206458,
+                  "layer": 31,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.700416,
+                  "working_peak_bytes": 22835338
+                },
+                {
+                  "cpu_graph_build_ms": 6.684959,
+                  "layer": 32,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 118.060042,
+                  "working_peak_bytes": 19745464
+                },
+                {
+                  "cpu_graph_build_ms": 6.575167,
+                  "layer": 33,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.1955,
+                  "working_peak_bytes": 22746524
+                },
+                {
+                  "cpu_graph_build_ms": 6.32875,
+                  "layer": 34,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.585875,
+                  "working_peak_bytes": 23969976
+                },
+                {
+                  "cpu_graph_build_ms": 8.019375,
+                  "layer": 35,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.045041,
+                  "working_peak_bytes": 20643572
+                },
+                {
+                  "cpu_graph_build_ms": 6.986042,
+                  "layer": 36,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.114583,
+                  "working_peak_bytes": 20145926
+                },
+                {
+                  "cpu_graph_build_ms": 7.12025,
+                  "layer": 37,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.931125,
+                  "working_peak_bytes": 21648356
+                },
+                {
+                  "cpu_graph_build_ms": 6.468833,
+                  "layer": 38,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.679,
+                  "working_peak_bytes": 20021904
+                },
+                {
+                  "cpu_graph_build_ms": 7.672125,
+                  "layer": 39,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.256333,
+                  "working_peak_bytes": 21761192
+                },
+                {
+                  "cpu_graph_build_ms": 6.732375,
+                  "layer": 40,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 122.533792,
+                  "working_peak_bytes": 17624648
+                },
+                {
+                  "cpu_graph_build_ms": 6.120583,
+                  "layer": 41,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 121.88125,
+                  "working_peak_bytes": 22955640
+                },
+                {
+                  "cpu_graph_build_ms": 4.888,
+                  "layer": 42,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 119.240958,
+                  "working_peak_bytes": 19919882
+                },
+                {
+                  "cpu_graph_build_ms": 7.122333,
+                  "layer": 43,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 123.882916,
+                  "working_peak_bytes": 19525968
+                },
+                {
+                  "cpu_graph_build_ms": 5.80625,
+                  "layer": 44,
+                  "output_temporary_bytes": 2097152,
+                  "synchronized_wall_ms": 120.934833,
+                  "working_peak_bytes": 19999658
+                }
+              ],
+              "synchronized_wall_median_ms": 120.8281455,
+              "synchronized_wall_sum_ms": 5062.008999
+            }
+          },
+          "synchronized_stage_sum_ms": 17236.583244,
+          "timing_note": "each boundary is synchronized independently; use only for attribution, never as additive production wall"
+        },
+        "diagnostic_wall_ms": 17308.590583,
+        "final_logits_sha256": "8c4ca451b82000eb216a888303ce168883776f2f8882a6ec130c768cf7bbbd9f",
+        "state": {
+          "cache_leaf_count": 167,
+          "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+          "diagnostic_state_sha256": "0509b950c702c1b3eeb032b57a65dcac6ad9f8509d5a4e51d3ed42042393c860",
+          "dsa_offsets": [
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 3
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 7
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 11
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 15
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 19
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 23
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 27
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 31
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 35
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 39
+            },
+            {
+              "indexpool": 327680,
+              "latent": 327680,
+              "layer": 43
+            }
+          ]
+        }
+      },
+      "representative_chunk_tokens": 256,
+      "synthetic_prefix_tokens": 327424,
+      "synthetic_source_peak_bytes": 327446913105,
+      "uninstrumented": {
+        "maximum_absolute_peak_bytes": 367183048783,
+        "maximum_working_peak_bytes": 33482573650,
+        "median_host_graph_build_ms": 16773.729625,
+        "median_tokens_per_second": 15.144904194671302,
+        "median_wall_ms": 16903.375334,
+        "repeat_logits_exact": true,
+        "repeat_state_exact": true,
+        "sample_count": 3,
+        "samples": [
+          {
+            "absolute_peak_bytes": 367183048783,
+            "final_logits_sha256": "8c4ca451b82000eb216a888303ce168883776f2f8882a6ec130c768cf7bbbd9f",
+            "host_graph_build_ms": 16776.082917,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "0509b950c702c1b3eeb032b57a65dcac6ad9f8509d5a4e51d3ed42042393c860",
+              "dsa_offsets": [
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 15.142606345552073,
+            "wall_ms": 16905.940375,
+            "working_peak_bytes": 33482573650
+          },
+          {
+            "absolute_peak_bytes": 367183048783,
+            "final_logits_sha256": "8c4ca451b82000eb216a888303ce168883776f2f8882a6ec130c768cf7bbbd9f",
+            "host_graph_build_ms": 16773.729625,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "0509b950c702c1b3eeb032b57a65dcac6ad9f8509d5a4e51d3ed42042393c860",
+              "dsa_offsets": [
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 15.144904194671302,
+            "wall_ms": 16903.375334,
+            "working_peak_bytes": 33482572646
+          },
+          {
+            "absolute_peak_bytes": 367183048783,
+            "final_logits_sha256": "8c4ca451b82000eb216a888303ce168883776f2f8882a6ec130c768cf7bbbd9f",
+            "host_graph_build_ms": 16772.44825,
+            "state": {
+              "cache_leaf_count": 167,
+              "diagnostic_state_coverage": "all KDA and IndexPool values, all offsets, and first/last 64 latent rows per DSA layer",
+              "diagnostic_state_sha256": "0509b950c702c1b3eeb032b57a65dcac6ad9f8509d5a4e51d3ed42042393c860",
+              "dsa_offsets": [
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 3
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 7
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 11
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 15
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 19
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 23
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 27
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 31
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 35
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 39
+                },
+                {
+                  "indexpool": 327680,
+                  "latent": 327680,
+                  "layer": 43
+                }
+              ]
+            },
+            "tokens_per_second": 15.145747759950932,
+            "wall_ms": 16902.433875,
+            "working_peak_bytes": 33482572646
+          }
+        ]
+      }
+    }
+  },
+  "contexts_requested": [
+    32768,
+    131072,
+    327680
+  ],
+  "date": "2026-09-08",
+  "decision": "profiling_incomplete_or_invalid",
+  "measurement_contract": {
+    "100_tps_is_a_checkpoint_not_a_stop_condition": true,
+    "profile_goal_tokens_per_second": null,
+    "stage_attribution_is_separate_synchronized_pass": true,
+    "stage_sum_is_production_wall": false,
+    "synthetic_prefix_state_avoids_hours_of_cold_prefill": true,
+    "uninstrumented_wall_is_authoritative": true
+  },
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "model_storage_inventory": {
+    "categorized_parameter_bytes": 319634592512,
+    "note": "resident capacity by execution stage, not a claim that every byte is read for every chunk",
+    "resident_parameter_bytes_by_stage": {
+      "dense_ffn": 453095424,
+      "dsa_attention": 1641091584,
+      "embedding_final_norm_lm_head": 2537562112,
+      "kda_attention": 9366356992,
+      "routed_moe": 305636486400
+    }
+  },
+  "official_hf_revision": "04c4e9e95c5da8862dced7e5056455116f83a7e0",
+  "process_peak_memory_bytes": 367183048783,
+  "profiling_only": true,
+  "representative_chunk_tokens": 256,
+  "runtime_changes": {
+    "admission": false,
+    "backend": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "server": false
+  },
+  "schema": "glm53-native-prefill-critical-path-v1",
+  "vocab_size": 154880
+}

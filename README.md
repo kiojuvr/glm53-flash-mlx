@@ -205,6 +205,14 @@ uv run python scripts/profile_native_prefill_critical_path.py \
 
 100 tok/sは停止gateではありません。profileは速度目標を持たず、320Kで最大のexecution stage、resident parameter capacity、host graph-build、context scalingを特定し、個別kernelではなくnative prefill plan全体のbuffer lifetime、weight traversal、scratch reuse、submission topologyを決めるために使います。
 
+profile完了後は測定済みwall、DSA/MoE比率、340GB resource gateを一切書き換えず、native execution-plan contractを生成します。
+
+```bash
+uv run python scripts/define_native_prefill_execution_plan.py
+```
+
+execution planは256-row tileを全45層へ流すpersistent dataflowです。DSAはscore/select/expand/gather/attention、MoEはroute/group/gate-up/SwiGLU/down/reduce/sharedを各々一つのnative regionとして扱い、その間でMLXへ中間tensorを返しません。100 tok/sを最初のcheckpoint、200/300 tok/sを後続targetとして同時に予算化し、部分kernel単独のruntime昇格は禁止します。
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。

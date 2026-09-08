@@ -1,0 +1,86 @@
+{
+  "abi": "glm53-native-prefill-plan-v1-tile256-persistent-layer-dataflow-dsa-score-select-attention-exact-grouped-moe",
+  "accepted": true,
+  "checks": {
+    "100_tps_is_only_first_checkpoint": true,
+    "512k_dsa_workspace_remains_at_most_64mib": true,
+    "dsa_and_moe_explain_at_least_90_percent_at_320k": true,
+    "dsa_is_context_scaling_region": true,
+    "moe_is_nearly_context_invariant_weight_region": true,
+    "native_arena_budget_is_positive": true,
+    "partial_kernel_promotion_is_forbidden": true,
+    "production_admission_is_unchanged": true,
+    "profile_340gb_failure_preserved_as_negative_evidence": true,
+    "profile_measurements_exact_at_32k_128k_320k": true
+  },
+  "complete": true,
+  "decision": "implement_composed_native_prefill_layer_plan",
+  "plan": {
+    "abi": "glm53-native-prefill-plan-v1-tile256-persistent-layer-dataflow-dsa-score-select-attention-exact-grouped-moe",
+    "combined_structural_share_320k": 0.9523578869793783,
+    "dsa_32k_to_320k_scaling": 8.073843790985068,
+    "dsa_diagnostic_share_320k": 0.6586796720256074,
+    "dsa_logits_workspace_bytes": 67108864,
+    "execution_regions": [
+      "native_kda_layer",
+      "native_dsa_score_select_gather_attention_layer",
+      "native_exact_grouped_routed_and_shared_moe_layer",
+      "native_dense_layer",
+      "native_final_norm_lm_head"
+    ],
+    "invariants": [
+      "one live cache; diagnostic source and execution clone never coexist",
+      "two stable hidden-state buffers ping-pong across all 45 layers",
+      "one bounded scratch arena is reused across layers and tiles",
+      "DSA score/top-k/expansion/gather/attention does not return intermediates to MLX",
+      "MoE route/group/gate-up/SwiGLU/down/reduce/shared does not dispatch per expert",
+      "packed weights are canonical and are not duplicated by prefill/decode views",
+      "every Direct BF16/FP32 rounding boundary remains byte exact",
+      "partial kernels cannot be promoted outside the composed native plan",
+      "dynamic allocation and shape discovery are zero in steady chunks",
+      "100 tok/s is a checkpoint; 200 and 300 tok/s remain measured targets"
+    ],
+    "measured_320k_tokens_per_second": 15.1449041946713,
+    "measured_320k_wall_ms": 16903.375334,
+    "measured_profile_peak_bytes": 367183048783,
+    "measured_profile_peak_over_budget_bytes": 27183048783,
+    "model_parameter_bytes": 319634592512,
+    "planned_512k_persistent_state_bytes": 6322257920,
+    "planned_native_arena_budget_bytes": 14043149568,
+    "production_admission_changed": false,
+    "routed_moe_32k_to_320k_scaling": 1.0091343491211662,
+    "routed_moe_diagnostic_share_320k": 0.293678214953771,
+    "selected_token_width": 2051,
+    "throughput_targets": [
+      {
+        "chunk_budget_ms": 2560.0,
+        "required_speedup_from_320k": 6.60288098984375,
+        "tokens_per_second": 100
+      },
+      {
+        "chunk_budget_ms": 1280.0,
+        "required_speedup_from_320k": 13.2057619796875,
+        "tokens_per_second": 200
+      },
+      {
+        "chunk_budget_ms": 853.3333333333334,
+        "required_speedup_from_320k": 19.80864296953125,
+        "tokens_per_second": 300
+      }
+    ],
+    "tile_rows": 256
+  },
+  "runtime_changes": {
+    "cache_abi": false,
+    "kernel_abi": false,
+    "production_context_default": false,
+    "production_generation_default": false,
+    "server_admission": false
+  },
+  "schema": "glm53-native-prefill-execution-plan-v1",
+  "source_profile": "bench-results/m3ultra512-native-prefill-critical-path-20260908.json",
+  "source_profile_accepted": false,
+  "source_profile_failed_gates": [
+    "process_peak_at_most_340gb"
+  ]
+}
