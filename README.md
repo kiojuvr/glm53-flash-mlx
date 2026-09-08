@@ -1570,6 +1570,21 @@ no runtime path. The next plan must tile K/V projection and consume each tile
 inside the same encoder; allocating full 320K projected K/V would add roughly
 27 GiB and is explicitly excluded.
 
+The first exact projected-QK union tile is now implemented at a bounded
+4,096-row/Q4 geometry. A conservative first version projected the union once
+but then materialized 512.9 MiB of per-query selected K; although every anchor
+was exact, it regressed 13.283 to 15.527 ms and was rejected. The replacement
+uses a row-gather form of the captured MLX GEMV
+BM4/BN1/SM1/SN32/TM4/TN4 reduction: it reads the projected union by
+query-local slot while preserving the same FP32 accumulation and simd-shuffle
+order. Projected K, final scaled query, and QK scores remain byte exact, the
+selected-K buffer is zero bytes, scratch falls to 257.1 MiB, and median wall
+falls from 13.284 to 6.625 ms (2.005x). Allocation, graph construction, shape
+discovery, host synchronization, and intermediate return remain zero. This is
+the first Q256 path where removing a forbidden materialization both preserves
+the Direct rounding boundary and converts directly into wall-time gain; the
+next step is a device-count-driven multi-tile loop.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

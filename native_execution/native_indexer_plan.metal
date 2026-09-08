@@ -1143,6 +1143,78 @@ glm53_native_order_selected_pools_for_prefill_attention(
   }
 }
 
+// Row-gather variant of MLX GEMV BM4/BN1/SM1/SN32/TM4/TN4.  Only the matrix
+// row address changes; FP32 accumulation and the simd shuffle reduction order
+// are identical to the captured exact compact-QK kernel.
+[[kernel, max_total_threads_per_threadgroup(128)]]
+void glm53_native_projected_union_qk_bfloat16(
+    device const bfloat* projected_union_key [[buffer(0)]],
+    device const bfloat* scaled_query [[buffer(1)]],
+    device const int* query_union_slots [[buffer(2)]],
+    device const bool* selected_valid [[buffer(3)]],
+    device bfloat* scores [[buffer(4)]],
+    constant const int& query_row [[buffer(5)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint simd_group [[simdgroup_index_in_threadgroup]],
+    uint simd_lane [[thread_index_in_simdgroup]]) {
+  constexpr uint kUnionRows = 4096;
+  constexpr uint kHeads = 64;
+  constexpr uint kSelectedWidth = 2051;
+  constexpr uint kLatentDim = 512;
+  constexpr uint kBlockRows = 16;
+  constexpr uint kRowsPerSimd = 4;
+  constexpr uint kColumnsPerLane = 4;
+  constexpr uint kColumnBlock = 128;
+  uint output_row = group.x * kBlockRows + simd_group * kRowsPerSimd;
+  if (output_row >= kSelectedWidth) return;
+  if (output_row + kRowsPerSimd > kSelectedWidth) {
+    output_row = kSelectedWidth - kRowsPerSimd;
+  }
+  uint head = group.z;
+  float result[kRowsPerSimd] = {0.0f};
+  for (uint block = 0; block < kLatentDim / kColumnBlock; ++block) {
+    uint column = block * kColumnBlock + simd_lane * kColumnsPerLane;
+    float query_values[kColumnsPerLane];
+    for (uint lane = 0; lane < kColumnsPerLane; ++lane) {
+      query_values[lane] = float(
+          scaled_query[head * kLatentDim + column + lane]);
+    }
+    for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+      uint selected = output_row + local_row;
+      uint map_offset = uint(query_row) * kSelectedWidth + selected;
+      int slot = query_union_slots[map_offset];
+      bool valid = selected_valid[map_offset] &&
+          slot >= 0 && uint(slot) < kUnionRows;
+      if (!valid) continue;
+      size_t source =
+          (size_t(head) * kUnionRows + uint(slot)) * kLatentDim + column;
+      for (uint lane = 0; lane < kColumnsPerLane; ++lane) {
+        result[local_row] +=
+            float(projected_union_key[source + lane]) * query_values[lane];
+      }
+    }
+  }
+  for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+    for (ushort offset = 16; offset >= 1; offset >>= 1) {
+      result[local_row] += simd_shuffle_down(result[local_row], offset);
+    }
+  }
+  if (simd_lane == 0) {
+    for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+      uint selected = output_row + local_row;
+      uint map_offset = uint(query_row) * kSelectedWidth + selected;
+      int slot = query_union_slots[map_offset];
+      bool valid = selected_valid[map_offset] &&
+          slot >= 0 && uint(slot) < kUnionRows;
+      size_t destination =
+          (size_t(query_row) * kHeads + head) * kSelectedWidth + selected;
+      scores[destination] = valid
+          ? bfloat(result[local_row])
+          : Limits<bfloat>::finite_min;
+    }
+  }
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan
