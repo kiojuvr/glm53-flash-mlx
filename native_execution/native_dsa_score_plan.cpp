@@ -57,10 +57,10 @@ int checked_query_rows(const std::string& mode, int query_rows) {
 }
 
 int checked_pool_rows(int physical_pool_rows) {
-  if (physical_pool_rows < 512 || physical_pool_rows > 65600 ||
+  if (physical_pool_rows < 512 || physical_pool_rows > 131072 ||
       physical_pool_rows % 64 != 0) {
     throw std::invalid_argument(
-        "physical pool rows must be 64-aligned in [512, 65600]");
+        "physical pool rows must be 64-aligned in [512, 131072]");
   }
   return physical_pool_rows;
 }

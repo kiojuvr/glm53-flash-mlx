@@ -222,6 +222,15 @@ uv run python scripts/probe_composed_native_prefill_layer_substrate.py
 
 このsubstrateは512K/Q256、DSA row block 128×2、64MiB score scratch、hidden ping-pong、selected/route/MoE scratchを一つのnative objectへ事前確保します。executeは一つのnative encoder scopeを使い、allocation、shape discovery、MLX graph、host syncを行いません。現段階はpass-through限定であり、prefill性能やDSA/MoE arithmetic correctnessの証拠には使用しません。
 
+exact DSA arithmeticはQ256全体の32-head scoreを保持しません。Q=4でSteel GEMMのM=128を作り、512KでもBF16 head-score 32MiB、reduced score 1MiBに抑えたmicrotileを64回再利用します。次のprobeは32K/128K/320K/512Kでhead-score、index-score、top-k、expanded tokenをDirectとbyte-exact比較します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+uv run python scripts/probe_native_dsa_prefill_streaming_microtile.py
+```
+
+この段階でもscore/selection単体はruntimeへ昇格しません。PASS後に同じarena内でgather/attentionまで消費し、composed DSA regionとして再評価します。
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。

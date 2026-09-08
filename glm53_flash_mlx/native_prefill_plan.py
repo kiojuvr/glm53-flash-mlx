@@ -26,6 +26,13 @@ NATIVE_PREFILL_PLAN_ABI = (
 PROFILE_CONTEXTS = (32 << 10, 128 << 10, 320 << 10)
 TARGET_PREFILL_TOKENS_PER_SECOND = (100, 200, 300)
 PRODUCTION_PEAK_BUDGET_BYTES = 340_000_000_000
+DSA_INDEXER_HEADS = 32
+DSA_INDEXER_HEAD_DIM = 128
+DSA_STREAMING_QUERY_ROWS = 4
+DSA_STREAMING_MATRIX_ROWS = DSA_STREAMING_QUERY_ROWS * DSA_INDEXER_HEADS
+DSA_STREAMING_MICROTILES_PER_CHUNK = (
+    DESIGN_PREFILL_QUERY_ROWS // DSA_STREAMING_QUERY_ROWS
+)
 
 
 class NativePrefillPlanError(ValueError):
@@ -223,4 +230,70 @@ def build_native_prefill_execution_plan(
             "100 tok/s is a checkpoint; 200 and 300 tok/s remain measured targets",
         ),
         production_admission_changed=False,
+    )
+
+
+@dataclass(frozen=True)
+class NativeDSAPrefillStreamingGeometry:
+    query_rows_per_microtile: int
+    indexer_heads: int
+    matrix_rows: int
+    microtiles_per_256_row_chunk: int
+    physical_pool_rows: int
+    bf16_head_score_scratch_bytes: int
+    bf16_index_score_scratch_bytes: int
+    selected_pool_scratch_bytes: int
+    total_score_selection_scratch_bytes: int
+    max_score_selection_scratch_bytes: int
+    steel_bm: int
+    steel_matrix_rows_aligned: bool
+    full_q256_head_score_bytes_avoided: int
+
+    def descriptor(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def plan_native_dsa_prefill_streaming_geometry(
+    *, physical_pool_rows: int = 131_072
+) -> NativeDSAPrefillStreamingGeometry:
+    """Plan exact BF16 score materialization in bounded Q=4 microtiles."""
+
+    if (
+        isinstance(physical_pool_rows, bool)
+        or not isinstance(physical_pool_rows, int)
+        or physical_pool_rows < 512
+        or physical_pool_rows > 131_072
+        or physical_pool_rows % 64
+    ):
+        raise NativePrefillPlanError(
+            "physical_pool_rows must be 64-aligned in [512, 131072]"
+        )
+    bf16_bytes = 2
+    uint32_bytes = 4
+    head = (
+        DSA_STREAMING_MATRIX_ROWS * physical_pool_rows * bf16_bytes
+    )
+    index = (
+        DSA_STREAMING_QUERY_ROWS * physical_pool_rows * bf16_bytes
+    )
+    selected = DSA_STREAMING_QUERY_ROWS * 512 * uint32_bytes
+    return NativeDSAPrefillStreamingGeometry(
+        query_rows_per_microtile=DSA_STREAMING_QUERY_ROWS,
+        indexer_heads=DSA_INDEXER_HEADS,
+        matrix_rows=DSA_STREAMING_MATRIX_ROWS,
+        microtiles_per_256_row_chunk=DSA_STREAMING_MICROTILES_PER_CHUNK,
+        physical_pool_rows=physical_pool_rows,
+        bf16_head_score_scratch_bytes=head,
+        bf16_index_score_scratch_bytes=index,
+        selected_pool_scratch_bytes=selected,
+        total_score_selection_scratch_bytes=head + index + selected,
+        max_score_selection_scratch_bytes=64 << 20,
+        steel_bm=64,
+        steel_matrix_rows_aligned=(DSA_STREAMING_MATRIX_ROWS % 64 == 0),
+        full_q256_head_score_bytes_avoided=(
+            DESIGN_PREFILL_QUERY_ROWS
+            * DSA_INDEXER_HEADS
+            * physical_pool_rows
+            * bf16_bytes
+        ),
     )

@@ -1,0 +1,230 @@
+{
+  "accepted": true,
+  "checks": {
+    "32k_128k_320k_512k_pool_geometries_measured": true,
+    "512k_microtile_score_selection_scratch_at_most_64mib": true,
+    "all_bf16_boundaries_and_selection_outputs_byte_exact": true,
+    "all_buffer_addresses_stable": true,
+    "executor_has_no_allocation_graph_shape_or_sync": true,
+    "no_score_tensor_escapes_native_plan": true,
+    "q256_is_64_reused_microtiles": true,
+    "steel_m128_geometry_is_aligned": true
+  },
+  "complete": true,
+  "contexts": {
+    "131072": {
+      "all_exact": true,
+      "buffer_identities_stable": true,
+      "context_tokens": 131072,
+      "dynamic_allocation_count": 0,
+      "exactness": {
+        "bf16_head_scores": true,
+        "bf16_index_scores": true,
+        "selected_token_indices": true,
+        "selected_token_validity": true
+      },
+      "execution_count": 4,
+      "geometry": {
+        "bf16_head_score_scratch_bytes": 8388608,
+        "bf16_index_score_scratch_bytes": 262144,
+        "full_q256_head_score_bytes_avoided": 536870912,
+        "indexer_heads": 32,
+        "matrix_rows": 128,
+        "max_score_selection_scratch_bytes": 67108864,
+        "microtiles_per_256_row_chunk": 64,
+        "physical_pool_rows": 32768,
+        "query_rows_per_microtile": 4,
+        "selected_pool_scratch_bytes": 8192,
+        "steel_bm": 64,
+        "steel_matrix_rows_aligned": true,
+        "total_score_selection_scratch_bytes": 8658944
+      },
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_host_submit_ms": 0.006041,
+      "median_synchronized_wall_ms": 0.006416,
+      "physical_pool_rows": 32768,
+      "returned_score_tensor_bytes": 0,
+      "samples": [
+        {
+          "host_submit_ms": 0.056833,
+          "synchronized_wall_ms": 0.059833
+        },
+        {
+          "host_submit_ms": 0.006041,
+          "synchronized_wall_ms": 0.006416
+        },
+        {
+          "host_submit_ms": 0.004166,
+          "synchronized_wall_ms": 0.004458
+        }
+      ],
+      "scratch_bytes": 8658944,
+      "shape_discovery_count": 0,
+      "timing_is_production_prefill_claim": false
+    },
+    "32768": {
+      "all_exact": true,
+      "buffer_identities_stable": true,
+      "context_tokens": 32768,
+      "dynamic_allocation_count": 0,
+      "exactness": {
+        "bf16_head_scores": true,
+        "bf16_index_scores": true,
+        "selected_token_indices": true,
+        "selected_token_validity": true
+      },
+      "execution_count": 4,
+      "geometry": {
+        "bf16_head_score_scratch_bytes": 2097152,
+        "bf16_index_score_scratch_bytes": 65536,
+        "full_q256_head_score_bytes_avoided": 134217728,
+        "indexer_heads": 32,
+        "matrix_rows": 128,
+        "max_score_selection_scratch_bytes": 67108864,
+        "microtiles_per_256_row_chunk": 64,
+        "physical_pool_rows": 8192,
+        "query_rows_per_microtile": 4,
+        "selected_pool_scratch_bytes": 8192,
+        "steel_bm": 64,
+        "steel_matrix_rows_aligned": true,
+        "total_score_selection_scratch_bytes": 2170880
+      },
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_host_submit_ms": 0.009375,
+      "median_synchronized_wall_ms": 0.010084,
+      "physical_pool_rows": 8192,
+      "returned_score_tensor_bytes": 0,
+      "samples": [
+        {
+          "host_submit_ms": 0.053458,
+          "synchronized_wall_ms": 0.054583
+        },
+        {
+          "host_submit_ms": 0.009375,
+          "synchronized_wall_ms": 0.010084
+        },
+        {
+          "host_submit_ms": 0.006,
+          "synchronized_wall_ms": 0.006458
+        }
+      ],
+      "scratch_bytes": 2170880,
+      "shape_discovery_count": 0,
+      "timing_is_production_prefill_claim": false
+    },
+    "327680": {
+      "all_exact": true,
+      "buffer_identities_stable": true,
+      "context_tokens": 327680,
+      "dynamic_allocation_count": 0,
+      "exactness": {
+        "bf16_head_scores": true,
+        "bf16_index_scores": true,
+        "selected_token_indices": true,
+        "selected_token_validity": true
+      },
+      "execution_count": 4,
+      "geometry": {
+        "bf16_head_score_scratch_bytes": 20971520,
+        "bf16_index_score_scratch_bytes": 655360,
+        "full_q256_head_score_bytes_avoided": 1342177280,
+        "indexer_heads": 32,
+        "matrix_rows": 128,
+        "max_score_selection_scratch_bytes": 67108864,
+        "microtiles_per_256_row_chunk": 64,
+        "physical_pool_rows": 81920,
+        "query_rows_per_microtile": 4,
+        "selected_pool_scratch_bytes": 8192,
+        "steel_bm": 64,
+        "steel_matrix_rows_aligned": true,
+        "total_score_selection_scratch_bytes": 21635072
+      },
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_host_submit_ms": 0.012291,
+      "median_synchronized_wall_ms": 0.012625,
+      "physical_pool_rows": 81920,
+      "returned_score_tensor_bytes": 0,
+      "samples": [
+        {
+          "host_submit_ms": 0.043166,
+          "synchronized_wall_ms": 0.045
+        },
+        {
+          "host_submit_ms": 0.012291,
+          "synchronized_wall_ms": 0.012625
+        },
+        {
+          "host_submit_ms": 0.004583,
+          "synchronized_wall_ms": 0.004916
+        }
+      ],
+      "scratch_bytes": 21635072,
+      "shape_discovery_count": 0,
+      "timing_is_production_prefill_claim": false
+    },
+    "524288": {
+      "all_exact": true,
+      "buffer_identities_stable": true,
+      "context_tokens": 524288,
+      "dynamic_allocation_count": 0,
+      "exactness": {
+        "bf16_head_scores": true,
+        "bf16_index_scores": true,
+        "selected_token_indices": true,
+        "selected_token_validity": true
+      },
+      "execution_count": 4,
+      "geometry": {
+        "bf16_head_score_scratch_bytes": 33554432,
+        "bf16_index_score_scratch_bytes": 1048576,
+        "full_q256_head_score_bytes_avoided": 2147483648,
+        "indexer_heads": 32,
+        "matrix_rows": 128,
+        "max_score_selection_scratch_bytes": 67108864,
+        "microtiles_per_256_row_chunk": 64,
+        "physical_pool_rows": 131072,
+        "query_rows_per_microtile": 4,
+        "selected_pool_scratch_bytes": 8192,
+        "steel_bm": 64,
+        "steel_matrix_rows_aligned": true,
+        "total_score_selection_scratch_bytes": 34611200
+      },
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_host_submit_ms": 0.006167,
+      "median_synchronized_wall_ms": 0.006542,
+      "physical_pool_rows": 131072,
+      "returned_score_tensor_bytes": 0,
+      "samples": [
+        {
+          "host_submit_ms": 0.015917,
+          "synchronized_wall_ms": 0.016542
+        },
+        {
+          "host_submit_ms": 0.005791,
+          "synchronized_wall_ms": 0.006208
+        },
+        {
+          "host_submit_ms": 0.006167,
+          "synchronized_wall_ms": 0.006542
+        }
+      ],
+      "scratch_bytes": 34611200,
+      "shape_discovery_count": 0,
+      "timing_is_production_prefill_claim": false
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "embed_exact_q4_score_selection_into_composed_dsa_region",
+  "native_prefill_plan_abi": "glm53-native-prefill-plan-v1-tile256-persistent-layer-dataflow-dsa-score-select-attention-exact-grouped-moe",
+  "probe_only": true,
+  "promotion": {
+    "partial_score_selection": false,
+    "requires_composed_gather_attention": true,
+    "runtime": false
+  },
+  "schema": "glm53-native-dsa-prefill-streaming-microtile-v1"
+}
