@@ -1529,6 +1529,20 @@ discovery, host synchronization, or intermediate return. The 2K result is
 0.271x and therefore hard-codes the need for a Direct crossover when this
 region is advanced into the 256-row native prefill layer plan.
 
+Before repeating that Q4 region across a full 256-row chunk, the real selected
+K/V reuse frontier was measured for every DSA layer using the same synthetic
+long-context cache and deterministic model chunk as the authoritative prefill
+profile. Capturing Indexer outputs does not change the final logits, full
+state digest, or DSA offsets. Per-query selected projection would process
+5,771,392 rows across 11 layers at every context and is therefore rejected.
+Taking one union across all 256 queries requires 297,661 rows at 32K (82.6% of
+full-history projection), 844,575 at 128K (58.6%), and 1,413,933 at 320K
+(39.2%). At 320K the median layer union is 119,948 rows, or 36.6% of its
+327,680-row history. The next layer plan will consequently build a
+device-resident Q256 selected union, project each union K/V row once, and
+retain query-local physical-order maps for exact QK/softmax/AV. It will not
+instantiate 64 independent Q4 projection plans.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

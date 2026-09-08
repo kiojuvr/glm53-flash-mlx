@@ -1,0 +1,2828 @@
+{
+  "accepted": true,
+  "capacity_contract": "glm53-native-context-capacity-v1-total512k-prompt320k-generation128k-compact-kpool4-workspace64mib-no-production-promotion-before-native-qualification",
+  "checkpoint_fingerprint": "b2c801986522d4e659108cfc60e0a23db4c0dbe18b5333c747fde813459e62de",
+  "checks": {
+    "32k_128k_320k_real_q256_selections_captured": true,
+    "all_11_dsa_layers_captured_per_context": true,
+    "all_projection_strategies_have_positive_bounded_rows": true,
+    "capture_preserves_logits_state_and_offsets": true,
+    "runtime_server_cache_kernel_abi_admission_unchanged": true
+  },
+  "compact_cache_abi": "glm53-nope-dsa-v4-single-latent512-compact-indexpool-v4-fixed-absolute-capacity-kpool4-int64-rollback16-raw19-self-contained-ape-sentinel-minus1",
+  "complete": true,
+  "contexts": {
+    "131072": {
+      "aggregate_minimum_projection_rows": 844575,
+      "aggregate_minimum_strategy": "union_q256",
+      "aggregate_minimum_vs_full_history": 0.5857814442027699,
+      "aggregate_projection_rows_by_strategy": {
+        "full_history": 1441792,
+        "union_q1": 5771392,
+        "union_q128": 1348665,
+        "union_q16": 3551942,
+        "union_q256": 844575,
+        "union_q32": 2752092,
+        "union_q4": 4885144,
+        "union_q64": 1988842,
+        "union_q8": 4251259
+      },
+      "captured_dsa_layers": 11,
+      "context_tokens_after_chunk": 131072,
+      "exactness": {
+        "dsa_offsets_match_authoritative_profile": true,
+        "final_logits_matches_authoritative_profile": true,
+        "state_matches_authoritative_profile": true
+      },
+      "layers": [
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 47724,
+              "mean_unique_rows_per_block": 46290,
+              "projection_rows": 92580,
+              "reuse_ratio": 5.6672283430546555
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 19040,
+              "mean_unique_rows_per_block": 15273.9375,
+              "projection_rows": 244383,
+              "reuse_ratio": 2.1469251134489715
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 60572,
+              "mean_unique_rows_per_block": 60572,
+              "projection_rows": 60572,
+              "reuse_ratio": 8.661956019282837
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 26256,
+              "mean_unique_rows_per_block": 22238.375,
+              "projection_rows": 177907,
+              "reuse_ratio": 2.9491363465181246
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8144,
+              "mean_unique_rows_per_block": 6131.78125,
+              "projection_rows": 392434,
+              "reuse_ratio": 1.336968764174358
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 36216,
+              "mean_unique_rows_per_block": 32172.75,
+              "projection_rows": 128691,
+              "reuse_ratio": 4.076990620944744
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 13692,
+              "mean_unique_rows_per_block": 9927.1875,
+              "projection_rows": 317670,
+              "reuse_ratio": 1.6516259010923284
+            }
+          },
+          "layer": 3,
+          "minimum_projection_rows": 60572,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 92580,
+            "union_q16": 244383,
+            "union_q256": 60572,
+            "union_q32": 177907,
+            "union_q4": 392434,
+            "union_q64": 128691,
+            "union_q8": 317670
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 91695,
+              "mean_unique_rows_per_block": 84799,
+              "projection_rows": 169598,
+              "reuse_ratio": 3.0936213870446587
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 28283,
+              "mean_unique_rows_per_block": 24839.75,
+              "projection_rows": 397436,
+              "reuse_ratio": 1.3201421109310683
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 106230,
+              "mean_unique_rows_per_block": 106230,
+              "projection_rows": 106230,
+              "reuse_ratio": 4.939019109479432
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 44908,
+              "mean_unique_rows_per_block": 41034.375,
+              "projection_rows": 328275,
+              "reuse_ratio": 1.5982697433554185
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8180,
+              "mean_unique_rows_per_block": 7561.453125,
+              "projection_rows": 483933,
+              "reuse_ratio": 1.08418314105465
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 66859,
+              "mean_unique_rows_per_block": 62073.75,
+              "projection_rows": 248295,
+              "reuse_ratio": 2.1130993374816245
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16155,
+              "mean_unique_rows_per_block": 14029.65625,
+              "projection_rows": 448949,
+              "reuse_ratio": 1.1686672651013812
+            }
+          },
+          "layer": 7,
+          "minimum_projection_rows": 106230,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 169598,
+            "union_q16": 397436,
+            "union_q256": 106230,
+            "union_q32": 328275,
+            "union_q4": 483933,
+            "union_q64": 248295,
+            "union_q8": 448949
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 73052,
+              "mean_unique_rows_per_block": 70964,
+              "projection_rows": 141928,
+              "reuse_ratio": 3.6967476466940985
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 26244,
+              "mean_unique_rows_per_block": 22362.25,
+              "projection_rows": 357796,
+              "reuse_ratio": 1.4663998479580542
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 91556,
+              "mean_unique_rows_per_block": 91556,
+              "projection_rows": 91556,
+              "reuse_ratio": 5.730612958189523
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 37152,
+              "mean_unique_rows_per_block": 35282,
+              "projection_rows": 282256,
+              "reuse_ratio": 1.8588515390283997
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7427.625,
+              "projection_rows": 475368,
+              "reuse_ratio": 1.103717540936706
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 55644,
+              "mean_unique_rows_per_block": 52336,
+              "projection_rows": 209344,
+              "reuse_ratio": 2.506267196575971
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15660,
+              "mean_unique_rows_per_block": 13102.25,
+              "projection_rows": 419272,
+              "reuse_ratio": 1.2513881203610067
+            }
+          },
+          "layer": 11,
+          "minimum_projection_rows": 91556,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 141928,
+            "union_q16": 357796,
+            "union_q256": 91556,
+            "union_q32": 282256,
+            "union_q4": 475368,
+            "union_q64": 209344,
+            "union_q8": 419272
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 34068,
+              "mean_unique_rows_per_block": 33836,
+              "projection_rows": 67672,
+              "reuse_ratio": 7.753162312330063
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 18716,
+              "mean_unique_rows_per_block": 14984.75,
+              "projection_rows": 239756,
+              "reuse_ratio": 2.1883581641335357
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 37912,
+              "mean_unique_rows_per_block": 37912,
+              "projection_rows": 37912,
+              "reuse_ratio": 13.83920658366744
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 23564,
+              "mean_unique_rows_per_block": 20300,
+              "projection_rows": 162400,
+              "reuse_ratio": 3.2307389162561577
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7916,
+              "mean_unique_rows_per_block": 6297.25,
+              "projection_rows": 403024,
+              "reuse_ratio": 1.301838103934257
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 29956,
+              "mean_unique_rows_per_block": 26281,
+              "projection_rows": 105124,
+              "reuse_ratio": 4.990982078307523
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 13604,
+              "mean_unique_rows_per_block": 10073.5,
+              "projection_rows": 322352,
+              "reuse_ratio": 1.6276368690127563
+            }
+          },
+          "layer": 15,
+          "minimum_projection_rows": 37912,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 67672,
+            "union_q16": 239756,
+            "union_q256": 37912,
+            "union_q32": 162400,
+            "union_q4": 403024,
+            "union_q64": 105124,
+            "union_q8": 322352
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 40696,
+              "mean_unique_rows_per_block": 40618,
+              "projection_rows": 81236,
+              "reuse_ratio": 6.458614407405584
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 21000,
+              "mean_unique_rows_per_block": 14276.6875,
+              "projection_rows": 228427,
+              "reuse_ratio": 2.2968913482206568
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 52352,
+              "mean_unique_rows_per_block": 52352,
+              "projection_rows": 52352,
+              "reuse_ratio": 10.02200488997555
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 26680,
+              "mean_unique_rows_per_block": 20460.75,
+              "projection_rows": 163686,
+              "reuse_ratio": 3.205356597387681
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8172,
+              "mean_unique_rows_per_block": 6081.34375,
+              "projection_rows": 389206,
+              "reuse_ratio": 1.3480573269682379
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 34724,
+              "mean_unique_rows_per_block": 29299.75,
+              "projection_rows": 117199,
+              "reuse_ratio": 4.476761747113883
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 13228,
+              "mean_unique_rows_per_block": 9412.15625,
+              "projection_rows": 301189,
+              "reuse_ratio": 1.742002529972874
+            }
+          },
+          "layer": 19,
+          "minimum_projection_rows": 52352,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 81236,
+            "union_q16": 228427,
+            "union_q256": 52352,
+            "union_q32": 163686,
+            "union_q4": 389206,
+            "union_q64": 117199,
+            "union_q8": 301189
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 82648,
+              "mean_unique_rows_per_block": 79652,
+              "projection_rows": 159304,
+              "reuse_ratio": 3.2935268417616634
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 27716,
+              "mean_unique_rows_per_block": 23034,
+              "projection_rows": 368544,
+              "reuse_ratio": 1.4236346270730225
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 98336,
+              "mean_unique_rows_per_block": 98336,
+              "projection_rows": 98336,
+              "reuse_ratio": 5.335502766026684
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 46976,
+              "mean_unique_rows_per_block": 38537,
+              "projection_rows": 308296,
+              "reuse_ratio": 1.7018449801489477
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7996,
+              "mean_unique_rows_per_block": 7081.296875,
+              "projection_rows": 453203,
+              "reuse_ratio": 1.1576975439262318
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 61600,
+              "mean_unique_rows_per_block": 57148,
+              "projection_rows": 228592,
+              "reuse_ratio": 2.295233428991391
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15852,
+              "mean_unique_rows_per_block": 12957.25,
+              "projection_rows": 414632,
+              "reuse_ratio": 1.26539196202898
+            }
+          },
+          "layer": 23,
+          "minimum_projection_rows": 98336,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 159304,
+            "union_q16": 368544,
+            "union_q256": 98336,
+            "union_q32": 308296,
+            "union_q4": 453203,
+            "union_q64": 228592,
+            "union_q8": 414632
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 68814,
+              "mean_unique_rows_per_block": 62220.5,
+              "projection_rows": 124441,
+              "reuse_ratio": 4.216230984964763
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 23514,
+              "mean_unique_rows_per_block": 19445.5625,
+              "projection_rows": 311129,
+              "reuse_ratio": 1.6863487492326334
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 81559,
+              "mean_unique_rows_per_block": 81559,
+              "projection_rows": 81559,
+              "reuse_ratio": 6.433036206917691
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 41144,
+              "mean_unique_rows_per_block": 30144.75,
+              "projection_rows": 241158,
+              "reuse_ratio": 2.1756358901632953
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8167,
+              "mean_unique_rows_per_block": 6824.9375,
+              "projection_rows": 436796,
+              "reuse_ratio": 1.201183161017958
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 54028,
+              "mean_unique_rows_per_block": 44927.25,
+              "projection_rows": 179709,
+              "reuse_ratio": 2.91956440690227
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15256,
+              "mean_unique_rows_per_block": 11749.875,
+              "projection_rows": 375996,
+              "reuse_ratio": 1.3954191002031937
+            }
+          },
+          "layer": 27,
+          "minimum_projection_rows": 81559,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 124441,
+            "union_q16": 311129,
+            "union_q256": 81559,
+            "union_q32": 241158,
+            "union_q4": 436796,
+            "union_q64": 179709,
+            "union_q8": 375996
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 68124,
+              "mean_unique_rows_per_block": 67774,
+              "projection_rows": 135548,
+              "reuse_ratio": 3.8707468940891787
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 27740,
+              "mean_unique_rows_per_block": 22170.25,
+              "projection_rows": 354724,
+              "reuse_ratio": 1.4790992433553973
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 90692,
+              "mean_unique_rows_per_block": 90692,
+              "projection_rows": 90692,
+              "reuse_ratio": 5.785207074493892
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 38332,
+              "mean_unique_rows_per_block": 34899.5,
+              "projection_rows": 279196,
+              "reuse_ratio": 1.8792246307253686
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7126.5625,
+              "projection_rows": 456100,
+              "reuse_ratio": 1.150344222758167
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 52552,
+              "mean_unique_rows_per_block": 50239,
+              "projection_rows": 200956,
+              "reuse_ratio": 2.6108799936304465
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15192,
+              "mean_unique_rows_per_block": 12601.875,
+              "projection_rows": 403260,
+              "reuse_ratio": 1.3010762287358033
+            }
+          },
+          "layer": 31,
+          "minimum_projection_rows": 90692,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 135548,
+            "union_q16": 354724,
+            "union_q256": 90692,
+            "union_q32": 279196,
+            "union_q4": 456100,
+            "union_q64": 200956,
+            "union_q8": 403260
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 54545,
+              "mean_unique_rows_per_block": 51638.5,
+              "projection_rows": 103277,
+              "reuse_ratio": 5.080240518217996
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 24208,
+              "mean_unique_rows_per_block": 20874,
+              "projection_rows": 333984,
+              "reuse_ratio": 1.5709495065631887
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 59360,
+              "mean_unique_rows_per_block": 59360,
+              "projection_rows": 59360,
+              "reuse_ratio": 8.838814016172506
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 38410,
+              "mean_unique_rows_per_block": 31241.125,
+              "projection_rows": 249929,
+              "reuse_ratio": 2.0992841967118663
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8195,
+              "mean_unique_rows_per_block": 7230.90625,
+              "projection_rows": 462778,
+              "reuse_ratio": 1.1337444735920894
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 48989,
+              "mean_unique_rows_per_block": 41913.5,
+              "projection_rows": 167654,
+              "reuse_ratio": 3.12949288415427
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16248,
+              "mean_unique_rows_per_block": 12786.3125,
+              "projection_rows": 409162,
+              "reuse_ratio": 1.282308718795978
+            }
+          },
+          "layer": 35,
+          "minimum_projection_rows": 59360,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 103277,
+            "union_q16": 333984,
+            "union_q256": 59360,
+            "union_q32": 249929,
+            "union_q4": 462778,
+            "union_q64": 167654,
+            "union_q8": 409162
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 78710,
+              "mean_unique_rows_per_block": 77666.5,
+              "projection_rows": 155333,
+              "reuse_ratio": 3.37772398653216
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 30696,
+              "mean_unique_rows_per_block": 24432.4375,
+              "projection_rows": 390919,
+              "reuse_ratio": 1.3421501641004914
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 96314,
+              "mean_unique_rows_per_block": 96314,
+              "projection_rows": 96314,
+              "reuse_ratio": 5.447515418319248
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 46938,
+              "mean_unique_rows_per_block": 38197.625,
+              "projection_rows": 305581,
+              "reuse_ratio": 1.7169653872459347
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8195,
+              "mean_unique_rows_per_block": 7563.59375,
+              "projection_rows": 484070,
+              "reuse_ratio": 1.0838762988823931
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 66307,
+              "mean_unique_rows_per_block": 55639.5,
+              "projection_rows": 222558,
+              "reuse_ratio": 2.3574618751067136
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16263,
+              "mean_unique_rows_per_block": 13846.40625,
+              "projection_rows": 443085,
+              "reuse_ratio": 1.1841339697800648
+            }
+          },
+          "layer": 39,
+          "minimum_projection_rows": 96314,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 155333,
+            "union_q16": 390919,
+            "union_q256": 96314,
+            "union_q32": 305581,
+            "union_q4": 484070,
+            "union_q64": 222558,
+            "union_q8": 443085
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 60260,
+              "mean_unique_rows_per_block": 58874,
+              "projection_rows": 117748,
+              "reuse_ratio": 4.455888847368957
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 23320,
+              "mean_unique_rows_per_block": 20302.75,
+              "projection_rows": 324844,
+              "reuse_ratio": 1.6151506569307112
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 69692,
+              "mean_unique_rows_per_block": 69692,
+              "projection_rows": 69692,
+              "reuse_ratio": 7.528439419158583
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 35104,
+              "mean_unique_rows_per_block": 31676,
+              "projection_rows": 253408,
+              "reuse_ratio": 2.0704634423538324
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8144,
+              "mean_unique_rows_per_block": 7003.625,
+              "projection_rows": 448232,
+              "reuse_ratio": 1.1705366863588498
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 46936,
+              "mean_unique_rows_per_block": 45180,
+              "projection_rows": 180720,
+              "reuse_ratio": 2.9032315183709607
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14924,
+              "mean_unique_rows_per_block": 12365.375,
+              "projection_rows": 395692,
+              "reuse_ratio": 1.325960595614771
+            }
+          },
+          "layer": 43,
+          "minimum_projection_rows": 69692,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 131072,
+            "union_q1": 524672,
+            "union_q128": 117748,
+            "union_q16": 324844,
+            "union_q256": 69692,
+            "union_q32": 253408,
+            "union_q4": 448232,
+            "union_q64": 180720,
+            "union_q8": 395692
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        }
+      ],
+      "query_rows": 256,
+      "synthetic_prefix_tokens": 130816
+    },
+    "32768": {
+      "aggregate_minimum_projection_rows": 297661,
+      "aggregate_minimum_strategy": "union_q256",
+      "aggregate_minimum_vs_full_history": 0.8258084383877841,
+      "aggregate_projection_rows_by_strategy": {
+        "full_history": 360448,
+        "union_q1": 5771392,
+        "union_q128": 522622,
+        "union_q16": 2067568,
+        "union_q256": 297661,
+        "union_q32": 1372882,
+        "union_q4": 3857155,
+        "union_q64": 856779,
+        "union_q8": 2909799
+      },
+      "captured_dsa_layers": 11,
+      "context_tokens_after_chunk": 32768,
+      "exactness": {
+        "dsa_offsets_match_authoritative_profile": true,
+        "final_logits_matches_authoritative_profile": true,
+        "state_matches_authoritative_profile": true
+      },
+      "layers": [
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 19496,
+              "mean_unique_rows_per_block": 18766,
+              "projection_rows": 37532,
+              "reuse_ratio": 13.9793243099222
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 10748,
+              "mean_unique_rows_per_block": 8241.5,
+              "projection_rows": 131864,
+              "reuse_ratio": 3.9788873384699386
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 24420,
+              "mean_unique_rows_per_block": 24420,
+              "projection_rows": 24420,
+              "reuse_ratio": 21.485339885339886
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 14996,
+              "mean_unique_rows_per_block": 11282.5,
+              "projection_rows": 90260,
+              "reuse_ratio": 5.812896077996898
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7760,
+              "mean_unique_rows_per_block": 4277.171875,
+              "projection_rows": 273739,
+              "reuse_ratio": 1.9166870632244584
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 16984,
+              "mean_unique_rows_per_block": 14446,
+              "projection_rows": 57784,
+              "reuse_ratio": 9.079883704831788
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 8792,
+              "mean_unique_rows_per_block": 5871.375,
+              "projection_rows": 187884,
+              "reuse_ratio": 2.792531562027634
+            }
+          },
+          "layer": 3,
+          "minimum_projection_rows": 24420,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 37532,
+            "union_q16": 131864,
+            "union_q256": 24420,
+            "union_q32": 90260,
+            "union_q4": 273739,
+            "union_q64": 57784,
+            "union_q8": 187884
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 30960,
+              "mean_unique_rows_per_block": 30083.5,
+              "projection_rows": 60167,
+              "reuse_ratio": 8.720261937606994
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 20606,
+              "mean_unique_rows_per_block": 17342.25,
+              "projection_rows": 277476,
+              "reuse_ratio": 1.8908734449105509
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 32270,
+              "mean_unique_rows_per_block": 32270,
+              "projection_rows": 32270,
+              "reuse_ratio": 16.258816237991944
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 25175,
+              "mean_unique_rows_per_block": 22994.125,
+              "projection_rows": 183953,
+              "reuse_ratio": 2.852206813696977
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8160,
+              "mean_unique_rows_per_block": 6883.421875,
+              "projection_rows": 440539,
+              "reuse_ratio": 1.1909774163013944
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 28062,
+              "mean_unique_rows_per_block": 27317.75,
+              "projection_rows": 109271,
+              "reuse_ratio": 4.801566746895333
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14639,
+              "mean_unique_rows_per_block": 11617.21875,
+              "projection_rows": 371751,
+              "reuse_ratio": 1.4113532983098902
+            }
+          },
+          "layer": 7,
+          "minimum_projection_rows": 32270,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 60167,
+            "union_q16": 277476,
+            "union_q256": 32270,
+            "union_q32": 183953,
+            "union_q4": 440539,
+            "union_q64": 109271,
+            "union_q8": 371751
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 29348,
+              "mean_unique_rows_per_block": 28534,
+              "projection_rows": 57068,
+              "reuse_ratio": 9.193803883086844
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 17628,
+              "mean_unique_rows_per_block": 14262.75,
+              "projection_rows": 228204,
+              "reuse_ratio": 2.2991358608963908
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 31872,
+              "mean_unique_rows_per_block": 31872,
+              "projection_rows": 31872,
+              "reuse_ratio": 16.461847389558233
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 24360,
+              "mean_unique_rows_per_block": 19061.5,
+              "projection_rows": 152492,
+              "reuse_ratio": 3.4406526243999687
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8132,
+              "mean_unique_rows_per_block": 6479.375,
+              "projection_rows": 414680,
+              "reuse_ratio": 1.2652454904986978
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 27512,
+              "mean_unique_rows_per_block": 23603,
+              "projection_rows": 94412,
+              "reuse_ratio": 5.557259670380883
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14176,
+              "mean_unique_rows_per_block": 10027.875,
+              "projection_rows": 320892,
+              "reuse_ratio": 1.6350423195342982
+            }
+          },
+          "layer": 11,
+          "minimum_projection_rows": 31872,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 57068,
+            "union_q16": 228204,
+            "union_q256": 31872,
+            "union_q32": 152492,
+            "union_q4": 414680,
+            "union_q64": 94412,
+            "union_q8": 320892
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 18552,
+              "mean_unique_rows_per_block": 17422,
+              "projection_rows": 34844,
+              "reuse_ratio": 15.057743083457698
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 12856,
+              "mean_unique_rows_per_block": 8768.25,
+              "projection_rows": 140292,
+              "reuse_ratio": 3.739856869956947
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 20756,
+              "mean_unique_rows_per_block": 20756,
+              "projection_rows": 20756,
+              "reuse_ratio": 25.27808826363461
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 13984,
+              "mean_unique_rows_per_block": 11769,
+              "projection_rows": 94152,
+              "reuse_ratio": 5.572605998810435
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7624,
+              "mean_unique_rows_per_block": 4632.6875,
+              "projection_rows": 296492,
+              "reuse_ratio": 1.7695991797417805
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 17048,
+              "mean_unique_rows_per_block": 14392,
+              "projection_rows": 57568,
+              "reuse_ratio": 9.113952195664258
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 10764,
+              "mean_unique_rows_per_block": 6413.125,
+              "projection_rows": 205220,
+              "reuse_ratio": 2.5566319072215182
+            }
+          },
+          "layer": 15,
+          "minimum_projection_rows": 20756,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 34844,
+            "union_q16": 140292,
+            "union_q256": 20756,
+            "union_q32": 94152,
+            "union_q4": 296492,
+            "union_q64": 57568,
+            "union_q8": 205220
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 24832,
+              "mean_unique_rows_per_block": 23800,
+              "projection_rows": 47600,
+              "reuse_ratio": 11.022521008403361
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 15152,
+              "mean_unique_rows_per_block": 8480.75,
+              "projection_rows": 135692,
+              "reuse_ratio": 3.8666391533767652
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 28224,
+              "mean_unique_rows_per_block": 28224,
+              "projection_rows": 28224,
+              "reuse_ratio": 18.589569160997733
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 17688,
+              "mean_unique_rows_per_block": 11732,
+              "projection_rows": 93856,
+              "reuse_ratio": 5.59018070235254
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7952,
+              "mean_unique_rows_per_block": 4400.390625,
+              "projection_rows": 281625,
+              "reuse_ratio": 1.8630164225477142
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 20660,
+              "mean_unique_rows_per_block": 16955,
+              "projection_rows": 67820,
+              "reuse_ratio": 7.736242996166323
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 13472,
+              "mean_unique_rows_per_block": 6114.46875,
+              "projection_rows": 195663,
+              "reuse_ratio": 2.6815085120845534
+            }
+          },
+          "layer": 19,
+          "minimum_projection_rows": 28224,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 47600,
+            "union_q16": 135692,
+            "union_q256": 28224,
+            "union_q32": 93856,
+            "union_q4": 281625,
+            "union_q64": 67820,
+            "union_q8": 195663
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 30256,
+              "mean_unique_rows_per_block": 29322,
+              "projection_rows": 58644,
+              "reuse_ratio": 8.9467294181843
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 19596,
+              "mean_unique_rows_per_block": 13828.25,
+              "projection_rows": 221252,
+              "reuse_ratio": 2.371377433876304
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 32768,
+              "mean_unique_rows_per_block": 32768,
+              "projection_rows": 32768,
+              "reuse_ratio": 16.01171875
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 22456,
+              "mean_unique_rows_per_block": 19213.5,
+              "projection_rows": 153708,
+              "reuse_ratio": 3.413433263070237
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 5956.1875,
+              "projection_rows": 381196,
+              "reuse_ratio": 1.376383802558264
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 27024,
+              "mean_unique_rows_per_block": 25306,
+              "projection_rows": 101224,
+              "reuse_ratio": 5.183276693274323
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14064,
+              "mean_unique_rows_per_block": 9116.15625,
+              "projection_rows": 291717,
+              "reuse_ratio": 1.79856504763178
+            }
+          },
+          "layer": 23,
+          "minimum_projection_rows": 32768,
+          "minimum_projection_strategy": "full_history",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 58644,
+            "union_q16": 221252,
+            "union_q256": 32768,
+            "union_q32": 153708,
+            "union_q4": 381196,
+            "union_q64": 101224,
+            "union_q8": 291717
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 23843,
+              "mean_unique_rows_per_block": 22817,
+              "projection_rows": 45634,
+              "reuse_ratio": 11.497392295218477
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 16748,
+              "mean_unique_rows_per_block": 10095.4375,
+              "projection_rows": 161527,
+              "reuse_ratio": 3.248199991332718
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 27183,
+              "mean_unique_rows_per_block": 27183,
+              "projection_rows": 27183,
+              "reuse_ratio": 19.30147518669757
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 16848,
+              "mean_unique_rows_per_block": 13187.375,
+              "projection_rows": 105499,
+              "reuse_ratio": 4.973241452525617
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8180,
+              "mean_unique_rows_per_block": 5055.46875,
+              "projection_rows": 323550,
+              "reuse_ratio": 1.6216102611651986
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 20980,
+              "mean_unique_rows_per_block": 17227.25,
+              "projection_rows": 68909,
+              "reuse_ratio": 7.613983659609049
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 11356,
+              "mean_unique_rows_per_block": 7205.8125,
+              "projection_rows": 230586,
+              "reuse_ratio": 2.2753853226128213
+            }
+          },
+          "layer": 27,
+          "minimum_projection_rows": 27183,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 45634,
+            "union_q16": 161527,
+            "union_q256": 27183,
+            "union_q32": 105499,
+            "union_q4": 323550,
+            "union_q64": 68909,
+            "union_q8": 230586
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 27804,
+              "mean_unique_rows_per_block": 24184,
+              "projection_rows": 48368,
+              "reuse_ratio": 10.84750248097916
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 16256,
+              "mean_unique_rows_per_block": 10815,
+              "projection_rows": 173040,
+              "reuse_ratio": 3.0320850670365234
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 28424,
+              "mean_unique_rows_per_block": 28424,
+              "projection_rows": 28424,
+              "reuse_ratio": 18.458767238952998
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 18520,
+              "mean_unique_rows_per_block": 14965,
+              "projection_rows": 119720,
+              "reuse_ratio": 4.382492482459071
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7960,
+              "mean_unique_rows_per_block": 5053.171875,
+              "projection_rows": 323403,
+              "reuse_ratio": 1.6223473499008976
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 22236,
+              "mean_unique_rows_per_block": 18950,
+              "projection_rows": 75800,
+              "reuse_ratio": 6.921794195250659
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 12060,
+              "mean_unique_rows_per_block": 7465.46875,
+              "projection_rows": 238895,
+              "reuse_ratio": 2.1962452123317777
+            }
+          },
+          "layer": 31,
+          "minimum_projection_rows": 28424,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 48368,
+            "union_q16": 173040,
+            "union_q256": 28424,
+            "union_q32": 119720,
+            "union_q4": 323403,
+            "union_q64": 75800,
+            "union_q8": 238895
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 19561,
+              "mean_unique_rows_per_block": 18627,
+              "projection_rows": 37254,
+              "reuse_ratio": 14.083642025017447
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 16919,
+              "mean_unique_rows_per_block": 11561.75,
+              "projection_rows": 184988,
+              "reuse_ratio": 2.8362488377624495
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 20448,
+              "mean_unique_rows_per_block": 20448,
+              "projection_rows": 20448,
+              "reuse_ratio": 25.65884194053208
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 19357,
+              "mean_unique_rows_per_block": 13985.625,
+              "projection_rows": 111885,
+              "reuse_ratio": 4.689386423559905
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8103,
+              "mean_unique_rows_per_block": 5692.875,
+              "projection_rows": 364344,
+              "reuse_ratio": 1.4400456711239926
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 19512,
+              "mean_unique_rows_per_block": 15715.5,
+              "projection_rows": 62862,
+              "reuse_ratio": 8.346409595622157
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 12736,
+              "mean_unique_rows_per_block": 8673.78125,
+              "projection_rows": 277561,
+              "reuse_ratio": 1.8902943857386305
+            }
+          },
+          "layer": 35,
+          "minimum_projection_rows": 20448,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 37254,
+            "union_q16": 184988,
+            "union_q256": 20448,
+            "union_q32": 111885,
+            "union_q4": 364344,
+            "union_q64": 62862,
+            "union_q8": 277561
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 29746,
+              "mean_unique_rows_per_block": 28591.5,
+              "projection_rows": 57183,
+              "reuse_ratio": 9.175314341674973
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 17107,
+              "mean_unique_rows_per_block": 12760.3125,
+              "projection_rows": 204165,
+              "reuse_ratio": 2.5698430191266866
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 31588,
+              "mean_unique_rows_per_block": 31588,
+              "projection_rows": 31588,
+              "reuse_ratio": 16.609851842471826
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 21343,
+              "mean_unique_rows_per_block": 17257.625,
+              "projection_rows": 138061,
+              "reuse_ratio": 3.8002911756397535
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 5811.859375,
+              "projection_rows": 371959,
+              "reuse_ratio": 1.4105640675450788
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 25576,
+              "mean_unique_rows_per_block": 22429.25,
+              "projection_rows": 89717,
+              "reuse_ratio": 5.848077844778581
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 12799,
+              "mean_unique_rows_per_block": 9008.8125,
+              "projection_rows": 288282,
+              "reuse_ratio": 1.819995698656177
+            }
+          },
+          "layer": 39,
+          "minimum_projection_rows": 31588,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 57183,
+            "union_q16": 204165,
+            "union_q256": 31588,
+            "union_q32": 138061,
+            "union_q4": 371959,
+            "union_q64": 89717,
+            "union_q8": 288282
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 19448,
+              "mean_unique_rows_per_block": 19164,
+              "projection_rows": 38328,
+              "reuse_ratio": 13.689000208724693
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 15212,
+              "mean_unique_rows_per_block": 13066.75,
+              "projection_rows": 209068,
+              "reuse_ratio": 2.509575831786787
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 19708,
+              "mean_unique_rows_per_block": 19708,
+              "projection_rows": 19708,
+              "reuse_ratio": 26.62228536634869
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 17408,
+              "mean_unique_rows_per_block": 16162,
+              "projection_rows": 129296,
+              "reuse_ratio": 4.057913624551417
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8060,
+              "mean_unique_rows_per_block": 6025.4375,
+              "projection_rows": 385628,
+              "reuse_ratio": 1.3605651041936788
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 18256,
+              "mean_unique_rows_per_block": 17853,
+              "projection_rows": 71412,
+              "reuse_ratio": 7.347112530106985
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 12452,
+              "mean_unique_rows_per_block": 9417.125,
+              "projection_rows": 301348,
+              "reuse_ratio": 1.7410833985956435
+            }
+          },
+          "layer": 43,
+          "minimum_projection_rows": 19708,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 32768,
+            "union_q1": 524672,
+            "union_q128": 38328,
+            "union_q16": 209068,
+            "union_q256": 19708,
+            "union_q32": 129296,
+            "union_q4": 385628,
+            "union_q64": 71412,
+            "union_q8": 301348
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        }
+      ],
+      "query_rows": 256,
+      "synthetic_prefix_tokens": 32512
+    },
+    "327680": {
+      "aggregate_minimum_projection_rows": 1413933,
+      "aggregate_minimum_strategy": "union_q256",
+      "aggregate_minimum_vs_full_history": 0.3922710071910511,
+      "aggregate_projection_rows_by_strategy": {
+        "full_history": 3604480,
+        "union_q1": 5771392,
+        "union_q128": 2024496,
+        "union_q16": 4130213,
+        "union_q256": 1413933,
+        "union_q32": 3434803,
+        "union_q4": 5137089,
+        "union_q64": 2706782,
+        "union_q8": 4690046
+      },
+      "captured_dsa_layers": 11,
+      "context_tokens_after_chunk": 327680,
+      "exactness": {
+        "dsa_offsets_match_authoritative_profile": true,
+        "final_logits_matches_authoritative_profile": true,
+        "state_matches_authoritative_profile": true
+      },
+      "layers": [
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 71276,
+              "mean_unique_rows_per_block": 65348,
+              "projection_rows": 130696,
+              "reuse_ratio": 4.01444573667136
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 23496,
+              "mean_unique_rows_per_block": 18945.1875,
+              "projection_rows": 303123,
+              "reuse_ratio": 1.730888121323687
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 94680,
+              "mean_unique_rows_per_block": 94680,
+              "projection_rows": 94680,
+              "reuse_ratio": 5.541529362061682
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 39412,
+              "mean_unique_rows_per_block": 29421.5,
+              "projection_rows": 235372,
+              "reuse_ratio": 2.229118161888415
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8080,
+              "mean_unique_rows_per_block": 6687.96875,
+              "projection_rows": 428030,
+              "reuse_ratio": 1.225783239492559
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 56992,
+              "mean_unique_rows_per_block": 44725,
+              "projection_rows": 178900,
+              "reuse_ratio": 2.932766908887647
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14064,
+              "mean_unique_rows_per_block": 11640.46875,
+              "projection_rows": 372495,
+              "reuse_ratio": 1.4085343427428556
+            }
+          },
+          "layer": 3,
+          "minimum_projection_rows": 94680,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 130696,
+            "union_q16": 303123,
+            "union_q256": 94680,
+            "union_q32": 235372,
+            "union_q4": 428030,
+            "union_q64": 178900,
+            "union_q8": 372495
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 119695,
+              "mean_unique_rows_per_block": 118992,
+              "projection_rows": 237984,
+              "reuse_ratio": 2.2046524136076373
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 30582,
+              "mean_unique_rows_per_block": 27645,
+              "projection_rows": 442320,
+              "reuse_ratio": 1.18618194971966
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 165053,
+              "mean_unique_rows_per_block": 165053,
+              "projection_rows": 165053,
+              "reuse_ratio": 3.1788092309742932
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 52325,
+              "mean_unique_rows_per_block": 47858.25,
+              "projection_rows": 382866,
+              "reuse_ratio": 1.3703802374721181
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7831.3125,
+              "projection_rows": 501204,
+              "reuse_ratio": 1.0468232496149272
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 81622,
+              "mean_unique_rows_per_block": 77599.5,
+              "projection_rows": 310398,
+              "reuse_ratio": 1.6903201695887216
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16282,
+              "mean_unique_rows_per_block": 14910.65625,
+              "projection_rows": 477141,
+              "reuse_ratio": 1.0996162559914155
+            }
+          },
+          "layer": 7,
+          "minimum_projection_rows": 165053,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 237984,
+            "union_q16": 442320,
+            "union_q256": 165053,
+            "union_q32": 382866,
+            "union_q4": 501204,
+            "union_q64": 310398,
+            "union_q8": 477141
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 114864,
+              "mean_unique_rows_per_block": 113236,
+              "projection_rows": 226472,
+              "reuse_ratio": 2.3167190646084284
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 31416,
+              "mean_unique_rows_per_block": 26922.5,
+              "projection_rows": 430760,
+              "reuse_ratio": 1.2180146717429658
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 153420,
+              "mean_unique_rows_per_block": 153420,
+              "projection_rows": 153420,
+              "reuse_ratio": 3.419840959457698
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 49636,
+              "mean_unique_rows_per_block": 46458.5,
+              "projection_rows": 371668,
+              "reuse_ratio": 1.4116684783193603
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8176,
+              "mean_unique_rows_per_block": 7782.9375,
+              "projection_rows": 498108,
+              "reuse_ratio": 1.0533297999630602
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 78180,
+              "mean_unique_rows_per_block": 75534,
+              "projection_rows": 302136,
+              "reuse_ratio": 1.73654248417931
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16280,
+              "mean_unique_rows_per_block": 14834.5,
+              "projection_rows": 474704,
+              "reuse_ratio": 1.105261383936095
+            }
+          },
+          "layer": 11,
+          "minimum_projection_rows": 153420,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 226472,
+            "union_q16": 430760,
+            "union_q256": 153420,
+            "union_q32": 371668,
+            "union_q4": 498108,
+            "union_q64": 302136,
+            "union_q8": 474704
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 57396,
+              "mean_unique_rows_per_block": 56984,
+              "projection_rows": 113968,
+              "reuse_ratio": 4.603678225466798
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 22588,
+              "mean_unique_rows_per_block": 18160.5,
+              "projection_rows": 290568,
+              "reuse_ratio": 1.8056771564659564
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 78804,
+              "mean_unique_rows_per_block": 78804,
+              "projection_rows": 78804,
+              "reuse_ratio": 6.6579361453733314
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 34752,
+              "mean_unique_rows_per_block": 27225,
+              "projection_rows": 217800,
+              "reuse_ratio": 2.4089623507805324
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 7916,
+              "mean_unique_rows_per_block": 6722.5625,
+              "projection_rows": 430244,
+              "reuse_ratio": 1.2194754604364035
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 44652,
+              "mean_unique_rows_per_block": 39985,
+              "projection_rows": 159940,
+              "reuse_ratio": 3.2804301613104916
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 14072,
+              "mean_unique_rows_per_block": 11452.25,
+              "projection_rows": 366472,
+              "reuse_ratio": 1.431683730271344
+            }
+          },
+          "layer": 15,
+          "minimum_projection_rows": 78804,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 113968,
+            "union_q16": 290568,
+            "union_q256": 78804,
+            "union_q32": 217800,
+            "union_q4": 430244,
+            "union_q64": 159940,
+            "union_q8": 366472
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 72912,
+              "mean_unique_rows_per_block": 69364,
+              "projection_rows": 138728,
+              "reuse_ratio": 3.782019491378813
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 27344,
+              "mean_unique_rows_per_block": 19435.4375,
+              "projection_rows": 310967,
+              "reuse_ratio": 1.6872272620567457
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 99064,
+              "mean_unique_rows_per_block": 99064,
+              "projection_rows": 99064,
+              "reuse_ratio": 5.296293305337963
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 42428,
+              "mean_unique_rows_per_block": 30568.875,
+              "projection_rows": 244551,
+              "reuse_ratio": 2.1454502332846728
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8148,
+              "mean_unique_rows_per_block": 6740.5625,
+              "projection_rows": 431396,
+              "reuse_ratio": 1.2162189728231139
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 56836,
+              "mean_unique_rows_per_block": 46441,
+              "projection_rows": 185764,
+              "reuse_ratio": 2.824400852694817
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15428,
+              "mean_unique_rows_per_block": 11564.34375,
+              "projection_rows": 370059,
+              "reuse_ratio": 1.4178063497982754
+            }
+          },
+          "layer": 19,
+          "minimum_projection_rows": 99064,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 138728,
+            "union_q16": 310967,
+            "union_q256": 99064,
+            "union_q32": 244551,
+            "union_q4": 431396,
+            "union_q64": 185764,
+            "union_q8": 370059
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 121115,
+              "mean_unique_rows_per_block": 114891,
+              "projection_rows": 229782,
+              "reuse_ratio": 2.28334682438137
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 29236,
+              "mean_unique_rows_per_block": 24902.75,
+              "projection_rows": 398444,
+              "reuse_ratio": 1.3168023611850097
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 174987,
+              "mean_unique_rows_per_block": 174987,
+              "projection_rows": 174987,
+              "reuse_ratio": 2.9983484487419068
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 51864,
+              "mean_unique_rows_per_block": 43658,
+              "projection_rows": 349264,
+              "reuse_ratio": 1.5022218150167208
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7357.96875,
+              "projection_rows": 470910,
+              "reuse_ratio": 1.1141661888683612
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 84376,
+              "mean_unique_rows_per_block": 71761.5,
+              "projection_rows": 287046,
+              "reuse_ratio": 1.8278324728440738
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15772,
+              "mean_unique_rows_per_block": 13656.125,
+              "projection_rows": 436996,
+              "reuse_ratio": 1.2006334154088367
+            }
+          },
+          "layer": 23,
+          "minimum_projection_rows": 174987,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 229782,
+            "union_q16": 398444,
+            "union_q256": 174987,
+            "union_q32": 349264,
+            "union_q4": 470910,
+            "union_q64": 287046,
+            "union_q8": 436996
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 78664,
+              "mean_unique_rows_per_block": 77524,
+              "projection_rows": 155048,
+              "reuse_ratio": 3.3839327176100302
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 28204,
+              "mean_unique_rows_per_block": 21356.75,
+              "projection_rows": 341708,
+              "reuse_ratio": 1.535439615109977
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 105576,
+              "mean_unique_rows_per_block": 105576,
+              "projection_rows": 105576,
+              "reuse_ratio": 4.969614306281731
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 45455,
+              "mean_unique_rows_per_block": 34267.375,
+              "projection_rows": 274139,
+              "reuse_ratio": 1.91389039866637
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8168,
+              "mean_unique_rows_per_block": 7198.234375,
+              "projection_rows": 460687,
+              "reuse_ratio": 1.1388903962994397
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 57763,
+              "mean_unique_rows_per_block": 52712.75,
+              "projection_rows": 210851,
+              "reuse_ratio": 2.488354335526035
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15332,
+              "mean_unique_rows_per_block": 12700.75,
+              "projection_rows": 406424,
+              "reuse_ratio": 1.290947384996949
+            }
+          },
+          "layer": 27,
+          "minimum_projection_rows": 105576,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 155048,
+            "union_q16": 341708,
+            "union_q256": 105576,
+            "union_q32": 274139,
+            "union_q4": 460687,
+            "union_q64": 210851,
+            "union_q8": 406424
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 115840,
+              "mean_unique_rows_per_block": 111636,
+              "projection_rows": 223272,
+              "reuse_ratio": 2.3499229639184493
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 29200,
+              "mean_unique_rows_per_block": 25726,
+              "projection_rows": 411616,
+              "reuse_ratio": 1.274663764285159
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 156720,
+              "mean_unique_rows_per_block": 156720,
+              "projection_rows": 156720,
+              "reuse_ratio": 3.347830525778458
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 50452,
+              "mean_unique_rows_per_block": 44382,
+              "projection_rows": 355056,
+              "reuse_ratio": 1.4777161912487045
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7489.9375,
+              "projection_rows": 479356,
+              "reuse_ratio": 1.0945351680170896
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 81656,
+              "mean_unique_rows_per_block": 72634,
+              "projection_rows": 290536,
+              "reuse_ratio": 1.8058760360161907
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15628,
+              "mean_unique_rows_per_block": 14041.125,
+              "projection_rows": 449316,
+              "reuse_ratio": 1.1677127010834245
+            }
+          },
+          "layer": 31,
+          "minimum_projection_rows": 156720,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 223272,
+            "union_q16": 411616,
+            "union_q256": 156720,
+            "union_q32": 355056,
+            "union_q4": 479356,
+            "union_q64": 290536,
+            "union_q8": 449316
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 96904,
+              "mean_unique_rows_per_block": 89574,
+              "projection_rows": 179148,
+              "reuse_ratio": 2.9287069908678856
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 28265,
+              "mean_unique_rows_per_block": 25161.0625,
+              "projection_rows": 402577,
+              "reuse_ratio": 1.303283595436401
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 117614,
+              "mean_unique_rows_per_block": 117614,
+              "projection_rows": 117614,
+              "reuse_ratio": 4.460965531314299
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 45835,
+              "mean_unique_rows_per_block": 41128.375,
+              "projection_rows": 329027,
+              "reuse_ratio": 1.5946168551517048
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8195,
+              "mean_unique_rows_per_block": 7532.515625,
+              "projection_rows": 482081,
+              "reuse_ratio": 1.088348223638766
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 70305,
+              "mean_unique_rows_per_block": 62781,
+              "projection_rows": 251124,
+              "reuse_ratio": 2.0892945317850944
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16199,
+              "mean_unique_rows_per_block": 14062.03125,
+              "projection_rows": 449985,
+              "reuse_ratio": 1.1659766436659
+            }
+          },
+          "layer": 35,
+          "minimum_projection_rows": 117614,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 179148,
+            "union_q16": 402577,
+            "union_q256": 117614,
+            "union_q32": 329027,
+            "union_q4": 482081,
+            "union_q64": 251124,
+            "union_q8": 449985
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 108934,
+              "mean_unique_rows_per_block": 105515,
+              "projection_rows": 211030,
+              "reuse_ratio": 2.486243662038573
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 29914,
+              "mean_unique_rows_per_block": 26357.875,
+              "projection_rows": 421726,
+              "reuse_ratio": 1.2441063628991336
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 148067,
+              "mean_unique_rows_per_block": 148067,
+              "projection_rows": 148067,
+              "reuse_ratio": 3.5434769394936074
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 48468,
+              "mean_unique_rows_per_block": 45330.5,
+              "projection_rows": 362644,
+              "reuse_ratio": 1.4467963071221364
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8195,
+              "mean_unique_rows_per_block": 7693.390625,
+              "projection_rows": 492377,
+              "reuse_ratio": 1.0655899849099368
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 75371,
+              "mean_unique_rows_per_block": 72258.75,
+              "projection_rows": 289035,
+              "reuse_ratio": 1.815254207967893
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 16324,
+              "mean_unique_rows_per_block": 14514.8125,
+              "projection_rows": 464474,
+              "reuse_ratio": 1.1296046710903087
+            }
+          },
+          "layer": 39,
+          "minimum_projection_rows": 148067,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 211030,
+            "union_q16": 421726,
+            "union_q256": 148067,
+            "union_q32": 362644,
+            "union_q4": 492377,
+            "union_q64": 289035,
+            "union_q8": 464474
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        },
+        {
+          "block_union": {
+            "1": {
+              "block_count": 256,
+              "max_unique_rows_per_block": 2051,
+              "mean_unique_rows_per_block": 2049.5,
+              "projection_rows": 524672,
+              "reuse_ratio": 1.0
+            },
+            "128": {
+              "block_count": 2,
+              "max_unique_rows_per_block": 93968,
+              "mean_unique_rows_per_block": 89184,
+              "projection_rows": 178368,
+              "reuse_ratio": 2.94151417294582
+            },
+            "16": {
+              "block_count": 16,
+              "max_unique_rows_per_block": 28600,
+              "mean_unique_rows_per_block": 23525.25,
+              "projection_rows": 376404,
+              "reuse_ratio": 1.3939065472205396
+            },
+            "256": {
+              "block_count": 1,
+              "max_unique_rows_per_block": 119948,
+              "mean_unique_rows_per_block": 119948,
+              "projection_rows": 119948,
+              "reuse_ratio": 4.374162136926001
+            },
+            "32": {
+              "block_count": 8,
+              "max_unique_rows_per_block": 43952,
+              "mean_unique_rows_per_block": 39052,
+              "projection_rows": 312416,
+              "reuse_ratio": 1.679401823210079
+            },
+            "4": {
+              "block_count": 64,
+              "max_unique_rows_per_block": 8192,
+              "mean_unique_rows_per_block": 7229.625,
+              "projection_rows": 462696,
+              "reuse_ratio": 1.133945398274461
+            },
+            "64": {
+              "block_count": 4,
+              "max_unique_rows_per_block": 63768,
+              "mean_unique_rows_per_block": 60263,
+              "projection_rows": 241052,
+              "reuse_ratio": 2.1765926024260325
+            },
+            "8": {
+              "block_count": 32,
+              "max_unique_rows_per_block": 15644,
+              "mean_unique_rows_per_block": 13186.875,
+              "projection_rows": 421980,
+              "reuse_ratio": 1.2433575050950283
+            }
+          },
+          "layer": 43,
+          "minimum_projection_rows": 119948,
+          "minimum_projection_strategy": "union_q256",
+          "projection_rows_by_strategy": {
+            "full_history": 327680,
+            "union_q1": 524672,
+            "union_q128": 178368,
+            "union_q16": 376404,
+            "union_q256": 119948,
+            "union_q32": 312416,
+            "union_q4": 462696,
+            "union_q64": 241052,
+            "union_q8": 421980
+          },
+          "sentinel_entries": 384,
+          "shape": [
+            1,
+            1,
+            256,
+            2051
+          ],
+          "valid_selected_entries": 524672
+        }
+      ],
+      "query_rows": 256,
+      "synthetic_prefix_tokens": 327424
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "implement_union_q256_selected_projection_reuse_plan",
+  "mlx_version": "0.32.2",
+  "mlx_vlm_revision": "e82d557d9f4b804cb1fc3eaaebc25488ba778a98",
+  "profiling_only": true,
+  "projection_block_rows": [
+    1,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+  ],
+  "query_rows": 256,
+  "reference_profile": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-native-prefill-critical-path-20260908.json",
+  "runtime_changes": {
+    "admission": false,
+    "backend": false,
+    "cache_abi": false,
+    "kernel_abi": false,
+    "server": false
+  },
+  "schema": "glm53-selected-kv-projection-reuse-frontier-v1"
+}
