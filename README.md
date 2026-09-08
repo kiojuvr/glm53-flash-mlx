@@ -237,6 +237,12 @@ prefill固有のK/V projection順序も独立に検証します。Directの「�
 uv run python scripts/probe_sparse_prefill_reordering_equivalence.py
 ```
 
+このpositive/negative evidenceから、次のnative DSA planはQ4 score-selectionとQ1 attentionを組み合わせます。selected latentのK/V projectionはDirectとexactなため許可し、softmax/AVはlogical full-Kvのmasked reduction topologyを仮想的に再現します。512Kで約195.6MiBの再利用scratchに収め、各DSA層でfull projected K/V 40GiBとQ256 mask 128MiBを作りません。
+
+```bash
+uv run python scripts/define_exact_sparse_prefill_attention_plan.py
+```
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。

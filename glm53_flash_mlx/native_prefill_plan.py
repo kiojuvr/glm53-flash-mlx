@@ -297,3 +297,117 @@ def plan_native_dsa_prefill_streaming_geometry(
             * bf16_bytes
         ),
     )
+
+
+@dataclass(frozen=True)
+class NativeSparsePrefillAttentionPlan:
+    logical_context_tokens: int
+    score_microtile_rows: int
+    attention_microtile_rows: int
+    selected_width: int
+    selected_latent_bytes: int
+    projected_key_bytes: int
+    projected_value_bytes: int
+    attention_score_bytes: int
+    attention_accumulator_bytes: int
+    score_selection_scratch_bytes: int
+    total_scratch_bytes: int
+    max_scratch_bytes: int
+    full_projected_key_value_bytes_avoided: int
+    full_sparse_mask_bytes_avoided: int
+    selected_projection_reordering_exact: bool
+    ordinary_compact_sdpa_allowed: bool
+    requires_virtual_full_kv_reduction_topology: bool
+    invariants: tuple[str, ...]
+    production_admission_changed: bool
+
+    def descriptor(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def build_native_sparse_prefill_attention_plan(
+    reordering_probe: dict[str, object],
+    microtile_probe: dict[str, object],
+    *,
+    logical_context_tokens: int = DESIGN_TOTAL_CONTEXT_TOKENS,
+) -> NativeSparsePrefillAttentionPlan:
+    """Build the exact sparse-attention plan from positive/negative evidence."""
+
+    if logical_context_tokens != DESIGN_TOTAL_CONTEXT_TOKENS:
+        raise NativePrefillPlanError("native sparse prefill plan is fixed at 512K")
+    if reordering_probe.get("schema") != (
+        "glm53-sparse-prefill-reordering-equivalence-v1"
+    ):
+        raise NativePrefillPlanError("unexpected sparse reordering probe schema")
+    if not reordering_probe.get("complete"):
+        raise NativePrefillPlanError("sparse reordering probe is incomplete")
+    checks = reordering_probe.get("checks", {})
+    if not checks.get("selected_k_projection_reordering_byte_exact") or not checks.get(
+        "selected_v_projection_reordering_byte_exact"
+    ):
+        raise NativePrefillPlanError("selected K/V projection reordering is not exact")
+    if checks.get("sorted_compact_attention_matches_dense_sparse_mask"):
+        raise NativePrefillPlanError(
+            "the measured compact-attention numerical barrier must remain explicit"
+        )
+    long = reordering_probe.get("contexts", {}).get(str(32 << 10), {})
+    compact_diff = long.get("diagnostics", {}).get("compact_attention", {})
+    if int(compact_diff.get("different_elements", 0)) <= 0:
+        raise NativePrefillPlanError("missing measured compact-attention divergence")
+    if microtile_probe.get("schema") != (
+        "glm53-native-dsa-prefill-streaming-microtile-v1"
+    ) or not microtile_probe.get("accepted"):
+        raise NativePrefillPlanError("exact Q4 score-selection microtile is unavailable")
+
+    geometry = plan_native_dsa_prefill_streaming_geometry()
+    bf16_bytes = 2
+    selected_latent = 2_051 * 512 * bf16_bytes
+    projected_key = 64 * 2_051 * 512 * bf16_bytes
+    projected_value = 64 * 2_051 * 128 * bf16_bytes
+    attention_score = 64 * 2_051 * bf16_bytes
+    attention_accumulator = 4 * 64 * 128 * 4
+    total = (
+        geometry.total_score_selection_scratch_bytes
+        + selected_latent
+        + projected_key
+        + projected_value
+        + attention_score
+        + attention_accumulator
+    )
+    full_key = 64 * logical_context_tokens * 512 * bf16_bytes
+    full_value = 64 * logical_context_tokens * 128 * bf16_bytes
+    full_mask = DESIGN_PREFILL_QUERY_ROWS * logical_context_tokens
+    return NativeSparsePrefillAttentionPlan(
+        logical_context_tokens=logical_context_tokens,
+        score_microtile_rows=DSA_STREAMING_QUERY_ROWS,
+        attention_microtile_rows=1,
+        selected_width=2_051,
+        selected_latent_bytes=selected_latent,
+        projected_key_bytes=projected_key,
+        projected_value_bytes=projected_value,
+        attention_score_bytes=attention_score,
+        attention_accumulator_bytes=attention_accumulator,
+        score_selection_scratch_bytes=(
+            geometry.total_score_selection_scratch_bytes
+        ),
+        total_scratch_bytes=total,
+        max_scratch_bytes=256 << 20,
+        full_projected_key_value_bytes_avoided=full_key + full_value,
+        full_sparse_mask_bytes_avoided=full_mask,
+        selected_projection_reordering_exact=True,
+        ordinary_compact_sdpa_allowed=False,
+        requires_virtual_full_kv_reduction_topology=True,
+        invariants=(
+            "Q4 score/top-k/expansion executes inside the composed native region",
+            "selected valid token indices are sorted in physical token order",
+            "attention consumes one query row at a time from reusable scratch",
+            "selected latent is projected with the Direct BF16 K/V dot order",
+            "unselected logical positions behave as masked finite-min scores",
+            "softmax max/sum follows the Direct logical full-Kv reduction tree",
+            "value accumulation follows physical token order with virtual zero lanes",
+            "ordinary compact SDPA is forbidden by measured 32K byte divergence",
+            "no full-context projected K/V or Q256-by-Kv mask is materialized",
+            "only final attention output may cross the native execution boundary",
+        ),
+        production_admission_changed=False,
+    )
