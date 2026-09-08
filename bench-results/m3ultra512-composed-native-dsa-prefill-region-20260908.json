@@ -1,0 +1,98 @@
+{
+  "accepted": true,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "2k_requires_direct_crossover": true,
+    "32k_composed_region_speedup_at_least_2x": true,
+    "all_buffer_addresses_stable": true,
+    "no_dynamic_allocation_graph_shape_sync_or_intermediate_return": true,
+    "scratch_at_most_224mib": true,
+    "selection_gather_and_attention_byte_exact": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_anchors_byte_exact": true,
+      "anchor_different_elements": {
+        "score_order_indices": 0,
+        "selected_indices": 0,
+        "selected_latent": 0,
+        "selected_valid": 0
+      },
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "context_tokens": 2048,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 4.652917,
+        "samples_ms": [
+          4.775625,
+          4.652917,
+          4.629125
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "execution_count": 5,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_timing": {
+        "median_wall_ms": 17.188375,
+        "samples_ms": [
+          17.117833,
+          17.188375,
+          17.318041
+        ]
+      },
+      "pool_rows": 512,
+      "query_rows": 4,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 177201980,
+      "shape_discovery_count": 0,
+      "speedup": 0.2707013897474311
+    },
+    "32768": {
+      "all_anchors_byte_exact": true,
+      "anchor_different_elements": {
+        "score_order_indices": 0,
+        "selected_indices": 0,
+        "selected_latent": 0,
+        "selected_valid": 0
+      },
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "context_tokens": 32768,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 63.251834,
+        "samples_ms": [
+          63.247708,
+          63.251834,
+          63.3695
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "execution_count": 5,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_timing": {
+        "median_wall_ms": 19.805708,
+        "samples_ms": [
+          19.718333,
+          19.805708,
+          19.8145
+        ]
+      },
+      "pool_rows": 8192,
+      "query_rows": 4,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 179352380,
+      "shape_discovery_count": 0,
+      "speedup": 3.193616405937117
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "advance_composed_dsa_region_into_native_prefill_layer_plan",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-composed-native-dsa-prefill-region-v1"
+}

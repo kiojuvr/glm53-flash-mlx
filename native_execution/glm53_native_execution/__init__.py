@@ -16,6 +16,7 @@ from ._ext import (
     NativePrefillLayerSubstrate,
     NativeRoutedSigmoidFormulaSweep,
     NativeSelectedVProjectionAVPlan,
+    NativeSelectedKVAttentionSelectionPlan,
     NativeSparsePrefillAVPlan,
 )
 
@@ -29,5 +30,6 @@ __all__ = [
     "NativePrefillLayerSubstrate",
     "NativeRoutedSigmoidFormulaSweep",
     "NativeSelectedVProjectionAVPlan",
+    "NativeSelectedKVAttentionSelectionPlan",
     "NativeSparsePrefillAVPlan",
 ]

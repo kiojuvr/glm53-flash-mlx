@@ -10,6 +10,7 @@
 #include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
 #include "native_selected_v_av_plan.h"
+#include "native_selected_kv_attention_selection_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -21,6 +22,7 @@ using glm53::native_execution::NativePackedMoEDecodePlan;
 using glm53::native_execution::NativePackedMoERoutedDiagnostic;
 using glm53::native_execution::NativeSparsePrefillAVPlan;
 using glm53::native_execution::NativeSelectedVProjectionAVPlan;
+using glm53::native_execution::NativeSelectedKVAttentionSelectionPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -410,4 +412,48 @@ NB_MODULE(_ext, module) {
           &NativeSelectedVProjectionAVPlan::debug_attention_probabilities)
       .def_prop_ro("debug_lane_to_selected",
                    &NativeSelectedVProjectionAVPlan::debug_lane_to_selected);
+
+  nb::class_<NativeSelectedKVAttentionSelectionPlan>(
+      module, "NativeSelectedKVAttentionSelectionPlan")
+      .def(nb::init<int, int, float, float>(), "physical_pool_rows"_a,
+           "physical_kv_rows"_a, "indexer_softmax_scale"_a,
+           "attention_scale"_a)
+      .def("execute", &NativeSelectedKVAttentionSelectionPlan::execute,
+           "index_query"_a, "mixture_weights"_a, "pool_keys"_a,
+           "pool_indices"_a, "pool_valid"_a, "raw_positions"_a,
+           "raw_valid"_a, "current_valid"_a, "latent"_a,
+           "key_weight"_a, "value_weight"_a, "attention_query"_a,
+           "logical_pool_rows"_a, "kv_len"_a, "active_tail_count"_a)
+      .def_prop_ro("physical_pool_rows",
+                   &NativeSelectedKVAttentionSelectionPlan::physical_pool_rows)
+      .def_prop_ro("physical_kv_rows",
+                   &NativeSelectedKVAttentionSelectionPlan::physical_kv_rows)
+      .def_prop_ro("query_rows",
+                   &NativeSelectedKVAttentionSelectionPlan::query_rows)
+      .def_prop_ro("selected_width",
+                   &NativeSelectedKVAttentionSelectionPlan::selected_width)
+      .def_prop_ro("execution_count",
+                   &NativeSelectedKVAttentionSelectionPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeSelectedKVAttentionSelectionPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeSelectedKVAttentionSelectionPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeSelectedKVAttentionSelectionPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeSelectedKVAttentionSelectionPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeSelectedKVAttentionSelectionPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativeSelectedKVAttentionSelectionPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeSelectedKVAttentionSelectionPlan::buffer_identities)
+      .def_prop_ro("debug_selected_indices",
+                   &NativeSelectedKVAttentionSelectionPlan::debug_selected_indices)
+      .def_prop_ro("debug_selected_valid",
+                   &NativeSelectedKVAttentionSelectionPlan::debug_selected_valid)
+      .def_prop_ro("debug_score_order_indices",
+                   &NativeSelectedKVAttentionSelectionPlan::debug_score_order_indices)
+      .def_prop_ro("debug_selected_latent",
+                   &NativeSelectedKVAttentionSelectionPlan::debug_selected_latent);
 }

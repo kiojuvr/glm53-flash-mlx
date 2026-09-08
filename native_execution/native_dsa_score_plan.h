@@ -55,6 +55,7 @@ public:
   uint64_t scratch_bytes() const;
   mx::array debug_head_scores() const { return head_scores_; }
   mx::array debug_index_scores() const { return index_scores_; }
+  mx::array debug_selected_pools() const { return selected_pool_scratch_; }
   mx::array debug_selected_indices() const { return selected_token_indices_; }
   mx::array debug_selected_valid() const { return selected_token_valid_; }
   std::vector<uint64_t> buffer_identities() const;

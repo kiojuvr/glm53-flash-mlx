@@ -902,6 +902,105 @@ instantiate_kernel(
     false,
     false);
 
+[[kernel]] void glm53_native_gather_prefill_selected_latent_bfloat16(
+    device const bfloat16_t* latent [[buffer(0)]],
+    device const int* selected_indices [[buffer(1)]],
+    device const bool* selected_valid [[buffer(2)]],
+    device bfloat16_t* selected_latent [[buffer(3)]],
+    constant const int& physical_kv_rows [[buffer(4)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kQueryRows = 4;
+  constexpr uint kWidth = 2051;
+  constexpr uint kDimension = 512;
+  constexpr uint kTotal = kQueryRows * kWidth * kDimension;
+  if (position >= kTotal) return;
+  uint coordinate = position / kDimension;
+  uint dimension = position % kDimension;
+  int source = selected_indices[coordinate];
+  bool valid = selected_valid[coordinate] && source >= 0 &&
+      source < physical_kv_rows;
+  selected_latent[position] = valid
+      ? latent[size_t(source) * kDimension + dimension]
+      : bfloat16_t(0.0f);
+}
+
+[[kernel, max_total_threads_per_threadgroup(512)]] void
+glm53_native_order_selected_pools_for_prefill_attention(
+    device const uint* selected_pools [[buffer(0)]],
+    device const long* pool_indices [[buffer(1)]],
+    device const bool* pool_valid [[buffer(2)]],
+    device const long* raw_positions [[buffer(3)]],
+    device const bool* raw_valid [[buffer(4)]],
+    device const bool* current_valid [[buffer(5)]],
+    device int* output [[buffer(6)]],
+    device bool* output_valid [[buffer(7)]],
+    constant const int& logical_pool_rows [[buffer(8)]],
+    constant const int& kv_len [[buffer(9)]],
+    constant const int& active_tail_count [[buffer(10)]],
+    constant const int& raw_width [[buffer(11)]],
+    constant const int& raw_rows [[buffer(12)]],
+    uint tid [[thread_index_in_threadgroup]],
+    uint3 group [[threadgroup_position_in_grid]]) {
+  constexpr uint kPools = 512;
+  constexpr uint kPoolWidth = 4;
+  constexpr uint kWidth = 2051;
+  uint row = group.y;
+  threadgroup uint ordered[kPools];
+  uint pool = selected_pools[row * kPools + tid];
+  ordered[tid] = pool < uint(logical_pool_rows) && pool_valid[pool]
+      ? pool
+      : 0xffffffffu;
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  // One deterministic ascending bitonic network per query row.  Sorting the
+  // selected pool set restores Direct prefill's physical-token reduction
+  // order without changing selection membership.
+  for (uint width = 2; width <= kPools; width <<= 1) {
+    for (uint stride = width >> 1; stride > 0; stride >>= 1) {
+      uint peer = tid ^ stride;
+      if (peer > tid) {
+        uint left = ordered[tid];
+        uint right = ordered[peer];
+        bool ascending = (tid & width) == 0;
+        if ((left > right) == ascending) {
+          ordered[tid] = right;
+          ordered[peer] = left;
+        }
+      }
+      threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+  }
+
+  bool row_valid = current_valid[row];
+  pool = ordered[tid];
+  bool valid_pool = row_valid && pool < uint(logical_pool_rows) &&
+      pool_valid[pool];
+  for (uint lane = 0; lane < kPoolWidth; ++lane) {
+    uint destination = row * kWidth + tid * kPoolWidth + lane;
+    long token = valid_pool
+        ? pool_indices[size_t(pool) * kPoolWidth + lane]
+        : -1;
+    bool valid = valid_pool && token >= 0 && token < kv_len;
+    output[destination] = valid ? int(token) : -1;
+    output_valid[destination] = valid;
+  }
+
+  if (tid < 3) {
+    int tail_slot = int(tid);
+    int source = raw_width - active_tail_count + tail_slot;
+    int raw_row = raw_rows == 1 ? 0 : int(row);
+    bool valid = row_valid && tail_slot < active_tail_count && source >= 0;
+    int raw_offset = raw_row * raw_width + max(source, 0);
+    long token = valid && raw_valid[raw_offset]
+        ? raw_positions[raw_offset]
+        : -1;
+    valid = valid && token >= 0 && token < kv_len;
+    uint destination = row * kWidth + kPools * kPoolWidth + tid;
+    output[destination] = valid ? int(token) : -1;
+    output_valid[destination] = valid;
+  }
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan

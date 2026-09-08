@@ -1514,6 +1514,21 @@ plan must retain a short-context Direct crossover while moving score selection,
 selected-latent gather, and this complete attention region under one native
 execution boundary.
 
+That boundary is now composed. The accepted Q4 plan encodes pooled Indexer
+score, exact top-k, pool expansion, deterministic physical-pool ordering,
+selected-latent gather, selected K/V projection, compact QK, precise softmax,
+and virtual-BK16 AV in one C++ call on the same Metal command encoder. The
+physical ordering step is required because Indexer returns pools in score
+order while Direct prefill applies its sparse mask in physical-token order;
+it changes no selected membership and restores the exact softmax/AV reduction
+order. Score-order indices, physical-order indices/validity, gathered latent,
+and final attention output are byte exact at both 2K and 32K. At 32K the full
+region takes 19.806 ms versus Direct's 63.252 ms (3.194x), with about 179.4 MB
+bounded scratch and zero per-execute allocation, graph construction, shape
+discovery, host synchronization, or intermediate return. The 2K result is
+0.271x and therefore hard-codes the need for a Direct crossover when this
+region is advanced into the 256-row native prefill layer plan.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
