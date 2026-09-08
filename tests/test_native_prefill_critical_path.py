@@ -110,6 +110,16 @@ def test_profile_contexts_are_32k_128k_and_320k_with_256_rows():
     assert module.EXPECTED_ROUTED_MOE_LAYER_COUNT == 42
 
 
+def test_vocab_size_comes_from_checkpoint_config_not_runtime_model_shape(tmp_path):
+    module = _module()
+    (tmp_path / "config.json").write_text(
+        json.dumps({"text_config": {"vocab_size": 154_880}})
+    )
+    assert module._checkpoint_vocab_size(tmp_path) == 154_880
+    source = SCRIPT.read_text()
+    assert "model.language_model.vocab_size" not in source
+
+
 def test_acceptance_requires_all_contexts_layers_exactness_and_bounded_peak():
     module = _module()
     artifact = _complete_artifact(module)

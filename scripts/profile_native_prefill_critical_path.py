@@ -370,6 +370,14 @@ def _tokens(rows: int, vocab_size: int, context: int) -> mx.array:
     return (values + 128)[None]
 
 
+def _checkpoint_vocab_size(model_path: Path) -> int:
+    config = json.loads((model_path / "config.json").read_text())
+    vocab_size = int(config["text_config"]["vocab_size"])
+    if vocab_size <= 1_024:
+        raise ValueError("checkpoint vocab_size must exceed 1024")
+    return vocab_size
+
+
 def _state_signature(boundary_probe, cache) -> dict[str, object]:
     return {
         "diagnostic_state_sha256": boundary_probe._post_state_hash(
@@ -456,7 +464,14 @@ def _summarize_uninstrumented(samples: list[dict[str, object]]) -> dict[str, obj
     }
 
 
-def _context_case(model, boundary_probe, context: int, rows: int, samples: int):
+def _context_case(
+    model,
+    boundary_probe,
+    context: int,
+    rows: int,
+    samples: int,
+    vocab_size: int,
+):
     prefix = context - rows
     if prefix <= 0:
         raise ValueError("profile context must exceed the representative chunk")
@@ -466,7 +481,7 @@ def _context_case(model, boundary_probe, context: int, rows: int, samples: int):
         model, prefix, "compact-nope-dsa"
     )
     source_build_peak = int(mx.get_peak_memory())
-    token_ids = _tokens(rows, model.language_model.vocab_size, context)
+    token_ids = _tokens(rows, vocab_size, context)
     uninstrumented_samples = []
     for sample in range(samples):
         _progress("uninstrumented_chunk", context=context, sample=sample + 1)
@@ -608,6 +623,7 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("at least two uninstrumented samples are required")
 
     report = inspect_checkpoint(args.model, require_server_ready=True)
+    vocab_size = _checkpoint_vocab_size(args.model)
     boundary_probe = _load_boundary_probe()
     mx.set_wired_limit(int(args.wired_limit_gb * 1e9))
     mx.set_cache_limit(int(args.cache_limit_gb * 1e9))
@@ -642,6 +658,7 @@ def main(argv: list[str] | None = None) -> int:
             "mlx_vlm_revision": MLX_VLM_REVISION,
             "capacity_contract": NATIVE_CONTEXT_CAPACITY_CONTRACT,
             "compact_cache_abi": NOPE_DSA_CACHE_ABI_COMPACT,
+            "vocab_size": vocab_size,
             "contexts_requested": list(PROFILE_CONTEXTS),
             "representative_chunk_tokens": PROFILE_ROWS,
             "measurement_contract": {
@@ -665,6 +682,7 @@ def main(argv: list[str] | None = None) -> int:
         }
     else:
         artifact["model_storage_inventory"] = storage_inventory
+        artifact["vocab_size"] = vocab_size
 
     for context in args.contexts:
         key = str(context)
@@ -673,7 +691,12 @@ def main(argv: list[str] | None = None) -> int:
             continue
         try:
             artifact["contexts"][key] = _context_case(
-                model, boundary_probe, context, args.rows, args.samples
+                model,
+                boundary_probe,
+                context,
+                args.rows,
+                args.samples,
+                vocab_size,
             )
         except Exception as error:
             artifact["failure"] = {
