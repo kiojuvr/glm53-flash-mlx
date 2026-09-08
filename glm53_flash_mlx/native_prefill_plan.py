@@ -578,3 +578,164 @@ def build_native_q256_union_attention_plan(
         ),
         production_admission_changed=False,
     )
+
+
+@dataclass(frozen=True)
+class NativeQ256SharedValuePassPlan:
+    abi: str
+    query_rows: int
+    query_block_rows: int
+    query_blocks: int
+    selected_width: int
+    physical_value_tile_rows: int
+    maximum_physical_tiles_512k: int
+    qk_score_bytes: int
+    probability_bytes: int
+    projected_value_tile_bytes: int
+    fp32_attention_accumulator_bytes: int
+    mapping_bytes: int
+    rejected_query_local_selected_value_bytes: int
+    planned_value_phase_bytes: int
+    planned_key_phase_bytes: int
+    maximum_phase_arena_bytes: int
+    available_native_arena_bytes: int
+    measured_q4_direct_ms: float
+    measured_q4_candidate_ms: float
+    measured_q256_direct_ms: float
+    measured_q256_rejected_ms: float
+    execution_phases: tuple[str, ...]
+    invariants: tuple[str, ...]
+    production_admission_changed: bool
+
+    def descriptor(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def build_native_q256_shared_value_pass_plan(
+    q4_attention_probe: dict[str, object],
+    q256_rejected_probe: dict[str, object],
+    projected_qk_320k_probe: dict[str, object],
+    native_prefill_plan: dict[str, object],
+) -> NativeQ256SharedValuePassPlan:
+    """Replace rejected per-query selected V with shared physical BK16 tiles."""
+
+    if (
+        q4_attention_probe.get("schema")
+        != "glm53-q4-union-tiled-full-attention-v1"
+        or not q4_attention_probe.get("accepted")
+        or not all(q4_attention_probe.get("anchors", {}).values())
+    ):
+        raise NativePrefillPlanError("accepted exact Q4 value evidence is required")
+    if (
+        q256_rejected_probe.get("schema")
+        != "glm53-q256-union-tiled-full-attention-v1"
+        or q256_rejected_probe.get("accepted")
+        or q256_rejected_probe.get("decision")
+        != "stop_or_redesign_q256_union_tiled_value_pass"
+    ):
+        raise NativePrefillPlanError(
+            "the measured Q256 query-local value rejection must remain explicit"
+        )
+    rejected_anchors = q256_rejected_probe.get("anchors", {})
+    if (
+        not rejected_anchors.get("selected_value_samples")
+        or rejected_anchors.get("q256_attention_output")
+    ):
+        raise NativePrefillPlanError(
+            "Q256 evidence must isolate the failure to AV topology"
+        )
+    if (
+        projected_qk_320k_probe.get("schema")
+        != "glm53-q256-projected-qk-320k-tiles-v1"
+        or not projected_qk_320k_probe.get("accepted")
+        or projected_qk_320k_probe.get("best_tile_rows") != 65_536
+    ):
+        raise NativePrefillPlanError("accepted 320K projected-QK evidence is required")
+    if (
+        native_prefill_plan.get("schema")
+        != "glm53-native-prefill-execution-plan-v1"
+        or not native_prefill_plan.get("accepted")
+    ):
+        raise NativePrefillPlanError("accepted native prefill plan is required")
+
+    query_rows = DESIGN_PREFILL_QUERY_ROWS
+    query_block_rows = 64
+    selected_width = 2_051
+    heads = 64
+    latent_dim = 512
+    value_dim = 128
+    tile_rows = 65_536
+    bf16_bytes = 2
+    fp32_bytes = 4
+    edges = query_rows * selected_width
+    scores = edges * heads * bf16_bytes
+    probabilities = scores
+    value_tile = heads * tile_rows * value_dim * bf16_bytes
+    accumulator = query_rows * heads * value_dim * fp32_bytes
+    mapping = edges * (4 + 4 + 1)
+    rejected_selected_values = edges * heads * value_dim * bf16_bytes
+    tile_latent = tile_rows * latent_dim * bf16_bytes
+    key_tile = heads * tile_rows * latent_dim * bf16_bytes
+    key_phase = key_tile + tile_latent + scores + probabilities
+    value_phase = (
+        value_tile + tile_latent + scores + probabilities + accumulator + mapping
+    )
+    maximum_phase = max(key_phase, value_phase)
+    available = int(
+        native_prefill_plan["plan"]["planned_native_arena_budget_bytes"]
+    )
+    if maximum_phase > available:
+        raise NativePrefillPlanError("shared physical value plan exceeds arena")
+
+    return NativeQ256SharedValuePassPlan(
+        abi="glm53-native-q256-shared-physical-bk16-value-pass-v1",
+        query_rows=query_rows,
+        query_block_rows=query_block_rows,
+        query_blocks=query_rows // query_block_rows,
+        selected_width=selected_width,
+        physical_value_tile_rows=tile_rows,
+        maximum_physical_tiles_512k=DESIGN_TOTAL_CONTEXT_TOKENS // tile_rows,
+        qk_score_bytes=scores,
+        probability_bytes=probabilities,
+        projected_value_tile_bytes=value_tile,
+        fp32_attention_accumulator_bytes=accumulator,
+        mapping_bytes=mapping,
+        rejected_query_local_selected_value_bytes=rejected_selected_values,
+        planned_value_phase_bytes=value_phase,
+        planned_key_phase_bytes=key_phase,
+        maximum_phase_arena_bytes=maximum_phase,
+        available_native_arena_bytes=available,
+        measured_q4_direct_ms=float(
+            q4_attention_probe["direct_timing"]["median_wall_ms"]
+        ),
+        measured_q4_candidate_ms=float(
+            q4_attention_probe["native_timing"]["median_wall_ms"]
+        ),
+        measured_q256_direct_ms=float(
+            q256_rejected_probe["direct_timing"]["median_wall_ms"]
+        ),
+        measured_q256_rejected_ms=float(
+            q256_rejected_probe["native_timing"]["median_wall_ms"]
+        ),
+        execution_phases=(
+            "consume_owned_q256_precise_probabilities",
+            "iterate_physical_k_tiles_in_ascending_order",
+            "project_one_shared_physical_bk16_value_tile",
+            "execute_four_bm64_query_blocks_against_shared_value_tile",
+            "carry_fp32_attention_accumulator_to_next_physical_tile",
+            "round_bfloat16_once_after_final_physical_tile",
+        ),
+        invariants=(
+            "query-local selected V materialization is forbidden",
+            "one projected physical value tile is shared by all 256 queries",
+            "queries execute as four Direct-compatible BM64 blocks",
+            "physical BK16 traversal order is strictly increasing across tiles",
+            "unselected token lanes contribute exact zero probabilities",
+            "FP32 accumulators are stored and reloaded without arithmetic",
+            "BF16 output rounding occurs only after the final physical tile",
+            "K-phase and V-phase arenas alias and never coexist at peak",
+            "dynamic allocation and host-visible tile counts remain zero",
+            "only final Q256 attention output crosses the native boundary",
+        ),
+        production_admission_changed=False,
+    )

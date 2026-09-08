@@ -1651,6 +1651,16 @@ physical BK16 value tiles across a 64-query block, preserve the Q256 Direct
 reduction order, and carry only a bounded FP32 accumulator between value
 tiles; it must not duplicate selected V per query.
 
+The replacement Q256 value-pass contract is now fixed. It executes four
+Direct-compatible BM64 query blocks over up to eight ascending 65,536-row
+physical K tiles. A single 1 GiB projected-V tile is shared by all queries;
+an 8 MiB FP32 accumulator carries the exact BK16 reduction state across tile
+boundaries and rounds to BF16 only after the final tile. This removes the
+rejected 8.01 GiB query-local selected-V arena. With K/V phases aliased, the
+maximum planned arena is 4,496,490,496 bytes (4.19 GiB), well inside the
+qualified native budget. The next implementation target is therefore the
+BM64 shared physical-value tile kernel, not another query-local scatter.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

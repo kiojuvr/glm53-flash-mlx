@@ -1,0 +1,62 @@
+{
+  "accepted": true,
+  "checks": {
+    "512k_is_eight_65k_physical_tiles": true,
+    "eliminates_at_least_8gib_query_local_selected_v": true,
+    "fp32_accumulator_is_exactly_8mib": true,
+    "phase_aliased_arena_fits_native_budget": true,
+    "production_admission_unchanged": true,
+    "q256_is_four_bm64_query_blocks": true,
+    "q256_rejection_is_preserved_as_design_evidence": true,
+    "shared_value_tile_is_exactly_1gib": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "implement_exact_bm64_shared_physical_value_tile",
+  "plan": {
+    "abi": "glm53-native-q256-shared-physical-bk16-value-pass-v1",
+    "available_native_arena_bytes": 14043149568,
+    "execution_phases": [
+      "consume_owned_q256_precise_probabilities",
+      "iterate_physical_k_tiles_in_ascending_order",
+      "project_one_shared_physical_bk16_value_tile",
+      "execute_four_bm64_query_blocks_against_shared_value_tile",
+      "carry_fp32_attention_accumulator_to_next_physical_tile",
+      "round_bfloat16_once_after_final_physical_tile"
+    ],
+    "fp32_attention_accumulator_bytes": 8388608,
+    "invariants": [
+      "query-local selected V materialization is forbidden",
+      "one projected physical value tile is shared by all 256 queries",
+      "queries execute as four Direct-compatible BM64 blocks",
+      "physical BK16 traversal order is strictly increasing across tiles",
+      "unselected token lanes contribute exact zero probabilities",
+      "FP32 accumulators are stored and reloaded without arithmetic",
+      "BF16 output rounding occurs only after the final physical tile",
+      "K-phase and V-phase arenas alias and never coexist at peak",
+      "dynamic allocation and host-visible tile counts remain zero",
+      "only final Q256 attention output crosses the native boundary"
+    ],
+    "mapping_bytes": 4725504,
+    "maximum_phase_arena_bytes": 4496490496,
+    "maximum_physical_tiles_512k": 8,
+    "measured_q256_direct_ms": 24.715458,
+    "measured_q256_rejected_ms": 309.255709,
+    "measured_q4_candidate_ms": 21.152959,
+    "measured_q4_direct_ms": 19.422083,
+    "physical_value_tile_rows": 65536,
+    "planned_key_phase_bytes": 4496490496,
+    "planned_value_phase_bytes": 1288379136,
+    "probability_bytes": 67207168,
+    "production_admission_changed": false,
+    "projected_value_tile_bytes": 1073741824,
+    "qk_score_bytes": 67207168,
+    "query_block_rows": 64,
+    "query_blocks": 4,
+    "query_rows": 256,
+    "rejected_query_local_selected_value_bytes": 8602517504,
+    "selected_width": 2051
+  },
+  "runtime_changes": false,
+  "schema": "glm53-q256-shared-physical-value-pass-plan-v1"
+}
