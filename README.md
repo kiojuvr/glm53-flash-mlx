@@ -1639,6 +1639,18 @@ scratch to 406.3 MiB. The score surface is no longer an execution boundary;
 the tiled value projection/AV pass can consume the owned probability buffer
 directly.
 
+The first tiled value-pass composition is intentionally split into a positive
+Q4 correctness result and a negative Q256 architecture result. At Q4, valid
+selected-V projections and the final attention output are byte exact, though
+the extra boundary costs 19.42 to 21.15 ms (0.918x). Expanding that design
+literally to Q256 creates an 8.01 GiB query-local selected-V arena and invokes
+the Q4 AV topology 256 times. Selected-V samples remain exact, but wall
+regresses from 24.72 to 309.26 ms and the final output diverges from the Q256
+Direct reduction topology. This path is rejected. The replacement must share
+physical BK16 value tiles across a 64-query block, preserve the Q256 Direct
+reduction order, and carry only a bounded FP32 accumulator between value
+tiles; it must not duplicate selected V per query.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

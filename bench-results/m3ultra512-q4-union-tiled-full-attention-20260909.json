@@ -1,0 +1,46 @@
+{
+  "accepted": true,
+  "anchors": {
+    "attention_output": true,
+    "selected_value_projection": true
+  },
+  "checks": {
+    "q4_boundary_tax_measured_for_q256_gate": true,
+    "qk_softmax_value_av_single_fixed_scope": true,
+    "scratch_at_most_600mib": true,
+    "selected_value_and_full_attention_byte_exact": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_exact_union_tiled_full_attention_to_q256_reuse_gate",
+  "direct_timing": {
+    "median_wall_ms": 19.422083,
+    "samples_ms": [
+      19.341,
+      19.422083,
+      19.649084
+    ]
+  },
+  "geometry": {
+    "heads": 64,
+    "physical_k": 8192,
+    "query_rows": 4,
+    "selected_width": 2051,
+    "tile_count": 2,
+    "tile_rows": 4096
+  },
+  "native_timing": {
+    "median_wall_ms": 21.152959,
+    "samples_ms": [
+      21.152959,
+      21.171875,
+      21.10475
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-q4-union-tiled-full-attention-v1",
+  "scratch_bytes": 478780676,
+  "selected_value_edge_bytes": 134414336,
+  "speedup": 0.9181733392477148
+}

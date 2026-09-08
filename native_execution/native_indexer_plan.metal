@@ -1353,6 +1353,41 @@ void glm53_native_projected_union_qk_tile_bfloat16(
   }
 }
 
+// Scatter one projected V union tile into query-local selected-edge storage.
+// One 128-thread group owns one query/selected edge and copies every head;
+// only the tile containing that edge writes it.
+[[kernel]] void glm53_native_scatter_projected_union_value_tile_bfloat16(
+    device const bfloat* projected_union_value [[buffer(0)]],
+    device const int* query_union_slots [[buffer(1)]],
+    device const bool* selected_valid [[buffer(2)]],
+    device const uint* union_count [[buffer(3)]],
+    device bfloat* selected_values [[buffer(4)]],
+    constant const uint& selected_edges [[buffer(5)]],
+    constant const int& tile_offset [[buffer(6)]],
+    constant const int& tile_rows [[buffer(7)]],
+    uint edge [[threadgroup_position_in_grid]],
+    uint column [[thread_index_in_threadgroup]]) {
+  constexpr uint kHeads = 64;
+  constexpr uint kSelectedWidth = 2051;
+  constexpr uint kValueDim = 128;
+  if (edge >= selected_edges || column >= kValueDim) return;
+  int slot = query_union_slots[edge];
+  bool owned = selected_valid[edge] && slot >= tile_offset &&
+      uint(slot) < union_count[0] && slot < tile_offset + tile_rows;
+  if (!owned) return;
+  uint query_row = edge / kSelectedWidth;
+  uint selected = edge % kSelectedWidth;
+  uint local_slot = uint(slot - tile_offset);
+  for (uint head = 0; head < kHeads; ++head) {
+    size_t source =
+        (size_t(head) * uint(tile_rows) + local_slot) * kValueDim + column;
+    size_t destination =
+        ((size_t(query_row) * kHeads + head) * kSelectedWidth + selected) *
+        kValueDim + column;
+    selected_values[destination] = projected_union_value[source];
+  }
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan

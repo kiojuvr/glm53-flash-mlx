@@ -23,7 +23,8 @@ class NativeProjectedQKUnionTileLoopPlan {
 public:
   explicit NativeProjectedQKUnionTileLoopPlan(
       int physical_k, int attention_query_rows = 4,
-      int tile_rows = 4096, bool softmax_enabled = false);
+      int tile_rows = 4096, bool softmax_enabled = false,
+      bool value_enabled = false);
 
   mx::array execute(
       const mx::array &selected_indices, const mx::array &selected_valid,
@@ -33,6 +34,11 @@ public:
       const mx::array &selected_indices, const mx::array &selected_valid,
       const mx::array &latent, const mx::array &key_weight,
       const mx::array &attention_query, float attention_scale);
+  mx::array execute_attention(
+      const mx::array &selected_indices, const mx::array &selected_valid,
+      const mx::array &latent, const mx::array &key_weight,
+      const mx::array &value_weight, const mx::array &attention_query,
+      float attention_scale);
 
   int physical_k() const { return physical_k_; }
   int tile_rows() const { return tile_rows_; }
@@ -40,6 +46,7 @@ public:
   int query_rows() const { return attention_query_rows_; }
   int selected_width() const { return kSelectedWidth; }
   bool softmax_enabled() const { return softmax_enabled_; }
+  bool value_enabled() const { return value_enabled_; }
   uint64_t execution_count() const { return execution_count_; }
   uint64_t dynamic_allocation_count() const { return 0; }
   uint64_t graph_node_count() const { return 0; }
@@ -63,18 +70,25 @@ public:
   mx::array debug_attention_probabilities() const {
     return attention_probabilities_;
   }
+  mx::array debug_projected_union_value_tile() const {
+    return projected_union_value_tile_;
+  }
+  mx::array debug_selected_values() const { return selected_values_; }
 
 private:
   static constexpr int kSelectionQueryRows = 256;
   static constexpr int kHeads = 64;
   static constexpr int kLatentDim = 512;
+  static constexpr int kValueDim = 128;
   static constexpr int kSelectedWidth = 2051;
 
   int physical_k_;
   int attention_query_rows_;
   int tile_rows_;
   int tile_count_;
+  int packed_k_;
   bool softmax_enabled_;
+  bool value_enabled_;
   mx::Stream stream_;
   NativeSelectedUnionPlan union_plan_;
   mx::array union_latent_tile_;
@@ -82,12 +96,20 @@ private:
   mx::array scaled_queries_;
   mx::array attention_scores_;
   mx::array attention_probabilities_;
+  mx::array projected_union_value_tile_;
+  mx::array selected_values_;
+  mx::array lane_to_selected_;
+  mx::array attention_output_;
   MTL::ComputePipelineState *clear_scores_pipeline_{nullptr};
   MTL::ComputePipelineState *gather_tile_pipeline_{nullptr};
   MTL::ComputePipelineState *projection_pipeline_{nullptr};
   MTL::ComputePipelineState *query_scale_pipeline_{nullptr};
   MTL::ComputePipelineState *projected_qk_pipeline_{nullptr};
   MTL::ComputePipelineState *softmax_pipeline_{nullptr};
+  MTL::ComputePipelineState *value_projection_pipeline_{nullptr};
+  MTL::ComputePipelineState *scatter_value_pipeline_{nullptr};
+  MTL::ComputePipelineState *map_pipeline_{nullptr};
+  MTL::ComputePipelineState *av_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 

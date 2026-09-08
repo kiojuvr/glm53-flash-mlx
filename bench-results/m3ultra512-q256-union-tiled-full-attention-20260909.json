@@ -1,0 +1,46 @@
+{
+  "accepted": false,
+  "anchors": {
+    "q256_attention_output": false,
+    "selected_value_samples": true
+  },
+  "checks": {
+    "q256_full_attention_fixed_native_scope": true,
+    "q256_full_attention_speedup_at_least_1_20x": false,
+    "q256_selected_value_samples_and_output_byte_exact": false,
+    "scratch_at_most_10gib": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_or_redesign_q256_union_tiled_value_pass",
+  "direct_timing": {
+    "median_wall_ms": 24.715458,
+    "samples_ms": [
+      24.88525,
+      24.715458,
+      24.568583
+    ]
+  },
+  "geometry": {
+    "heads": 64,
+    "physical_k": 8192,
+    "query_rows": 256,
+    "selected_width": 2051,
+    "tile_count": 2,
+    "tile_rows": 4096
+  },
+  "native_timing": {
+    "median_wall_ms": 309.255709,
+    "samples_ms": [
+      308.573458,
+      309.255709,
+      309.339333
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-q256-union-tiled-full-attention-v1",
+  "scratch_bytes": 9099841796,
+  "selected_value_edge_bytes": 8602517504,
+  "speedup": 0.07991916488759145
+}
