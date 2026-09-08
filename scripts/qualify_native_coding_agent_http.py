@@ -358,7 +358,7 @@ def _phase_local_checks(phase: str, row: dict[str, Any]) -> dict[str, bool]:
         for name in REQUEST_NAMES
     )
     expected_executes = sum(
-        max(0, int(requests[name]["usage"].get("completion_tokens", 0)) - 1)
+        max(0, int(requests[name]["usage"].get("completion_tokens", 0)))
         for name in REQUEST_NAMES
     ) * EXPECTED_DSA_LAYERS
     observed_executes = sum(

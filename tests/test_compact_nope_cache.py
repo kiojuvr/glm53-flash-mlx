@@ -11,7 +11,9 @@ except ImportError:
 
 from glm53_flash_mlx.nope_cache import (
     CompactIndexPoolCache,
+    REFERENCE_PREFILL_QUERY_BLOCK_ROWS,
     SingleNoPELatentCache,
+    _prefill_query_block_rows,
     make_compact_nope_dsa_cache,
 )
 from glm53_flash_mlx.patch import apply_runtime_patch
@@ -174,6 +176,32 @@ def test_apc_clone_without_capacity_override_preserves_compact_state():
     assert original.meta_state == restored.meta_state
     assert restored[0].physical_capacity_tokens >= restored[0].offset
     assert restored[1].physical_capacity_rows >= restored[1].logical_pool_count
+
+
+def test_exact_apc_warm_merge_admits_owned_single_compact_row():
+    from mlx_vlm.apc import make_warm_batch_exact_cache_multi
+
+    indexer = _make_indexer(topk=32)
+    original = make_compact_nope_dsa_cache(indexer, capacity_tokens=64)
+    _append_combined(indexer, original, 0, 32)
+    before = _copy_tree(original.state)
+
+    merged, prefix_len = make_warm_batch_exact_cache_multi([[original]], [32])
+
+    assert merged is not None
+    assert prefix_len == 32
+    assert len(merged) == 1
+    _assert_tree_equal(original.state, merged[0].state)
+    merged[0][0].keys[..., 0, :] = 7
+    mx.eval(merged[0][0].keys)
+    _assert_tree_equal(before, original.state)
+
+
+def test_compact_prefill_preserves_direct_query_geometry_until_budget_reduction():
+    assert REFERENCE_PREFILL_QUERY_BLOCK_ROWS == 512
+    assert _prefill_query_block_rows(SimpleNamespace(query_block_rows=2048)) == 512
+    assert _prefill_query_block_rows(SimpleNamespace(query_block_rows=512)) == 512
+    assert _prefill_query_block_rows(SimpleNamespace(query_block_rows=256)) == 256
 
 
 def test_sparse_decode_indices_match_full_history_cache_for_16_steps():

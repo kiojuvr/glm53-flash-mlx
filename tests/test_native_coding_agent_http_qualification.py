@@ -43,7 +43,7 @@ def _request_row(*, cached: int, digest: str, native_delta: int = 0):
 
 
 def _phase_row(*, native: bool):
-    per_request = 255 * 11 if native else 0
+    per_request = 256 * 11 if native else 0
     return {
         "fixture": {"prompt": "same"},
         "requests": {
@@ -122,8 +122,8 @@ def test_phase_gates_prefix_reuse_native_execution_and_peak():
     native = _phase_row(native=True)
     assert all(module._phase_local_checks("baseline", baseline).values())
     assert all(module._phase_local_checks("native", native).values())
-    assert native["resource"]["observed_native_execution_count"] == 8_415
-    assert native["resource"]["expected_native_execution_count"] == 8_415
+    assert native["resource"]["observed_native_execution_count"] == 8_448
+    assert native["resource"]["expected_native_execution_count"] == 8_448
 
 
 def test_cross_backend_gate_requires_exact_outputs_usage_and_15_tps():

@@ -22,7 +22,11 @@ DEFAULT_CACHE_STEP = (
 )
 DEFAULT_ROLLBACK_WINDOW = 16
 DEFAULT_CAPACITY_TOKENS = 4352
-MAX_PREFILL_QUERY_BLOCK_ROWS = 256
+# The pinned Direct Indexer uses 512 query rows per prefill score dispatch.
+# Preserve that execution geometry whenever it fits the bounded workspace so
+# Metal selects the same numerical kernel. The workspace planner still lowers
+# this at larger contexts (256 rows at 256K, 64 rows at 1M).
+REFERENCE_PREFILL_QUERY_BLOCK_ROWS = 512
 
 
 def _concat(left: mx.array | None, right: mx.array) -> mx.array:
@@ -31,6 +35,41 @@ def _concat(left: mx.array | None, right: mx.array) -> mx.array:
     if right.shape[1] == 0:
         return left
     return mx.concatenate([left, right], axis=1)
+
+
+def _owned_state_tree(value):
+    """Detach every MLX leaf for a live cache created from an APC row."""
+    if isinstance(value, mx.array):
+        return mx.contiguous(mx.array(value, dtype=value.dtype))
+    if isinstance(value, tuple):
+        return tuple(_owned_state_tree(item) for item in value)
+    if isinstance(value, list):
+        return [_owned_state_tree(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _owned_state_tree(item) for key, item in value.items()}
+    return value
+
+
+def _merge_single_exact_row(cache_type, caches, prefix_lens):
+    """Create an owned single-sequence live cache from one exact APC row."""
+    if len(caches) != 1 or len(prefix_lens) != 1:
+        return None
+    source = caches[0]
+    if not isinstance(source, cache_type):
+        return None
+    if int(source.offset) != int(prefix_lens[0]):
+        return None
+    return cache_type.from_state(
+        _owned_state_tree(source.state),
+        source.meta_state,
+    )
+
+
+def _prefill_query_block_rows(geometry) -> int:
+    return min(
+        REFERENCE_PREFILL_QUERY_BLOCK_ROWS,
+        int(geometry.query_block_rows),
+    )
 
 
 def pool_indexer_states(
@@ -228,6 +267,13 @@ class SingleNoPELatentCache:
         obj.state = state
         obj.meta_state = meta_state
         return obj
+
+    @classmethod
+    def merge(cls, caches, prefix_lens):
+        # Compact NoPE is deliberately single-sequence. Exact APC's generic
+        # warm-batch builder still calls merge_rows for B=1, so provide that
+        # narrow contract without admitting aliased or multi-row live state.
+        return _merge_single_exact_row(cls, caches, prefix_lens)
 
     def prefix_cache_snapshot(self):
         return {"state": self.state, "meta_state": self.meta_state}
@@ -513,10 +559,7 @@ class CompactIndexPoolCache:
             index_kpool=self.index_kpool,
             index_topk=self.index_topk,
         )
-        query_block_rows = min(
-            MAX_PREFILL_QUERY_BLOCK_ROWS,
-            geometry.query_block_rows,
-        )
+        query_block_rows = _prefill_query_block_rows(geometry)
         query = indexer.wq_b(qr).reshape(
             1, length, indexer.n_heads, indexer.head_dim
         )
@@ -752,6 +795,10 @@ class CompactIndexPoolCache:
         obj.state = state
         obj.meta_state = meta_state
         return obj
+
+    @classmethod
+    def merge(cls, caches, prefix_lens):
+        return _merge_single_exact_row(cls, caches, prefix_lens)
 
     def prefix_cache_snapshot(self):
         return {"state": self.state, "meta_state": self.meta_state}
