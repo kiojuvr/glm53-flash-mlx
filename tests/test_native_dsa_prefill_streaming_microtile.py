@@ -46,6 +46,23 @@ def test_native_score_plan_explicitly_admits_512k_pool_geometry():
     assert "64-aligned in [512, 131072]" in cpp
 
 
+def test_native_score_plan_prebinds_all_pipelines_before_execute():
+    source = (NATIVE / "native_dsa_score_plan.cpp").read_text()
+    constructor = source[
+        source.index("NativeDSAScoreSelectionPlan::NativeDSAScoreSelectionPlan(") :
+        source.index("void NativeDSAScoreSelectionPlan::validate_input(")
+    ]
+    execute = source[source.index("NativeDSAScoreSelectionPlan::execute(") :]
+    for name in (
+        "gemm_pipeline_",
+        "score_pipeline_",
+        "topk_pipeline_",
+        "expand_pipeline_",
+    ):
+        assert name in constructor
+    assert "device.get_kernel(" not in execute
+
+
 def test_probe_preserves_bf16_head_score_boundary_and_forbids_promotion():
     source = SCRIPT.read_text()
     ast.parse(source)

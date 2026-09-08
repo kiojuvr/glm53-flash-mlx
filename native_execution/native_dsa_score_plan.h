@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <Metal/Metal.hpp>
+
 #include "mlx/array.h"
 #include "mlx/device.h"
 #include "mlx/stream.h"
@@ -26,6 +28,19 @@ public:
           const mx::array &pool_valid, const mx::array &raw_positions,
           const mx::array &raw_valid, const mx::array &current_valid,
           int logical_pool_rows, int kv_len, int active_tail_count);
+
+  // C++-only composed-plan entry point. Inputs may be slices of larger
+  // row-major buffers; the plan-owned score/selection arena is reused and no
+  // intermediate is returned through MLX. All offsets are byte offsets.
+  void encode_microtile(
+      const mx::array &query, int64_t query_offset,
+      const mx::array &mixture_weights, int64_t mixture_weights_offset,
+      const mx::array &pool_keys, const mx::array &pool_indices,
+      const mx::array &pool_valid, const mx::array &raw_positions,
+      int64_t raw_positions_offset, const mx::array &raw_valid,
+      int64_t raw_valid_offset, int raw_rows,
+      const mx::array &current_valid, int64_t current_valid_offset,
+      int logical_pool_rows, int kv_len, int active_tail_count);
 
   const std::string &mode() const { return mode_; }
   int query_rows() const { return query_rows_; }
@@ -62,6 +77,10 @@ private:
   mx::array selected_pool_scratch_;
   mx::array selected_token_indices_;
   mx::array selected_token_valid_;
+  MTL::ComputePipelineState *gemm_pipeline_{nullptr};
+  MTL::ComputePipelineState *score_pipeline_{nullptr};
+  MTL::ComputePipelineState *topk_pipeline_{nullptr};
+  MTL::ComputePipelineState *expand_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 

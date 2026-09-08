@@ -96,6 +96,37 @@ NativeDSAScoreSelectionPlan::NativeDSAScoreSelectionPlan(
     throw std::runtime_error(
         "Tier-1 Steel geometry is qualified only for pre-NAX apple-gpu-d");
   }
+  constexpr int bm = 64;
+  const int matrix_rows = query_rows_ * kHeads;
+  const bool has_batch = false;
+  const bool use_out_source = false;
+  const bool do_axpby = false;
+  const bool align_m = matrix_rows % bm == 0;
+  const bool align_n = true;
+  const bool align_k = true;
+  mx::metal::MTLFCList gemm_constants = {
+      {&has_batch, MTL::DataType::DataTypeBool, 10},
+      {&use_out_source, MTL::DataType::DataTypeBool, 100},
+      {&do_axpby, MTL::DataType::DataTypeBool, 110},
+      {&align_m, MTL::DataType::DataTypeBool, 200},
+      {&align_n, MTL::DataType::DataTypeBool, 201},
+      {&align_k, MTL::DataType::DataTypeBool, 202},
+  };
+  const std::string gemm_name =
+      "glm53_native_steel_gemm_nt_bfloat16_bfloat16_bm64_bn64_bk16_wm1_wn2";
+  const std::string gemm_hash = gemm_name +
+      "_has_batch_f_use_out_source_f_do_axpby_f_align_M_" +
+      (align_m ? "t" : "f") + "_align_N_t_align_K_t";
+  auto *library = device.get_library(
+      "glm53_native_execution", current_binary_dir());
+  gemm_pipeline_ = device.get_kernel(
+      gemm_name, library, gemm_hash, gemm_constants);
+  score_pipeline_ = device.get_kernel(
+      "glm53_native_finish_pooled_score_bfloat16_pool32", library);
+  topk_pipeline_ = device.get_kernel(
+      "glm53_native_exact_partial_topk_512_bfloat16", library);
+  expand_pipeline_ = device.get_kernel(
+      "glm53_native_expand_selected_pools", library);
   initial_buffer_identities_ = buffer_identities();
 }
 
@@ -184,9 +215,44 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
     throw std::out_of_range("KV length or active tail count is invalid");
   }
 
-  auto& device = mx::metal::device(stream_.device);
-  auto* library = device.get_library(
-      "glm53_native_execution", current_binary_dir());
+  const int raw_width = static_cast<int>(raw_positions.shape(-1));
+  const int raw_rows = static_cast<int>(raw_positions.size()) / raw_width;
+  if (raw_rows != 1 && raw_rows != query_rows_) {
+    throw std::invalid_argument(
+        "raw tail batch must be shared or match native query rows");
+  }
+  encode_microtile(
+      query, 0, mixture_weights, 0, pool_keys, pool_indices, pool_valid,
+      raw_positions, 0, raw_valid, 0, raw_rows, current_valid, 0,
+      logical_pool_rows, kv_len, active_tail_count);
+
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error("native DSA plan buffer identity changed during execute");
+  }
+  return {selected_token_indices_, selected_token_valid_};
+}
+
+void NativeDSAScoreSelectionPlan::encode_microtile(
+    const mx::array& query, int64_t query_offset,
+    const mx::array& mixture_weights, int64_t mixture_weights_offset,
+    const mx::array& pool_keys, const mx::array& pool_indices,
+    const mx::array& pool_valid, const mx::array& raw_positions,
+    int64_t raw_positions_offset, const mx::array& raw_valid,
+    int64_t raw_valid_offset, int raw_rows,
+    const mx::array& current_valid, int64_t current_valid_offset,
+    int logical_pool_rows, int kv_len, int active_tail_count) {
+  if (logical_pool_rows < kSelectedPools ||
+      logical_pool_rows > physical_pool_rows_) {
+    throw std::out_of_range("logical pool rows are outside the native plan");
+  }
+  if (kv_len <= 0 || active_tail_count < 0 ||
+      active_tail_count > kTailWidth) {
+    throw std::out_of_range("KV length or active tail count is invalid");
+  }
+  if (raw_rows != 1 && raw_rows != query_rows_) {
+    throw std::invalid_argument(
+        "raw tail microtile batch must be shared or match native query rows");
+  }
   constexpr int bm = 64;
   constexpr int bn = 64;
   constexpr int bk = 16;
@@ -195,33 +261,6 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
   const int matrix_rows = query_rows_ * kHeads;
   const int tiles_n = (physical_pool_rows_ + bn - 1) / bn;
   const int tiles_m = (matrix_rows + bm - 1) / bm;
-  const bool has_batch = false;
-  const bool use_out_source = false;
-  const bool do_axpby = false;
-  const bool align_m = matrix_rows % bm == 0;
-  const bool align_n = physical_pool_rows_ % bn == 0;
-  const bool align_k = kHeadDim % bk == 0;
-  mx::metal::MTLFCList gemm_constants = {
-      {&has_batch, MTL::DataType::DataTypeBool, 10},
-      {&use_out_source, MTL::DataType::DataTypeBool, 100},
-      {&do_axpby, MTL::DataType::DataTypeBool, 110},
-      {&align_m, MTL::DataType::DataTypeBool, 200},
-      {&align_n, MTL::DataType::DataTypeBool, 201},
-      {&align_k, MTL::DataType::DataTypeBool, 202},
-  };
-  const std::string gemm_name =
-      "glm53_native_steel_gemm_nt_bfloat16_bfloat16_bm64_bn64_bk16_wm1_wn2";
-  const std::string gemm_hash = gemm_name +
-      "_has_batch_f_use_out_source_f_do_axpby_f_align_M_" +
-      (align_m ? "t" : "f") + "_align_N_t_align_K_t";
-  auto* gemm = device.get_kernel(
-      gemm_name, library, gemm_hash, gemm_constants);
-  auto* score = device.get_kernel(
-      "glm53_native_finish_pooled_score_bfloat16_pool32", library);
-  auto* topk = device.get_kernel(
-      "glm53_native_exact_partial_topk_512_bfloat16", library);
-  auto* expand = device.get_kernel(
-      "glm53_native_expand_selected_pools", library);
   auto& encoder = mx::metal::get_command_encoder(stream_);
 
   mlx::steel::GEMMParams gemm_params{
@@ -239,8 +278,8 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
       0,
       kHeadDim / bk,
       1};
-  encoder.set_compute_pipeline_state(gemm);
-  encoder.set_input_array(query, 0);
+  encoder.set_compute_pipeline_state(gemm_pipeline_);
+  encoder.set_input_array(query, 0, query_offset);
   // Steel's B operand is buffer(1); pool keys are logically transposed by the
   // instantiated nt loader, without creating a view or a copy.
   encoder.set_input_array(pool_keys, 1);
@@ -250,9 +289,9 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
       MTL::Size(tiles_n, tiles_m, 1), MTL::Size(32, wn, wm));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(score);
+  encoder.set_compute_pipeline_state(score_pipeline_);
   encoder.set_input_array(head_scores_, 0);
-  encoder.set_input_array(mixture_weights, 1);
+  encoder.set_input_array(mixture_weights, 1, mixture_weights_offset);
   encoder.set_input_array(pool_valid, 2);
   encoder.set_output_array(index_scores_, 3);
   encoder.set_bytes(logical_pool_rows, 4);
@@ -263,7 +302,7 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
       MTL::Size(256, 1, 1));
   encoder.barrier();
 
-  encoder.set_compute_pipeline_state(topk);
+  encoder.set_compute_pipeline_state(topk_pipeline_);
   encoder.set_input_array(index_scores_, 0);
   encoder.set_output_array(selected_pool_scratch_, 1);
   encoder.set_bytes(logical_pool_rows, 2);
@@ -274,18 +313,13 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
   encoder.barrier();
 
   const int raw_width = static_cast<int>(raw_positions.shape(-1));
-  const int raw_rows = static_cast<int>(raw_positions.size()) / raw_width;
-  if (raw_rows != 1 && raw_rows != query_rows_) {
-    throw std::invalid_argument(
-        "raw tail batch must be shared or match native query rows");
-  }
-  encoder.set_compute_pipeline_state(expand);
+  encoder.set_compute_pipeline_state(expand_pipeline_);
   encoder.set_input_array(selected_pool_scratch_, 0);
   encoder.set_input_array(pool_indices, 1);
   encoder.set_input_array(pool_valid, 2);
-  encoder.set_input_array(raw_positions, 3);
-  encoder.set_input_array(raw_valid, 4);
-  encoder.set_input_array(current_valid, 5);
+  encoder.set_input_array(raw_positions, 3, raw_positions_offset);
+  encoder.set_input_array(raw_valid, 4, raw_valid_offset);
+  encoder.set_input_array(current_valid, 5, current_valid_offset);
   encoder.set_output_array(selected_token_indices_, 6);
   encoder.set_output_array(selected_token_valid_, 7);
   encoder.set_bytes(logical_pool_rows, 8);
@@ -297,10 +331,6 @@ std::vector<mx::array> NativeDSAScoreSelectionPlan::execute(
       MTL::Size(kSelectedWidth, query_rows_, 1), MTL::Size(256, 1, 1));
 
   execution_count_++;
-  if (buffer_identities() != initial_buffer_identities_) {
-    throw std::runtime_error("native DSA plan buffer identity changed during execute");
-  }
-  return {selected_token_indices_, selected_token_valid_};
 }
 
 uint64_t NativeDSAScoreSelectionPlan::scratch_bytes() const {
