@@ -1450,6 +1450,23 @@ uv run python scripts/soak_layerwise_kda_state_digests.py \
 
 実機gateではdense FP8 primitive、selected top-8 routing/score/clamp/down、固定promptの16/128-token full-vocab regression trace、256-token prefill、公式checkpoint attestation、OpenAI HTTP completion、`index_topk=2048`境界以降のIndexPool sentinel/rangeとchunked/incremental集合parityを確認します。golden traceは同じruntime由来の回帰検査であり、独立correctness oracleではありません。公式Transformers teacher-forced logits、KDA/DSA/IndexPool/mHCの層別intermediate parityとselected-KV sparse DSA性能はまだ追加gateです。
 
+### Exact sparse-prefill AV operator capture
+
+The remaining 32K sparse-prefill numerical barrier is isolated to the
+BF16 probability-times-value reduction.  Capture the Direct physical-K and
+compact selected-K GEMMs as two bounded, model-free traces before designing
+the native virtual-zero-lane reduction topology:
+
+```bash
+uv run python scripts/run_sparse_prefill_av_operator_captures.py \
+  --trace-dir /tmp/glm53-sparse-prefill-av
+```
+
+The traces are limited to 4 GiB and five minutes each, never contain the model
+checkpoint, and must remain outside the repository.  The JSON artifact keeps
+their canonical hashes and best-effort pipeline labels; Xcode's dynamic trace
+view remains authoritative for the selected Steel GEMM/split-K geometry.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

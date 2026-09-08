@@ -1,0 +1,156 @@
+{
+  "accepted": true,
+  "bk": 16,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "all_query_rows_byte_exact": true,
+    "fixed_capacity_trailing_zero_blocks_byte_exact": true,
+    "packed_k_bounded_by_selected_width_times_bk": true,
+    "physical_bk16_block_order_preserved": true,
+    "physical_bk16_lane_preserved": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_rows_byte_exact": true,
+      "context_tokens": 2048,
+      "max_packed_k": 2048,
+      "max_packed_value_scratch_bytes": 33554432,
+      "rows": [
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 2048,
+          "full_physical_k": 2048,
+          "occupied_physical_bk16_blocks": 128,
+          "packed_k": 2048,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 0,
+          "row": 0,
+          "selected_tokens": 2048
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 2048,
+          "full_physical_k": 2048,
+          "occupied_physical_bk16_blocks": 128,
+          "packed_k": 2048,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 0,
+          "row": 1,
+          "selected_tokens": 2048
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 2048,
+          "full_physical_k": 2048,
+          "occupied_physical_bk16_blocks": 128,
+          "packed_k": 2048,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 0,
+          "row": 2,
+          "selected_tokens": 2048
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 2048,
+          "full_physical_k": 2048,
+          "occupied_physical_bk16_blocks": 128,
+          "packed_k": 2048,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 0,
+          "row": 3,
+          "selected_tokens": 2048
+        }
+      ]
+    },
+    "32768": {
+      "all_rows_byte_exact": true,
+      "context_tokens": 32768,
+      "max_packed_k": 8256,
+      "max_packed_value_scratch_bytes": 135266304,
+      "rows": [
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 32768,
+          "full_physical_k": 32768,
+          "occupied_physical_bk16_blocks": 515,
+          "packed_k": 8240,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 1533,
+          "row": 0,
+          "selected_tokens": 2051
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 32768,
+          "full_physical_k": 32768,
+          "occupied_physical_bk16_blocks": 515,
+          "packed_k": 8240,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 1533,
+          "row": 1,
+          "selected_tokens": 2051
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 32768,
+          "full_physical_k": 32768,
+          "occupied_physical_bk16_blocks": 515,
+          "packed_k": 8240,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 1533,
+          "row": 2,
+          "selected_tokens": 2051
+        },
+        {
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "fixed_capacity_byte_exact": true,
+          "fixed_capacity_different_output_elements": 0,
+          "fixed_capacity_k": 32768,
+          "full_physical_k": 32768,
+          "occupied_physical_bk16_blocks": 516,
+          "packed_k": 8256,
+          "physical_block_order_preserved": true,
+          "physical_lane_preserved": true,
+          "removed_empty_bk16_blocks": 1532,
+          "row": 3,
+          "selected_tokens": 2051
+        }
+      ]
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "implement_native_virtual_physical_bk16_av",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-virtual-physical-bk16-sparse-prefill-av-v1"
+}
