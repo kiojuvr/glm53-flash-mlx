@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,7 @@ from glm53_flash_mlx.manifest import (
 )
 from glm53_flash_mlx.server import (
     ADMISSION_POLICY,
+    DEFAULT_RUNTIME_BACKEND,
     DEFAULT_MAX_CONTEXT_TOKENS,
     DEFAULT_FIRST_TOKEN_TIMEOUT_SECONDS,
     DEFAULT_MAX_GENERATION_TOKENS,
@@ -29,9 +31,28 @@ from glm53_flash_mlx.server import (
     admission_snapshot,
     build_parser,
     configure_m3_ultra,
+    resolve_runtime_backend,
     validate_admission,
     validate_cache_apc_policy,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _resolve_parser_runtime(*argv: str):
+    args = build_parser().parse_args(list(argv))
+    return resolve_runtime_backend(
+        runtime_backend=args.runtime_backend,
+        experimental_packed_decode_moe=args.experimental_packed_decode_moe,
+        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+        experimental_compact_nope_dsa_cache=(
+            args.experimental_compact_nope_dsa_cache
+        ),
+        experimental_native_indexpool_update=(
+            args.experimental_native_indexpool_update
+        ),
+    )
 
 
 def test_m3_defaults(monkeypatch, tmp_path):
@@ -70,6 +91,66 @@ def test_m3_defaults(monkeypatch, tmp_path):
     assert os.environ["GLM53_EXPERIMENTAL_PACKED_GROUPED_MOE"] == "0"
     assert os.environ["GLM53_EXPERIMENTAL_COMPACT_NOPE_DSA_CACHE"] == "0"
     assert os.environ["GLM53_CACHE_BACKEND"] == "direct"
+
+
+def test_production_server_defaults_to_qualified_native_stack():
+    runtime = _resolve_parser_runtime()
+    assert DEFAULT_RUNTIME_BACKEND == "native"
+    assert runtime.profile == "native"
+    assert runtime.packed_decode_moe
+    assert not runtime.packed_grouped_moe
+    assert runtime.compact_nope_dsa_cache
+    assert runtime.native_indexpool_update
+
+
+def test_direct_profile_preserves_oracle_and_fallback_stack():
+    runtime = _resolve_parser_runtime("--runtime-backend", "direct")
+    assert runtime.profile == "direct"
+    assert not runtime.packed_decode_moe
+    assert not runtime.packed_grouped_moe
+    assert not runtime.compact_nope_dsa_cache
+    assert not runtime.native_indexpool_update
+
+
+def test_legacy_component_flags_preserve_archived_probe_semantics():
+    packed_only = _resolve_parser_runtime("--experimental-packed-decode-moe")
+    assert packed_only.profile == "legacy-custom"
+    assert packed_only.packed_decode_moe
+    assert not packed_only.compact_nope_dsa_cache
+    assert not packed_only.native_indexpool_update
+
+    grouped_only = _resolve_parser_runtime("--experimental-packed-grouped-moe")
+    assert grouped_only.profile == "legacy-custom"
+    assert grouped_only.packed_grouped_moe
+    assert not grouped_only.packed_decode_moe
+
+
+def test_named_profile_and_legacy_components_are_mutually_exclusive():
+    with pytest.raises(ValueError, match="cannot be combined"):
+        _resolve_parser_runtime(
+            "--runtime-backend",
+            "native",
+            "--experimental-packed-decode-moe",
+        )
+
+
+def test_default_promotion_is_backed_by_accepted_real_http_qualification():
+    artifact = json.loads(
+        (
+            ROOT
+            / "bench-results"
+            / "m3ultra512-native-coding-agent-http-20260908.json"
+        ).read_text()
+    )
+    assert artifact["complete"] is True
+    assert artifact["accepted"] is True
+    assert artifact["decision"] == "qualify_native_backend_for_real_coding_agent_http"
+    assert all(artifact["cross_arm_checks"].values())
+    assert artifact["configuration"]["arms"]["native"] == {
+        "cache_backend": "compact-nope-dsa",
+        "moe_backend": "packed-decode",
+        "native_indexpool_update": True,
+    }
 
 
 def test_production_materialization_interval_overwrites_user_environment(

@@ -1,6 +1,6 @@
 # GLM-5.3-Flash MLX runtime for M3 Ultra 512 GB
 
-`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。既定は公式tensor layoutとDirect NoPE cacheを使う経路です。exactなpacked decode MoE、correctness未合格のpacked grouped FP8 prefill、およびsingle-latent＋compact IndexPool cacheをそれぞれ実験的にopt-inできます。compactの長文sparse DSA prefillはbatch 1・unpadded inputだけを明示的に扱い、それ以外はcache mutation前にfail closedします。
+`zai-org/GLM-5.3-Flash`をApple M3 Ultra 512 GBで動かすための、text-only・single-node・decode-first runtimeです。OpenCodeなどから利用できるOpenAI互換APIを提供します。production serverの既定は、公式FP8 tensorを層単位の連続bankへ移すexact packed decode MoE、single-latent＋compact IndexPool cache、native IndexPool update/Tier-1 selection islandを組み合わせたqualified native stackです。MLX Directはcorrectness oracleと明示fallbackとして維持します。correctness未合格のpacked grouped FP8 prefillは引き続き実験的opt-inです。compactの長文sparse DSA prefillはbatch 1・unpadded inputだけを明示的に扱い、それ以外はcache mutation前にfail closedします。
 
 提供する主なendpointは次のとおりです。
 
@@ -48,36 +48,44 @@ Metal kernelが128×128 block scaleを参照し、weightをregister/threadgroup�
 ## 3. OpenAI互換serverを起動する
 
 ```bash
+uv run python scripts/build_native_execution_engine.py
+
 uv run glm53 serve \
   --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --host 127.0.0.1 \
   --port 8080
 ```
 
-batch-1 decodeだけをpacked selected top-8 kernelへ移し、prefillではpacked bank上のDirect演算順を維持するexact backendは次のflagで有効化します。
+flagなしの`serve`は、実coding-agent HTTP workloadでqualifiedした次のstackを選びます。
+
+```text
+MoE           exact packed decode v2
+NoPE DSA      compact single-latent / IndexPool
+IndexPool L=1 native update + Tier-1 selection island
+prefill       Direct-compatible exact packed-bank semantics
+```
+
+native extensionが未build、MLX ABIが不一致、またはmetallibが欠落している場合は起動前にfail closedします。silent fallbackはしません。MLX Direct oracle/fallbackを明示的に起動する場合は次を使います。
 
 ```bash
 uv run glm53 serve \
   --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
-  --experimental-packed-decode-moe \
-  --experimental-compact-nope-dsa-cache
+  --runtime-backend direct
 ```
 
-`L=1`は連続bankを直接読むgate/up/downの3 kernel、`L>1`はDirectと同じexpert bucket、tiled-GEMM/GEMV、BF16 reduction順を使います。grouped kernelは呼びません。`--experimental-packed-grouped-moe`とは排他的で、どちらも指定しない既定backendはDirectのままです。
+`L=1` MoEは連続bankを直接読むexact fused topology、`L>1`はDirectと同じexpert bucket、tiled-GEMM/GEMV、BF16 reduction順を使います。grouped kernelは呼びません。native IndexPool pathはMLX 0.32.2、batch 1、L=1、maskなし、`index_kpool=4`、`index_topk=2048`、32 heads × head dim 128、raw19、および64-row aligned physical pool 512–65,600に限定します。範囲外geometryは既存MLX実装へfallbackします。
 
-別buildのnative extensionで、sparse decode時のcompact IndexPool更新とqualified Tier-1 selectionを一つのsubmission islandへ移す場合は、先にextensionをbuildして3つのopt-in flagを同時指定します。
+`--experimental-packed-decode-moe`、`--experimental-compact-nope-dsa-cache`、`--experimental-native-indexpool-update`は、過去のprobe armを同じ構成で再現するためのcomponent-level互換flagとして残します。これらを1つでも指定した場合はproduction defaultを暗黙追加せず、指定したcomponentだけを使います。`--runtime-backend`との併用は曖昧さを避けるためfail closedします。
+
+accepted native stackをcomponent flagで明示する旧形式は次と等価です。
 
 ```bash
-uv run python scripts/build_native_execution_engine.py
-
 uv run glm53 serve \
   --model /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash \
   --experimental-packed-decode-moe \
   --experimental-compact-nope-dsa-cache \
   --experimental-native-indexpool-update
 ```
-
-native IndexPool pathはMLX 0.32.2、batch 1、L=1、maskなし、`index_kpool=4`、`index_topk=2048`、32 heads × head dim 128、raw19、および64-row aligned physical pool 512–65,600に限定します。範囲外geometryは既存MLX実装へfallbackし、extension欠落・MLX ABI不一致はserver起動前にfail closedします。このflagも既定offです。
 
 全42 routed MoE層を層単位で連続FP8 bankへ移行し、GPU sorted grouped prefillを使う場合だけ次を指定します。公式FP8＋FP32 scaleのままで、BF16 weight copyは作りません。
 
@@ -97,7 +105,7 @@ uv run glm53 serve \
   --experimental-compact-nope-dsa-cache
 ```
 
-この経路は11 DSA層を`SingleNoPELatentCache + CompactIndexPoolCache`へ切り替えます。prefillから直接compact poolを構築し、serverの総context capacityを絶対位置として予約します。既定36,864-token capacityでは32,768-token prompt＋4,096-token generationを再確保なしに保持します。raw rollback state上限は監査済み`index_kpool`から`16 + index_kpool - 1`として導出され、公式checkpointでは19 tokenです。batch 1専用で、batch > 1はfail closedします。既定Direct cacheとMoE backendは変わりません。
+この経路は11 DSA層を`SingleNoPELatentCache + CompactIndexPoolCache`へ切り替えます。prefillから直接compact poolを構築し、serverの総context capacityを絶対位置として予約します。既定36,864-token capacityでは32,768-token prompt＋4,096-token generationを再確保なしに保持します。raw rollback state上限は監査済み`index_kpool`から`16 + index_kpool - 1`として導出され、公式checkpointでは19 tokenです。batch 1専用で、batch > 1はfail closedします。
 
 通常運転では同時sequenceを1に固定し、interactive decodeを優先します。既定memory設定はwired 440 GB、MLX cache 32 GB、prefill chunk 2048 tokensです。
 
@@ -150,15 +158,14 @@ API keyを有効にした場合は、exampleの`options.apiKey`を`"{env:GLM53_A
 既定ではAPCを無効化しています。通常のBF16 hybrid state/KV cache容量は512 GB構成で十分であり、まず単一sessionの正しさを優先するためです。明示的に検証する場合だけ有効化してください。
 
 ```bash
-# Direct cacheのRAM APCを有効化
+# 既定native stackのRAM exact-snapshot APC
 uv run glm53 serve --apc --apc-blocks 256
 
-# compact NoPE cacheのRAM exact-snapshot APC
-uv run glm53 serve --apc --apc-blocks 256 \
-  --experimental-compact-nope-dsa-cache
+# MLX Direct fallbackのRAM APC
+uv run glm53 serve --runtime-backend direct --apc --apc-blocks 256
 
-# SSD tierも使う（experimental。attested content identityを使用）
-uv run glm53 serve --apc --apc-blocks 512 \
+# SSD tierも使う（Direct限定・experimental・attested content identity）
+uv run glm53 serve --runtime-backend direct --apc --apc-blocks 512 \
   --apc-disk-path /Volumes/SDXC-512/glm53-apc \
   --experimental-disk-apc
 ```
@@ -172,14 +179,14 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 - 対象はM3 Ultra 512 GB、batch 1、text target stackです。
 - MTPはcorrectnessと追加weight trafficのgateが未完了のため既定offです。
 - text-only runtimeではvision towerをloadしません。
-- 1Mはmodel-native上限にすぎません。server既定はprompt 256、総context 16,384です。OpenCode exampleは安全な総context 4,352（prompt 256 + output 4,096）を広告します。
-- 既定のbatch-1 decodeはtop-8 expertを3個のMetal kernelへ融合しています。packed-decode opt-inは連続bankを直接読み、4,096-token実測で10.87から12.54 tok/sへ向上しました。
-- 既定prefillはCPU expert bucketです。packed-decodeも同じDirect semanticsを維持します。packed-grouped opt-inだけがGPU route sortとgrouped MMAを全42 MoE層へ適用しますが、full-model correctness未合格です。DSA full-KV SDPAは残り、prompt上限256も変更していません。
-- 設計レポートの15 tok/s gateに対し、現在の常駐後実測は11.4 tok/sです。API/runtimeとして利用可能ですが、このperformance gateは未達です。
+- 1Mはmodel-native上限にすぎません。server既定の総contextは36,864で、32,768-token prompt＋4,096-token generationを正式に受理します。
+- 既定backendはexact packed decode MoE＋compact NoPE DSA cache＋native IndexPool updateです。extensionをbuildしていない環境は起動前にfail closedし、`--runtime-backend direct`でMLX Directへ明示的に戻せます。
+- 既定prefillはpacked bank上でDirect-compatibleな演算順を維持します。correctness未合格のGPU grouped prefillだけは`--experimental-packed-grouped-moe`によるprobe用途のままです。
+- 32K real coding-agent HTTP qualificationではnative warm decode 15.662 tok/s、cold/suffix decode 15.703/15.682 tok/s、peak 337.096 GBで、Directとのchoice/logprobs/usage/prefix hitがexact一致しました。
 
 ## M3 Ultra 512 GB実測
 
-2026-08-28〜09-05、このリポジトリの公式checkpointで測定した値です。
+2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。
 
 | 項目 | 実測 |
 |---|---:|
@@ -193,6 +200,7 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 | greedy oracle | 固定prompt、16/128 tokens、各step全vocab logits hash |
 | latest official chat template | 62/62 shard＋tokenizer/config/index同一 / templateのみ変更 / 10 fixture official-runtime exact |
 | coding-agent prefix APC 4K–32K | cold 43.7–44.9 tok/s / exact hit 12/12 / suffix logits・KDA・DSA・IndexPool exact / 32K peak 336.420 GB |
+| default native coding-agent HTTP | cold/suffix/warm decode 15.703/15.682/15.662 tok/s / Direct choice・logprobs・usage exact / APC hit 30,720・32,768 / peak 337.096 GB |
 | layer 3 packed expert feasibility | 6.752 GiB / pack 0.202 s / peak 327.02 GB / steady +4 bytes |
 | layer 3 grouped FP8 MoE, 256 tokens | 111.50 → 22.03 ms / 5.06× / working peak +319.7 MB |
 | full-model opt-in grouped prefill, 256 tokens | warm median 5.675 → 2.324 s / 2.442×（2 warmup＋5 samples） |
@@ -1283,11 +1291,11 @@ uv run python scripts/qualify_native_indexpool_runtime.py \
 
 component gateは2K非劣化、256K wall 0.75 ms/token以上短縮、両contextの全logits/token/cache state exact、全11 DSA層のnative execute、4,096-stepと16 materialization checkpoint exact、公式16/128 oracle、fresh server ready 190秒以内、peak 340 GB以内です。2K 15 tok/sは独立したrelease gateとして固定し、component採用条件と混同しません。
 
-M3 Ultra qualificationでは、exact fused packed＋compactのMLX IndexPool基準に対して、native runtimeは2Kを70.316→63.495 ms/token（14.222→15.749 tok/s、1.107×）、256Kを73.381→67.227 ms/token（13.627→14.875 tok/s、1.092×）へ短縮しました。2K→256K retentionは0.944、全screen logits/token/cache stateと公式16/128 oracleはbyte-exactです。4,096-step differentialでも45,056/45,056 native DSA executions、16/16 materialization checkpoint、全step full-vocab logits/token、最終cache stateがexactで、NaNは0、peakは320.788 GBでした。fresh serverは174.952秒でreadyとなり、health/metrics HTTP 200とnative runtime ABIを確認しました。component gateと固定15 tok/s release gateの双方を通過したため、この組合せをexact opt-in production backendとしてKEEPします。
+M3 Ultra qualificationでは、exact fused packed＋compactのMLX IndexPool基準に対して、native runtimeは2Kを70.316→63.495 ms/token（14.222→15.749 tok/s、1.107×）、256Kを73.381→67.227 ms/token（13.627→14.875 tok/s、1.092×）へ短縮しました。2K→256K retentionは0.944、全screen logits/token/cache stateと公式16/128 oracleはbyte-exactです。4,096-step differentialでも45,056/45,056 native DSA executions、16/16 materialization checkpoint、全step full-vocab logits/token、最終cache stateがexactで、NaNは0、peakは320.788 GBでした。fresh serverは174.952秒でreadyとなり、health/metrics HTTP 200とnative runtime ABIを確認しました。component gateと固定15 tok/s release gateの双方を通過し、続くreal coding-agent HTTP qualificationまではexact opt-in production backendとしてKEEPしました。
 
 ### Native backend coding-agent HTTP qualification
 
-KEEPしたnative IndexPool backendを、実repository text、system prompt、tool schema、conversation history、assistant tool call、tool resultを含む32K OpenAI-compatible workloadで最終比較します。baselineはaccepted Direct cache、nativeはcompact cache＋native IndexPoolとし、320 GB級allocator stateを共有しない別server processで同じatomic artifactへ順に記録します。native IndexPool単体のcompact MLX比較は上記component qualificationを正本とし、ここではcandidate stack全体をDirect HTTP oracleへ照合します。各armはcold 32K request、guarded 32K prefixを再利用するtool-result suffix、extended prefixを再利用する同一suffix warm repeatをそれぞれ256 token生成します。したがってcold 32K prefillは各processで1回だけです。
+KEEPしたnative IndexPool backendを、実repository text、system prompt、tool schema、conversation history、assistant tool call、tool resultを含む32K OpenAI-compatible workloadで最終比較しました。baselineはaccepted Direct cache、nativeはcompact cache＋native IndexPoolとし、320 GB級allocator stateを共有しない別server processで同じatomic artifactへ順に記録します。native IndexPool単体のcompact MLX比較は上記component qualificationを正本とし、ここではcandidate stack全体をDirect HTTP oracleへ照合します。各armはcold 32K request、guarded 32K prefixを再利用するtool-result suffix、extended prefixを再利用する同一suffix warm repeatをそれぞれ256 token生成します。したがってcold 32K prefillは各processで1回だけです。
 
 baseline serverを起動し、別terminalでbaseline phaseを実行します。
 
@@ -1319,7 +1327,9 @@ uv run python scripts/qualify_native_coding_agent_http.py \
   --phase native
 ```
 
-scriptはrequestごとにartifactをatomic保存し、accepted済みbaselineなしのnative実行、誤ったbackend構成、native ABI不一致を長いprefillの前にfail closedします。hard gateは全HTTP choice/logprobsとusageのcross-backend exact、APC prefix hit exact、全11 DSA層について`(completion_tokens - 1)`回のnative execution、warm tool-result decode 15 tok/s以上、peak 340 GB以内、APC reject/eviction 0です。process lifetime counterを使うため、request終了時にlive cacheやnative planが解放されても実行証拠は失われません。
+scriptはrequestごとにartifactをatomic保存し、accepted済みbaselineなしのnative実行、誤ったbackend構成、native ABI不一致を長いprefillの前にfail closedします。hard gateは全HTTP choice/logprobsとusageのcross-backend exact、APC prefix hit exact、全11 DSA層について`completion_tokens`回のnative execution、warm tool-result decode 15 tok/s以上、peak 340 GB以内、APC reject/eviction 0です。process lifetime counterを使うため、request終了時にlive cacheやnative planが解放されても実行証拠は失われません。
+
+M3 Ultra qualificationは全gateを通過しました。baseline/native間で3 requestすべてのchoice、全token logprobs、usage、prefix hitがexact一致し、nativeは各request 2,816回、合計8,448回（256 token × 11 DSA層 × 3 request）実行されました。native decodeはcold 15.703、tool suffix 15.682、warm repeat 15.662 tok/s、APC hitは30,720/32,768 token、peakは337.096 GBです。このaccepted artifactを根拠に、flagなしのproduction `serve`をpacked decode＋compact NoPE DSA＋native IndexPoolへ昇格しました。MLX Directは`--runtime-backend direct`で明示選択でき、loader oracleと過去probeのcomponent flag semanticsは変更しません。
 
 ### Cache restore under allocation pressure
 

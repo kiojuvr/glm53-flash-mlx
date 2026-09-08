@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 from .abi import (
@@ -53,6 +54,86 @@ QUALIFIED_PROMPT_TOKENS = 32_768
 ADMISSION_POLICY = "prompt-plus-generation-v1"
 EXACT_APC_STORE_POLICY = "aligned-guarded-prefill-checkpoint-v1"
 EXACT_APC_PREFIX_GUARD_TOKENS = 16
+RUNTIME_BACKEND_NATIVE = "native"
+RUNTIME_BACKEND_DIRECT = "direct"
+DEFAULT_RUNTIME_BACKEND = RUNTIME_BACKEND_NATIVE
+
+
+@dataclass(frozen=True)
+class RuntimeBackendSelection:
+    """Resolved server execution stack.
+
+    Production profiles are intentionally narrower than the legacy component
+    flags.  The latter remain available so archived probes can reproduce their
+    exact historical arms without silently inheriting the production default.
+    """
+
+    profile: str
+    packed_decode_moe: bool
+    packed_grouped_moe: bool
+    compact_nope_dsa_cache: bool
+    native_indexpool_update: bool
+
+
+def resolve_runtime_backend(
+    *,
+    runtime_backend: str | None,
+    experimental_packed_decode_moe: bool,
+    experimental_packed_grouped_moe: bool,
+    experimental_compact_nope_dsa_cache: bool,
+    experimental_native_indexpool_update: bool,
+) -> RuntimeBackendSelection:
+    """Resolve production profiles without changing archived probe semantics."""
+    if runtime_backend not in {
+        None,
+        RUNTIME_BACKEND_NATIVE,
+        RUNTIME_BACKEND_DIRECT,
+    }:
+        raise ValueError(f"unknown runtime backend: {runtime_backend}")
+    legacy_components = (
+        experimental_packed_decode_moe,
+        experimental_packed_grouped_moe,
+        experimental_compact_nope_dsa_cache,
+        experimental_native_indexpool_update,
+    )
+    if runtime_backend is not None and any(legacy_components):
+        raise ValueError(
+            "--runtime-backend cannot be combined with legacy "
+            "--experimental-* runtime component flags"
+        )
+    if runtime_backend is None and not any(legacy_components):
+        runtime_backend = DEFAULT_RUNTIME_BACKEND
+
+    if runtime_backend == RUNTIME_BACKEND_DIRECT:
+        return RuntimeBackendSelection(
+            profile=RUNTIME_BACKEND_DIRECT,
+            packed_decode_moe=False,
+            packed_grouped_moe=False,
+            compact_nope_dsa_cache=False,
+            native_indexpool_update=False,
+        )
+
+    if runtime_backend == RUNTIME_BACKEND_NATIVE:
+        return RuntimeBackendSelection(
+            profile=RUNTIME_BACKEND_NATIVE,
+            packed_decode_moe=True,
+            packed_grouped_moe=False,
+            compact_nope_dsa_cache=True,
+            native_indexpool_update=True,
+        )
+
+    profile = (
+        RUNTIME_BACKEND_NATIVE
+        if legacy_components == (True, False, True, True)
+        else "legacy-custom"
+    )
+    return RuntimeBackendSelection(
+        profile=profile,
+        packed_decode_moe=experimental_packed_decode_moe,
+        packed_grouped_moe=experimental_packed_grouped_moe,
+        compact_nope_dsa_cache=experimental_compact_nope_dsa_cache,
+        native_indexpool_update=experimental_native_indexpool_update,
+    )
 
 
 def admission_snapshot(
@@ -496,6 +577,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--apc", action=argparse.BooleanOptionalAction, default=False)
     p.add_argument("--apc-blocks", type=int, default=256)
     p.add_argument("--apc-disk-path", type=Path)
+    p.add_argument(
+        "--runtime-backend",
+        choices=(RUNTIME_BACKEND_NATIVE, RUNTIME_BACKEND_DIRECT),
+        default=None,
+        help=(
+            "production execution profile; no profile or legacy component flags "
+            "defaults to the qualified native stack, while direct preserves the "
+            "MLX correctness/fallback path"
+        ),
+    )
     moe_group = p.add_mutually_exclusive_group()
     moe_group.add_argument(
         "--experimental-packed-decode-moe",
@@ -545,9 +636,19 @@ def main(argv: list[str] | None = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     try:
-        if args.experimental_native_indexpool_update and not (
-            args.experimental_packed_decode_moe
-            and args.experimental_compact_nope_dsa_cache
+        runtime = resolve_runtime_backend(
+            runtime_backend=args.runtime_backend,
+            experimental_packed_decode_moe=args.experimental_packed_decode_moe,
+            experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+            experimental_compact_nope_dsa_cache=(
+                args.experimental_compact_nope_dsa_cache
+            ),
+            experimental_native_indexpool_update=(
+                args.experimental_native_indexpool_update
+            ),
+        )
+        if runtime.native_indexpool_update and not (
+            runtime.packed_decode_moe and runtime.compact_nope_dsa_cache
         ):
             raise ValueError(
                 "--experimental-native-indexpool-update requires both "
@@ -559,11 +660,11 @@ def main(argv: list[str] | None = None) -> int:
             apc_disk_path=args.apc_disk_path,
             experimental_disk_apc=args.experimental_disk_apc,
             experimental_compact_nope_dsa_cache=(
-                args.experimental_compact_nope_dsa_cache
+                runtime.compact_nope_dsa_cache
             ),
         )
         report = inspect_checkpoint(args.model, require_server_ready=True)
-        if args.experimental_native_indexpool_update:
+        if runtime.native_indexpool_update:
             require_native_indexpool_available()
     except (ManifestError, RuntimeError, ValueError) as exc:
         print(f"glm53-serve: {exc}", file=sys.stderr)
@@ -583,14 +684,14 @@ def main(argv: list[str] | None = None) -> int:
         apc_blocks=args.apc_blocks,
         apc_disk_path=args.apc_disk_path,
         warm_residency=args.warm_residency,
-        experimental_packed_decode_moe=args.experimental_packed_decode_moe,
-        experimental_packed_grouped_moe=args.experimental_packed_grouped_moe,
+        experimental_packed_decode_moe=runtime.packed_decode_moe,
+        experimental_packed_grouped_moe=runtime.packed_grouped_moe,
         experimental_compact_nope_dsa_cache=(
-            args.experimental_compact_nope_dsa_cache
+            runtime.compact_nope_dsa_cache
         ),
         max_context_tokens=args.max_context_tokens,
         experimental_native_indexpool_update=(
-            args.experimental_native_indexpool_update
+            runtime.native_indexpool_update
         ),
     )
     logging.getLogger(__name__).warning(
@@ -629,9 +730,10 @@ def main(argv: list[str] | None = None) -> int:
         report.chat_template_revision,
     )
     logging.getLogger(__name__).info(
-        "moe_backend=%s cache_backend=%s admission=%s context_limit=%d "
+        "runtime_backend=%s moe_backend=%s cache_backend=%s admission=%s context_limit=%d "
         "generation_limit=%d prompt_at_max_generation=%d "
         "first_token_timeout_seconds=%.0f",
+        runtime.profile,
         os.environ["GLM53_MOE_BACKEND"],
         os.environ["GLM53_CACHE_BACKEND"],
         ADMISSION_POLICY,
