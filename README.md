@@ -184,6 +184,18 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 - 既定prefillはpacked bank上でDirect-compatibleな演算順を維持します。correctness未合格のGPU grouped prefillだけは`--experimental-packed-grouped-moe`によるprobe用途のままです。
 - 32K real coding-agent HTTP qualificationではnative warm decode 15.662 tok/s、cold/suffix decode 15.703/15.682 tok/s、peak 337.096 GBで、Directとのchoice/logprobs/usage/prefix hitがexact一致しました。
 
+### 512K native context設計容量
+
+実用coding-agent向けの次期設計容量は、total 524,288 tokens、prompt target 327,680 tokens、generation target 131,072 tokensです。320K prompt＋128K generationの外側に65,536-token headroomを残します。これはplanning contractであり、現行production defaultの36,864/4,096やserver admissionはまだ変更しません。
+
+`index_kpool=4`では512Kが131,072 logical/physical pool rowsに対応します。Q=256のDSA Indexer prefillは64 MiB FP32 logits budgetの下で128 rows × 2 blocksとなり、selected output widthは2,051のままです。11 DSA層のcapacity storage見積りはNoPE latent 5,905,580,032 bytes、persistent IndexPool 416,677,888 bytesです。128K generationでは256-token cadenceのrecurrent materializationが512回発生します。
+
+現在のnative IndexPool decode qualification上限は65,600 physical pool rowsなので、512Kには65,472 rows不足します。この範囲を黙ってfallback込みのqualified pathとは扱いません。次工程は32K/128K/320K native prefill profileと、131,072-row native decode geometryの独立qualificationです。
+
+```bash
+uv run python scripts/define_native_context_capacity_contract.py
+```
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。

@@ -12,7 +12,10 @@ from pathlib import Path
 
 import mlx.core as mx
 
-from .native_execution import NATIVE_INDEXPOOL_UPDATE_ISLAND_ABI
+from .native_execution import (
+    NATIVE_INDEXPOOL_QUALIFIED_MAX_PHYSICAL_POOL_ROWS,
+    NATIVE_INDEXPOOL_UPDATE_ISLAND_ABI,
+)
 
 NATIVE_INDEXPOOL_RUNTIME_ABI = (
     NATIVE_INDEXPOOL_UPDATE_ISLAND_ABI + "-mlx0322-explicit-opt-in-v1"
@@ -32,8 +35,11 @@ _QUALIFIED_KPOOL = 4
 _QUALIFIED_TOPK = 2_048
 _QUALIFIED_RAW_WINDOW = 19
 _MIN_PHYSICAL_POOL_ROWS = 512
-_MAX_PHYSICAL_POOL_ROWS = 65_600
+_MAX_PHYSICAL_POOL_ROWS = NATIVE_INDEXPOOL_QUALIFIED_MAX_PHYSICAL_POOL_ROWS
 _PHYSICAL_POOL_ALIGNMENT = 64
+# Public planning evidence.  Expanding this number requires a new native
+# decode qualification; the 512K capacity contract must not silently do so.
+QUALIFIED_MAX_PHYSICAL_POOL_ROWS = _MAX_PHYSICAL_POOL_ROWS
 
 
 def enabled() -> bool:

@@ -1,0 +1,84 @@
+{
+  "accepted": true,
+  "checks": {
+    "128k_generation_materializes_512_times": true,
+    "512k_q256_uses_128_rows_two_blocks": true,
+    "coding_agent_prompt_is_320k": true,
+    "current_native_decode_geometry_is_explicitly_unqualified": true,
+    "dsa_logits_workspace_is_at_most_64mib": true,
+    "max_generation_is_128k": true,
+    "physical_cache_is_256_token_aligned": true,
+    "pool_count_is_tail_exact_kpool4": true,
+    "prefill_profiles_are_32k_128k_320k": true,
+    "production_defaults_are_not_promoted_by_contract": true,
+    "selected_output_width_remains_2051": true,
+    "target_has_64k_headroom": true,
+    "total_context_is_512k": true
+  },
+  "complete": true,
+  "contract": "glm53-native-context-capacity-v1-total512k-prompt320k-generation128k-compact-kpool4-workspace64mib-no-production-promotion-before-native-qualification",
+  "date": "2026-09-08",
+  "decision": "advance_to_native_prefill_profiling_and_expand_decode_geometry",
+  "native_prefill_profile_geometries": [
+    {
+      "context_tokens": 32768,
+      "fp32_logits_workspace_bytes": 8388608,
+      "pool_count": 8192,
+      "query_block_count": 1,
+      "query_block_rows": 256
+    },
+    {
+      "context_tokens": 131072,
+      "fp32_logits_workspace_bytes": 33554432,
+      "pool_count": 32768,
+      "query_block_count": 1,
+      "query_block_rows": 256
+    },
+    {
+      "context_tokens": 327680,
+      "fp32_logits_workspace_bytes": 66846720,
+      "pool_count": 81920,
+      "query_block_count": 2,
+      "query_block_rows": 204
+    }
+  ],
+  "plan": {
+    "cache_padding_tokens": 0,
+    "coding_agent_prompt_tokens": 327680,
+    "contract": "glm53-native-context-capacity-v1-total512k-prompt320k-generation128k-compact-kpool4-workspace64mib-no-production-promotion-before-native-qualification",
+    "currently_qualified_native_pool_rows": 65600,
+    "fp32_logits_workspace_bytes": 67108864,
+    "generation_materialization_count": 512,
+    "logical_pool_rows": 131072,
+    "materialization_interval_tokens": 256,
+    "max_generation_tokens": 131072,
+    "max_prompt_at_max_generation": 393216,
+    "max_workspace_bytes": 67108864,
+    "native_decode_geometry_qualified": false,
+    "native_pool_row_deficit": 65472,
+    "persistent_indexpool_bytes_all_dsa_layers": 416677888,
+    "persistent_nope_latent_bytes_all_dsa_layers": 5905580032,
+    "physical_capacity_tokens": 524288,
+    "physical_pool_rows": 131072,
+    "prefill_query_block_count": 2,
+    "prefill_query_block_rows": 128,
+    "prefill_query_rows": 256,
+    "production_default_changed": false,
+    "selected_token_width": 2051,
+    "target_headroom_tokens": 65536,
+    "total_context_tokens": 524288
+  },
+  "runtime_changes": {
+    "cache_abi": false,
+    "native_decode_qualified_range": false,
+    "production_context_default": false,
+    "production_generation_default": false,
+    "server_admission": false
+  },
+  "schema": "glm53-native-context-capacity-contract-v1",
+  "targets": {
+    "coding_agent_prompt_tokens": 327680,
+    "max_generation_tokens": 131072,
+    "total_context_tokens": 524288
+  }
+}

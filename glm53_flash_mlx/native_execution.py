@@ -39,6 +39,7 @@ NATIVE_INDEXPOOL_UPDATE_ISLAND_ABI = (
     "-exact-bf16-softmax-reduction"
     "-tier1-score-selection"
 )
+NATIVE_INDEXPOOL_QUALIFIED_MAX_PHYSICAL_POOL_ROWS = 65_600
 
 
 class NativeExecutionContractError(ValueError):
