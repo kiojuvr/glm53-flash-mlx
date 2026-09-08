@@ -432,3 +432,149 @@ def build_native_sparse_prefill_attention_plan(
         ),
         production_admission_changed=False,
     )
+
+
+@dataclass(frozen=True)
+class NativeQ256UnionAttentionPlan:
+    abi: str
+    query_rows: int
+    selected_width: int
+    maximum_selected_edges: int
+    projection_tile_rows: int
+    maximum_union_tiles_512k: int
+    qk_score_bytes: int
+    qk_probability_bytes: int
+    key_phase_projected_tile_bytes: int
+    value_phase_projected_tile_bytes: int
+    selected_value_edge_bytes: int
+    maximum_phase_arena_bytes: int
+    available_native_arena_bytes: int
+    full_512k_projected_key_value_bytes_forbidden: int
+    per_query_selected_key_value_bytes_forbidden: int
+    measured_320k_union_rows_all_dsa_layers: int
+    measured_320k_union_vs_full_history: float
+    measured_320k_union_build_ms: float
+    measured_320k_indirect_gather_ms: float
+    execution_phases: tuple[str, ...]
+    invariants: tuple[str, ...]
+    production_admission_changed: bool
+
+    def descriptor(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def build_native_q256_union_attention_plan(
+    reuse_probe: dict[str, object],
+    union_probe: dict[str, object],
+    indirect_probe: dict[str, object],
+    native_prefill_plan: dict[str, object],
+) -> NativeQ256UnionAttentionPlan:
+    """Fix the bounded two-pass Q256 union attention architecture."""
+
+    expected = (
+        (reuse_probe, "glm53-selected-kv-projection-reuse-frontier-v1"),
+        (union_probe, "glm53-device-resident-q256-selected-union-v1"),
+        (indirect_probe, "glm53-indirect-q256-selected-latent-v1"),
+        (native_prefill_plan, "glm53-native-prefill-execution-plan-v1"),
+    )
+    for artifact, schema in expected:
+        if artifact.get("schema") != schema or not artifact.get("accepted"):
+            raise NativePrefillPlanError(
+                f"accepted source evidence is required for {schema}"
+            )
+    long_reuse = reuse_probe["contexts"][str(320 << 10)]
+    if long_reuse["aggregate_minimum_strategy"] != "union_q256":
+        raise NativePrefillPlanError("Q256 union is not the measured minimum")
+    if indirect_probe["decision"] != (
+        "advance_indirect_union_to_streaming_selected_kv_projection"
+    ):
+        raise NativePrefillPlanError("indirect union substrate is not qualified")
+
+    query_rows = DESIGN_PREFILL_QUERY_ROWS
+    selected_width = 2_051
+    heads = 64
+    latent_dim = 512
+    value_dim = 128
+    bf16_bytes = 2
+    float_bytes = 4
+    tile_rows = 65_536
+    edges = query_rows * selected_width
+    scores = edges * heads * bf16_bytes
+    probabilities = scores
+    key_tile = heads * tile_rows * latent_dim * bf16_bytes
+    value_tile = heads * tile_rows * value_dim * bf16_bytes
+    selected_values = edges * heads * value_dim * bf16_bytes
+    tile_latent = tile_rows * latent_dim * bf16_bytes
+    # The K projection workspace and selected-V storage occupy disjoint phases
+    # and must alias the same native arena.  QK scores survive into the V/AV
+    # phase; probabilities and an FP32 output accumulator are bounded extras.
+    k_phase = key_tile + tile_latent + scores
+    v_phase = (
+        selected_values
+        + value_tile
+        + tile_latent
+        + scores
+        + probabilities
+        + query_rows * heads * value_dim * float_bytes
+    )
+    maximum_phase = max(k_phase, v_phase)
+    available = int(
+        native_prefill_plan["plan"]["planned_native_arena_budget_bytes"]
+    )
+    full_key = heads * DESIGN_TOTAL_CONTEXT_TOKENS * latent_dim * bf16_bytes
+    full_value = heads * DESIGN_TOTAL_CONTEXT_TOKENS * value_dim * bf16_bytes
+    per_query_key = edges * heads * latent_dim * bf16_bytes
+    per_query_value = selected_values
+    return NativeQ256UnionAttentionPlan(
+        abi="glm53-native-q256-union-attention-plan-v1",
+        query_rows=query_rows,
+        selected_width=selected_width,
+        maximum_selected_edges=edges,
+        projection_tile_rows=tile_rows,
+        maximum_union_tiles_512k=(
+            DESIGN_TOTAL_CONTEXT_TOKENS + tile_rows - 1
+        ) // tile_rows,
+        qk_score_bytes=scores,
+        qk_probability_bytes=probabilities,
+        key_phase_projected_tile_bytes=key_tile,
+        value_phase_projected_tile_bytes=value_tile,
+        selected_value_edge_bytes=selected_values,
+        maximum_phase_arena_bytes=maximum_phase,
+        available_native_arena_bytes=available,
+        full_512k_projected_key_value_bytes_forbidden=full_key + full_value,
+        per_query_selected_key_value_bytes_forbidden=(
+            per_query_key + per_query_value
+        ),
+        measured_320k_union_rows_all_dsa_layers=int(
+            long_reuse["aggregate_minimum_projection_rows"]
+        ),
+        measured_320k_union_vs_full_history=float(
+            long_reuse["aggregate_minimum_vs_full_history"]
+        ),
+        measured_320k_union_build_ms=float(
+            union_probe["contexts"][str(320 << 10)]["median_wall_ms"]
+        ),
+        measured_320k_indirect_gather_ms=float(
+            indirect_probe["contexts"][str(320 << 10)]["median_wall_ms"]
+        ),
+        execution_phases=(
+            "score_select_and_build_device_q256_union",
+            "key_tiles_project_once_and_fuse_into_query_edge_qk",
+            "query_head_precise_softmax",
+            "value_tiles_project_once_and_scatter_selected_value_edges",
+            "direct_order_virtual_bk16_av",
+        ),
+        invariants=(
+            "union count and tile dispatch remain device resident",
+            "one union row is projected at most once per K pass and V pass",
+            "K projection is consumed by query-edge QK before tile reuse",
+            "fused projected-QK preserves the Direct BF16 projection boundary",
+            "selected V edges remain in query-local physical token order",
+            "virtual BK16 AV preserves the Direct full-Kv reduction topology",
+            "K-phase projection storage aliases V-phase selected-value storage",
+            "full-context projected K/V is never materialized",
+            "per-query selected K is never materialized",
+            "only the final Q256 attention output crosses the native boundary",
+        ),
+        production_admission_changed=False,
+    )

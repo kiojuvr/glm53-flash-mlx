@@ -1,0 +1,66 @@
+{
+  "accepted": true,
+  "checks": {
+    "512k_requires_at_most_8_union_tiles": true,
+    "device_union_and_indirect_gather_under_5ms_each": true,
+    "exact_two_pass_boundaries_are_explicit": true,
+    "forbids_at_least_40gib_full_projected_kv": true,
+    "forbids_per_query_selected_kv_over_native_budget": true,
+    "measured_q256_union_is_320k_minimum": true,
+    "phase_aliased_arena_fits_native_budget": true,
+    "production_admission_unchanged": true,
+    "projection_tile_is_65536_rows": true
+  },
+  "complete": true,
+  "date": "2026-09-08",
+  "decision": "implement_exact_fused_projected_qk_union_tile",
+  "plan": {
+    "abi": "glm53-native-q256-union-attention-plan-v1",
+    "available_native_arena_bytes": 14043149568,
+    "execution_phases": [
+      "score_select_and_build_device_q256_union",
+      "key_tiles_project_once_and_fuse_into_query_edge_qk",
+      "query_head_precise_softmax",
+      "value_tiles_project_once_and_scatter_selected_value_edges",
+      "direct_order_virtual_bk16_av"
+    ],
+    "full_512k_projected_key_value_bytes_forbidden": 42949672960,
+    "invariants": [
+      "union count and tile dispatch remain device resident",
+      "one union row is projected at most once per K pass and V pass",
+      "K projection is consumed by query-edge QK before tile reuse",
+      "fused projected-QK preserves the Direct BF16 projection boundary",
+      "selected V edges remain in query-local physical token order",
+      "virtual BK16 AV preserves the Direct full-Kv reduction topology",
+      "K-phase projection storage aliases V-phase selected-value storage",
+      "full-context projected K/V is never materialized",
+      "per-query selected K is never materialized",
+      "only the final Q256 attention output crosses the native boundary"
+    ],
+    "key_phase_projected_tile_bytes": 4294967296,
+    "maximum_phase_arena_bytes": 9886171136,
+    "maximum_selected_edges": 525056,
+    "maximum_union_tiles_512k": 8,
+    "measured_320k_indirect_gather_ms": 2.578084,
+    "measured_320k_union_build_ms": 1.574334,
+    "measured_320k_union_rows_all_dsa_layers": 1413933,
+    "measured_320k_union_vs_full_history": 0.3922710071910511,
+    "per_query_selected_key_value_bytes_forbidden": 43012587520,
+    "production_admission_changed": false,
+    "projection_tile_rows": 65536,
+    "qk_probability_bytes": 67207168,
+    "qk_score_bytes": 67207168,
+    "query_rows": 256,
+    "selected_value_edge_bytes": 8602517504,
+    "selected_width": 2051,
+    "value_phase_projected_tile_bytes": 1073741824
+  },
+  "runtime_changes": false,
+  "schema": "glm53-q256-union-prefill-attention-plan-v1",
+  "source_evidence": {
+    "device_union": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-device-resident-q256-selected-union-20260908.json",
+    "indirect_gather": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-indirect-q256-selected-latent-20260908.json",
+    "native_prefill": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-native-prefill-execution-plan-20260908.json",
+    "projection_reuse": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-selected-kv-projection-reuse-frontier-20260908.json"
+  }
+}
