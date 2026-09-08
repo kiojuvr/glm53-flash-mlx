@@ -1591,12 +1591,23 @@ produces an 8K union entirely on the GPU, then executes two fixed 4,096-row
 tiles. Each tile gathers latent rows, projects K once, and writes only the
 query edges whose global union slots belong to that tile. Union indices,
 query-local slots, the final tile's latent and projected K, scaled queries,
-and all QK scores are byte exact. Direct wall falls from 18.625 to 14.213 ms
-(1.310x) while scratch remains 263.3 MiB and selected-K materialization stays
+and all QK scores are byte exact. Direct wall falls from 18.601 to 14.147 ms
+(1.315x) while scratch remains 263.3 MiB and selected-K materialization stays
 at zero bytes. The host encodes capacity-derived tiles without reading the
 device union count; execute-time allocation, graph construction, shape
 discovery, host synchronization, and intermediate return remain zero. This
 advances the plan from a single-tile proof to production Q256 geometry.
+
+The same fixed plan now passes the full Q256 geometry gate. All 525,056
+selected edges span both 4,096-row tiles; the physical union, all query-local
+slots, scaled queries, and the complete 256x64x2051 QK score surface are byte
+exact. The Direct oracle materializes 31.99 GiB of per-query selected K and
+takes 1,654.9 ms. The native loop materializes none of it, uses a fixed 342.2
+MiB arena, and takes 65.8 ms median after warmup, a 25.15x speedup. Buffer
+addresses remain stable and execute-time allocation, MLX graph construction,
+shape discovery, host synchronization, and intermediate return are zero. The
+remaining feasibility step is to preserve this gain as physical history and
+union tile count grow toward 32K/128K/320K.
 
 ## Provenance
 

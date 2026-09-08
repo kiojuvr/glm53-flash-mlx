@@ -1254,22 +1254,22 @@ void glm53_native_projected_union_qk_bfloat16(
   }
 }
 
-[[kernel]] void glm53_native_prepare_q4_prefill_attention_query_bfloat16(
+[[kernel]] void glm53_native_prepare_union_prefill_attention_query_bfloat16(
     device const bfloat* query [[buffer(0)]],
     device bfloat* scaled_query [[buffer(1)]],
     constant const float& scale_fp32 [[buffer(2)]],
+    constant const int& query_rows [[buffer(3)]],
     uint position [[thread_position_in_grid]]) {
-  constexpr uint kQueryRows = 4;
   constexpr uint kHeads = 64;
   constexpr uint kDimension = 512;
-  constexpr uint kElements = kQueryRows * kHeads * kDimension;
+  uint kElements = uint(query_rows) * kHeads * kDimension;
   if (position >= kElements) return;
   uint column = position % kDimension;
   uint flattened = position / kDimension;
   uint head = flattened % kHeads;
   uint row = flattened / kHeads;
   size_t source =
-      (size_t(head) * kQueryRows + row) * kDimension + column;
+      (size_t(head) * uint(query_rows) + row) * kDimension + column;
   bfloat scale = bfloat(scale_fp32);
   scaled_query[position] = bfloat(float(query[source]) * float(scale));
 }

@@ -1,0 +1,52 @@
+{
+  "accepted": true,
+  "anchors": {
+    "q256_qk_scores": true,
+    "query_union_slots": true,
+    "scaled_queries": true,
+    "union_indices": true
+  },
+  "checks": {
+    "all_525056_selected_edges_covered": true,
+    "end_to_end_speedup_at_least_1_20x": true,
+    "fixed_two_tile_device_count_contract": true,
+    "q256_union_projection_and_scores_byte_exact": true,
+    "scratch_at_most_384mib": true,
+    "selected_key_never_materialized": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_q256_projected_qk_to_long_context_tiles",
+  "direct_reference_initial_ms": 1662.637459,
+  "direct_timing": {
+    "median_wall_ms": 1654.930583,
+    "samples_ms": [
+      1654.930583
+    ]
+  },
+  "forbidden_materialized_selected_key_bytes": 34410070016,
+  "geometry": {
+    "heads": 64,
+    "physical_k": 8192,
+    "query_rows": 256,
+    "selected_edges": 525056,
+    "selected_width": 2051,
+    "tile_count": 2,
+    "tile_rows": 4096,
+    "union_count": 8192
+  },
+  "materialized_selected_key_bytes": 0,
+  "native_timing": {
+    "median_wall_ms": 65.812333,
+    "samples_ms": [
+      128.4715,
+      65.812333,
+      65.036666
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-q256-projected-qk-union-tile-loop-v1",
+  "scratch_bytes": 358781188,
+  "speedup": 25.146207520101136
+}

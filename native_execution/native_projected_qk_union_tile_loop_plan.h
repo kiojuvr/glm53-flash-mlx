@@ -21,7 +21,8 @@ namespace mx = mlx::core;
 // no count readback, shape discovery, or execute-time allocation is allowed.
 class NativeProjectedQKUnionTileLoopPlan {
 public:
-  explicit NativeProjectedQKUnionTileLoopPlan(int physical_k);
+  explicit NativeProjectedQKUnionTileLoopPlan(
+      int physical_k, int attention_query_rows = 4);
 
   mx::array execute(
       const mx::array &selected_indices, const mx::array &selected_valid,
@@ -31,7 +32,7 @@ public:
   int physical_k() const { return physical_k_; }
   int tile_rows() const { return kTileRows; }
   int tile_count() const { return tile_count_; }
-  int query_rows() const { return kAttentionQueryRows; }
+  int query_rows() const { return attention_query_rows_; }
   int selected_width() const { return kSelectedWidth; }
   uint64_t execution_count() const { return execution_count_; }
   uint64_t dynamic_allocation_count() const { return 0; }
@@ -56,13 +57,13 @@ public:
 private:
   static constexpr int kTileRows = 4096;
   static constexpr int kSelectionQueryRows = 256;
-  static constexpr int kAttentionQueryRows = 4;
   static constexpr int kHeads = 64;
   static constexpr int kLatentDim = 512;
   static constexpr int kSelectedWidth = 2051;
 
   int physical_k_;
   int tile_count_;
+  int attention_query_rows_;
   mx::Stream stream_;
   NativeSelectedUnionPlan union_plan_;
   mx::array union_latent_tile_;

@@ -49,12 +49,22 @@ int checked_physical_k(int value) {
   return value;
 }
 
+int checked_attention_query_rows(int value) {
+  if (value != 4 && value != 256) {
+    throw std::invalid_argument(
+        "projected-QK attention query rows must be 4 or 256");
+  }
+  return value;
+}
+
 } // namespace
 
 NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
-    int physical_k)
+    int physical_k, int attention_query_rows)
     : physical_k_(checked_physical_k(physical_k)),
       tile_count_((physical_k_ + kTileRows - 1) / kTileRows),
+      attention_query_rows_(
+          checked_attention_query_rows(attention_query_rows)),
       stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
       union_plan_(physical_k_),
       union_latent_tile_(
@@ -62,9 +72,9 @@ NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
       projected_union_key_tile_(owned_array(
           {kHeads, kTileRows, kLatentDim}, mx::bfloat16)),
       scaled_queries_(owned_array(
-          {kAttentionQueryRows, kHeads, kLatentDim}, mx::bfloat16)),
+          {attention_query_rows_, kHeads, kLatentDim}, mx::bfloat16)),
       attention_scores_(owned_array(
-          {kAttentionQueryRows, kHeads, kSelectedWidth}, mx::bfloat16)) {
+          {attention_query_rows_, kHeads, kSelectedWidth}, mx::bfloat16)) {
   auto &device = mx::metal::device(stream_.device);
   if (device.get_architecture().back() != 'd' ||
       device.get_architecture_gen() >= 17) {
@@ -98,7 +108,7 @@ NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
   projection_pipeline_ = device.get_kernel(
       projection_name, library, projection_hash, constants);
   query_scale_pipeline_ = device.get_kernel(
-      "glm53_native_prepare_q4_prefill_attention_query_bfloat16", library);
+      "glm53_native_prepare_union_prefill_attention_query_bfloat16", library);
   projected_qk_pipeline_ = device.get_kernel(
       "glm53_native_projected_union_qk_tile_bfloat16", library);
   initial_buffer_identities_ = buffer_identities();
@@ -131,7 +141,7 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
       static_cast<size_t>(kHeads) * kLatentDim * kLatentDim);
   validate_input(
       attention_query, "attention_query", mx::bfloat16,
-      static_cast<size_t>(kHeads) * kAttentionQueryRows * kLatentDim);
+      static_cast<size_t>(kHeads) * attention_query_rows_ * kLatentDim);
   if (!std::isfinite(attention_scale) || !(attention_scale > 0.0f)) {
     throw std::invalid_argument("attention scale must be finite and positive");
   }
@@ -155,8 +165,8 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
       static_cast<int64_t>(kLatentDim) * kLatentDim,
       static_cast<int64_t>(kTileRows) * kLatentDim,
       0, kLatentDim / bk, 1};
-  constexpr uint32_t score_elements =
-      kAttentionQueryRows * kHeads * kSelectedWidth;
+  const uint32_t score_elements = static_cast<uint32_t>(
+      attention_query_rows_ * kHeads * kSelectedWidth);
   constexpr int qk_output_rows_per_group = 16;
   constexpr int qk_groups =
       (kSelectedWidth + qk_output_rows_per_group - 1) /
@@ -174,9 +184,10 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
   encoder.set_input_array(attention_query, 0);
   encoder.set_output_array(scaled_queries_, 1);
   encoder.set_bytes(attention_scale, 2);
+  encoder.set_bytes(attention_query_rows_, 3);
   encoder.dispatch_threads(
       MTL::Size(
-          kAttentionQueryRows * kHeads * kLatentDim, 1, 1),
+          attention_query_rows_ * kHeads * kLatentDim, 1, 1),
       MTL::Size(256, 1, 1));
   encoder.barrier();
 
@@ -202,7 +213,7 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
         MTL::Size(tiles_n, tiles_m, kHeads), MTL::Size(32, wn, 1));
     encoder.barrier();
 
-    for (int row = 0; row < kAttentionQueryRows; ++row) {
+    for (int row = 0; row < attention_query_rows_; ++row) {
       encoder.set_compute_pipeline_state(projected_qk_pipeline_);
       encoder.set_input_array(projected_union_key_tile_, 0);
       encoder.set_input_array(scaled_queries_, 1);

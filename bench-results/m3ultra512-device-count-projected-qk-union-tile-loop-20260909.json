@@ -20,11 +20,11 @@
   "date": "2026-09-09",
   "decision": "advance_projected_qk_tile_loop_to_q256_geometry",
   "direct_timing": {
-    "median_wall_ms": 18.625125,
+    "median_wall_ms": 18.601042,
     "samples_ms": [
-      18.594291,
-      18.625917,
-      18.625125
+      18.621875,
+      18.58025,
+      18.601042
     ]
   },
   "execution_count": 6,
@@ -40,16 +40,16 @@
   },
   "materialized_selected_key_bytes": 0,
   "native_timing": {
-    "median_wall_ms": 14.212958,
+    "median_wall_ms": 14.146584,
     "samples_ms": [
-      14.084208,
-      14.328417,
-      14.212958
+      14.146584,
+      14.210125,
+      14.143834
     ]
   },
   "probe_only": true,
   "runtime_changes": false,
   "schema": "glm53-device-count-projected-qk-union-tile-loop-v1",
   "scratch_bytes": 276109060,
-  "speedup": 1.3104327051413225
+  "speedup": 1.314878701458953
 }
