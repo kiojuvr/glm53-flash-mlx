@@ -419,8 +419,23 @@ def _cross_arm_checks(artifact: dict[str, Any]) -> dict[str, bool]:
     base_requests = baseline["requests"]
     native_requests = native["requests"]
     native_warm_metrics = native_requests["tool_suffix_warm"]["metrics"] or {}
+    # The repository corpus digest is provenance for fixture construction, not
+    # the model input identity.  Qualification fixes may change files after the
+    # baseline arm without changing the exact-length rendered prompt at all.
+    # Token counts + token SHA256 below remain the authoritative execution
+    # identity and must still match byte-for-byte across processes.
+    baseline_fixture = {
+        key: value
+        for key, value in baseline["fixture"].items()
+        if key != "repository_corpus_sha256"
+    }
+    native_fixture = {
+        key: value
+        for key, value in native["fixture"].items()
+        if key != "repository_corpus_sha256"
+    }
     return {
-        "fixture_identity_exact": baseline["fixture"] == native["fixture"],
+        "fixture_identity_exact": baseline_fixture == native_fixture,
         "all_http_choice_signatures_exact_across_backends": all(
             base_requests[name]["choice_sha256"]
             == native_requests[name]["choice_sha256"]
@@ -450,6 +465,21 @@ def _finish(artifact: dict[str, Any]) -> None:
     )
     if phase_complete:
         artifact["cross_arm_checks"] = _cross_arm_checks(artifact)
+        baseline_corpus = artifact["phases"]["baseline"]["fixture"].get(
+            "repository_corpus_sha256"
+        )
+        native_corpus = artifact["phases"]["native"]["fixture"].get(
+            "repository_corpus_sha256"
+        )
+        artifact["cross_arm_evidence"] = {
+            "baseline_repository_corpus_sha256": baseline_corpus,
+            "native_repository_corpus_sha256": native_corpus,
+            "repository_corpus_changed_between_arms": baseline_corpus
+            != native_corpus,
+            "execution_identity_authority": (
+                "rendered base/extended token counts and SHA256"
+            ),
+        }
     artifact["complete"] = phase_complete
     artifact["accepted"] = phase_complete and all(
         artifact.get("cross_arm_checks", {}).values()

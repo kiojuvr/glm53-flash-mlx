@@ -145,6 +145,33 @@ def test_cross_backend_gate_requires_exact_outputs_usage_and_15_tps():
     ]
 
 
+def test_cross_backend_identity_uses_rendered_tokens_not_unused_corpus_tail():
+    module = _module()
+    baseline = _phase_row(native=False)
+    native = _phase_row(native=True)
+    baseline["fixture"] = {
+        "base_prompt_tokens": 32_768,
+        "base_prompt_token_sha256": "base",
+        "extended_prompt_tokens": 32_834,
+        "extended_prompt_token_sha256": "extended",
+        "repository_corpus_sha256": "older-repository",
+    }
+    native["fixture"] = {
+        **baseline["fixture"],
+        "repository_corpus_sha256": "newer-repository",
+    }
+    artifact = {
+        "phases": {"baseline": baseline, "native": native},
+        "source_native_runtime": {
+            "decision": "keep_native_indexpool_runtime_and_pass_15_tps"
+        },
+    }
+
+    assert module._cross_arm_checks(artifact)["fixture_identity_exact"] is True
+    native["fixture"]["extended_prompt_token_sha256"] = "different-input"
+    assert module._cross_arm_checks(artifact)["fixture_identity_exact"] is False
+
+
 def test_qualification_artifact_when_present_is_authoritative():
     if not ARTIFACT.exists():
         pytest.skip("user-launched baseline/native HTTP qualification is pending")
