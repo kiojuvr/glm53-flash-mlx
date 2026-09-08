@@ -9,6 +9,7 @@
 #include "native_packed_moe_plan.h"
 #include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
+#include "native_selected_v_av_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -19,6 +20,7 @@ using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 using glm53::native_execution::NativePackedMoEDecodePlan;
 using glm53::native_execution::NativePackedMoERoutedDiagnostic;
 using glm53::native_execution::NativeSparsePrefillAVPlan;
+using glm53::native_execution::NativeSelectedVProjectionAVPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -360,4 +362,35 @@ NB_MODULE(_ext, module) {
                    &NativeSparsePrefillAVPlan::buffer_identities)
       .def_prop_ro("debug_lane_to_selected",
                    &NativeSparsePrefillAVPlan::debug_lane_to_selected);
+
+  nb::class_<NativeSelectedVProjectionAVPlan>(
+      module, "NativeSelectedVProjectionAVPlan")
+      .def(nb::init<int>(), "physical_k"_a)
+      .def("execute", &NativeSelectedVProjectionAVPlan::execute,
+           "selected_probabilities"_a, "selected_latent"_a,
+           "value_weight"_a, "selected_indices"_a, "selected_valid"_a)
+      .def_prop_ro("physical_k", &NativeSelectedVProjectionAVPlan::physical_k)
+      .def_prop_ro("packed_k", &NativeSelectedVProjectionAVPlan::packed_k)
+      .def_prop_ro("query_rows", &NativeSelectedVProjectionAVPlan::query_rows)
+      .def_prop_ro("selected_width",
+                   &NativeSelectedVProjectionAVPlan::selected_width)
+      .def_prop_ro("execution_count",
+                   &NativeSelectedVProjectionAVPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeSelectedVProjectionAVPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeSelectedVProjectionAVPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeSelectedVProjectionAVPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeSelectedVProjectionAVPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeSelectedVProjectionAVPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativeSelectedVProjectionAVPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeSelectedVProjectionAVPlan::buffer_identities)
+      .def_prop_ro("debug_projected_value",
+                   &NativeSelectedVProjectionAVPlan::debug_projected_value)
+      .def_prop_ro("debug_lane_to_selected",
+                   &NativeSelectedVProjectionAVPlan::debug_lane_to_selected);
 }

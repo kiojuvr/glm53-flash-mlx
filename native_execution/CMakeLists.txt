@@ -30,6 +30,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_dsa_score_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_dsa_attention_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_av_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_selected_v_av_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_layer_plan.cpp)
 target_include_directories(

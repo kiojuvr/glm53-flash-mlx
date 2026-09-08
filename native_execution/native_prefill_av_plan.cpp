@@ -117,7 +117,7 @@ mx::array NativeSparsePrefillAVPlan::execute(
   encoder.set_output_array(lane_to_selected_, 2);
   encoder.set_bytes(physical_k_, 3);
   encoder.set_bytes(packed_k_, 4);
-  encoder.dispatch_threads(MTL::Size(1, 1, 1), MTL::Size(1, 1, 1));
+  encoder.dispatch_threadgroups(MTL::Size(1, 1, 1), MTL::Size(256, 1, 1));
   encoder.barrier();
 
   map_prepared_ = true;

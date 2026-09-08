@@ -1474,9 +1474,10 @@ original lane, removes only wholly empty physical blocks, and reproduces all
 tested in two forms: materializing the virtual value matrix, and gathering
 selected values directly into Steel-compatible threadgroup tiles. Both are
 exact and use stable bounded storage, but both fail the fixed 32K performance
-gate. The final direct-gather BM8/BN128 arm takes 2.612 ms versus Direct's
-1.198 ms (its prepared AV portion alone is 1.527 ms). This standalone native
-AV boundary is therefore rejected; the next admissible design must compose
+gate. After replacing serial map construction with a deterministic 256-thread
+prefix scan, the final direct-gather BM8/BN128 arm takes 1.529 ms versus
+Direct's 1.236 ms. This standalone native AV boundary is therefore rejected;
+the next admissible design must compose
 selected-V projection, BK16 AV, and scratch lifetime inside one native region
 rather than add another MLX/native execution boundary.
 
@@ -1488,6 +1489,16 @@ ms (2.736x) with byte-exact output. At 2K the same candidate is only 0.243x,
 so the native plan must retain a short-context Direct crossover. The long
 context result advances a single-encoder selected-projection/BK16-AV region;
 it does not promote the rejected standalone AV primitive or alter production.
+
+The first such single-encoder island projects Q4 selected latent rows to BF16
+V and immediately consumes the plan-owned 33.7 MiB projection buffer through
+the exact BK16 AV reduction. At 32K this region takes 8.645 ms versus 15.381 ms
+for Direct full-V projection plus AV (1.779x); the selected-V anchor and final
+attention output are byte exact. Dynamic allocation, graph construction,
+shape discovery, host synchronization, and intermediate returns are all zero.
+At 2K it is only 0.298x, preserving the requirement for a measured Direct
+crossover. The accepted island advances composition of selected K projection,
+QK, precise softmax, and AV inside the same fixed execution region.
 
 ## Provenance
 

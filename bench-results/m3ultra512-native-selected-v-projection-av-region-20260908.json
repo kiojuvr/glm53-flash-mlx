@@ -1,0 +1,86 @@
+{
+  "accepted": true,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "32k_region_speedup_at_least_1_20x": true,
+    "all_attention_outputs_byte_exact": true,
+    "all_buffer_addresses_stable": true,
+    "all_selected_v_projection_anchors_byte_exact": true,
+    "no_dynamic_allocation_graph_shape_sync_or_intermediate_return": true,
+    "single_encoder_scratch_at_most_40mib": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "context_tokens": 2048,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 1.318834,
+        "samples_ms": [
+          1.343541,
+          1.287709,
+          1.318834
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "execution_count": 5,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_timing": {
+        "median_wall_ms": 4.4295,
+        "samples_ms": [
+          4.4295,
+          4.4375,
+          4.42475
+        ]
+      },
+      "projection_anchor_byte_exact": true,
+      "projection_anchor_different_elements": 0,
+      "query_rows": 4,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 33611776,
+      "shape_discovery_count": 0,
+      "speedup": 0.29773879670391695
+    },
+    "32768": {
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "context_tokens": 32768,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 15.381416,
+        "samples_ms": [
+          15.419666,
+          15.381416,
+          15.375167
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "execution_count": 5,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_timing": {
+        "median_wall_ms": 8.645166,
+        "samples_ms": [
+          8.680125,
+          8.645166,
+          8.613042
+        ]
+      },
+      "projection_anchor_byte_exact": true,
+      "projection_anchor_different_elements": 0,
+      "query_rows": 4,
+      "returned_intermediate_tensor_bytes": 0,
+      "scratch_bytes": 33734656,
+      "shape_discovery_count": 0,
+      "speedup": 1.779192672529365
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "advance_native_region_to_qk_softmax_composition",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-native-selected-v-projection-av-region-v1"
+}

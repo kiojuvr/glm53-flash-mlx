@@ -16,58 +16,58 @@
       "all_rows_byte_exact": true,
       "context_tokens": 2048,
       "direct_timing": {
-        "median_host_submit_ms": 0.005959,
-        "median_wall_ms": 0.322083,
+        "median_host_submit_ms": 0.005542,
+        "median_wall_ms": 0.268459,
         "samples": [
           {
-            "host_submit_ms": 0.009583,
-            "wall_ms": 0.438
+            "host_submit_ms": 0.015791,
+            "wall_ms": 1.057708
           },
           {
-            "host_submit_ms": 0.005959,
-            "wall_ms": 0.321167
+            "host_submit_ms": 0.005542,
+            "wall_ms": 0.268459
           },
           {
-            "host_submit_ms": 0.004791,
-            "wall_ms": 0.322083
+            "host_submit_ms": 0.003166,
+            "wall_ms": 0.259833
           }
         ]
       },
       "native_timing": {
-        "median_host_submit_ms": 0.024833,
-        "median_wall_ms": 1.202875,
+        "median_host_submit_ms": 0.008125,
+        "median_wall_ms": 0.439667,
         "samples": [
           {
-            "host_submit_ms": 0.0085,
-            "wall_ms": 1.202875
+            "host_submit_ms": 0.006875,
+            "wall_ms": 0.47425
           },
           {
-            "host_submit_ms": 0.031458,
-            "wall_ms": 1.161583
+            "host_submit_ms": 0.013542,
+            "wall_ms": 0.439667
           },
           {
-            "host_submit_ms": 0.024833,
-            "wall_ms": 1.213
+            "host_submit_ms": 0.008125,
+            "wall_ms": 0.425125
           }
         ]
       },
-      "operator_speedup": 0.26776098929647724,
+      "operator_speedup": 0.6105962012159203,
       "packed_k": 2048,
       "prepared_av_timing": {
-        "median_host_submit_ms": 0.021833,
-        "median_wall_ms": 0.697583,
+        "median_host_submit_ms": 0.006458,
+        "median_wall_ms": 0.42525,
         "samples": [
           {
-            "host_submit_ms": 0.021917,
-            "wall_ms": 0.697583
+            "host_submit_ms": 0.007084,
+            "wall_ms": 0.41425
           },
           {
-            "host_submit_ms": 0.021833,
-            "wall_ms": 0.702291
+            "host_submit_ms": 0.006458,
+            "wall_ms": 0.42525
           },
           {
-            "host_submit_ms": 0.019459,
-            "wall_ms": 0.624
+            "host_submit_ms": 0.006208,
+            "wall_ms": 0.466667
           }
         ]
       },
@@ -148,58 +148,58 @@
       "all_rows_byte_exact": true,
       "context_tokens": 32768,
       "direct_timing": {
-        "median_host_submit_ms": 0.006208,
-        "median_wall_ms": 1.198125,
+        "median_host_submit_ms": 0.006209,
+        "median_wall_ms": 1.236084,
         "samples": [
           {
-            "host_submit_ms": 0.006208,
-            "wall_ms": 1.198125
+            "host_submit_ms": 0.0065,
+            "wall_ms": 1.197541
           },
           {
-            "host_submit_ms": 0.0035,
-            "wall_ms": 1.179875
+            "host_submit_ms": 0.005959,
+            "wall_ms": 1.246167
           },
           {
-            "host_submit_ms": 0.006583,
-            "wall_ms": 1.2365
+            "host_submit_ms": 0.006209,
+            "wall_ms": 1.236084
           }
         ]
       },
       "native_timing": {
-        "median_host_submit_ms": 0.026791,
-        "median_wall_ms": 2.612167,
+        "median_host_submit_ms": 0.023208,
+        "median_wall_ms": 1.528792,
         "samples": [
           {
-            "host_submit_ms": 0.008042,
-            "wall_ms": 2.612167
+            "host_submit_ms": 0.008,
+            "wall_ms": 1.528792
           },
           {
-            "host_submit_ms": 0.031375,
-            "wall_ms": 2.614958
+            "host_submit_ms": 0.024125,
+            "wall_ms": 1.544541
           },
           {
-            "host_submit_ms": 0.026791,
-            "wall_ms": 2.598833
+            "host_submit_ms": 0.023208,
+            "wall_ms": 1.521416
           }
         ]
       },
-      "operator_speedup": 0.4586709042722001,
+      "operator_speedup": 0.808536413063386,
       "packed_k": 32768,
       "prepared_av_timing": {
-        "median_host_submit_ms": 0.020625,
-        "median_wall_ms": 1.527292,
+        "median_host_submit_ms": 0.01925,
+        "median_wall_ms": 1.5335,
         "samples": [
           {
-            "host_submit_ms": 0.021459,
-            "wall_ms": 1.527292
+            "host_submit_ms": 0.006333,
+            "wall_ms": 1.561375
           },
           {
-            "host_submit_ms": 0.020625,
-            "wall_ms": 1.484875
+            "host_submit_ms": 0.019792,
+            "wall_ms": 1.52275
           },
           {
-            "host_submit_ms": 0.005542,
-            "wall_ms": 1.564
+            "host_submit_ms": 0.01925,
+            "wall_ms": 1.5335
           }
         ]
       },

@@ -970,27 +970,69 @@ instantiate_kernel(
     device int* lane_to_selected [[buffer(2)]],
     constant const int& physical_k [[buffer(3)]],
     constant const int& packed_k [[buffer(4)]],
-    uint gid [[thread_position_in_grid]]) {
-  if (gid != 0) return;
-  for (int lane = 0; lane < packed_k; ++lane) {
-    lane_to_selected[lane] = -1;
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]]) {
+  constexpr uint kThreads = 256;
+  constexpr uint kSimdGroups = kThreads / 32;
+  threadgroup uint simd_prefix[kSimdGroups];
+  threadgroup uint chunk_total_shared;
+
+  for (uint destination = tid; destination < uint(packed_k);
+       destination += kThreads) {
+    lane_to_selected[destination] = -1;
   }
-  int previous_block = -1;
-  int packed_block = -1;
-  for (int slot = 0; slot < int(kSelectedWidth); ++slot) {
-    int physical = selected_indices[slot];
-    if (!selected_valid[slot] || physical < 0 || physical >= physical_k) {
-      continue;
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  uint preceding_blocks = 0;
+  for (uint chunk = 0; chunk < kSelectedWidth; chunk += kThreads) {
+    uint slot = chunk + tid;
+    bool valid = slot < kSelectedWidth && selected_valid[slot];
+    int physical = valid ? selected_indices[slot] : -1;
+    valid = valid && physical >= 0 && physical < physical_k;
+    int block = valid ? physical / 16 : -1;
+    int previous_block = -1;
+    if (valid && slot > 0 && selected_valid[slot - 1]) {
+      int previous_physical = selected_indices[slot - 1];
+      if (previous_physical >= 0 && previous_physical < physical_k) {
+        previous_block = previous_physical / 16;
+      }
     }
-    int block = physical / 16;
-    if (block != previous_block) {
-      ++packed_block;
-      previous_block = block;
+    uint starts_block = valid && block != previous_block ? 1u : 0u;
+    uint local_prefix = simd_prefix_exclusive_sum(starts_block);
+    uint simd_total = simd_sum(starts_block);
+    if (lane == 0) {
+      simd_prefix[simd_id] = simd_total;
     }
-    int packed_lane = packed_block * 16 + physical % 16;
-    if (packed_lane < packed_k) {
-      lane_to_selected[packed_lane] = slot;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simd_id == 0) {
+      uint value = lane < kSimdGroups ? simd_prefix[lane] : 0u;
+      uint prefix = simd_prefix_exclusive_sum(value);
+      if (lane < kSimdGroups) {
+        simd_prefix[lane] = prefix;
+      }
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (valid) {
+      uint inclusive_blocks =
+          simd_prefix[simd_id] + local_prefix + starts_block;
+      uint packed_block = preceding_blocks + inclusive_blocks - 1u;
+      uint packed_lane = packed_block * 16u + uint(physical % 16);
+      if (packed_lane < uint(packed_k)) {
+        lane_to_selected[packed_lane] = int(slot);
+      }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    // simd_total above is lane-local to each SIMD group. Broadcast the final
+    // group total from its lane zero so every thread advances equally.
+    uint last_total = simd_broadcast(
+        simd_id == kSimdGroups - 1 ? simd_total : 0u, 0);
+    if (simd_id == kSimdGroups - 1 && lane == 0) {
+      chunk_total_shared = simd_prefix[kSimdGroups - 1] + last_total;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    preceding_blocks += chunk_total_shared;
   }
 }
 
