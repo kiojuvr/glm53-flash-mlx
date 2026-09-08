@@ -1,0 +1,107 @@
+{
+  "accepted": false,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "end_to_end_reordered_prefill_dsa_byte_exact": false,
+    "selected_k_projection_reordering_byte_exact": true,
+    "selected_v_projection_reordering_byte_exact": true,
+    "sorted_compact_attention_matches_dense_sparse_mask": false
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_exact": true,
+      "checks": {
+        "dense_mask_attention_equals_latent_gather_compact_attention": true,
+        "dense_mask_attention_equals_sorted_compact_attention": true,
+        "gather_after_full_k_equals_project_after_latent_gather": true,
+        "gather_after_full_v_equals_project_after_latent_gather": true
+      },
+      "context_tokens": 2048,
+      "diagnostics": {
+        "compact_attention": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        },
+        "end_to_end": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        },
+        "k_projection": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        },
+        "v_projection": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        }
+      },
+      "median_direct_dense_ms": 4.4165205,
+      "median_sparse_reordered_ms": 20.911167,
+      "query_rows": 4,
+      "samples": {
+        "direct_dense_ms": [
+          4.443833,
+          4.389208
+        ],
+        "sparse_reordered_ms": [
+          25.6225,
+          16.199834
+        ]
+      },
+      "selected_width": 2051,
+      "timing_is_architecture_headroom_only": true
+    },
+    "32768": {
+      "all_exact": false,
+      "checks": {
+        "dense_mask_attention_equals_latent_gather_compact_attention": false,
+        "dense_mask_attention_equals_sorted_compact_attention": false,
+        "gather_after_full_k_equals_project_after_latent_gather": true,
+        "gather_after_full_v_equals_project_after_latent_gather": true
+      },
+      "context_tokens": 32768,
+      "diagnostics": {
+        "compact_attention": {
+          "different_elements": 1,
+          "max_absolute_difference": 1.0
+        },
+        "end_to_end": {
+          "different_elements": 1,
+          "max_absolute_difference": 1.0
+        },
+        "k_projection": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        },
+        "v_projection": {
+          "different_elements": 0,
+          "max_absolute_difference": 0.0
+        }
+      },
+      "median_direct_dense_ms": 63.1925625,
+      "median_sparse_reordered_ms": 16.210541499999998,
+      "query_rows": 4,
+      "samples": {
+        "direct_dense_ms": [
+          63.026167,
+          63.358958
+        ],
+        "sparse_reordered_ms": [
+          16.198375,
+          16.222708
+        ]
+      },
+      "selected_width": 2051,
+      "timing_is_architecture_headroom_only": true
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "preserve_direct_prefill_order_and_redesign_native_dsa",
+  "promotion": {
+    "production_prefill": false,
+    "requires_real_checkpoint_confirmation": true,
+    "runtime": false
+  },
+  "schema": "glm53-sparse-prefill-reordering-equivalence-v1"
+}

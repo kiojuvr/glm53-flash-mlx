@@ -231,6 +231,12 @@ uv run python scripts/probe_native_dsa_prefill_streaming_microtile.py
 
 この段階でもscore/selection単体はruntimeへ昇格しません。PASS後に同じarena内でgather/attentionまで消費し、composed DSA regionとして再評価します。
 
+prefill固有のK/V projection順序も独立に検証します。Directの「全latentを投影してからselected rowを読む」を「selected latentを先にgatherしてから投影」へ変える操作は2K/32Kでbyte-exactでした。一方、32Kのfull sparse mask attentionを通常のsorted compact SDPAへ置換すると1 BF16要素が分岐するため、その置換は採用しません。native prefill attentionはlogical full-Kv reduction topologyを保つexact sparse reductionが必要です。
+
+```bash
+uv run python scripts/probe_sparse_prefill_reordering_equivalence.py
+```
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。
