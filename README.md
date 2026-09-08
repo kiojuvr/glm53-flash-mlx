@@ -1661,6 +1661,22 @@ maximum planned arena is 4,496,490,496 bytes (4.19 GiB), well inside the
 qualified native budget. The next implementation target is therefore the
 BM64 shared physical-value tile kernel, not another query-local scatter.
 
+The BM64 shared physical-value implementation now passes all three structural
+gates. First, one 8K physical tile reproduces the physical probability
+scatter, shared V projection, and BM64 AV output byte-for-byte while removing
+query-local selected V; its median is 5.29 ms versus 58.91 ms for the rejected
+query-local materialization oracle (11.13x). Second, storing and reloading the
+raw FP32 Steel MMA fragment across two 8K tiles is byte-identical to one
+continuous 16K BM64 reduction, so no partial-output add or intermediate BF16
+rounding is introduced. Finally, four BM64 query blocks share each projected V
+tile in one Q256 plan. The composed 16K/two-tile result is repeatably exact,
+uses 213,909,504 bytes of fixed scratch, and falls from 40.80 ms for four
+independent projections to 22.38 ms (1.82x). Execute-time allocation, MLX
+graph construction, shape discovery, host synchronization, intermediate
+return, and query-local selected-V storage are all zero. The remaining prefill
+DSA gate is long-context composition with the already-qualified QK/softmax
+plan at the 320K target.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

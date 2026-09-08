@@ -1,0 +1,49 @@
+{
+  "accepted": true,
+  "anchors": {
+    "bm64_physical_attention_output": true,
+    "physical_probability_scatter": true,
+    "query_local_selected_attention_output": false,
+    "shared_value_projection": true
+  },
+  "checks": {
+    "fixed_owned_native_scope": true,
+    "native_boundary_has_positive_measured_speedup": true,
+    "query_local_selected_reduction_is_not_the_q256_oracle": true,
+    "query_local_selected_value_materialization_zero": true,
+    "scatter_projection_bm64_output_byte_exact": true,
+    "scratch_at_most_256mib": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_shared_physical_value_pass_to_multitile_accumulator",
+  "direct_timing": {
+    "median_wall_ms": 58.910541,
+    "samples_ms": [
+      58.910541,
+      58.957333,
+      58.77325
+    ]
+  },
+  "geometry": {
+    "heads": 64,
+    "physical_k": 8192,
+    "query_rows": 64,
+    "selected_width": 2051,
+    "value_dimension": 128
+  },
+  "materialized_query_local_selected_value_bytes": 0,
+  "native_timing": {
+    "median_wall_ms": 5.307833,
+    "samples_ms": [
+      5.32375,
+      5.307833,
+      5.288708
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-exact-bm64-shared-physical-value-tile-v1",
+  "scratch_bytes": 204472320,
+  "speedup": 11.098793236335808
+}

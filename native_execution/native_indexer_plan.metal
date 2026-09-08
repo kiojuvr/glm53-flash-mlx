@@ -885,6 +885,133 @@ instantiate_kernel(
     false,
     float);
 
+// Direct Q256 AV uses a full BM64 query fragment.  Keep this separate from
+// the BM8 Q4 diagnostic kernel: zero-padding seven rows changes neither the
+// mathematical expression nor the selected set, but it does change the
+// Steel reduction topology and therefore is not an exact Q256 substitute.
+instantiate_kernel(
+    "glm53_native_steel_gemm_nn_bfloat16_bfloat16_bm64_bn64_bk16_wm2_wn2",
+    gemm,
+    bfloat16_t,
+    64,
+    64,
+    16,
+    2,
+    2,
+    false,
+    false,
+    float);
+
+[[kernel]] void glm53_native_clear_bfloat16(
+    device bfloat16_t* output [[buffer(0)]],
+    constant const uint& elements [[buffer(1)]],
+    uint gid [[thread_position_in_grid]]) {
+  if (gid < elements) output[gid] = bfloat16_t(0.0f);
+}
+
+[[kernel]] void
+glm53_native_scatter_bm64_probabilities_to_physical_bfloat16(
+    device const bfloat16_t* selected_probabilities [[buffer(0)]],
+    device const int* selected_indices [[buffer(1)]],
+    device const bool* selected_valid [[buffer(2)]],
+    device bfloat16_t* physical_probabilities [[buffer(3)]],
+    constant const int& physical_k [[buffer(4)]],
+    constant const int& tile_offset [[buffer(5)]],
+    constant const int& tile_rows [[buffer(6)]],
+    constant const int& query_offset [[buffer(7)]],
+    constant const int& query_rows [[buffer(8)]],
+    uint3 position [[thread_position_in_grid]]) {
+  uint slot = position.x;
+  uint query = position.y;
+  uint head = position.z;
+  if (slot >= kSelectedWidth || query >= 64u || head >= 64u) return;
+  uint source_query = uint(query_offset) + query;
+  if (source_query >= uint(query_rows)) return;
+  size_t edge = size_t(source_query) * kSelectedWidth + slot;
+  if (!selected_valid[edge]) return;
+  int physical = selected_indices[edge];
+  if (physical < 0 || physical >= physical_k ||
+      physical < tile_offset || physical >= tile_offset + tile_rows) return;
+  size_t source =
+      (size_t(source_query) * 64u + head) * kSelectedWidth + slot;
+  size_t destination =
+      (size_t(head) * 64u + query) * uint(tile_rows) +
+      uint(physical - tile_offset);
+  physical_probabilities[destination] = selected_probabilities[source];
+}
+
+// Store/reload the raw FP32 Steel MMA fragment between physical K tiles.
+// The load/store is representational only: no partial-output addition and no
+// BF16 conversion occurs until the final tile, preserving one continuous
+// ascending-BK16 reduction across command boundaries.
+[[kernel, max_total_threads_per_threadgroup(128)]] void
+glm53_native_bm64_physical_value_tile_continue_bfloat16(
+    device const bfloat16_t* physical_probabilities [[buffer(0)]],
+    device const bfloat16_t* projected_values [[buffer(1)]],
+    device float* accumulator [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    constant const int& tile_rows [[buffer(4)]],
+    constant const bool& first_tile [[buffer(5)]],
+    constant const bool& final_tile [[buffer(6)]],
+    constant const int& query_offset [[buffer(7)]],
+    constant const int& query_rows [[buffer(8)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint3 group [[threadgroup_position_in_grid]]) {
+  constexpr int kBM = 64;
+  constexpr int kBN = 64;
+  constexpr int kBK = 16;
+  constexpr int kWM = 2;
+  constexpr int kWN = 2;
+  using gemm_kernel = mlx::steel::GEMMKernel<
+      bfloat16_t, bfloat16_t, kBM, kBN, kBK, kWM, kWN,
+      false, false, true, true, float>;
+  using mma_t = typename gemm_kernel::mma_t;
+  using loader_a_t = typename gemm_kernel::loader_a_t;
+  using loader_b_t = typename gemm_kernel::loader_b_t;
+  threadgroup bfloat16_t As[gemm_kernel::tgp_mem_size_a];
+  threadgroup bfloat16_t Bs[gemm_kernel::tgp_mem_size_b];
+
+  uint head = group.z;
+  uint output_column = group.x * kBN;
+  const device bfloat16_t* A = physical_probabilities +
+      size_t(head) * kBM * uint(tile_rows);
+  const device bfloat16_t* B = projected_values +
+      size_t(head) * uint(tile_rows) * 128u + output_column;
+  device float* C = accumulator +
+      (size_t(head) * uint(query_rows) + uint(query_offset)) * 128u +
+      output_column;
+  device bfloat16_t* D = output +
+      (size_t(head) * uint(query_rows) + uint(query_offset)) * 128u +
+      output_column;
+
+  thread loader_a_t loader_a(A, tile_rows, As, simd_id, lane);
+  thread loader_b_t loader_b(B, 128, Bs, simd_id, lane);
+  thread mma_t mma_op(simd_id, lane);
+  if (!first_tile) {
+    const device float* source = C + mma_op.sm * 128 + mma_op.sn;
+    mma_op.Ctile.template load<float, kWM, kWN>(source, 128);
+  }
+
+  for (int block = 0; block < tile_rows / kBK; ++block) {
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    loader_a.load_unsafe();
+    loader_b.load_unsafe();
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    mma_op.mma(As, Bs);
+    loader_a.next();
+    loader_b.next();
+  }
+
+  threadgroup_barrier(mem_flags::mem_none);
+  if (final_tile) {
+    mma_op.store_result(D, 128);
+  } else {
+    device float* destination = C + mma_op.sm * 128 + mma_op.sn;
+    mma_op.Ctile.template store<float, kWM, kWN>(destination, 128);
+  }
+}
+
 // Exact compact sparse-prefill QK topology selected by MLX 0.32.2 for
 // [batch=64, M=1, K=512] x [batch=64, K=512, N=2051].  The GEMV reduction
 // tree is numerically distinct from Steel GEMM by a handful of BF16 outputs,

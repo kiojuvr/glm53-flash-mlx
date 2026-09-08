@@ -1,0 +1,48 @@
+{
+  "accepted": true,
+  "anchors": {
+    "four_bm64_blocks": true,
+    "repeat": true
+  },
+  "checks": {
+    "fixed_owned_native_scope": true,
+    "one_value_projection_shared_across_four_query_blocks": true,
+    "q256_four_bm64_blocks_byte_exact": true,
+    "query_local_selected_value_materialization_zero": true,
+    "scratch_at_most_256mib": true,
+    "shared_projection_composition_speedup_at_least_1_20x": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_exact_q256_shared_value_pass_to_320k_composed_prefill",
+  "four_independent_bm64_timing": {
+    "median_wall_ms": 40.8,
+    "samples_ms": [
+      40.8,
+      40.778584,
+      40.864041
+    ]
+  },
+  "geometry": {
+    "heads": 64,
+    "physical_k": 16384,
+    "query_block_rows": 64,
+    "query_blocks": 4,
+    "query_rows": 256,
+    "tile_count": 2,
+    "tile_rows": 8192
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-exact-q256-shared-physical-value-pass-v1",
+  "scratch_bytes": 213909504,
+  "shared_q256_timing": {
+    "median_wall_ms": 22.37825,
+    "samples_ms": [
+      22.3735,
+      22.37825,
+      22.380708
+    ]
+  },
+  "speedup": 1.8231988649693338
+}

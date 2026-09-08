@@ -1,0 +1,44 @@
+{
+  "accepted": true,
+  "anchors": {
+    "two_tile_output_matches_single_continuous_bm64": true,
+    "two_tile_repeat": true
+  },
+  "checks": {
+    "fixed_two_tile_scope": true,
+    "fp32_mma_fragment_store_reload_byte_exact": true,
+    "query_local_selected_value_materialization_zero": true,
+    "two_tile_wall_overhead_below_25_percent": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_shared_physical_value_pass_to_q256_four_blocks",
+  "geometry": {
+    "heads": 64,
+    "physical_k": 16384,
+    "query_rows": 64,
+    "tile_count": 2,
+    "tile_rows": 8192
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-exact-bm64-shared-physical-value-multitile-v1",
+  "single_tile_timing": {
+    "median_wall_ms": 9.816084,
+    "samples_ms": [
+      9.8675,
+      9.816084,
+      9.769875
+    ]
+  },
+  "two_tile_overhead_ratio": 1.046997560330576,
+  "two_tile_scratch_bytes": 204472320,
+  "two_tile_timing": {
+    "median_wall_ms": 10.277416,
+    "samples_ms": [
+      10.204583,
+      10.306125,
+      10.277416
+    ]
+  }
+}

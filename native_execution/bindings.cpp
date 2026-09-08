@@ -15,6 +15,7 @@
 #include "native_indirect_selected_latent_plan.h"
 #include "native_projected_qk_union_tile_plan.h"
 #include "native_projected_qk_union_tile_loop_plan.h"
+#include "native_shared_physical_value_tile_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -31,6 +32,7 @@ using glm53::native_execution::NativeSelectedUnionPlan;
 using glm53::native_execution::NativeIndirectSelectedLatentPlan;
 using glm53::native_execution::NativeProjectedQKUnionTilePlan;
 using glm53::native_execution::NativeProjectedQKUnionTileLoopPlan;
+using glm53::native_execution::NativeSharedPhysicalValueTilePlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -629,4 +631,46 @@ NB_MODULE(_ext, module) {
                    &NativeProjectedQKUnionTileLoopPlan::debug_projected_union_value_tile)
       .def_prop_ro("debug_selected_values",
                    &NativeProjectedQKUnionTileLoopPlan::debug_selected_values);
+
+  nb::class_<NativeSharedPhysicalValueTilePlan>(
+      module, "NativeSharedPhysicalValueTilePlan")
+      .def(nb::init<int, int, int>(), "physical_k"_a, "tile_rows"_a = 0,
+           "query_rows"_a = 64)
+      .def("execute", &NativeSharedPhysicalValueTilePlan::execute,
+           "selected_probabilities"_a, "selected_indices"_a,
+           "selected_valid"_a, "latent"_a, "value_weight"_a)
+      .def_prop_ro("physical_k",
+                   &NativeSharedPhysicalValueTilePlan::physical_k)
+      .def_prop_ro("tile_rows",
+                   &NativeSharedPhysicalValueTilePlan::tile_rows)
+      .def_prop_ro("tile_count",
+                   &NativeSharedPhysicalValueTilePlan::tile_count)
+      .def_prop_ro("query_rows",
+                   &NativeSharedPhysicalValueTilePlan::query_rows)
+      .def_prop_ro("query_blocks",
+                   &NativeSharedPhysicalValueTilePlan::query_blocks)
+      .def_prop_ro("selected_width",
+                   &NativeSharedPhysicalValueTilePlan::selected_width)
+      .def_prop_ro("execution_count",
+                   &NativeSharedPhysicalValueTilePlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeSharedPhysicalValueTilePlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeSharedPhysicalValueTilePlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeSharedPhysicalValueTilePlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeSharedPhysicalValueTilePlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeSharedPhysicalValueTilePlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("materialized_query_local_selected_value_bytes",
+                   &NativeSharedPhysicalValueTilePlan::materialized_query_local_selected_value_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativeSharedPhysicalValueTilePlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeSharedPhysicalValueTilePlan::buffer_identities)
+      .def_prop_ro("debug_physical_probabilities",
+                   &NativeSharedPhysicalValueTilePlan::debug_physical_probabilities)
+      .def_prop_ro("debug_projected_values",
+                   &NativeSharedPhysicalValueTilePlan::debug_projected_values);
 }
