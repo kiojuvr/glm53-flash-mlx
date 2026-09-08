@@ -316,8 +316,11 @@ class NativeSparsePrefillAttentionPlan:
     full_projected_key_value_bytes_avoided: int
     full_sparse_mask_bytes_avoided: int
     selected_projection_reordering_exact: bool
+    compact_qk_exact: bool
+    compact_precise_softmax_exact: bool
     ordinary_compact_sdpa_allowed: bool
-    requires_virtual_full_kv_reduction_topology: bool
+    compact_av_allowed: bool
+    requires_virtual_full_kv_av_reduction_topology: bool
     invariants: tuple[str, ...]
     production_admission_changed: bool
 
@@ -328,6 +331,7 @@ class NativeSparsePrefillAttentionPlan:
 def build_native_sparse_prefill_attention_plan(
     reordering_probe: dict[str, object],
     microtile_probe: dict[str, object],
+    reduction_localization: dict[str, object],
     *,
     logical_context_tokens: int = DESIGN_TOTAL_CONTEXT_TOKENS,
 ) -> NativeSparsePrefillAttentionPlan:
@@ -358,6 +362,20 @@ def build_native_sparse_prefill_attention_plan(
         "glm53-native-dsa-prefill-streaming-microtile-v1"
     ) or not microtile_probe.get("accepted"):
         raise NativePrefillPlanError("exact Q4 score-selection microtile is unavailable")
+    if reduction_localization.get("schema") != (
+        "glm53-sparse-prefill-attention-reduction-localization-v1"
+    ) or not reduction_localization.get("accepted"):
+        raise NativePrefillPlanError("attention reduction localization is unavailable")
+    localized = reduction_localization.get("checks", {})
+    if not (
+        localized.get("explicit_fallback_matches_direct_fast_sdpa")
+        and localized.get("selected_qk_scores_byte_exact")
+        and localized.get("selected_precise_softmax_probabilities_byte_exact")
+        and localized.get("compact_av_accumulation_is_first_and_only_barrier")
+        and reduction_localization.get("first_differing_stage")
+        == "attention_probability_times_value"
+    ):
+        raise NativePrefillPlanError("prefill attention barrier is not isolated to AV")
 
     geometry = plan_native_dsa_prefill_streaming_geometry()
     bf16_bytes = 2
@@ -395,17 +413,20 @@ def build_native_sparse_prefill_attention_plan(
         full_projected_key_value_bytes_avoided=full_key + full_value,
         full_sparse_mask_bytes_avoided=full_mask,
         selected_projection_reordering_exact=True,
+        compact_qk_exact=True,
+        compact_precise_softmax_exact=True,
         ordinary_compact_sdpa_allowed=False,
-        requires_virtual_full_kv_reduction_topology=True,
+        compact_av_allowed=False,
+        requires_virtual_full_kv_av_reduction_topology=True,
         invariants=(
             "Q4 score/top-k/expansion executes inside the composed native region",
             "selected valid token indices are sorted in physical token order",
             "attention consumes one query row at a time from reusable scratch",
             "selected latent is projected with the Direct BF16 K/V dot order",
-            "unselected logical positions behave as masked finite-min scores",
-            "softmax max/sum follows the Direct logical full-Kv reduction tree",
-            "value accumulation follows physical token order with virtual zero lanes",
-            "ordinary compact SDPA is forbidden by measured 32K byte divergence",
+            "compact QK and precise softmax are byte exact at the selected width",
+            "value accumulation follows the Direct full-Kv split-K topology",
+            "unselected physical positions enter AV reduction as virtual zero lanes",
+            "ordinary compact AV is forbidden by measured 32K byte divergence",
             "no full-context projected K/V or Q256-by-Kv mask is materialized",
             "only final attention output may cross the native execution boundary",
         ),

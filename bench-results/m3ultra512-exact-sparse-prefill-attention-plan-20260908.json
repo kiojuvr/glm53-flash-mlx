@@ -3,11 +3,13 @@
   "checks": {
     "avoids_128mib_q256_full_sparse_mask": true,
     "avoids_at_least_40gib_full_projected_kv": true,
+    "compact_av_is_forbidden": true,
+    "compact_qk_and_softmax_are_exact": true,
     "ordinary_compact_sdpa_is_forbidden": true,
     "production_admission_unchanged": true,
     "selected_projection_reordering_is_byte_exact": true,
     "total_native_scratch_at_most_256mib": true,
-    "virtual_full_kv_reduction_is_required": true
+    "virtual_full_kv_av_reduction_is_required": true
   },
   "complete": true,
   "date": "2026-09-08",
@@ -16,6 +18,9 @@
     "attention_accumulator_bytes": 131072,
     "attention_microtile_rows": 1,
     "attention_score_bytes": 262528,
+    "compact_av_allowed": false,
+    "compact_precise_softmax_exact": true,
+    "compact_qk_exact": true,
     "full_projected_key_value_bytes_avoided": 42949672960,
     "full_sparse_mask_bytes_avoided": 134217728,
     "invariants": [
@@ -23,10 +28,10 @@
       "selected valid token indices are sorted in physical token order",
       "attention consumes one query row at a time from reusable scratch",
       "selected latent is projected with the Direct BF16 K/V dot order",
-      "unselected logical positions behave as masked finite-min scores",
-      "softmax max/sum follows the Direct logical full-Kv reduction tree",
-      "value accumulation follows physical token order with virtual zero lanes",
-      "ordinary compact SDPA is forbidden by measured 32K byte divergence",
+      "compact QK and precise softmax are byte exact at the selected width",
+      "value accumulation follows the Direct full-Kv split-K topology",
+      "unselected physical positions enter AV reduction as virtual zero lanes",
+      "ordinary compact AV is forbidden by measured 32K byte divergence",
       "no full-context projected K/V or Q256-by-Kv mask is materialized",
       "only final attention output may cross the native execution boundary"
     ],
@@ -36,7 +41,7 @@
     "production_admission_changed": false,
     "projected_key_bytes": 134414336,
     "projected_value_bytes": 33603584,
-    "requires_virtual_full_kv_reduction_topology": true,
+    "requires_virtual_full_kv_av_reduction_topology": true,
     "score_microtile_rows": 4,
     "score_selection_scratch_bytes": 34611200,
     "selected_latent_bytes": 2100224,
@@ -46,6 +51,7 @@
   },
   "schema": "glm53-exact-sparse-prefill-attention-plan-v1",
   "source_evidence": {
+    "localization": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-sparse-prefill-attention-reduction-localization-20260908.json",
     "microtile": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-native-dsa-prefill-streaming-microtile-20260908.json",
     "reordering": "/Volumes/SDXC-512/glm53-flash-mlx/bench-results/m3ultra512-sparse-prefill-reordering-equivalence-20260908.json"
   }

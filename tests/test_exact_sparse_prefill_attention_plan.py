@@ -20,6 +20,11 @@ MICROTILE = (
     / "bench-results"
     / "m3ultra512-native-dsa-prefill-streaming-microtile-20260908.json"
 )
+LOCALIZATION = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-sparse-prefill-attention-reduction-localization-20260908.json"
+)
 ARTIFACT = (
     ROOT
     / "bench-results"
@@ -28,7 +33,11 @@ ARTIFACT = (
 
 
 def _evidence():
-    return json.loads(REORDERING.read_text()), json.loads(MICROTILE.read_text())
+    return (
+        json.loads(REORDERING.read_text()),
+        json.loads(MICROTILE.read_text()),
+        json.loads(LOCALIZATION.read_text()),
+    )
 
 
 def test_plan_uses_q4_selection_q1_attention_and_bounded_scratch():
@@ -45,16 +54,21 @@ def test_plan_uses_q4_selection_q1_attention_and_bounded_scratch():
 def test_plan_keeps_measured_compact_attention_barrier_explicit():
     plan = build_native_sparse_prefill_attention_plan(*_evidence())
     assert plan.selected_projection_reordering_exact is True
+    assert plan.compact_qk_exact is True
+    assert plan.compact_precise_softmax_exact is True
     assert plan.ordinary_compact_sdpa_allowed is False
-    assert plan.requires_virtual_full_kv_reduction_topology is True
-    assert any("reduction tree" in item for item in plan.invariants)
+    assert plan.compact_av_allowed is False
+    assert plan.requires_virtual_full_kv_av_reduction_topology is True
+    assert any("split-K topology" in item for item in plan.invariants)
 
 
 def test_plan_rejects_evidence_that_hides_measured_barrier():
-    reordering, microtile = _evidence()
+    reordering, microtile, localization = _evidence()
     reordering["checks"]["sorted_compact_attention_matches_dense_sparse_mask"] = True
     with pytest.raises(NativePrefillPlanError):
-        build_native_sparse_prefill_attention_plan(reordering, microtile)
+        build_native_sparse_prefill_attention_plan(
+            reordering, microtile, localization
+        )
 
 
 def test_plan_artifact_is_complete_and_accepted_when_present():

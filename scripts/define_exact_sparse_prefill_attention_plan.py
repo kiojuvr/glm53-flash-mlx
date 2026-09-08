@@ -24,6 +24,11 @@ DEFAULT_MICROTILE = (
     / "bench-results"
     / "m3ultra512-native-dsa-prefill-streaming-microtile-20260908.json"
 )
+DEFAULT_LOCALIZATION = (
+    ROOT
+    / "bench-results"
+    / "m3ultra512-sparse-prefill-attention-reduction-localization-20260908.json"
+)
 DEFAULT_OUTPUT = (
     ROOT
     / "bench-results"
@@ -46,10 +51,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reordering", type=Path, default=DEFAULT_REORDERING)
     parser.add_argument("--microtile", type=Path, default=DEFAULT_MICROTILE)
+    parser.add_argument("--localization", type=Path, default=DEFAULT_LOCALIZATION)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args(argv)
     plan = build_native_sparse_prefill_attention_plan(
-        _load(args.reordering), _load(args.microtile)
+        _load(args.reordering), _load(args.microtile), _load(args.localization)
     )
     checks = {
         "selected_projection_reordering_is_byte_exact": (
@@ -58,8 +64,12 @@ def main(argv: list[str] | None = None) -> int:
         "ordinary_compact_sdpa_is_forbidden": (
             not plan.ordinary_compact_sdpa_allowed
         ),
-        "virtual_full_kv_reduction_is_required": (
-            plan.requires_virtual_full_kv_reduction_topology
+        "compact_qk_and_softmax_are_exact": (
+            plan.compact_qk_exact and plan.compact_precise_softmax_exact
+        ),
+        "compact_av_is_forbidden": not plan.compact_av_allowed,
+        "virtual_full_kv_av_reduction_is_required": (
+            plan.requires_virtual_full_kv_av_reduction_topology
         ),
         "total_native_scratch_at_most_256mib": (
             plan.total_scratch_bytes <= plan.max_scratch_bytes
@@ -85,6 +95,7 @@ def main(argv: list[str] | None = None) -> int:
         "source_evidence": {
             "reordering": str(args.reordering),
             "microtile": str(args.microtile),
+            "localization": str(args.localization),
         },
     }
     _atomic_write(args.output, artifact)

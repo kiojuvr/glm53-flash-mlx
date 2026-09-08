@@ -1,0 +1,36 @@
+{
+  "accepted": true,
+  "checks": {
+    "compact_av_accumulation_is_first_and_only_barrier": true,
+    "explicit_fallback_matches_direct_fast_sdpa": true,
+    "selected_precise_softmax_probabilities_byte_exact": true,
+    "selected_qk_scores_byte_exact": true
+  },
+  "complete": true,
+  "context_tokens": 32768,
+  "date": "2026-09-08",
+  "decision": "implement_exact_virtual_full_kv_av_reduction",
+  "different_output_elements": 1,
+  "first_difference": {
+    "compact_bf16_bits": 49960,
+    "compact_fp32": -168.0,
+    "coordinate": [
+      0,
+      63,
+      2,
+      95
+    ],
+    "direct_bf16_bits": 49959,
+    "direct_fp32": -167.0
+  },
+  "first_differing_stage": "attention_probability_times_value",
+  "promotion": {
+    "compact_av": false,
+    "compact_precise_softmax": true,
+    "compact_qk": true,
+    "ordinary_compact_sdpa": false,
+    "runtime": false
+  },
+  "schema": "glm53-sparse-prefill-attention-reduction-localization-v1",
+  "selected_width": 2051
+}
