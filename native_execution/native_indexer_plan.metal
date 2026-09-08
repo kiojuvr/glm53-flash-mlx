@@ -8,6 +8,7 @@ using namespace metal;
 #include "mlx/backend/metal/kernels/steel/gemm/gemm.h"
 #include "mlx/backend/metal/kernels/steel/gemm/kernels/steel_gemm_fused.h"
 #include "mlx/backend/metal/kernels/steel/gemm/kernels/steel_gemm_splitk.h"
+#include "mlx/backend/metal/kernels/gemv.h"
 
 constant uint kSelectedPools = 512;
 constant uint kIndexKPool = 4;
@@ -871,6 +872,36 @@ instantiate_kernel(
     true,
     float);
 
+instantiate_kernel(
+    "glm53_native_steel_gemm_nn_bfloat16_bfloat16_bm64_bn64_bk16_wm1_wn2",
+    gemm,
+    bfloat16_t,
+    64,
+    64,
+    16,
+    1,
+    2,
+    false,
+    false,
+    float);
+
+// Exact compact sparse-prefill QK topology selected by MLX 0.32.2 for
+// [batch=64, M=1, K=512] x [batch=64, K=512, N=2051].  The GEMV reduction
+// tree is numerically distinct from Steel GEMM by a handful of BF16 outputs,
+// so this is an exactness boundary rather than a performance heuristic.
+instantiate_kernel(
+    "glm53_native_gemv_bfloat16_bm4_bn1_sm1_sn32_tm4_tn4_nc0_axpby0",
+    gemv,
+    bfloat16_t,
+    4,
+    1,
+    1,
+    32,
+    4,
+    4,
+    false,
+    false);
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan
@@ -960,6 +991,26 @@ instantiate_kernel(
     gemm_splitk_accum,
     float,
     bfloat16_t);
+
+[[kernel]] void glm53_native_prepare_prefill_attention_query_bfloat16(
+    device const bfloat16_t* query [[buffer(0)]],
+    device bfloat16_t* scaled_query [[buffer(1)]],
+    constant const int& query_row [[buffer(2)]],
+    constant const float& scale_fp32 [[buffer(3)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kHeads = 64;
+  constexpr uint kQueryRows = 4;
+  constexpr uint kDimension = 512;
+  constexpr uint kElements = kHeads * kDimension;
+  if (position >= kElements) return;
+  uint head = position / kDimension;
+  uint column = position % kDimension;
+  size_t source =
+      (size_t(head) * kQueryRows + uint(query_row)) * kDimension + column;
+  bfloat16_t scale = bfloat16_t(scale_fp32);
+  scaled_query[position] =
+      bfloat16_t(float(query[source]) * float(scale));
+}
 
 // Exact sparse-prefill AV packs selected tokens into their original physical
 // BK16 lanes. Entirely empty physical blocks are removed, while a fixed K

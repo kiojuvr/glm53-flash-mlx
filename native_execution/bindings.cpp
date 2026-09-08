@@ -365,11 +365,19 @@ NB_MODULE(_ext, module) {
 
   nb::class_<NativeSelectedVProjectionAVPlan>(
       module, "NativeSelectedVProjectionAVPlan")
-      .def(nb::init<int>(), "physical_k"_a)
+      .def(nb::init<int, bool>(), "physical_k"_a,
+           "attention_enabled"_a = false)
       .def("execute", &NativeSelectedVProjectionAVPlan::execute,
            "selected_probabilities"_a, "selected_latent"_a,
            "value_weight"_a, "selected_indices"_a, "selected_valid"_a)
+      .def("execute_attention",
+           &NativeSelectedVProjectionAVPlan::execute_attention,
+           "selected_latent"_a, "key_weight"_a, "value_weight"_a,
+           "attention_query"_a, "selected_indices"_a,
+           "selected_valid"_a, "attention_scale"_a)
       .def_prop_ro("physical_k", &NativeSelectedVProjectionAVPlan::physical_k)
+      .def_prop_ro("attention_enabled",
+                   &NativeSelectedVProjectionAVPlan::attention_enabled)
       .def_prop_ro("packed_k", &NativeSelectedVProjectionAVPlan::packed_k)
       .def_prop_ro("query_rows", &NativeSelectedVProjectionAVPlan::query_rows)
       .def_prop_ro("selected_width",
@@ -391,6 +399,15 @@ NB_MODULE(_ext, module) {
                    &NativeSelectedVProjectionAVPlan::buffer_identities)
       .def_prop_ro("debug_projected_value",
                    &NativeSelectedVProjectionAVPlan::debug_projected_value)
+      .def_prop_ro("debug_projected_key",
+                   &NativeSelectedVProjectionAVPlan::debug_projected_key)
+      .def_prop_ro("debug_scaled_query",
+                   &NativeSelectedVProjectionAVPlan::debug_scaled_query)
+      .def_prop_ro("debug_attention_scores",
+                   &NativeSelectedVProjectionAVPlan::debug_attention_scores)
+      .def_prop_ro(
+          "debug_attention_probabilities",
+          &NativeSelectedVProjectionAVPlan::debug_attention_probabilities)
       .def_prop_ro("debug_lane_to_selected",
                    &NativeSelectedVProjectionAVPlan::debug_lane_to_selected);
 }

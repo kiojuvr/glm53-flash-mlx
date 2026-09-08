@@ -1500,6 +1500,20 @@ At 2K it is only 0.298x, preserving the requirement for a measured Direct
 crossover. The accepted island advances composition of selected K projection,
 QK, precise softmax, and AV inside the same fixed execution region.
 
+The complete selected-K/V region is now qualified. A bounded model-free QK
+capture showed that MLX 0.32.2 selects
+`gemv_bfloat16_bm4_bn1_sm1_sn32_tm4_tn4_nc0_axpby0`, not either of the guessed
+Steel GEMM geometries. Instantiating that exact GEMV reduction removed the
+remaining five BF16 QK differences: projected K/V, scaled Q, QK scores,
+precise softmax, and final attention output are byte exact at both 2K and 32K.
+At 32K the single-encoder region takes 21.328 ms versus Direct's 62.922 ms
+(2.950x), with 168.7 MB bounded scratch, stable buffer addresses, and zero
+dynamic allocation, graph construction, shape discovery, host synchronization,
+or intermediate return. At 2K it remains slower (0.260x), so the next composed
+plan must retain a short-context Direct crossover while moving score selection,
+selected-latent gather, and this complete attention region under one native
+execution boundary.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

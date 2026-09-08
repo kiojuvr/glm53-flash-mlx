@@ -1,0 +1,38 @@
+{
+  "accepted": true,
+  "case": {
+    "batch_count": 64,
+    "capture_process_wall_is_performance_metric": false,
+    "capture_process_wall_seconds": 0.3201628339011222,
+    "captured_pipeline_resource_labels": [
+      "gemv_bfloat16_bm4_bn1_sm1_sn32_tm4_tn4_nc0_axpby0",
+      "steel_gemm_fused_nn_bfloat16_bfloat16_bm64_bn64_bk16_wm1_wn2_has_batch_n_use_out_source_n_do_axpby_n_align_M_n_align_N_t_align_K_t"
+    ],
+    "context_tokens": 2048,
+    "full_model_payload_resident": false,
+    "heads": 64,
+    "input_dtype": "bfloat16",
+    "k": 512,
+    "m": 1,
+    "n": 2051,
+    "output_byte_exact": true,
+    "output_dtype": "mlx.core.bfloat16",
+    "output_sha256": "71234512cc29a55956dcbe522e61c417c26d8f1af6c5a8af3fa5f7722f834766",
+    "pipeline_labels_authoritative": false,
+    "reference_sha256": "71234512cc29a55956dcbe522e61c417c26d8f1af6c5a8af3fa5f7722f834766",
+    "resident_payload_scope": "model-free compact QK operands only",
+    "trace": {
+      "bytes": 469740320,
+      "file_count": 35,
+      "kind": "bundle-directory",
+      "path": "/private/tmp/glm53-sparse-prefill-qk-20260908.gputrace",
+      "sha256": "0e9f1e9547124c36aeac7a2ca1a32625e228772bf714af2b6520c60cd42e8978",
+      "stored_in_repository": false
+    }
+  },
+  "complete": true,
+  "decision": "instantiate_captured_compact_qk_topology",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-sparse-prefill-qk-operator-capture-v1"
+}

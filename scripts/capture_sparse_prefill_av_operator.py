@@ -36,7 +36,9 @@ DEFAULT_OUTPUT = (
     / "bench-results"
     / "m3ultra512-sparse-prefill-av-operator-capture-20260908.json"
 )
-PIPELINE_PATTERN = re.compile(r"(?:steel_gemm|gemm_)[A-Za-z0-9_]+")
+PIPELINE_PATTERN = re.compile(
+    r"(?:steel_gemm|gemm_|gemv|matvec)[A-Za-z0-9_]+"
+)
 
 
 def _validate_trace(path: Path) -> Path:
