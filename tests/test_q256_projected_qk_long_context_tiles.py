@@ -19,6 +19,7 @@ def test_tile_rows_are_fixed_plan_geometry_not_runtime_shape_discovery():
     ).read_text()
     assert "int tile_rows = 4096" in header
     assert "checked_tile_rows" in source
+    assert 'physical K must be in (4096, 512K]' in source
     assert "power of two in [4096, 65536]" in source
     assert "tile_count_((physical_k_ + tile_rows_ - 1) / tile_rows_)" in source
     assert "shape_discovery_count() const { return 0; }" in header

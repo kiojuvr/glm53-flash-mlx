@@ -42,9 +42,9 @@ uint64_t buffer_identity(const mx::array &array) {
 }
 
 int checked_physical_k(int value) {
-  if (value <= 4096 || value > (32 << 10)) {
+  if (value <= 4096 || value > (512 << 10)) {
     throw std::invalid_argument(
-        "multi-tile projected-QK physical K must be in (4096, 32K]");
+        "multi-tile projected-QK physical K must be in (4096, 512K]");
   }
   return value;
 }

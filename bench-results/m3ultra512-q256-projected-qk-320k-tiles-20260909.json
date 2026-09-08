@@ -1,0 +1,70 @@
+{
+  "accepted": true,
+  "best_speedup": 5.569050800023131,
+  "best_tile_count": 5,
+  "best_tile_rows": 65536,
+  "best_wall_ms": 530.297042,
+  "candidates": {
+    "32768": {
+      "anchors": {
+        "partial_final_tile_projected_row": true,
+        "qk_scores": true,
+        "union_count": true
+      },
+      "fixed_execution_contract": true,
+      "materialized_selected_key_bytes": 0,
+      "median_wall_ms": 553.246666,
+      "samples_ms": [
+        553.023458,
+        553.246666,
+        553.618166
+      ],
+      "scratch_bytes": 2269795332,
+      "tile_count": 10,
+      "tile_rows": 32768,
+      "union_count": 327251
+    },
+    "65536": {
+      "anchors": {
+        "partial_final_tile_projected_row": true,
+        "qk_scores": true,
+        "union_count": true
+      },
+      "fixed_execution_contract": true,
+      "materialized_selected_key_bytes": 0,
+      "median_wall_ms": 530.297042,
+      "samples_ms": [
+        530.297042,
+        530.527084,
+        530.210875
+      ],
+      "scratch_bytes": 4450833412,
+      "tile_count": 5,
+      "tile_rows": 65536,
+      "union_count": 327251
+    }
+  },
+  "checks": {
+    "best_geometry_is_faster_than_direct": true,
+    "both_320k_q256_tile_geometries_byte_exact": true,
+    "both_fixed_without_host_extent_readback": true,
+    "scratch_at_most_5gib": true,
+    "selected_key_never_materialized": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_320k_q256_projected_qk_to_softmax_value_pass",
+  "direct_reference_wall_ms": 2953.251166,
+  "forbidden_materialized_selected_key_bytes": 34410070016,
+  "geometry": {
+    "partial_final_tile": 65107,
+    "physical_k": 327680,
+    "query_rows": 256,
+    "selected_edges": 525056,
+    "selected_width": 2051,
+    "union_count": 327251
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-q256-projected-qk-320k-tiles-v1"
+}

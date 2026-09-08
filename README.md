@@ -1620,6 +1620,16 @@ must follow active physical geometry rather than always using the largest
 arena admitted by the 512K plan. The long-context gate therefore compares
 32K and 65K tiles explicitly at 320K history.
 
+The 320K Q256 gate now validates the long-context choice. The accepted union
+contains 327,251 rows, so its fifth 65,536-row tile has 65,107 real rows and
+429 padded rows. Both 32K x 10 and 65K x 5 plans reproduce every QK score and
+the final partial-tile projection exactly, with the union count remaining on
+device. Their medians are 553.25 and 530.30 ms respectively, versus 2,953.25
+ms for the Direct selected-K materialization oracle; the 65K plan is 5.57x
+faster and uses 4.15 GiB of fixed scratch. This closes projected-QK feasibility
+at the 320K production prompt target. The next island keeps this score surface
+native through precise softmax and the tiled value pass.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
