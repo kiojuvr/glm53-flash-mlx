@@ -1,0 +1,248 @@
+{
+  "accepted": false,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "32k_operator_speedup_at_least_1_20x": false,
+    "all_8_query_rows_byte_exact": true,
+    "buffer_identities_stable": true,
+    "fixed_arena_at_most_136mib": true,
+    "native_lane_map_matches_physical_bk16_contract": true,
+    "no_dynamic_allocation_graph_shape_or_sync": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_lane_maps_exact": true,
+      "all_rows_byte_exact": true,
+      "context_tokens": 2048,
+      "direct_timing": {
+        "median_host_submit_ms": 0.006042,
+        "median_wall_ms": 0.316708,
+        "samples": [
+          {
+            "host_submit_ms": 0.009875,
+            "wall_ms": 0.467084
+          },
+          {
+            "host_submit_ms": 0.005458,
+            "wall_ms": 0.316708
+          },
+          {
+            "host_submit_ms": 0.006042,
+            "wall_ms": 0.277167
+          }
+        ]
+      },
+      "native_timing": {
+        "median_host_submit_ms": 0.019458,
+        "median_wall_ms": 1.928083,
+        "samples": [
+          {
+            "host_submit_ms": 0.019458,
+            "wall_ms": 1.928625
+          },
+          {
+            "host_submit_ms": 0.034,
+            "wall_ms": 1.923541
+          },
+          {
+            "host_submit_ms": 0.016333,
+            "wall_ms": 1.928083
+          }
+        ]
+      },
+      "operator_speedup": 0.1642605634715933,
+      "packed_k": 2048,
+      "rows": [
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 0,
+          "scratch_bytes": 8466432,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 1,
+          "scratch_bytes": 8466432,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 2,
+          "scratch_bytes": 8466432,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 3,
+          "scratch_bytes": 8466432,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        }
+      ],
+      "scratch_bytes": 8466432
+    },
+    "32768": {
+      "all_lane_maps_exact": true,
+      "all_rows_byte_exact": true,
+      "context_tokens": 32768,
+      "direct_timing": {
+        "median_host_submit_ms": 0.005709,
+        "median_wall_ms": 1.189584,
+        "samples": [
+          {
+            "host_submit_ms": 0.008167,
+            "wall_ms": 1.189584
+          },
+          {
+            "host_submit_ms": 0.005709,
+            "wall_ms": 1.24025
+          },
+          {
+            "host_submit_ms": 0.004417,
+            "wall_ms": 1.173584
+          }
+        ]
+      },
+      "native_timing": {
+        "median_host_submit_ms": 0.035625,
+        "median_wall_ms": 23.275166,
+        "samples": [
+          {
+            "host_submit_ms": 0.017458,
+            "wall_ms": 23.15675
+          },
+          {
+            "host_submit_ms": 0.039833,
+            "wall_ms": 23.275166
+          },
+          {
+            "host_submit_ms": 0.035625,
+            "wall_ms": 23.288834
+          }
+        ]
+      },
+      "operator_speedup": 0.05110958177484105,
+      "packed_k": 32768,
+      "rows": [
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 0,
+          "scratch_bytes": 135401472,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 1,
+          "scratch_bytes": 135401472,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 2,
+          "scratch_bytes": 135401472,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 3,
+          "scratch_bytes": 135401472,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        }
+      ],
+      "scratch_bytes": 135401472
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "stop_or_redesign_native_virtual_bk16_av",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-native-virtual-bk16-prefill-av-v1"
+}

@@ -1467,6 +1467,19 @@ checkpoint, and must remain outside the repository.  The JSON artifact keeps
 their canonical hashes and best-effort pipeline labels; Xcode's dynamic trace
 view remains authoritative for the selected Steel GEMM/split-K geometry.
 
+The captured Direct and compact arms use the same Steel BK16 pipeline. A
+virtual-physical BK16 fixture therefore preserves every selected token's
+original lane, removes only wholly empty physical blocks, and reproduces all
+2K/32K query rows byte-for-byte. A persistent native implementation was then
+tested in two forms: materializing the virtual value matrix, and gathering
+selected values directly into Steel-compatible threadgroup tiles. Both are
+exact and use stable bounded storage, but both fail the fixed 32K performance
+gate. The final direct-gather BM8/BN128 arm takes 2.612 ms versus Direct's
+1.198 ms (its prepared AV portion alone is 1.527 ms). This standalone native
+AV boundary is therefore rejected; the next admissible design must compose
+selected-V projection, BK16 AV, and scratch lifetime inside one native region
+rather than add another MLX/native execution boundary.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

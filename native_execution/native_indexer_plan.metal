@@ -960,3 +960,118 @@ instantiate_kernel(
     gemm_splitk_accum,
     float,
     bfloat16_t);
+
+// Exact sparse-prefill AV packs selected tokens into their original physical
+// BK16 lanes. Entirely empty physical blocks are removed, while a fixed K
+// capacity adds only trailing zero blocks and avoids a host-visible count.
+[[kernel]] void glm53_native_build_virtual_bk16_map(
+    device const int* selected_indices [[buffer(0)]],
+    device const bool* selected_valid [[buffer(1)]],
+    device int* lane_to_selected [[buffer(2)]],
+    constant const int& physical_k [[buffer(3)]],
+    constant const int& packed_k [[buffer(4)]],
+    uint gid [[thread_position_in_grid]]) {
+  if (gid != 0) return;
+  for (int lane = 0; lane < packed_k; ++lane) {
+    lane_to_selected[lane] = -1;
+  }
+  int previous_block = -1;
+  int packed_block = -1;
+  for (int slot = 0; slot < int(kSelectedWidth); ++slot) {
+    int physical = selected_indices[slot];
+    if (!selected_valid[slot] || physical < 0 || physical >= physical_k) {
+      continue;
+    }
+    int block = physical / 16;
+    if (block != previous_block) {
+      ++packed_block;
+      previous_block = block;
+    }
+    int packed_lane = packed_block * 16 + physical % 16;
+    if (packed_lane < packed_k) {
+      lane_to_selected[packed_lane] = slot;
+    }
+  }
+}
+
+[[kernel, max_total_threads_per_threadgroup(128)]] void
+glm53_native_virtual_bk16_av_bfloat16(
+    device const bfloat16_t* selected_probabilities [[buffer(0)]],
+    device const bfloat16_t* selected_values [[buffer(1)]],
+    device const int* lane_to_selected [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    constant const int& packed_k [[buffer(4)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint3 group [[threadgroup_position_in_grid]]) {
+  // Only one query row is active. BM=8 keeps the same BK16 reduction and
+  // row-zero simdgroup fragment as Direct BM64, without executing seven
+  // additional all-zero 8-row fragments.
+  constexpr int kBM = 8;
+  constexpr int kBN = 128;
+  constexpr int kBK = 16;
+  constexpr int kWM = 1;
+  constexpr int kWN = 4;
+  constexpr int kValueDimension = 128;
+  using gemm_kernel = mlx::steel::GEMMKernel<
+      bfloat16_t, bfloat16_t, kBM, kBN, kBK, kWM, kWN,
+      false, false, true, true, float>;
+  using mma_t = typename gemm_kernel::mma_t;
+  threadgroup bfloat16_t As[gemm_kernel::tgp_mem_size_a];
+  threadgroup bfloat16_t Bs[gemm_kernel::tgp_mem_size_b];
+  uint thread_index = simd_id * 32u + lane;
+  uint head = group.z;
+  uint output_column = group.x * kBN;
+  thread mma_t mma_op(simd_id, lane);
+
+  for (int block = 0; block < packed_k / kBK; ++block) {
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    uint block_start = uint(block * kBK);
+
+    // The map builder compacts occupied physical BK16 blocks to the front.
+    // Both SIMD groups observe the same sixteen lanes, so this branch is
+    // uniform across the threadgroup and safely removes trailing zero MMAs.
+    bool occupied = simd_any(
+        lane_to_selected[block_start + (lane & 15u)] >= 0);
+    if (!occupied) {
+      continue;
+    }
+
+    // Match Steel's BM8/BN128 non-transposed A BlockLoader. One thread owns
+    // each K lane for one of eight rows; only logical row zero is live.
+    uint a_row = thread_index / 16u;
+    uint a_column = thread_index % 16u;
+    bfloat16_t probability = bfloat16_t(0.0f);
+    if (a_row == 0) {
+      int slot = lane_to_selected[block_start + a_column];
+      if (slot >= 0) {
+        probability = selected_probabilities[
+            size_t(head) * kSelectedWidth + uint(slot)];
+      }
+    }
+    As[a_row * (kBK + 8) + a_column] = probability;
+
+    // Match Steel's B BlockLoader: eight threads cover each K lane, each
+    // reading sixteen consecutive N columns into a 136-wide padded row.
+    uint k_lane = thread_index / 8u;
+    uint n_start = (thread_index % 8u) * 16u;
+    int slot = lane_to_selected[block_start + k_lane];
+    for (uint n = 0; n < 16u; ++n) {
+      bfloat16_t value = bfloat16_t(0.0f);
+      if (slot >= 0) {
+        value = selected_values[
+            (size_t(head) * kSelectedWidth + uint(slot)) * kValueDimension +
+            output_column + n_start + n];
+      }
+      Bs[k_lane * (kBN + 8) + n_start + n] = value;
+    }
+
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    mma_op.mma(As, Bs);
+  }
+
+  threadgroup_barrier(mem_flags::mem_none);
+  device bfloat16_t* destination =
+      output + size_t(head) * kValueDimension + output_column;
+  mma_op.store_result_safe(destination, kValueDimension, short2(kBN, 1));
+}

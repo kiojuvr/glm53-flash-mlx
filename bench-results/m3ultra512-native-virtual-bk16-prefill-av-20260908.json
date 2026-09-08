@@ -1,0 +1,284 @@
+{
+  "accepted": false,
+  "checks": {
+    "2k_and_32k_measured": true,
+    "32k_operator_speedup_at_least_1_20x": false,
+    "all_8_query_rows_byte_exact": true,
+    "buffer_identities_stable": true,
+    "fixed_arena_at_most_1mib": true,
+    "native_lane_map_matches_physical_bk16_contract": true,
+    "no_dynamic_allocation_graph_shape_or_sync": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "all_lane_maps_exact": true,
+      "all_rows_byte_exact": true,
+      "context_tokens": 2048,
+      "direct_timing": {
+        "median_host_submit_ms": 0.005959,
+        "median_wall_ms": 0.322083,
+        "samples": [
+          {
+            "host_submit_ms": 0.009583,
+            "wall_ms": 0.438
+          },
+          {
+            "host_submit_ms": 0.005959,
+            "wall_ms": 0.321167
+          },
+          {
+            "host_submit_ms": 0.004791,
+            "wall_ms": 0.322083
+          }
+        ]
+      },
+      "native_timing": {
+        "median_host_submit_ms": 0.024833,
+        "median_wall_ms": 1.202875,
+        "samples": [
+          {
+            "host_submit_ms": 0.0085,
+            "wall_ms": 1.202875
+          },
+          {
+            "host_submit_ms": 0.031458,
+            "wall_ms": 1.161583
+          },
+          {
+            "host_submit_ms": 0.024833,
+            "wall_ms": 1.213
+          }
+        ]
+      },
+      "operator_speedup": 0.26776098929647724,
+      "packed_k": 2048,
+      "prepared_av_timing": {
+        "median_host_submit_ms": 0.021833,
+        "median_wall_ms": 0.697583,
+        "samples": [
+          {
+            "host_submit_ms": 0.021917,
+            "wall_ms": 0.697583
+          },
+          {
+            "host_submit_ms": 0.021833,
+            "wall_ms": 0.702291
+          },
+          {
+            "host_submit_ms": 0.019459,
+            "wall_ms": 0.624
+          }
+        ]
+      },
+      "rows": [
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 0,
+          "scratch_bytes": 8192,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 1,
+          "scratch_bytes": 8192,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 2,
+          "scratch_bytes": 8192,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 2048,
+          "row": 3,
+          "scratch_bytes": 8192,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        }
+      ],
+      "scratch_bytes": 8192
+    },
+    "32768": {
+      "all_lane_maps_exact": true,
+      "all_rows_byte_exact": true,
+      "context_tokens": 32768,
+      "direct_timing": {
+        "median_host_submit_ms": 0.006208,
+        "median_wall_ms": 1.198125,
+        "samples": [
+          {
+            "host_submit_ms": 0.006208,
+            "wall_ms": 1.198125
+          },
+          {
+            "host_submit_ms": 0.0035,
+            "wall_ms": 1.179875
+          },
+          {
+            "host_submit_ms": 0.006583,
+            "wall_ms": 1.2365
+          }
+        ]
+      },
+      "native_timing": {
+        "median_host_submit_ms": 0.026791,
+        "median_wall_ms": 2.612167,
+        "samples": [
+          {
+            "host_submit_ms": 0.008042,
+            "wall_ms": 2.612167
+          },
+          {
+            "host_submit_ms": 0.031375,
+            "wall_ms": 2.614958
+          },
+          {
+            "host_submit_ms": 0.026791,
+            "wall_ms": 2.598833
+          }
+        ]
+      },
+      "operator_speedup": 0.4586709042722001,
+      "packed_k": 32768,
+      "prepared_av_timing": {
+        "median_host_submit_ms": 0.020625,
+        "median_wall_ms": 1.527292,
+        "samples": [
+          {
+            "host_submit_ms": 0.021459,
+            "wall_ms": 1.527292
+          },
+          {
+            "host_submit_ms": 0.020625,
+            "wall_ms": 1.484875
+          },
+          {
+            "host_submit_ms": 0.005542,
+            "wall_ms": 1.564
+          }
+        ]
+      },
+      "rows": [
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 0,
+          "scratch_bytes": 131072,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 1,
+          "scratch_bytes": 131072,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 2,
+          "scratch_bytes": 131072,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        },
+        {
+          "buffer_identities_stable": true,
+          "byte_exact": true,
+          "different_output_elements": 0,
+          "execution_count": 1,
+          "lane_map_exact": true,
+          "packed_k": 32768,
+          "row": 3,
+          "scratch_bytes": 131072,
+          "structural_counters": {
+            "dynamic_allocation_count": 0,
+            "graph_node_count": 0,
+            "host_synchronization_count": 0,
+            "returned_intermediate_tensor_bytes": 0,
+            "shape_discovery_count": 0
+          }
+        }
+      ],
+      "scratch_bytes": 131072
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "stop_or_redesign_native_virtual_bk16_av",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-native-virtual-bk16-prefill-av-v1"
+}

@@ -7,6 +7,7 @@
 #include "native_indexpool_update_plan.h"
 #include "native_indexer_plan.h"
 #include "native_packed_moe_plan.h"
+#include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
 
 namespace nb = nanobind;
@@ -17,6 +18,7 @@ using glm53::native_execution::NativeIndexSelectionPlan;
 using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 using glm53::native_execution::NativePackedMoEDecodePlan;
 using glm53::native_execution::NativePackedMoERoutedDiagnostic;
+using glm53::native_execution::NativeSparsePrefillAVPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -326,4 +328,36 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("fast_f32",
                    &NativeRoutedSigmoidFormulaSweep::fast_f32)
       .def_prop_ro("elements", &NativeRoutedSigmoidFormulaSweep::elements);
+
+  nb::class_<NativeSparsePrefillAVPlan>(module,
+                                        "NativeSparsePrefillAVPlan")
+      .def(nb::init<int>(), "physical_k"_a)
+      .def("execute", &NativeSparsePrefillAVPlan::execute,
+           "selected_probabilities"_a, "selected_values"_a,
+           "selected_indices"_a, "selected_valid"_a)
+      .def("execute_prepared", &NativeSparsePrefillAVPlan::execute_prepared,
+           "selected_probabilities"_a, "selected_values"_a)
+      .def_prop_ro("physical_k", &NativeSparsePrefillAVPlan::physical_k)
+      .def_prop_ro("packed_k", &NativeSparsePrefillAVPlan::packed_k)
+      .def_prop_ro("selected_width",
+                   &NativeSparsePrefillAVPlan::selected_width)
+      .def_prop_ro("bk", &NativeSparsePrefillAVPlan::bk)
+      .def_prop_ro("head_tile", &NativeSparsePrefillAVPlan::head_tile)
+      .def_prop_ro("execution_count",
+                   &NativeSparsePrefillAVPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeSparsePrefillAVPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeSparsePrefillAVPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeSparsePrefillAVPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeSparsePrefillAVPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeSparsePrefillAVPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativeSparsePrefillAVPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeSparsePrefillAVPlan::buffer_identities)
+      .def_prop_ro("debug_lane_to_selected",
+                   &NativeSparsePrefillAVPlan::debug_lane_to_selected);
 }
