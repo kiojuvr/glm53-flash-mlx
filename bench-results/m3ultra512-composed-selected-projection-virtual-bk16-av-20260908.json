@@ -1,0 +1,81 @@
+{
+  "accepted": true,
+  "checks": {
+    "2k_and_32k_q4_regions_measured": true,
+    "32k_composed_region_speedup_at_least_1_20x": true,
+    "all_outputs_byte_exact": true,
+    "native_buffers_stable": true,
+    "native_plan_has_no_dynamic_allocation_or_shape_discovery": true
+  },
+  "complete": true,
+  "contexts": {
+    "2048": {
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "candidate_has_explicit_mlx_native_boundary": true,
+      "candidate_timing": {
+        "median_wall_ms": 18.002459,
+        "samples_ms": [
+          18.016375,
+          17.897625,
+          18.002459
+        ]
+      },
+      "context_tokens": 2048,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 4.377875,
+        "samples_ms": [
+          4.347083,
+          4.395,
+          4.377875
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_scratch_bytes": 32768,
+      "query_rows": 4,
+      "selected_width": 2051,
+      "shape_discovery_count": 0,
+      "speedup": 0.24318205640684976
+    },
+    "32768": {
+      "buffer_identities_stable": true,
+      "byte_exact": true,
+      "candidate_has_explicit_mlx_native_boundary": true,
+      "candidate_timing": {
+        "median_wall_ms": 23.044583,
+        "samples_ms": [
+          23.044583,
+          23.196792,
+          22.974375
+        ]
+      },
+      "context_tokens": 32768,
+      "different_output_elements": 0,
+      "direct_timing": {
+        "median_wall_ms": 63.049167,
+        "samples_ms": [
+          63.049167,
+          63.029583,
+          63.078041
+        ]
+      },
+      "dynamic_allocation_count": 0,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "native_scratch_bytes": 524288,
+      "query_rows": 4,
+      "selected_width": 2051,
+      "shape_discovery_count": 0,
+      "speedup": 2.735964760134735
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "implement_single_encoder_selected_projection_bk16_av_region",
+  "production_admission_changed": false,
+  "runtime_changes": false,
+  "schema": "glm53-composed-selected-projection-virtual-bk16-av-v1",
+  "timing_is_conservative_boundary_inclusive_headroom": true
+}

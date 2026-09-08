@@ -1480,6 +1480,15 @@ AV boundary is therefore rejected; the next admissible design must compose
 selected-V projection, BK16 AV, and scratch lifetime inside one native region
 rather than add another MLX/native execution boundary.
 
+That composed Q4 region has now been measured conservatively with the current
+MLX/native materialization boundary still present. At 32K, Direct full-K/V
+projection plus sparse attention takes 63.049 ms, while selected-latent
+projection, exact compact QK/precise softmax, and virtual-BK16 AV take 23.045
+ms (2.736x) with byte-exact output. At 2K the same candidate is only 0.243x,
+so the native plan must retain a short-context Direct crossover. The long
+context result advances a single-encoder selected-projection/BK16-AV region;
+it does not promote the rejected standalone AV primitive or alter production.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
