@@ -17,6 +17,7 @@ from ._ext import (
     NativeRoutedSigmoidFormulaSweep,
     NativeSelectedVProjectionAVPlan,
     NativeSelectedKVAttentionSelectionPlan,
+    NativeSelectedUnionPlan,
     NativeSparsePrefillAVPlan,
 )
 
@@ -31,5 +32,6 @@ __all__ = [
     "NativeRoutedSigmoidFormulaSweep",
     "NativeSelectedVProjectionAVPlan",
     "NativeSelectedKVAttentionSelectionPlan",
+    "NativeSelectedUnionPlan",
     "NativeSparsePrefillAVPlan",
 ]

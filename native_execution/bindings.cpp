@@ -11,6 +11,7 @@
 #include "native_prefill_layer_plan.h"
 #include "native_selected_v_av_plan.h"
 #include "native_selected_kv_attention_selection_plan.h"
+#include "native_selected_union_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -23,6 +24,7 @@ using glm53::native_execution::NativePackedMoERoutedDiagnostic;
 using glm53::native_execution::NativeSparsePrefillAVPlan;
 using glm53::native_execution::NativeSelectedVProjectionAVPlan;
 using glm53::native_execution::NativeSelectedKVAttentionSelectionPlan;
+using glm53::native_execution::NativeSelectedUnionPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -456,4 +458,33 @@ NB_MODULE(_ext, module) {
                    &NativeSelectedKVAttentionSelectionPlan::debug_score_order_indices)
       .def_prop_ro("debug_selected_latent",
                    &NativeSelectedKVAttentionSelectionPlan::debug_selected_latent);
+
+  nb::class_<NativeSelectedUnionPlan>(module, "NativeSelectedUnionPlan")
+      .def(nb::init<int>(), "physical_k"_a)
+      .def("execute", &NativeSelectedUnionPlan::execute,
+           "selected_indices"_a, "selected_valid"_a)
+      .def_prop_ro("physical_k", &NativeSelectedUnionPlan::physical_k)
+      .def_prop_ro("query_rows", &NativeSelectedUnionPlan::query_rows)
+      .def_prop_ro("selected_width", &NativeSelectedUnionPlan::selected_width)
+      .def_prop_ro("execution_count", &NativeSelectedUnionPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeSelectedUnionPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count", &NativeSelectedUnionPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeSelectedUnionPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeSelectedUnionPlan::host_synchronization_count)
+      .def_prop_ro("scratch_bytes", &NativeSelectedUnionPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeSelectedUnionPlan::buffer_identities)
+      .def_prop_ro("union_indices", &NativeSelectedUnionPlan::union_indices)
+      .def_prop_ro("union_count", &NativeSelectedUnionPlan::union_count)
+      .def_prop_ro("query_union_slots",
+                   &NativeSelectedUnionPlan::query_union_slots)
+      .def_prop_ro("debug_membership_words",
+                   &NativeSelectedUnionPlan::debug_membership_words)
+      .def_prop_ro("debug_block_counts",
+                   &NativeSelectedUnionPlan::debug_block_counts)
+      .def_prop_ro("debug_block_prefix",
+                   &NativeSelectedUnionPlan::debug_block_prefix);
 }

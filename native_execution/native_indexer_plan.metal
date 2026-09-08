@@ -1001,6 +1001,115 @@ glm53_native_order_selected_pools_for_prefill_attention(
   }
 }
 
+[[kernel]] void glm53_native_mark_selected_union(
+    device const int* selected_indices [[buffer(0)]],
+    device const bool* selected_valid [[buffer(1)]],
+    device uint* membership_words [[buffer(2)]],
+    constant const int& physical_k [[buffer(3)]],
+    constant const uint& word_count [[buffer(4)]],
+    uint word_index [[thread_position_in_grid]]) {
+  if (word_index >= word_count) return;
+  constexpr uint kQueryRows = 256;
+  constexpr uint kSelectedWidth = 2051;
+  int first_token = int(word_index << 5);
+  int last_token = min(first_token + 32, physical_k);
+  uint bits = 0;
+  for (uint row = 0; row < kQueryRows; ++row) {
+    uint base = row * kSelectedWidth;
+    // Lists are physically sorted by the preceding exact prefill-ordering
+    // stage. One bitmap-word thread therefore owns and overwrites every word;
+    // no global atomics or separate clear dispatch are required.
+    uint low = 0;
+    uint high = kSelectedWidth;
+    while (low < high) {
+      uint middle = (low + high) >> 1;
+      int value = selected_valid[base + middle]
+          ? selected_indices[base + middle]
+          : physical_k;
+      if (value < first_token) low = middle + 1;
+      else high = middle;
+    }
+    for (uint slot = low; slot < kSelectedWidth; ++slot) {
+      int value = selected_indices[base + slot];
+      if (!selected_valid[base + slot] || value >= last_token) break;
+      if (value >= first_token) bits |= 1u << uint(value - first_token);
+    }
+  }
+  membership_words[word_index] = bits;
+}
+
+[[kernel]] void glm53_native_count_selected_union_blocks(
+    device const uint* membership_words [[buffer(0)]],
+    device uint* block_counts [[buffer(1)]],
+    constant const uint& word_count [[buffer(2)]],
+    constant const uint& block_count [[buffer(3)]],
+    uint block [[thread_position_in_grid]]) {
+  if (block >= block_count) return;
+  constexpr uint kWordsPerBlock = 8;
+  uint first = block * kWordsPerBlock;
+  uint count = 0;
+  for (uint lane = 0; lane < kWordsPerBlock; ++lane) {
+    uint word = first + lane;
+    if (word < word_count) count += popcount(membership_words[word]);
+  }
+  block_counts[block] = count;
+}
+
+[[kernel]] void glm53_native_prefix_selected_union_blocks(
+    device const uint* block_counts [[buffer(0)]],
+    device uint* block_prefix [[buffer(1)]],
+    device uint* union_count [[buffer(2)]],
+    constant const uint& block_count [[buffer(3)]],
+    uint position [[thread_position_in_grid]]) {
+  if (position != 0) return;
+  uint prefix = 0;
+  for (uint block = 0; block < block_count; ++block) {
+    block_prefix[block] = prefix;
+    prefix += block_counts[block];
+  }
+  union_count[0] = prefix;
+}
+
+[[kernel]] void glm53_native_scatter_selected_union(
+    device const uint* membership_words [[buffer(0)]],
+    device const uint* block_prefix [[buffer(1)]],
+    device int* union_indices [[buffer(2)]],
+    device int* physical_to_union [[buffer(3)]],
+    constant const int& physical_k [[buffer(4)]],
+    uint token [[thread_position_in_grid]]) {
+  if (token >= uint(physical_k)) return;
+  uint word_index = token >> 5;
+  uint lane = token & 31u;
+  uint word = membership_words[word_index];
+  uint bit = 1u << lane;
+  if ((word & bit) == 0) return;
+  constexpr uint kWordsPerBlock = 8;
+  uint block = word_index / kWordsPerBlock;
+  uint first_word = block * kWordsPerBlock;
+  uint rank = block_prefix[block];
+  for (uint prior = first_word; prior < word_index; ++prior) {
+    rank += popcount(membership_words[prior]);
+  }
+  uint lower = lane == 0 ? 0u : (word & ((1u << lane) - 1u));
+  rank += popcount(lower);
+  union_indices[rank] = int(token);
+  physical_to_union[token] = int(rank);
+}
+
+[[kernel]] void glm53_native_map_queries_to_selected_union(
+    device const int* selected_indices [[buffer(0)]],
+    device const bool* selected_valid [[buffer(1)]],
+    device const int* physical_to_union [[buffer(2)]],
+    device int* query_union_slots [[buffer(3)]],
+    constant const int& physical_k [[buffer(4)]],
+    constant const uint& selected_elements [[buffer(5)]],
+    uint position [[thread_position_in_grid]]) {
+  if (position >= selected_elements) return;
+  int token = selected_indices[position];
+  bool valid = selected_valid[position] && token >= 0 && token < physical_k;
+  query_union_slots[position] = valid ? physical_to_union[token] : -1;
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan

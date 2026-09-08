@@ -32,6 +32,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_av_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_selected_v_av_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_selected_kv_attention_selection_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_selected_union_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_layer_plan.cpp)
 target_include_directories(

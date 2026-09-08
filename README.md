@@ -1543,6 +1543,19 @@ device-resident Q256 selected union, project each union K/V row once, and
 retain query-local physical-order maps for exact QK/softmax/AV. It will not
 instantiate 64 independent Q4 projection plans.
 
+The device-resident union substrate now implements that first step. One GPU
+thread owns each 32-token membership word and overwrites it by binary-searching
+all 256 physically sorted selected lists; bounded block counts/prefixes then
+emit the physical-order union and query-local union slots. The union count
+remains a GPU `uint32` buffer for a later indirect projection dispatch. At
+32K/128K/320K, both an initial and shifted replacement selection are byte
+exact against NumPy, including the 327,251-row 320K union. The 320K median is
+1.424 ms, scratch is 4.55 MiB, buffer identities are stable, and execution has
+zero dynamic allocation, MLX graph construction, shape discovery, or host
+synchronization. Diagnostic CPU reads synchronize only in the probe, outside
+the native plan contract. This advances the Q256 plan to indirect selected-K/V
+projection without exposing union membership or count to Python.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

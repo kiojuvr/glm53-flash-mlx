@@ -1,0 +1,103 @@
+{
+  "accepted": true,
+  "checks": {
+    "320k_union_build_at_most_5ms": true,
+    "32k_128k_320k_measured": true,
+    "buffers_stable_and_no_alloc_graph_shape_or_host_sync": true,
+    "physical_order_union_and_query_slots_byte_exact": true,
+    "scratch_at_most_8mib": true,
+    "union_count_remains_device_resident": true
+  },
+  "complete": true,
+  "contexts": {
+    "131072": {
+      "block_count_sum": 131072,
+      "buffer_identities_stable": true,
+      "candidate_union_count": 131072,
+      "context_tokens": 131072,
+      "dynamic_allocation_count": 0,
+      "execution_count": 9,
+      "first_membership_exact": true,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_wall_ms": 1.3625,
+      "membership_nonzero_words": 4096,
+      "membership_popcount": 131072,
+      "query_union_slots_byte_exact": true,
+      "reference_union_count": 131072,
+      "replacement_membership_exact": true,
+      "samples_ms": [
+        1.3625,
+        1.374459,
+        1.4685,
+        1.340542,
+        1.30625
+      ],
+      "scratch_bytes": 3169284,
+      "shape_discovery_count": 0,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true
+    },
+    "32768": {
+      "block_count_sum": 32768,
+      "buffer_identities_stable": true,
+      "candidate_union_count": 32768,
+      "context_tokens": 32768,
+      "dynamic_allocation_count": 0,
+      "execution_count": 9,
+      "first_membership_exact": true,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_wall_ms": 1.400542,
+      "membership_nonzero_words": 1024,
+      "membership_popcount": 32768,
+      "query_union_slots_byte_exact": true,
+      "reference_union_count": 32768,
+      "replacement_membership_exact": true,
+      "samples_ms": [
+        1.507625,
+        1.340334,
+        1.460291,
+        1.400542,
+        1.391959
+      ],
+      "scratch_bytes": 2367492,
+      "shape_discovery_count": 0,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true
+    },
+    "327680": {
+      "block_count_sum": 327251,
+      "buffer_identities_stable": true,
+      "candidate_union_count": 327251,
+      "context_tokens": 327680,
+      "dynamic_allocation_count": 0,
+      "execution_count": 9,
+      "first_membership_exact": true,
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "median_wall_ms": 1.574334,
+      "membership_nonzero_words": 10240,
+      "membership_popcount": 327251,
+      "query_union_slots_byte_exact": true,
+      "reference_union_count": 327251,
+      "replacement_membership_exact": true,
+      "samples_ms": [
+        1.435542,
+        1.642292,
+        1.574334,
+        1.558625,
+        2.017417
+      ],
+      "scratch_bytes": 4772868,
+      "shape_discovery_count": 0,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "advance_q256_union_to_indirect_selected_kv_projection",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-device-resident-q256-selected-union-v1"
+}
