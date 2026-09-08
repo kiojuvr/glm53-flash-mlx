@@ -196,6 +196,15 @@ disk namespaceはcheckpoint revision/digest、tokenizer revision/digest、chat-t
 uv run python scripts/define_native_context_capacity_contract.py
 ```
 
+次のprofilingは32K/128K/320Kの各positionで、直前までをdeterministic compact-cache stateとして構築し、末尾256-row chunkだけを全45層へ流します。通常passのwall/host graph-buildをauthoritative timingとし、別passで全層をKDA attention、DSA attention、dense FFN、routed MoE、HC/norm/handoff、final norm/LM headへ同期分解します。同期付きstage合計をproduction wallとして扱いません。各context完了時にartifactをatomic保存するため、中断後は完了点をskipして再開できます。
+
+```bash
+uv run python scripts/profile_native_prefill_critical_path.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
+100 tok/sは停止gateではありません。profileは速度目標を持たず、320Kで最大のexecution stage、resident parameter capacity、host graph-build、context scalingを特定し、個別kernelではなくnative prefill plan全体のbuffer lifetime、weight traversal、scratch reuse、submission topologyを決めるために使います。
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。
