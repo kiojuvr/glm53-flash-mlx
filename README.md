@@ -1585,6 +1585,19 @@ the first Q256 path where removing a forbidden materialization both preserves
 the Direct rounding boundary and converts directly into wall-time gain; the
 next step is a device-count-driven multi-tile loop.
 
+The device-count-driven loop now passes its first multi-tile gate. A Q256
+selection whose first four attention rows span the entire 8K physical range
+produces an 8K union entirely on the GPU, then executes two fixed 4,096-row
+tiles. Each tile gathers latent rows, projects K once, and writes only the
+query edges whose global union slots belong to that tile. Union indices,
+query-local slots, the final tile's latent and projected K, scaled queries,
+and all QK scores are byte exact. Direct wall falls from 18.625 to 14.213 ms
+(1.310x) while scratch remains 263.3 MiB and selected-K materialization stays
+at zero bytes. The host encodes capacity-derived tiles without reading the
+device union count; execute-time allocation, graph construction, shape
+discovery, host synchronization, and intermediate return remain zero. This
+advances the plan from a single-tile proof to production Q256 geometry.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

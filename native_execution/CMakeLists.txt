@@ -35,6 +35,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_selected_union_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_indirect_selected_latent_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_projected_qk_union_tile_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_projected_qk_union_tile_loop_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_layer_plan.cpp)
 target_include_directories(

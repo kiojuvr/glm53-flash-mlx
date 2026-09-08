@@ -14,6 +14,7 @@
 #include "native_selected_union_plan.h"
 #include "native_indirect_selected_latent_plan.h"
 #include "native_projected_qk_union_tile_plan.h"
+#include "native_projected_qk_union_tile_loop_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -29,6 +30,7 @@ using glm53::native_execution::NativeSelectedKVAttentionSelectionPlan;
 using glm53::native_execution::NativeSelectedUnionPlan;
 using glm53::native_execution::NativeIndirectSelectedLatentPlan;
 using glm53::native_execution::NativeProjectedQKUnionTilePlan;
+using glm53::native_execution::NativeProjectedQKUnionTileLoopPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -557,4 +559,51 @@ NB_MODULE(_ext, module) {
                    &NativeProjectedQKUnionTilePlan::debug_projected_union_key)
       .def_prop_ro("debug_scaled_query",
                    &NativeProjectedQKUnionTilePlan::debug_scaled_query);
+
+  nb::class_<NativeProjectedQKUnionTileLoopPlan>(
+      module, "NativeProjectedQKUnionTileLoopPlan")
+      .def(nb::init<int>(), "physical_k"_a)
+      .def("execute", &NativeProjectedQKUnionTileLoopPlan::execute,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a,
+           "key_weight"_a, "attention_query"_a, "attention_scale"_a)
+      .def_prop_ro("physical_k",
+                   &NativeProjectedQKUnionTileLoopPlan::physical_k)
+      .def_prop_ro("tile_rows",
+                   &NativeProjectedQKUnionTileLoopPlan::tile_rows)
+      .def_prop_ro("tile_count",
+                   &NativeProjectedQKUnionTileLoopPlan::tile_count)
+      .def_prop_ro("query_rows",
+                   &NativeProjectedQKUnionTileLoopPlan::query_rows)
+      .def_prop_ro("selected_width",
+                   &NativeProjectedQKUnionTileLoopPlan::selected_width)
+      .def_prop_ro("execution_count",
+                   &NativeProjectedQKUnionTileLoopPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeProjectedQKUnionTileLoopPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeProjectedQKUnionTileLoopPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeProjectedQKUnionTileLoopPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeProjectedQKUnionTileLoopPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeProjectedQKUnionTileLoopPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("materialized_selected_key_bytes",
+                   &NativeProjectedQKUnionTileLoopPlan::materialized_selected_key_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativeProjectedQKUnionTileLoopPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeProjectedQKUnionTileLoopPlan::buffer_identities)
+      .def_prop_ro("union_indices",
+                   &NativeProjectedQKUnionTileLoopPlan::union_indices)
+      .def_prop_ro("union_count",
+                   &NativeProjectedQKUnionTileLoopPlan::union_count)
+      .def_prop_ro("query_union_slots",
+                   &NativeProjectedQKUnionTileLoopPlan::query_union_slots)
+      .def_prop_ro("debug_union_latent_tile",
+                   &NativeProjectedQKUnionTileLoopPlan::debug_union_latent_tile)
+      .def_prop_ro("debug_projected_union_key_tile",
+                   &NativeProjectedQKUnionTileLoopPlan::debug_projected_union_key_tile)
+      .def_prop_ro("debug_scaled_queries",
+                   &NativeProjectedQKUnionTileLoopPlan::debug_scaled_queries);
 }

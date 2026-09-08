@@ -1,0 +1,55 @@
+{
+  "accepted": true,
+  "anchors": {
+    "last_projected_union_key_tile": true,
+    "last_union_latent_tile": true,
+    "qk_scores": true,
+    "query_union_slots": true,
+    "scaled_queries": true,
+    "union_indices": true
+  },
+  "checks": {
+    "all_union_projection_and_qk_anchors_byte_exact": true,
+    "end_to_end_speedup_at_least_1_10x": true,
+    "fixed_execution_contract": true,
+    "scratch_at_most_300mib": true,
+    "selected_key_never_materialized": true,
+    "two_capacity_tiles_encoded_without_count_readback": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_projected_qk_tile_loop_to_q256_geometry",
+  "direct_timing": {
+    "median_wall_ms": 18.625125,
+    "samples_ms": [
+      18.594291,
+      18.625917,
+      18.625125
+    ]
+  },
+  "execution_count": 6,
+  "forbidden_materialized_selected_key_bytes": 537657344,
+  "geometry": {
+    "attention_query_rows": 4,
+    "physical_k": 8192,
+    "selected_width": 2051,
+    "selection_query_rows": 256,
+    "tile_count": 2,
+    "tile_rows": 4096,
+    "union_count": 8192
+  },
+  "materialized_selected_key_bytes": 0,
+  "native_timing": {
+    "median_wall_ms": 14.212958,
+    "samples_ms": [
+      14.084208,
+      14.328417,
+      14.212958
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-device-count-projected-qk-union-tile-loop-v1",
+  "scratch_bytes": 276109060,
+  "speedup": 1.3104327051413225
+}

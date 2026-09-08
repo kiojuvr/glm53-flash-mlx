@@ -1215,6 +1215,142 @@ void glm53_native_projected_union_qk_bfloat16(
   }
 }
 
+[[kernel]] void glm53_native_clear_q4_union_scores_bfloat16(
+    device bfloat* scores [[buffer(0)]],
+    constant const uint& element_count [[buffer(1)]],
+    uint position [[thread_position_in_grid]]) {
+  if (position < element_count) {
+    scores[position] = Limits<bfloat>::finite_min;
+  }
+}
+
+// Copy one fixed union tile and zero its inactive tail.  The global union
+// extent remains device-resident; every capacity-derived tile is encoded and
+// only rows below union_count read union_indices or source latent storage.
+[[kernel]] void glm53_native_gather_selected_union_latent_tile_bfloat16(
+    device const bfloat* latent [[buffer(0)]],
+    device const int* union_indices [[buffer(1)]],
+    device const uint* union_count [[buffer(2)]],
+    device bfloat* union_latent_tile [[buffer(3)]],
+    constant const int& physical_k [[buffer(4)]],
+    constant const int& tile_offset [[buffer(5)]],
+    uint group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]) {
+  constexpr uint kLatentDim = 512;
+  constexpr uint kRowsPerGroup = 8;
+  for (uint local = 0; local < kRowsPerGroup; ++local) {
+    uint tile_row = group * kRowsPerGroup + local;
+    uint union_row = uint(tile_offset) + tile_row;
+    bool active = union_row < union_count[0];
+    int source = active ? union_indices[union_row] : -1;
+    active = active && source >= 0 && source < physical_k;
+    size_t destination = size_t(tile_row) * kLatentDim + lane;
+    union_latent_tile[destination] = active
+        ? latent[size_t(source) * kLatentDim + lane]
+        : bfloat(0.0f);
+    union_latent_tile[destination + 256] = active
+        ? latent[size_t(source) * kLatentDim + lane + 256]
+        : bfloat(0.0f);
+  }
+}
+
+[[kernel]] void glm53_native_prepare_q4_prefill_attention_query_bfloat16(
+    device const bfloat* query [[buffer(0)]],
+    device bfloat* scaled_query [[buffer(1)]],
+    constant const float& scale_fp32 [[buffer(2)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kQueryRows = 4;
+  constexpr uint kHeads = 64;
+  constexpr uint kDimension = 512;
+  constexpr uint kElements = kQueryRows * kHeads * kDimension;
+  if (position >= kElements) return;
+  uint column = position % kDimension;
+  uint flattened = position / kDimension;
+  uint head = flattened % kHeads;
+  uint row = flattened / kHeads;
+  size_t source =
+      (size_t(head) * kQueryRows + row) * kDimension + column;
+  bfloat scale = bfloat(scale_fp32);
+  scaled_query[position] = bfloat(float(query[source]) * float(scale));
+}
+
+// Multi-tile form of the exact row-gather GEMV.  Each selected edge is
+// written by exactly one tile.  Edges outside this tile are left untouched;
+// an initial clear establishes the eager invalid-slot sentinel.
+[[kernel, max_total_threads_per_threadgroup(128)]]
+void glm53_native_projected_union_qk_tile_bfloat16(
+    device const bfloat* projected_union_key [[buffer(0)]],
+    device const bfloat* scaled_queries [[buffer(1)]],
+    device const int* query_union_slots [[buffer(2)]],
+    device const bool* selected_valid [[buffer(3)]],
+    device const uint* union_count [[buffer(4)]],
+    device bfloat* scores [[buffer(5)]],
+    constant const int& query_row [[buffer(6)]],
+    constant const int& tile_offset [[buffer(7)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint simd_group [[simdgroup_index_in_threadgroup]],
+    uint simd_lane [[thread_index_in_simdgroup]]) {
+  constexpr uint kTileRows = 4096;
+  constexpr uint kHeads = 64;
+  constexpr uint kSelectedWidth = 2051;
+  constexpr uint kLatentDim = 512;
+  constexpr uint kBlockRows = 16;
+  constexpr uint kRowsPerSimd = 4;
+  constexpr uint kColumnsPerLane = 4;
+  constexpr uint kColumnBlock = 128;
+  uint output_row = group.x * kBlockRows + simd_group * kRowsPerSimd;
+  if (output_row >= kSelectedWidth) return;
+  if (output_row + kRowsPerSimd > kSelectedWidth) {
+    output_row = kSelectedWidth - kRowsPerSimd;
+  }
+  uint head = group.z;
+  float result[kRowsPerSimd] = {0.0f};
+  bool owned[kRowsPerSimd] = {false, false, false, false};
+  for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+    uint selected = output_row + local_row;
+    uint map_offset = uint(query_row) * kSelectedWidth + selected;
+    int slot = query_union_slots[map_offset];
+    owned[local_row] = selected_valid[map_offset] && slot >= tile_offset &&
+        uint(slot) < union_count[0] &&
+        slot < tile_offset + int(kTileRows);
+  }
+  for (uint block = 0; block < kLatentDim / kColumnBlock; ++block) {
+    uint column = block * kColumnBlock + simd_lane * kColumnsPerLane;
+    float query_values[kColumnsPerLane];
+    size_t query_base =
+        (size_t(query_row) * kHeads + head) * kLatentDim + column;
+    for (uint lane = 0; lane < kColumnsPerLane; ++lane) {
+      query_values[lane] = float(scaled_queries[query_base + lane]);
+    }
+    for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+      if (!owned[local_row]) continue;
+      uint selected = output_row + local_row;
+      uint map_offset = uint(query_row) * kSelectedWidth + selected;
+      uint local_slot = uint(query_union_slots[map_offset] - tile_offset);
+      size_t source =
+          (size_t(head) * kTileRows + local_slot) * kLatentDim + column;
+      for (uint lane = 0; lane < kColumnsPerLane; ++lane) {
+        result[local_row] +=
+            float(projected_union_key[source + lane]) * query_values[lane];
+      }
+    }
+  }
+  for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+    for (ushort offset = 16; offset >= 1; offset >>= 1) {
+      result[local_row] += simd_shuffle_down(result[local_row], offset);
+    }
+  }
+  if (simd_lane == 0) {
+    for (uint local_row = 0; local_row < kRowsPerSimd; ++local_row) {
+      if (!owned[local_row]) continue;
+      uint selected = output_row + local_row;
+      size_t destination =
+          (size_t(query_row) * kHeads + head) * kSelectedWidth + selected;
+      scores[destination] = bfloat(result[local_row]);
+    }
+  }
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan
