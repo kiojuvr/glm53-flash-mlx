@@ -50,7 +50,14 @@ def build_artifact(profile: dict[str, object]) -> dict[str, object]:
         ),
         "100_tps_is_only_first_checkpoint": (
             targets[100].required_speedup_from_320k > 1.0
+            and targets[100].required_structural_region_speedup_if_other_fixed
+            >= 9.0
+            and not targets[100].fixed_other_region_must_also_improve
             and tuple(targets) == (100, 200, 300)
+        ),
+        "200_and_300_tps_require_fixed_region_optimization": (
+            targets[200].fixed_other_region_must_also_improve
+            and targets[300].fixed_other_region_must_also_improve
         ),
         "512k_dsa_workspace_remains_at_most_64mib": (
             plan.dsa_logits_workspace_bytes <= 64 << 20
@@ -116,4 +123,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

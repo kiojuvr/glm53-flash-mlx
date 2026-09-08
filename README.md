@@ -211,7 +211,7 @@ profile完了後は測定済みwall、DSA/MoE比率、340GB resource gateを一�
 uv run python scripts/define_native_prefill_execution_plan.py
 ```
 
-execution planは256-row tileを全45層へ流すpersistent dataflowです。DSAはscore/select/expand/gather/attention、MoEはroute/group/gate-up/SwiGLU/down/reduce/sharedを各々一つのnative regionとして扱い、その間でMLXへ中間tensorを返しません。100 tok/sを最初のcheckpoint、200/300 tok/sを後続targetとして同時に予算化し、部分kernel単独のruntime昇格は禁止します。
+execution planは256-row tileを全45層へ流すpersistent dataflowです。DSAはscore/select/expand/gather/attention、MoEはroute/group/gate-up/SwiGLU/down/reduce/sharedを各々一つのnative regionとして扱い、その間でMLXへ中間tensorを返しません。320Kの同期stage比率をauthoritative wallへ投影したDSA/MoE/otherのms/tokenも保存し、100 tok/sについてはotherを固定した場合にDSA+MoEが必要とする倍率を別に算出します。100 tok/sを最初のcheckpoint、200/300 tok/sを固定費も含む後続targetとして同時に予算化し、部分kernel単独のruntime昇格は禁止します。
 
 ## M3 Ultra 512 GB実測
 

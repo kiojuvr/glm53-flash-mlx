@@ -3,6 +3,7 @@
   "accepted": true,
   "checks": {
     "100_tps_is_only_first_checkpoint": true,
+    "200_and_300_tps_require_fixed_region_optimization": true,
     "512k_dsa_workspace_remains_at_most_64mib": true,
     "dsa_and_moe_explain_at_least_90_percent_at_320k": true,
     "dsa_is_context_scaling_region": true,
@@ -40,6 +41,7 @@
       "dynamic allocation and shape discovery are zero in steady chunks",
       "100 tok/s is a checkpoint; 200 and 300 tok/s remain measured targets"
     ],
+    "measured_320k_ms_per_token": 66.0288098984375,
     "measured_320k_tokens_per_second": 15.1449041946713,
     "measured_320k_wall_ms": 16903.375334,
     "measured_profile_peak_bytes": 367183048783,
@@ -48,23 +50,32 @@
     "planned_512k_persistent_state_bytes": 6322257920,
     "planned_native_arena_budget_bytes": 14043149568,
     "production_admission_changed": false,
+    "projected_dsa_ms_per_token_320k": 43.491834848143995,
+    "projected_other_ms_per_token_320k": 3.145752023798501,
+    "projected_routed_moe_ms_per_token_320k": 19.391223026495013,
     "routed_moe_32k_to_320k_scaling": 1.0091343491211662,
     "routed_moe_diagnostic_share_320k": 0.293678214953771,
     "selected_token_width": 2051,
     "throughput_targets": [
       {
         "chunk_budget_ms": 2560.0,
+        "fixed_other_region_must_also_improve": false,
         "required_speedup_from_320k": 6.60288098984375,
+        "required_structural_region_speedup_if_other_fixed": 9.17431906359006,
         "tokens_per_second": 100
       },
       {
         "chunk_budget_ms": 1280.0,
+        "fixed_other_region_must_also_improve": true,
         "required_speedup_from_320k": 13.2057619796875,
+        "required_structural_region_speedup_if_other_fixed": 33.91297101666922,
         "tokens_per_second": 200
       },
       {
         "chunk_budget_ms": 853.3333333333334,
+        "fixed_other_region_must_also_improve": true,
         "required_speedup_from_320k": 19.80864296953125,
+        "required_structural_region_speedup_if_other_fixed": 335.2309354838043,
         "tokens_per_second": 300
       }
     ],

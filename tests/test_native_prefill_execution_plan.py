@@ -71,7 +71,23 @@ def test_100_tps_is_checkpoint_with_200_and_300_targets_retained():
     assert targets[200].chunk_budget_ms == 1_280.0
     assert targets[300].chunk_budget_ms == pytest.approx(853.3333333333334)
     assert targets[100].required_speedup_from_320k > 6.5
+    assert (
+        targets[100].required_structural_region_speedup_if_other_fixed > 9.0
+    )
+    assert targets[100].fixed_other_region_must_also_improve is False
+    assert targets[200].fixed_other_region_must_also_improve is True
+    assert targets[300].fixed_other_region_must_also_improve is True
     assert targets[300].required_speedup_from_320k > 19.0
+
+
+def test_wall_projection_matches_measured_dsa_moe_other_breakdown():
+    plan = build_native_prefill_execution_plan(_profile())
+    assert plan.measured_320k_ms_per_token == pytest.approx(66.028810)
+    assert plan.projected_dsa_ms_per_token_320k == pytest.approx(43.494, abs=0.01)
+    assert plan.projected_routed_moe_ms_per_token_320k == pytest.approx(
+        19.391, abs=0.01
+    )
+    assert plan.projected_other_ms_per_token_320k == pytest.approx(3.146, abs=0.01)
 
 
 def test_non_resource_profile_failure_stops_plan():

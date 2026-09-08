@@ -37,6 +37,8 @@ class PrefillThroughputTarget:
     tokens_per_second: int
     chunk_budget_ms: float
     required_speedup_from_320k: float
+    required_structural_region_speedup_if_other_fixed: float
+    fixed_other_region_must_also_improve: bool
 
 
 @dataclass(frozen=True)
@@ -45,6 +47,10 @@ class NativePrefillExecutionPlan:
     tile_rows: int
     measured_320k_wall_ms: float
     measured_320k_tokens_per_second: float
+    measured_320k_ms_per_token: float
+    projected_dsa_ms_per_token_320k: float
+    projected_routed_moe_ms_per_token_320k: float
+    projected_other_ms_per_token_320k: float
     dsa_diagnostic_share_320k: float
     routed_moe_diagnostic_share_320k: float
     combined_structural_share_320k: float
@@ -142,16 +148,34 @@ def build_native_prefill_execution_plan(
     if arena_budget <= 0:
         raise NativePrefillPlanError("512K state leaves no native arena budget")
 
-    targets = tuple(
-        PrefillThroughputTarget(
-            tokens_per_second=rate,
-            chunk_budget_ms=DESIGN_PREFILL_QUERY_ROWS * 1_000.0 / rate,
-            required_speedup_from_320k=(
-                wall / (DESIGN_PREFILL_QUERY_ROWS * 1_000.0 / rate)
-            ),
+    wall_per_token = wall / DESIGN_PREFILL_QUERY_ROWS
+    dsa_share = dsa_long / stage_total
+    moe_share = moe_long / stage_total
+    structural_per_token = wall_per_token * (dsa_share + moe_share)
+    other_per_token = wall_per_token - structural_per_token
+    targets = []
+    for rate in TARGET_PREFILL_TOKENS_PER_SECOND:
+        chunk_budget = DESIGN_PREFILL_QUERY_ROWS * 1_000.0 / rate
+        token_budget = 1_000.0 / rate
+        remaining_structural_budget = token_budget - other_per_token
+        structural_speedup = (
+            structural_per_token / remaining_structural_budget
+            if remaining_structural_budget > 0
+            else float("inf")
         )
-        for rate in TARGET_PREFILL_TOKENS_PER_SECOND
-    )
+        targets.append(
+            PrefillThroughputTarget(
+                tokens_per_second=rate,
+                chunk_budget_ms=chunk_budget,
+                required_speedup_from_320k=wall / chunk_budget,
+                required_structural_region_speedup_if_other_fixed=(
+                    structural_speedup
+                ),
+                fixed_other_region_must_also_improve=(
+                    structural_speedup > 20.0
+                ),
+            )
+        )
     peak = int(profile["process_peak_memory_bytes"])
     return NativePrefillExecutionPlan(
         abi=NATIVE_PREFILL_PLAN_ABI,
@@ -160,8 +184,12 @@ def build_native_prefill_execution_plan(
         measured_320k_tokens_per_second=(
             DESIGN_PREFILL_QUERY_ROWS * 1_000.0 / wall
         ),
-        dsa_diagnostic_share_320k=dsa_long / stage_total,
-        routed_moe_diagnostic_share_320k=moe_long / stage_total,
+        measured_320k_ms_per_token=wall_per_token,
+        projected_dsa_ms_per_token_320k=wall_per_token * dsa_share,
+        projected_routed_moe_ms_per_token_320k=wall_per_token * moe_share,
+        projected_other_ms_per_token_320k=other_per_token,
+        dsa_diagnostic_share_320k=dsa_share,
+        routed_moe_diagnostic_share_320k=moe_share,
         combined_structural_share_320k=(dsa_long + moe_long) / stage_total,
         dsa_32k_to_320k_scaling=dsa_long / dsa_short,
         routed_moe_32k_to_320k_scaling=moe_long / moe_short,
@@ -174,7 +202,7 @@ def build_native_prefill_execution_plan(
         planned_native_arena_budget_bytes=arena_budget,
         dsa_logits_workspace_bytes=capacity.fp32_logits_workspace_bytes,
         selected_token_width=capacity.selected_token_width,
-        throughput_targets=targets,
+        throughput_targets=tuple(targets),
         execution_regions=(
             "native_kda_layer",
             "native_dsa_score_select_gather_attention_layer",
@@ -196,4 +224,3 @@ def build_native_prefill_execution_plan(
         ),
         production_admission_changed=False,
     )
-
