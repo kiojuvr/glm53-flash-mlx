@@ -213,6 +213,15 @@ uv run python scripts/define_native_prefill_execution_plan.py
 
 execution planは256-row tileを全45層へ流すpersistent dataflowです。DSAはscore/select/expand/gather/attention、MoEはroute/group/gate-up/SwiGLU/down/reduce/sharedを各々一つのnative regionとして扱い、その間でMLXへ中間tensorを返しません。320Kの同期stage比率をauthoritative wallへ投影したDSA/MoE/otherのms/tokenも保存し、100 tok/sについてはotherを固定した場合にDSA+MoEが必要とする倍率を別に算出します。100 tok/sを最初のcheckpoint、200/300 tok/sを固定費も含む後続targetとして同時に予算化し、部分kernel単独のruntime昇格は禁止します。
 
+composed layerの最初のgateは算術を入れず、最終geometryのfixed arenaとnative submission ownershipだけを検証します。build後に次を実行します。
+
+```bash
+uv run python scripts/build_native_execution_engine.py
+uv run python scripts/probe_composed_native_prefill_layer_substrate.py
+```
+
+このsubstrateは512K/Q256、DSA row block 128×2、64MiB score scratch、hidden ping-pong、selected/route/MoE scratchを一つのnative objectへ事前確保します。executeは一つのnative encoder scopeを使い、allocation、shape discovery、MLX graph、host syncを行いません。現段階はpass-through限定であり、prefill性能やDSA/MoE arithmetic correctnessの証拠には使用しません。
+
 ## M3 Ultra 512 GB実測
 
 2026-08-28〜09-08、このリポジトリの公式checkpointで測定した値です。

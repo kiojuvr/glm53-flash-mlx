@@ -36,6 +36,16 @@ constant float kNativeE4M3[256] = {
 // Canonical E4M3 decode used by the checkpoint.  Normal values are assembled
 // directly as IEEE binary32 so this is bit-equivalent to the probe LUT without
 // a transcendental or arithmetic decode in the inner projection loop.
+[[kernel]] void glm53_native_prefill_copy_bfloat16(
+    device const bfloat16_t* input [[buffer(0)]],
+    device bfloat16_t* output [[buffer(1)]],
+    constant const uint& elements [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]) {
+  if (gid < elements) {
+    output[gid] = input[gid];
+  }
+}
+
 inline float glm53_native_e4m3(uint8_t code) {
   return kNativeE4M3[uint(code)];
 }

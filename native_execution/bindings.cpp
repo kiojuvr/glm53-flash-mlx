@@ -7,6 +7,7 @@
 #include "native_indexpool_update_plan.h"
 #include "native_indexer_plan.h"
 #include "native_packed_moe_plan.h"
+#include "native_prefill_layer_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -16,10 +17,57 @@ using glm53::native_execution::NativeIndexSelectionPlan;
 using glm53::native_execution::NativeIndexPoolUpdateSelectionPlan;
 using glm53::native_execution::NativePackedMoEDecodePlan;
 using glm53::native_execution::NativePackedMoERoutedDiagnostic;
+using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
+  nb::class_<NativePrefillLayerSubstrate>(module,
+                                          "NativePrefillLayerSubstrate")
+      .def(nb::init<>())
+      .def("execute", &NativePrefillLayerSubstrate::execute, "hidden"_a)
+      .def_prop_ro("query_rows", &NativePrefillLayerSubstrate::query_rows)
+      .def_prop_ro("query_block_rows",
+                   &NativePrefillLayerSubstrate::query_block_rows)
+      .def_prop_ro("query_block_count",
+                   &NativePrefillLayerSubstrate::query_block_count)
+      .def_prop_ro("hidden_size", &NativePrefillLayerSubstrate::hidden_size)
+      .def_prop_ro("physical_pool_rows",
+                   &NativePrefillLayerSubstrate::physical_pool_rows)
+      .def_prop_ro("selected_width",
+                   &NativePrefillLayerSubstrate::selected_width)
+      .def_prop_ro("route_rows", &NativePrefillLayerSubstrate::route_rows)
+      .def_prop_ro("execution_count",
+                   &NativePrefillLayerSubstrate::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillLayerSubstrate::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillLayerSubstrate::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillLayerSubstrate::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillLayerSubstrate::host_synchronization_count)
+      .def_prop_ro("native_encoder_scopes_per_execute",
+                   &NativePrefillLayerSubstrate::native_encoder_scopes_per_execute)
+      .def_prop_ro("startup_pipeline_lookup_count",
+                   &NativePrefillLayerSubstrate::startup_pipeline_lookup_count)
+      .def_prop_ro("pipeline_lookup_count_per_execute",
+                   &NativePrefillLayerSubstrate::pipeline_lookup_count_per_execute)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativePrefillLayerSubstrate::returned_intermediate_tensor_bytes)
+      .def_prop_ro("dsa_score_scratch_bytes",
+                   &NativePrefillLayerSubstrate::dsa_score_scratch_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativePrefillLayerSubstrate::scratch_bytes)
+      .def_prop_ro("arena_bytes", &NativePrefillLayerSubstrate::arena_bytes)
+      .def_prop_ro("output", &NativePrefillLayerSubstrate::output)
+      .def_prop_ro("buffer_identities_stable",
+                   &NativePrefillLayerSubstrate::buffer_identities_stable)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillLayerSubstrate::buffer_identities)
+      .def_prop_ro("fixed_topology",
+                   &NativePrefillLayerSubstrate::fixed_topology);
+
   nb::class_<NativeIndexSelectionPlan>(module, "NativeIndexSelectionPlan")
       .def(nb::init<std::string, int, int, std::string>(), "mode"_a,
            "query_rows"_a, "physical_pool_rows"_a, "score_dtype"_a)

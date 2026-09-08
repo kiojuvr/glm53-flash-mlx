@@ -13,6 +13,7 @@ from ._ext import (
     NativeIndexPoolUpdateSelectionPlan,
     NativePackedMoEDecodePlan,
     NativePackedMoERoutedDiagnostic,
+    NativePrefillLayerSubstrate,
     NativeRoutedSigmoidFormulaSweep,
 )
 
@@ -23,5 +24,6 @@ __all__ = [
     "NativeIndexPoolUpdateSelectionPlan",
     "NativePackedMoEDecodePlan",
     "NativePackedMoERoutedDiagnostic",
+    "NativePrefillLayerSubstrate",
     "NativeRoutedSigmoidFormulaSweep",
 ]
