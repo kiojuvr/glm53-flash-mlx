@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "anchors": {
+    "precise_softmax_probabilities": true,
+    "qk_scores": true
+  },
+  "checks": {
+    "incremental_precise_softmax_at_most_10ms": true,
+    "qk_and_precise_softmax_byte_exact": true,
+    "scratch_at_most_450mib": true,
+    "softmax_stays_in_fixed_native_execution_scope": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_q256_probabilities_to_tiled_value_pass",
+  "geometry": {
+    "heads": 64,
+    "physical_k": 8192,
+    "query_rows": 256,
+    "selected_width": 2051
+  },
+  "incremental_softmax_ms": 1.875708000000003,
+  "probability_timing": {
+    "median_wall_ms": 67.794375,
+    "samples_ms": [
+      67.794375,
+      67.443333,
+      67.998667
+    ]
+  },
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-q256-projected-qk-precise-softmax-v1",
+  "score_timing": {
+    "median_wall_ms": 65.918667,
+    "samples_ms": [
+      65.918667,
+      65.776375,
+      66.45975
+    ]
+  },
+  "scratch_bytes": 425988356
+}

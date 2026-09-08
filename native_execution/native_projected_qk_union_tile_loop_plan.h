@@ -23,9 +23,13 @@ class NativeProjectedQKUnionTileLoopPlan {
 public:
   explicit NativeProjectedQKUnionTileLoopPlan(
       int physical_k, int attention_query_rows = 4,
-      int tile_rows = 4096);
+      int tile_rows = 4096, bool softmax_enabled = false);
 
   mx::array execute(
+      const mx::array &selected_indices, const mx::array &selected_valid,
+      const mx::array &latent, const mx::array &key_weight,
+      const mx::array &attention_query, float attention_scale);
+  mx::array execute_probabilities(
       const mx::array &selected_indices, const mx::array &selected_valid,
       const mx::array &latent, const mx::array &key_weight,
       const mx::array &attention_query, float attention_scale);
@@ -35,6 +39,7 @@ public:
   int tile_count() const { return tile_count_; }
   int query_rows() const { return attention_query_rows_; }
   int selected_width() const { return kSelectedWidth; }
+  bool softmax_enabled() const { return softmax_enabled_; }
   uint64_t execution_count() const { return execution_count_; }
   uint64_t dynamic_allocation_count() const { return 0; }
   uint64_t graph_node_count() const { return 0; }
@@ -54,6 +59,10 @@ public:
     return projected_union_key_tile_;
   }
   mx::array debug_scaled_queries() const { return scaled_queries_; }
+  mx::array debug_attention_scores() const { return attention_scores_; }
+  mx::array debug_attention_probabilities() const {
+    return attention_probabilities_;
+  }
 
 private:
   static constexpr int kSelectionQueryRows = 256;
@@ -65,17 +74,20 @@ private:
   int attention_query_rows_;
   int tile_rows_;
   int tile_count_;
+  bool softmax_enabled_;
   mx::Stream stream_;
   NativeSelectedUnionPlan union_plan_;
   mx::array union_latent_tile_;
   mx::array projected_union_key_tile_;
   mx::array scaled_queries_;
   mx::array attention_scores_;
+  mx::array attention_probabilities_;
   MTL::ComputePipelineState *clear_scores_pipeline_{nullptr};
   MTL::ComputePipelineState *gather_tile_pipeline_{nullptr};
   MTL::ComputePipelineState *projection_pipeline_{nullptr};
   MTL::ComputePipelineState *query_scale_pipeline_{nullptr};
   MTL::ComputePipelineState *projected_qk_pipeline_{nullptr};
+  MTL::ComputePipelineState *softmax_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 

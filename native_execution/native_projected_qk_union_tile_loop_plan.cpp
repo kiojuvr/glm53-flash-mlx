@@ -68,12 +68,14 @@ int checked_tile_rows(int value) {
 } // namespace
 
 NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
-    int physical_k, int attention_query_rows, int tile_rows)
+    int physical_k, int attention_query_rows, int tile_rows,
+    bool softmax_enabled)
     : physical_k_(checked_physical_k(physical_k)),
       attention_query_rows_(
           checked_attention_query_rows(attention_query_rows)),
       tile_rows_(checked_tile_rows(tile_rows)),
       tile_count_((physical_k_ + tile_rows_ - 1) / tile_rows_),
+      softmax_enabled_(softmax_enabled),
       stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
       union_plan_(physical_k_),
       union_latent_tile_(
@@ -83,7 +85,12 @@ NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
       scaled_queries_(owned_array(
           {attention_query_rows_, kHeads, kLatentDim}, mx::bfloat16)),
       attention_scores_(owned_array(
-          {attention_query_rows_, kHeads, kSelectedWidth}, mx::bfloat16)) {
+          {attention_query_rows_, kHeads, kSelectedWidth}, mx::bfloat16)),
+      attention_probabilities_(owned_array(
+          softmax_enabled_
+              ? mx::Shape{attention_query_rows_, kHeads, kSelectedWidth}
+              : mx::Shape{1},
+          mx::bfloat16)) {
   auto &device = mx::metal::device(stream_.device);
   if (device.get_architecture().back() != 'd' ||
       device.get_architecture_gen() >= 17) {
@@ -120,6 +127,8 @@ NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
       "glm53_native_prepare_union_prefill_attention_query_bfloat16", library);
   projected_qk_pipeline_ = device.get_kernel(
       "glm53_native_projected_union_qk_tile_bfloat16", library);
+  softmax_pipeline_ = device.get_kernel(
+      "glm53_native_block_softmax_precise_bfloat16", library);
   initial_buffer_identities_ = buffer_identities();
 }
 
@@ -247,10 +256,52 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
   return attention_scores_;
 }
 
+mx::array NativeProjectedQKUnionTileLoopPlan::execute_probabilities(
+    const mx::array &selected_indices, const mx::array &selected_valid,
+    const mx::array &latent, const mx::array &key_weight,
+    const mx::array &attention_query, float attention_scale) {
+  if (!softmax_enabled_) {
+    throw std::runtime_error(
+        "projected-QK probability arena was not enabled at construction");
+  }
+  execute(
+      selected_indices, selected_valid, latent, key_weight, attention_query,
+      attention_scale);
+
+  constexpr int softmax_reads = 4;
+  constexpr int softmax_simd = 32;
+  constexpr int threads_needed =
+      (kSelectedWidth + softmax_reads - 1) / softmax_reads;
+  constexpr int groups_needed =
+      (threads_needed + softmax_simd - 1) / softmax_simd;
+  constexpr int group_size = softmax_simd * groups_needed;
+  constexpr int64_t row_bytes =
+      static_cast<int64_t>(kHeads) * kSelectedWidth * sizeof(uint16_t);
+
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.barrier();
+  for (int row = 0; row < attention_query_rows_; ++row) {
+    encoder.set_compute_pipeline_state(softmax_pipeline_);
+    encoder.set_input_array(attention_scores_, 0, row * row_bytes);
+    encoder.set_output_array(attention_probabilities_, 1, row * row_bytes);
+    encoder.set_bytes(kSelectedWidth, 2);
+    encoder.dispatch_threads(
+        MTL::Size(kHeads * group_size, 1, 1),
+        MTL::Size(group_size, 1, 1));
+  }
+  encoder.barrier();
+
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error(
+        "projected-QK softmax buffer identity changed");
+  }
+  return attention_probabilities_;
+}
+
 uint64_t NativeProjectedQKUnionTileLoopPlan::scratch_bytes() const {
   return union_plan_.scratch_bytes() + union_latent_tile_.nbytes() +
       projected_union_key_tile_.nbytes() + scaled_queries_.nbytes() +
-      attention_scores_.nbytes();
+      attention_scores_.nbytes() + attention_probabilities_.nbytes();
 }
 
 std::vector<uint64_t>
@@ -260,6 +311,7 @@ NativeProjectedQKUnionTileLoopPlan::buffer_identities() const {
   result.push_back(buffer_identity(projected_union_key_tile_));
   result.push_back(buffer_identity(scaled_queries_));
   result.push_back(buffer_identity(attention_scores_));
+  result.push_back(buffer_identity(attention_probabilities_));
   return result;
 }
 

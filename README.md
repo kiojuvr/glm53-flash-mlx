@@ -1630,6 +1630,15 @@ faster and uses 4.15 GiB of fixed scratch. This closes projected-QK feasibility
 at the 320K production prompt target. The next island keeps this score surface
 native through precise softmax and the tiled value pass.
 
+The Q256 score surface now remains inside the native plan through MLX's exact
+precise-softmax kernel. At the bounded 8K/two-tile qualification geometry,
+both QK scores and all 256x64x2051 BF16 probabilities are byte exact. Median
+wall moves from 65.919 ms for projected QK to 67.794 ms with softmax, an
+incremental 1.876 ms, while the optional probability arena brings fixed
+scratch to 406.3 MiB. The score surface is no longer an execution boundary;
+the tiled value projection/AV pass can consume the owned probability buffer
+directly.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

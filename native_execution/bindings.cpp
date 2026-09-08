@@ -562,9 +562,14 @@ NB_MODULE(_ext, module) {
 
   nb::class_<NativeProjectedQKUnionTileLoopPlan>(
       module, "NativeProjectedQKUnionTileLoopPlan")
-      .def(nb::init<int, int, int>(), "physical_k"_a,
-           "attention_query_rows"_a = 4, "tile_rows"_a = 4096)
+      .def(nb::init<int, int, int, bool>(), "physical_k"_a,
+           "attention_query_rows"_a = 4, "tile_rows"_a = 4096,
+           "softmax_enabled"_a = false)
       .def("execute", &NativeProjectedQKUnionTileLoopPlan::execute,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a,
+           "key_weight"_a, "attention_query"_a, "attention_scale"_a)
+      .def("execute_probabilities",
+           &NativeProjectedQKUnionTileLoopPlan::execute_probabilities,
            "selected_indices"_a, "selected_valid"_a, "latent"_a,
            "key_weight"_a, "attention_query"_a, "attention_scale"_a)
       .def_prop_ro("physical_k",
@@ -577,6 +582,8 @@ NB_MODULE(_ext, module) {
                    &NativeProjectedQKUnionTileLoopPlan::query_rows)
       .def_prop_ro("selected_width",
                    &NativeProjectedQKUnionTileLoopPlan::selected_width)
+      .def_prop_ro("softmax_enabled",
+                   &NativeProjectedQKUnionTileLoopPlan::softmax_enabled)
       .def_prop_ro("execution_count",
                    &NativeProjectedQKUnionTileLoopPlan::execution_count)
       .def_prop_ro("dynamic_allocation_count",
@@ -606,5 +613,9 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("debug_projected_union_key_tile",
                    &NativeProjectedQKUnionTileLoopPlan::debug_projected_union_key_tile)
       .def_prop_ro("debug_scaled_queries",
-                   &NativeProjectedQKUnionTileLoopPlan::debug_scaled_queries);
+                   &NativeProjectedQKUnionTileLoopPlan::debug_scaled_queries)
+      .def_prop_ro("debug_attention_scores",
+                   &NativeProjectedQKUnionTileLoopPlan::debug_attention_scores)
+      .def_prop_ro("debug_attention_probabilities",
+                   &NativeProjectedQKUnionTileLoopPlan::debug_attention_probabilities);
 }
