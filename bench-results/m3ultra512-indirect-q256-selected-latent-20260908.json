@@ -1,0 +1,125 @@
+{
+  "accepted": true,
+  "checks": {
+    "320k_scratch_at_most_384mib": true,
+    "320k_wall_at_most_5ms": true,
+    "32k_128k_320k_measured": true,
+    "device_indirect_arguments_exact": true,
+    "fixed_execution_contract": true,
+    "union_and_gather_byte_exact": true,
+    "union_count_remains_device_resident": true
+  },
+  "complete": true,
+  "contexts": {
+    "131072": {
+      "buffer_identities_stable": true,
+      "context_tokens": 131072,
+      "dynamic_allocation_count": 0,
+      "execution_count": 8,
+      "expected_indirect_arguments": [
+        16384,
+        1,
+        1
+      ],
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "indirect_arguments": [
+        16384,
+        1,
+        1
+      ],
+      "indirect_arguments_exact": true,
+      "median_wall_ms": 2.024333,
+      "reference_union_count": 131072,
+      "returned_intermediate_tensor_bytes": 0,
+      "samples_ms": [
+        2.058875,
+        2.006583,
+        2.024333,
+        2.030583,
+        1.987833
+      ],
+      "scratch_bytes": 137387024,
+      "shape_discovery_count": 0,
+      "union_count": 131072,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true,
+      "union_latent_byte_exact": true
+    },
+    "32768": {
+      "buffer_identities_stable": true,
+      "context_tokens": 32768,
+      "dynamic_allocation_count": 0,
+      "execution_count": 8,
+      "expected_indirect_arguments": [
+        4096,
+        1,
+        1
+      ],
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "indirect_arguments": [
+        4096,
+        1,
+        1
+      ],
+      "indirect_arguments_exact": true,
+      "median_wall_ms": 2.365791,
+      "reference_union_count": 32768,
+      "returned_intermediate_tensor_bytes": 0,
+      "samples_ms": [
+        2.365791,
+        2.504667,
+        2.532459,
+        1.83225,
+        1.554916
+      ],
+      "scratch_bytes": 35921936,
+      "shape_discovery_count": 0,
+      "union_count": 32768,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true,
+      "union_latent_byte_exact": true
+    },
+    "327680": {
+      "buffer_identities_stable": true,
+      "context_tokens": 327680,
+      "dynamic_allocation_count": 0,
+      "execution_count": 8,
+      "expected_indirect_arguments": [
+        40907,
+        1,
+        1
+      ],
+      "graph_node_count": 0,
+      "host_synchronization_count": 0,
+      "indirect_arguments": [
+        40907,
+        1,
+        1
+      ],
+      "indirect_arguments_exact": true,
+      "median_wall_ms": 2.578084,
+      "reference_union_count": 327251,
+      "returned_intermediate_tensor_bytes": 0,
+      "samples_ms": [
+        3.182209,
+        3.192458,
+        2.572042,
+        2.567209,
+        2.578084
+      ],
+      "scratch_bytes": 340317200,
+      "shape_discovery_count": 0,
+      "union_count": 327251,
+      "union_count_is_device_buffer": true,
+      "union_indices_byte_exact": true,
+      "union_latent_byte_exact": true
+    }
+  },
+  "date": "2026-09-08",
+  "decision": "advance_indirect_union_to_streaming_selected_kv_projection",
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-indirect-q256-selected-latent-v1"
+}

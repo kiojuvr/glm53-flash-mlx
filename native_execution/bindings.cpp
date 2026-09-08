@@ -12,6 +12,7 @@
 #include "native_selected_v_av_plan.h"
 #include "native_selected_kv_attention_selection_plan.h"
 #include "native_selected_union_plan.h"
+#include "native_indirect_selected_latent_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -25,6 +26,7 @@ using glm53::native_execution::NativeSparsePrefillAVPlan;
 using glm53::native_execution::NativeSelectedVProjectionAVPlan;
 using glm53::native_execution::NativeSelectedKVAttentionSelectionPlan;
 using glm53::native_execution::NativeSelectedUnionPlan;
+using glm53::native_execution::NativeIndirectSelectedLatentPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -487,4 +489,36 @@ NB_MODULE(_ext, module) {
                    &NativeSelectedUnionPlan::debug_block_counts)
       .def_prop_ro("debug_block_prefix",
                    &NativeSelectedUnionPlan::debug_block_prefix);
+
+  nb::class_<NativeIndirectSelectedLatentPlan>(
+      module, "NativeIndirectSelectedLatentPlan")
+      .def(nb::init<int>(), "physical_k"_a)
+      .def("execute", &NativeIndirectSelectedLatentPlan::execute,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a)
+      .def_prop_ro("physical_k",
+                   &NativeIndirectSelectedLatentPlan::physical_k)
+      .def_prop_ro("execution_count",
+                   &NativeIndirectSelectedLatentPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeIndirectSelectedLatentPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativeIndirectSelectedLatentPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeIndirectSelectedLatentPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeIndirectSelectedLatentPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeIndirectSelectedLatentPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativeIndirectSelectedLatentPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeIndirectSelectedLatentPlan::buffer_identities)
+      .def_prop_ro("union_count",
+                   &NativeIndirectSelectedLatentPlan::union_count)
+      .def_prop_ro("union_indices",
+                   &NativeIndirectSelectedLatentPlan::union_indices)
+      .def_prop_ro("union_latent",
+                   &NativeIndirectSelectedLatentPlan::union_latent)
+      .def_prop_ro("debug_indirect_arguments",
+                   &NativeIndirectSelectedLatentPlan::debug_indirect_arguments);
 }

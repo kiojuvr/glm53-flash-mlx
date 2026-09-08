@@ -1556,6 +1556,20 @@ synchronization. Diagnostic CPU reads synchronize only in the probe, outside
 the native plan contract. This advances the Q256 plan to indirect selected-K/V
 projection without exposing union membership or count to Python.
 
+The indirect-dispatch substrate is also qualified. A device kernel converts
+the GPU union count into `MTLDispatchThreadgroupsIndirectArguments`, and an
+indirect gather writes physical-order union latent rows into a fixed arena.
+The first one-element-per-thread geometry was correctly rejected at 7.20 ms
+for 320K; processing eight rows per 256-thread group reduced 654,502 groups to
+40,907 and the median to 2.578 ms. The 32K/128K/320K union indices, indirect
+arguments, and gathered BF16 latent bits are exact. The 320K arena is 324.6
+MiB, with stable addresses and zero execute-time allocation, graph building,
+shape discovery, host synchronization, or intermediate return. The bridge
+uses the pinned MLX 0.32.2 raw encoder only for indirect dispatch and changes
+no runtime path. The next plan must tile K/V projection and consume each tile
+inside the same encoder; allocating full 320K projected K/V would add roughly
+27 GiB and is explicitly excluded.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

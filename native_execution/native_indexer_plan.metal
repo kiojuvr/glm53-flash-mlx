@@ -1110,6 +1110,39 @@ glm53_native_order_selected_pools_for_prefill_attention(
   query_union_slots[position] = valid ? physical_to_union[token] : -1;
 }
 
+[[kernel]] void glm53_native_build_selected_union_gather_arguments(
+    device const uint* union_count [[buffer(0)]],
+    device uint* arguments [[buffer(1)]],
+    uint position [[thread_position_in_grid]]) {
+  if (position != 0) return;
+  constexpr uint kRowsPerGroup = 8;
+  arguments[0] = (union_count[0] + kRowsPerGroup - 1) / kRowsPerGroup;
+  arguments[1] = 1;
+  arguments[2] = 1;
+}
+
+[[kernel]] void glm53_native_gather_selected_union_latent_bfloat16(
+    device const bfloat* latent [[buffer(0)]],
+    device const int* union_indices [[buffer(1)]],
+    device const uint* union_count [[buffer(2)]],
+    device bfloat* union_latent [[buffer(3)]],
+    constant const int& physical_k [[buffer(4)]],
+    uint group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]) {
+  constexpr uint kLatentDim = 512;
+  constexpr uint kRowsPerGroup = 8;
+  for (uint local_row = 0; local_row < kRowsPerGroup; ++local_row) {
+    uint row = group * kRowsPerGroup + local_row;
+    if (row >= union_count[0]) break;
+    int source = union_indices[row];
+    if (source < 0 || source >= physical_k) continue;
+    union_latent[size_t(row) * kLatentDim + lane] =
+        latent[size_t(source) * kLatentDim + lane];
+    union_latent[size_t(row) * kLatentDim + lane + 256] =
+        latent[size_t(source) * kLatentDim + lane + 256];
+  }
+}
+
 // Decode-only sparse DSA attention uses head dimension 512, which is not a
 // fused-SDPA geometry in the pinned MLX 0.32.2 runtime.  Instantiate the exact
 // Steel/precise-softmax sequence selected by that fallback so the native plan
