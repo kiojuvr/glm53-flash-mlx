@@ -22,7 +22,8 @@ namespace mx = mlx::core;
 class NativeProjectedQKUnionTileLoopPlan {
 public:
   explicit NativeProjectedQKUnionTileLoopPlan(
-      int physical_k, int attention_query_rows = 4);
+      int physical_k, int attention_query_rows = 4,
+      int tile_rows = 4096);
 
   mx::array execute(
       const mx::array &selected_indices, const mx::array &selected_valid,
@@ -30,7 +31,7 @@ public:
       const mx::array &attention_query, float attention_scale);
 
   int physical_k() const { return physical_k_; }
-  int tile_rows() const { return kTileRows; }
+  int tile_rows() const { return tile_rows_; }
   int tile_count() const { return tile_count_; }
   int query_rows() const { return attention_query_rows_; }
   int selected_width() const { return kSelectedWidth; }
@@ -55,15 +56,15 @@ public:
   mx::array debug_scaled_queries() const { return scaled_queries_; }
 
 private:
-  static constexpr int kTileRows = 4096;
   static constexpr int kSelectionQueryRows = 256;
   static constexpr int kHeads = 64;
   static constexpr int kLatentDim = 512;
   static constexpr int kSelectedWidth = 2051;
 
   int physical_k_;
-  int tile_count_;
   int attention_query_rows_;
+  int tile_rows_;
+  int tile_count_;
   mx::Stream stream_;
   NativeSelectedUnionPlan union_plan_;
   mx::array union_latent_tile_;

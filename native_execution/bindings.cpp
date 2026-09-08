@@ -562,8 +562,8 @@ NB_MODULE(_ext, module) {
 
   nb::class_<NativeProjectedQKUnionTileLoopPlan>(
       module, "NativeProjectedQKUnionTileLoopPlan")
-      .def(nb::init<int, int>(), "physical_k"_a,
-           "attention_query_rows"_a = 4)
+      .def(nb::init<int, int, int>(), "physical_k"_a,
+           "attention_query_rows"_a = 4, "tile_rows"_a = 4096)
       .def("execute", &NativeProjectedQKUnionTileLoopPlan::execute,
            "selected_indices"_a, "selected_valid"_a, "latent"_a,
            "key_weight"_a, "attention_query"_a, "attention_scale"_a)

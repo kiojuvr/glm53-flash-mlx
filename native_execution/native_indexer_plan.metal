@@ -1234,12 +1234,14 @@ void glm53_native_projected_union_qk_bfloat16(
     device bfloat* union_latent_tile [[buffer(3)]],
     constant const int& physical_k [[buffer(4)]],
     constant const int& tile_offset [[buffer(5)]],
+    constant const int& tile_rows [[buffer(6)]],
     uint group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]) {
   constexpr uint kLatentDim = 512;
   constexpr uint kRowsPerGroup = 8;
   for (uint local = 0; local < kRowsPerGroup; ++local) {
     uint tile_row = group * kRowsPerGroup + local;
+    if (tile_row >= uint(tile_rows)) break;
     uint union_row = uint(tile_offset) + tile_row;
     bool active = union_row < union_count[0];
     int source = active ? union_indices[union_row] : -1;
@@ -1287,10 +1289,10 @@ void glm53_native_projected_union_qk_tile_bfloat16(
     device bfloat* scores [[buffer(5)]],
     constant const int& query_row [[buffer(6)]],
     constant const int& tile_offset [[buffer(7)]],
+    constant const int& tile_rows [[buffer(8)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint simd_group [[simdgroup_index_in_threadgroup]],
     uint simd_lane [[thread_index_in_simdgroup]]) {
-  constexpr uint kTileRows = 4096;
   constexpr uint kHeads = 64;
   constexpr uint kSelectedWidth = 2051;
   constexpr uint kLatentDim = 512;
@@ -1312,7 +1314,7 @@ void glm53_native_projected_union_qk_tile_bfloat16(
     int slot = query_union_slots[map_offset];
     owned[local_row] = selected_valid[map_offset] && slot >= tile_offset &&
         uint(slot) < union_count[0] &&
-        slot < tile_offset + int(kTileRows);
+        slot < tile_offset + tile_rows;
   }
   for (uint block = 0; block < kLatentDim / kColumnBlock; ++block) {
     uint column = block * kColumnBlock + simd_lane * kColumnsPerLane;
@@ -1328,7 +1330,7 @@ void glm53_native_projected_union_qk_tile_bfloat16(
       uint map_offset = uint(query_row) * kSelectedWidth + selected;
       uint local_slot = uint(query_union_slots[map_offset] - tile_offset);
       size_t source =
-          (size_t(head) * kTileRows + local_slot) * kLatentDim + column;
+          (size_t(head) * uint(tile_rows) + local_slot) * kLatentDim + column;
       for (uint lane = 0; lane < kColumnsPerLane; ++lane) {
         result[local_row] +=
             float(projected_union_key[source + lane]) * query_values[lane];

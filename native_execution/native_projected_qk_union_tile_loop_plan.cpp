@@ -57,20 +57,29 @@ int checked_attention_query_rows(int value) {
   return value;
 }
 
+int checked_tile_rows(int value) {
+  if (value < 4096 || value > 65536 || (value & (value - 1)) != 0) {
+    throw std::invalid_argument(
+        "projected-QK tile rows must be a power of two in [4096, 65536]");
+  }
+  return value;
+}
+
 } // namespace
 
 NativeProjectedQKUnionTileLoopPlan::NativeProjectedQKUnionTileLoopPlan(
-    int physical_k, int attention_query_rows)
+    int physical_k, int attention_query_rows, int tile_rows)
     : physical_k_(checked_physical_k(physical_k)),
-      tile_count_((physical_k_ + kTileRows - 1) / kTileRows),
       attention_query_rows_(
           checked_attention_query_rows(attention_query_rows)),
+      tile_rows_(checked_tile_rows(tile_rows)),
+      tile_count_((physical_k_ + tile_rows_ - 1) / tile_rows_),
       stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
       union_plan_(physical_k_),
       union_latent_tile_(
-          owned_array({kTileRows, kLatentDim}, mx::bfloat16)),
+          owned_array({tile_rows_, kLatentDim}, mx::bfloat16)),
       projected_union_key_tile_(owned_array(
-          {kHeads, kTileRows, kLatentDim}, mx::bfloat16)),
+          {kHeads, tile_rows_, kLatentDim}, mx::bfloat16)),
       scaled_queries_(owned_array(
           {attention_query_rows_, kHeads, kLatentDim}, mx::bfloat16)),
       attention_scores_(owned_array(
@@ -156,14 +165,14 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
   constexpr int bn = 64;
   constexpr int bk = 16;
   constexpr int wn = 2;
-  constexpr int tiles_m = kTileRows / bm;
+  const int tiles_m = tile_rows_ / bm;
   constexpr int tiles_n = kLatentDim / bn;
   mlx::steel::GEMMParams projection_params{
-      kTileRows, kLatentDim, kLatentDim,
+      tile_rows_, kLatentDim, kLatentDim,
       kLatentDim, kLatentDim, kLatentDim,
       tiles_n, tiles_m, 0,
       static_cast<int64_t>(kLatentDim) * kLatentDim,
-      static_cast<int64_t>(kTileRows) * kLatentDim,
+      static_cast<int64_t>(tile_rows_) * kLatentDim,
       0, kLatentDim / bk, 1};
   const uint32_t score_elements = static_cast<uint32_t>(
       attention_query_rows_ * kHeads * kSelectedWidth);
@@ -192,7 +201,7 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
   encoder.barrier();
 
   for (int tile = 0; tile < tile_count_; ++tile) {
-    const int tile_offset = tile * kTileRows;
+    const int tile_offset = tile * tile_rows_;
     encoder.set_compute_pipeline_state(gather_tile_pipeline_);
     encoder.set_input_array(latent, 0);
     encoder.set_input_array(union_indices, 1);
@@ -200,8 +209,9 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
     encoder.set_output_array(union_latent_tile_, 3);
     encoder.set_bytes(physical_k_, 4);
     encoder.set_bytes(tile_offset, 5);
+    encoder.set_bytes(tile_rows_, 6);
     encoder.dispatch_threadgroups(
-        MTL::Size(kTileRows / 8, 1, 1), MTL::Size(256, 1, 1));
+        MTL::Size(tile_rows_ / 8, 1, 1), MTL::Size(256, 1, 1));
     encoder.barrier();
 
     encoder.set_compute_pipeline_state(projection_pipeline_);
@@ -223,6 +233,7 @@ mx::array NativeProjectedQKUnionTileLoopPlan::execute(
       encoder.set_output_array(attention_scores_, 5);
       encoder.set_bytes(row, 6);
       encoder.set_bytes(tile_offset, 7);
+      encoder.set_bytes(tile_rows_, 8);
       encoder.dispatch_threadgroups(
           MTL::Size(qk_groups, 1, kHeads), MTL::Size(32, 4, 1));
     }

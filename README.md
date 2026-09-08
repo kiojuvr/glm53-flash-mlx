@@ -1609,6 +1609,17 @@ shape discovery, host synchronization, and intermediate return are zero. The
 remaining feasibility step is to preserve this gain as physical history and
 union tile count grow toward 32K/128K/320K.
 
+At 32K history, all Q256 tile geometries from 4K through 65K remain byte
+exact and keep the selected-K allocation at zero. The wall frontier is
+131.48 ms for 4K x 8, 112.54 ms for 8K x 4, 103.48 ms for 16K x 2, and 97.83
+ms for 32K x 1. A 65K x 1 tile regresses to 147.49 ms because half its K
+projection is padding, despite avoiding another tile boundary. The chosen
+32K geometry is 17.19x faster than the 1,681.7 ms Direct materialization
+oracle and uses 2.11 GiB of fixed scratch. This establishes that tile size
+must follow active physical geometry rather than always using the largest
+arena admitted by the 512K plan. The long-context gate therefore compares
+32K and 65K tiles explicitly at 320K history.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
