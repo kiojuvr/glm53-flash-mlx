@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "checks": {
+    "head_to_row_layout_is_byte_exact": true,
+    "official_fp8_o_projection_anchor_is_byte_exact": true,
+    "post_attention_hc_output_is_byte_exact": true,
+    "post_attention_hc_speedup_at_least_1_20x": true,
+    "repeat_is_byte_exact": true,
+    "single_fixed_native_execution_scope": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_post_attention_hc_into_ffn_collapse_norm_router",
+  "geometry": {
+    "hc_branches": 4,
+    "heads": 64,
+    "hidden_size": 4096,
+    "query_rows": 256,
+    "value_dim": 256
+  },
+  "layer": 3,
+  "native_timing": {
+    "median_wall_ms": 25.450583,
+    "samples_ms": [
+      25.431,
+      25.466167,
+      25.450583
+    ]
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 31.89375,
+    "samples_ms": [
+      31.822209,
+      31.89375,
+      31.912417
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-post-attention-hc-v1",
+  "scratch_bytes": 18874368,
+  "speedup": 1.253163827327649
+}

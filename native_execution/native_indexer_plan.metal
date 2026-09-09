@@ -2257,6 +2257,34 @@ glm53_native_virtual_bk16_av_bfloat16(
   }
 }
 
+[[kernel]] void glm53_native_prefill_post_attention_hc_expand(
+    device const bfloat16_t* attention [[buffer(0)]],
+    device const bfloat16_t* residual [[buffer(1)]],
+    device const float* post [[buffer(2)]],
+    device const float* comb [[buffer(3)]],
+    device bfloat16_t* output [[buffer(4)]],
+    constant const uint& elements [[buffer(5)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kBranches = 4u;
+  constexpr uint kHidden = 4096u;
+  if (position >= elements) return;
+  uint dimension = position % kHidden;
+  uint coordinate = position / kHidden;
+  uint branch = coordinate % kBranches;
+  uint row = coordinate / kBranches;
+  float mixed = 0.0f;
+  for (uint source = 0; source < kBranches; ++source) {
+    float coefficient = comb[(size_t(row) * kBranches + source) *
+                             kBranches + branch];
+    float value = float(
+        residual[(size_t(row) * kBranches + source) * kHidden + dimension]);
+    mixed = fma(coefficient, value, mixed);
+  }
+  float branch_value = post[size_t(row) * kBranches + branch] *
+      float(attention[size_t(row) * kHidden + dimension]);
+  output[position] = bfloat16_t(branch_value + mixed);
+}
+
 [[kernel]] void glm53_native_prefill_shared_bm8_gate_up_swiglu(
     device const bfloat16_t* hidden [[buffer(0)]],
     device const uint8_t* gate_weight [[buffer(1)]],

@@ -23,6 +23,12 @@ public:
   mx::array execute(const mx::array &head_major,
                     const mx::array &weight,
                     const mx::array &scale_inv);
+  mx::array execute_hc(const mx::array &head_major,
+                       const mx::array &weight,
+                       const mx::array &scale_inv,
+                       const mx::array &residual,
+                       const mx::array &post,
+                       const mx::array &comb);
 
   int query_rows() const { return kQueryRows; }
   int heads() const { return kHeads; }
@@ -35,6 +41,9 @@ public:
   uint64_t host_synchronization_count() const { return 0; }
   uint64_t returned_intermediate_tensor_bytes() const { return 0; }
   uint64_t scratch_bytes() const { return row_major_.nbytes() + output_.nbytes(); }
+  uint64_t hc_scratch_bytes() const {
+    return scratch_bytes() + hc_output_.nbytes();
+  }
   std::vector<uint64_t> buffer_identities() const;
   mx::array debug_row_major() const { return row_major_; }
 
@@ -48,13 +57,18 @@ private:
   mx::Stream stream_;
   mx::array row_major_;
   mx::array output_;
+  mx::array hc_output_;
   MTL::ComputePipelineState *transpose_pipeline_{nullptr};
   MTL::ComputePipelineState *projection_pipeline_{nullptr};
+  MTL::ComputePipelineState *hc_expand_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 
   void validate(const mx::array &value, const char *name,
                 mx::Dtype dtype, size_t elements) const;
+  void encode_projection(const mx::array &head_major,
+                         const mx::array &weight,
+                         const mx::array &scale_inv);
 };
 
 } // namespace glm53::native_execution

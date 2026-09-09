@@ -1752,6 +1752,18 @@ synchronization, and intermediate return are zero. This is the first native
 prefill layer component qualified on the model's unreduced DSA output shape;
 the next seam is post-attention HyperConnection followed by FFN norm/router.
 
+That seam now extends through post-attention HyperConnection without losing
+the projection gain. The same fixed command topology applies the official
+`o_proj` and then expands its hidden output into all four HC branches using
+the live layer-3 `post` and `comb` tensors. The projection anchor and complete
+four-branch BF16 state are byte exact against `hc_expand`; repeat output is
+also exact. Median wall is 25.451 ms versus 31.894 ms for the Direct sequence
+(1.2532x), essentially identical to the projection-only 1.2540x result. The
+fixed arena grows to 18 MiB while execute-time allocation, graph construction,
+shape discovery, synchronization, and intermediate return remain zero. This
+is therefore a durable native layer seam rather than an isolated-kernel win;
+the next boundary is FFN HC collapse, post-attention norm, and router.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

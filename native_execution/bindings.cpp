@@ -55,6 +55,9 @@ NB_MODULE(_ext, module) {
       .def(nb::init<>())
       .def("execute", &NativePrefillDSAOutputPlan::execute,
            "head_major"_a, "weight"_a, "scale_inv"_a)
+      .def("execute_hc", &NativePrefillDSAOutputPlan::execute_hc,
+           "head_major"_a, "weight"_a, "scale_inv"_a,
+           "residual"_a, "post"_a, "comb"_a)
       .def_prop_ro("query_rows", &NativePrefillDSAOutputPlan::query_rows)
       .def_prop_ro("heads", &NativePrefillDSAOutputPlan::heads)
       .def_prop_ro("value_dim", &NativePrefillDSAOutputPlan::value_dim)
@@ -71,6 +74,8 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("returned_intermediate_tensor_bytes",
                    &NativePrefillDSAOutputPlan::returned_intermediate_tensor_bytes)
       .def_prop_ro("scratch_bytes", &NativePrefillDSAOutputPlan::scratch_bytes)
+      .def_prop_ro("hc_scratch_bytes",
+                   &NativePrefillDSAOutputPlan::hc_scratch_bytes)
       .def_prop_ro("buffer_identities",
                    &NativePrefillDSAOutputPlan::buffer_identities)
       .def_prop_ro("debug_row_major",
