@@ -87,12 +87,13 @@ def _direct(layer, head_major, residual, attn_post, attn_comb):
     return output
 
 
-def _native_moe(plan, moe, hidden, indices, scores):
+def _native_moe(plan, moe, hidden, indices, scores, *, indirect=False):
     shared = moe.shared_experts
     flat_indices = mx.contiguous(indices.reshape(-1))
     flat_scores = mx.contiguous(scores.reshape(-1))
     mx.eval(flat_indices, flat_scores)
-    output = plan.execute(
+    method = plan.execute_indirect if indirect else plan.execute
+    output = method(
         hidden,
         flat_indices,
         flat_scores,
@@ -113,7 +114,8 @@ def _native_moe(plan, moe, hidden, indices, scores):
 
 
 def _candidate(
-    dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb
+    dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
+    *, indirect_moe=False
 ):
     state = dsa_plan.execute_hc(
         head_major,
@@ -127,7 +129,14 @@ def _candidate(
     mx.synchronize()
     state = state.reshape(1, 256, 4, 4096)
     normalized, post, comb, indices, scores = _ffn_entry(layer, state)
-    moe = _native_moe(moe_plan, layer.mlp, normalized, indices, scores)
+    moe = _native_moe(
+        moe_plan,
+        layer.mlp,
+        normalized,
+        indices,
+        scores,
+        indirect=indirect_moe,
+    )
     output = hc_expand(moe[None], state, post, comb)
     mx.eval(output)
     mx.synchronize()
@@ -153,6 +162,7 @@ def main(argv=None) -> int:
     parser.add_argument("model", type=Path)
     parser.add_argument("--layer", type=int, default=3)
     parser.add_argument("--samples", type=int, default=3)
+    parser.add_argument("--indirect-moe", action="store_true")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args(argv)
 
@@ -177,11 +187,13 @@ def main(argv=None) -> int:
     expected_bits = _bits(expected).copy()
     print(json.dumps({"phase": "native_composed_complete_layer"}), flush=True)
     actual = _candidate(
-        dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb
+        dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
+        indirect_moe=args.indirect_moe,
     )
     actual_bits = _bits(actual).copy()
     repeat = _candidate(
-        dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb
+        dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
+        indirect_moe=args.indirect_moe,
     )
     repeat_bits = _bits(repeat).copy()
 
@@ -192,7 +204,14 @@ def main(argv=None) -> int:
     )
     candidate_timing = _timed(
         lambda: _candidate(
-            dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb
+            dsa_plan,
+            moe_plan,
+            layer,
+            head_major,
+            residual,
+            attn_post,
+            attn_comb,
+            indirect_moe=args.indirect_moe,
         ),
         args.samples,
     )
@@ -246,6 +265,7 @@ def main(argv=None) -> int:
             "native_dsa_output_projection_and_attn_hc": True,
             "mlx_ffn_entry_glue": True,
             "native_exact_materialized_moe": True,
+            "device_sized_indirect_moe_dispatch": args.indirect_moe,
             "mlx_final_hc_expand": True,
             "single_native_scope": False,
         },

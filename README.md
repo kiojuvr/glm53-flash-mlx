@@ -1785,6 +1785,18 @@ the entire 0.709 ms FFN-entry boundary still cannot close that gap. The next
 implementation therefore changes routed expert scheduling itself; it does
 not add native HC/norm/router glue around the current MoE topology.
 
+Device-sized indirect expert dispatch changes that result without changing a
+single arithmetic or BF16 rounding boundary. The route plan writes its valid
+BM8 descriptor count into an indirect-dispatch argument, so gate/up and down
+launch only live expert tiles rather than all 544 capacity descriptors. The
+full MoE remains byte exact, drops from 110.804 to 99.932 ms versus the fixed-
+capacity native plan, and reaches 1.2938x against the 129.290 ms Direct oracle.
+When recomposed with the actual DSA output and both HC boundaries, the complete
+layer remains byte exact and improves 161.822 to 125.964 ms (1.2847x), clearing
+the fixed 1.20x layer gate by 8.887 ms. This is the first routed scheduling
+change justified for the complete native prefill layer; the remaining work is
+to absorb FFN-entry and final-HC glue into one native encoder scope.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

@@ -39,6 +39,16 @@ public:
       const mx::array &shared_up_scale_inv,
       const mx::array &shared_down_weight,
       const mx::array &shared_down_scale_inv);
+  mx::array execute_indirect(
+      const mx::array &hidden, const mx::array &expert_ids,
+      const mx::array &scores, const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+      const mx::array &shared_gate_scale_inv,
+      const mx::array &shared_up_weight,
+      const mx::array &shared_up_scale_inv,
+      const mx::array &shared_down_weight,
+      const mx::array &shared_down_scale_inv);
 
   int query_rows() const { return 256; }
   int hidden_size() const { return 4096; }

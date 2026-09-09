@@ -34,6 +34,28 @@ uint64_t buffer_identity(const mx::array &array) {
   return reinterpret_cast<uint64_t>(array.buffer().ptr());
 }
 
+template <typename Tag, typename Tag::type Member>
+struct PrivateMemberAccess {
+  friend typename Tag::type get_private_member(Tag) { return Member; }
+};
+
+struct RawEncoderTag {
+  using type = MTL::ComputeCommandEncoder *(
+      mx::metal::CommandEncoder::*)();
+  friend type get_private_member(RawEncoderTag);
+};
+
+template struct PrivateMemberAccess<
+    RawEncoderTag, &mx::metal::CommandEncoder::get_command_encoder>;
+
+MTL::ComputeCommandEncoder *raw_encoder(mx::metal::CommandEncoder &encoder) {
+  return (encoder.*get_private_member(RawEncoderTag{}))();
+}
+
+MTL::Buffer *metal_buffer(mx::array &array) {
+  return reinterpret_cast<MTL::Buffer *>(array.buffer().ptr());
+}
+
 } // namespace
 
 NativePrefillMoEGateUpPlan::NativePrefillMoEGateUpPlan(int expert_count)
@@ -42,7 +64,8 @@ NativePrefillMoEGateUpPlan::NativePrefillMoEGateUpPlan(int expert_count)
       route_plan_(expert_count),
       activated_(owned_array({kRouteRows, kIntermediateSize}, mx::bfloat16)),
       routed_down_(owned_array({kRouteRows, kHiddenSize}, mx::bfloat16)),
-      routed_output_(owned_array({kQueryRows, kHiddenSize}, mx::bfloat16)) {
+      routed_output_(owned_array({kQueryRows, kHiddenSize}, mx::bfloat16)),
+      indirect_arguments_(owned_array({3}, mx::uint32)) {
   auto &device = mx::metal::device(stream_.device);
   auto *library =
       device.get_library("glm53_native_execution", current_binary_dir());
@@ -54,6 +77,8 @@ NativePrefillMoEGateUpPlan::NativePrefillMoEGateUpPlan(int expert_count)
       "glm53_native_prefill_moe_direct_order_reduce", library);
   fused_down_reduce_pipeline_ = device.get_kernel(
       "glm53_native_prefill_moe_fused_down_reduce", library);
+  indirect_arguments_pipeline_ = device.get_kernel(
+      "glm53_native_prefill_moe_build_indirect_arguments", library);
   initial_buffer_identities_ = buffer_identities();
 }
 
@@ -88,7 +113,7 @@ mx::array NativePrefillMoEGateUpPlan::execute(
 void NativePrefillMoEGateUpPlan::encode_ingress(
     const mx::array &hidden, const mx::array &expert_ids,
     const mx::array &scores, const mx::array &gate_up_weight,
-    const mx::array &gate_up_scale_inv) {
+    const mx::array &gate_up_scale_inv, bool indirect) {
   validate_input(hidden, "hidden", mx::bfloat16,
                  static_cast<size_t>(kQueryRows) * kHiddenSize);
   validate_input(expert_ids, "expert_ids", mx::uint32, kRouteRows);
@@ -115,12 +140,38 @@ void NativePrefillMoEGateUpPlan::encode_ingress(
   encoder.set_input_array(gate_up_scale_inv, 7);
   encoder.set_output_array(activated_, 8);
   const int descriptor_capacity = route_plan_.descriptor_capacity();
-  encoder.dispatch_threadgroups(
-      MTL::Size(static_cast<NS::UInteger>(descriptor_capacity) *
-                    kIntermediateSize,
-                1, 1),
-      MTL::Size(256, 1, 1));
+  if (indirect) {
+    encode_indirect_arguments(kIntermediateSize);
+    encoder.barrier();
+    encoder.set_compute_pipeline_state(gate_up_pipeline_);
+    encoder.set_input_array(hidden, 0);
+    encoder.set_input_array(route_plan_.sorted_route_order(), 1);
+    encoder.set_input_array(route_plan_.tile_experts(), 2);
+    encoder.set_input_array(route_plan_.tile_starts(), 3);
+    encoder.set_input_array(route_plan_.tile_lengths(), 4);
+    encoder.set_input_array(route_plan_.expert_offsets(), 5);
+    encoder.set_input_array(gate_up_weight, 6);
+    encoder.set_input_array(gate_up_scale_inv, 7);
+    encoder.set_output_array(activated_, 8);
+    raw_encoder(encoder)->dispatchThreadgroups(
+        metal_buffer(indirect_arguments_), 0, MTL::Size(256, 1, 1));
+  } else {
+    encoder.dispatch_threadgroups(
+        MTL::Size(static_cast<NS::UInteger>(descriptor_capacity) *
+                      kIntermediateSize,
+                  1, 1),
+        MTL::Size(256, 1, 1));
+  }
 
+}
+
+void NativePrefillMoEGateUpPlan::encode_indirect_arguments(int output_rows) {
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.set_compute_pipeline_state(indirect_arguments_pipeline_);
+  encoder.set_input_array(route_plan_.descriptor_count(), 0);
+  encoder.set_output_array(indirect_arguments_, 1);
+  encoder.set_bytes(output_rows, 2);
+  encoder.dispatch_threads(MTL::Size(1, 1, 1), MTL::Size(1, 1, 1));
 }
 
 mx::array NativePrefillMoEGateUpPlan::execute_routed(
@@ -167,6 +218,50 @@ mx::array NativePrefillMoEGateUpPlan::execute_routed(
   return routed_output_;
 }
 
+mx::array NativePrefillMoEGateUpPlan::execute_routed_indirect(
+    const mx::array &hidden, const mx::array &expert_ids,
+    const mx::array &scores, const mx::array &gate_up_weight,
+    const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+    const mx::array &down_scale_inv) {
+  encode_ingress(hidden, expert_ids, scores, gate_up_weight,
+                 gate_up_scale_inv, true);
+  validate_input(down_weight, "down_weight", mx::uint8,
+                 static_cast<size_t>(expert_count_) * kHiddenSize *
+                     kIntermediateSize);
+  validate_input(down_scale_inv, "down_scale_inv", mx::float32,
+                 static_cast<size_t>(expert_count_) * kScaleCols * 16);
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.barrier();
+  encode_indirect_arguments(kHiddenSize);
+  encoder.barrier();
+  encoder.set_compute_pipeline_state(down_pipeline_);
+  encoder.set_input_array(activated_, 0);
+  encoder.set_input_array(route_plan_.tile_experts(), 1);
+  encoder.set_input_array(route_plan_.tile_starts(), 2);
+  encoder.set_input_array(route_plan_.tile_lengths(), 3);
+  encoder.set_input_array(route_plan_.expert_offsets(), 4);
+  encoder.set_input_array(down_weight, 5);
+  encoder.set_input_array(down_scale_inv, 6);
+  encoder.set_output_array(routed_down_, 7);
+  raw_encoder(encoder)->dispatchThreadgroups(
+      metal_buffer(indirect_arguments_), 0, MTL::Size(256, 1, 1));
+  encoder.barrier();
+  encoder.set_compute_pipeline_state(reduce_pipeline_);
+  encoder.set_input_array(routed_down_, 0);
+  encoder.set_input_array(expert_ids, 1);
+  encoder.set_input_array(scores, 2);
+  encoder.set_input_array(route_plan_.inverse_route_order(), 3);
+  encoder.set_output_array(routed_output_, 4);
+  encoder.dispatch_threadgroups(
+      MTL::Size(kQueryRows, 1, 1), MTL::Size(256, 1, 1));
+  ++execution_count_;
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error(
+        "native indirect prefill MoE buffer identity changed");
+  }
+  return routed_output_;
+}
+
 mx::array NativePrefillMoEGateUpPlan::execute_routed_fused(
     const mx::array &hidden, const mx::array &expert_ids,
     const mx::array &scores, const mx::array &gate_up_weight,
@@ -203,7 +298,8 @@ mx::array NativePrefillMoEGateUpPlan::execute_routed_fused(
 
 uint64_t NativePrefillMoEGateUpPlan::scratch_bytes() const {
   return route_plan_.scratch_bytes() + activated_.nbytes() +
-      routed_down_.nbytes() + routed_output_.nbytes();
+      routed_down_.nbytes() + routed_output_.nbytes() +
+      indirect_arguments_.nbytes();
 }
 
 std::vector<uint64_t> NativePrefillMoEGateUpPlan::buffer_identities() const {
@@ -211,6 +307,7 @@ std::vector<uint64_t> NativePrefillMoEGateUpPlan::buffer_identities() const {
   identities.push_back(buffer_identity(activated_));
   identities.push_back(buffer_identity(routed_down_));
   identities.push_back(buffer_identity(routed_output_));
+  identities.push_back(buffer_identity(indirect_arguments_));
   return identities;
 }
 

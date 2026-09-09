@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "candidate_timing": {
+    "median_wall_ms": 125.963875,
+    "samples_ms": [
+      126.016708,
+      125.880042,
+      125.963875
+    ]
+  },
+  "checks": {
+    "complete_layer_output_is_byte_exact": true,
+    "currently_composed_layer_speedup_at_least_1_20x": true,
+    "native_component_buffers_are_stable": true,
+    "repeat_is_byte_exact": true
+  },
+  "complete": true,
+  "composition": {
+    "device_sized_indirect_moe_dispatch": true,
+    "mlx_ffn_entry_glue": true,
+    "mlx_final_hc_expand": true,
+    "native_dsa_output_projection_and_attn_hc": true,
+    "native_exact_materialized_moe": true,
+    "single_native_scope": false
+  },
+  "date": "2026-09-09",
+  "decision": "implement_single_scope_complete_native_prefill_layer",
+  "direct_timing": {
+    "median_wall_ms": 161.8215,
+    "samples_ms": [
+      161.883667,
+      161.773625,
+      161.8215
+    ]
+  },
+  "layer": 3,
+  "probe_only": true,
+  "remaining_wall_ms_to_1_20x": -8.887374999999992,
+  "required_candidate_ms_for_1_20x": 134.85125,
+  "runtime_changes": false,
+  "schema": "glm53-composed-native-prefill-layer-execution-v1",
+  "speedup": 1.2846659409294925
+}

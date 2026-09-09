@@ -1,0 +1,44 @@
+{
+  "accepted": true,
+  "checks": {
+    "fixed_capacity_native_is_byte_exact": true,
+    "indirect_exact_moe_speedup_at_least_1_20x": true,
+    "indirect_native_is_byte_exact": true,
+    "indirect_plan_buffers_are_stable": true,
+    "indirect_repeat_is_byte_exact": true,
+    "indirect_saves_at_least_1_70ms_vs_fixed_capacity": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_indirect_exact_moe_into_complete_layer_requalification",
+  "direct_timing": {
+    "median_wall_ms": 129.289709,
+    "samples_ms": [
+      129.289709,
+      129.221042,
+      129.554917
+    ]
+  },
+  "fixed_capacity_timing": {
+    "median_wall_ms": 110.804167,
+    "samples_ms": [
+      110.804167,
+      111.064958,
+      110.785209
+    ]
+  },
+  "indirect_saving_ms": 10.87254200000001,
+  "indirect_speedup_vs_direct": 1.2937817132464322,
+  "indirect_timing": {
+    "median_wall_ms": 99.931625,
+    "samples_ms": [
+      100.040084,
+      99.915417,
+      99.931625
+    ]
+  },
+  "layer": 3,
+  "probe_only": true,
+  "runtime_changes": false,
+  "schema": "glm53-indirect-native-prefill-moe-dispatch-v1"
+}

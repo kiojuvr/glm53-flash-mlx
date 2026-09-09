@@ -1888,6 +1888,15 @@ glm53_native_virtual_bk16_av_bfloat16(
   tile_lengths[descriptor] = min(uint(tile_rows), end - start);
 }
 
+[[kernel]] void glm53_native_prefill_moe_build_indirect_arguments(
+    device const uint* descriptor_count [[buffer(0)]],
+    device uint* arguments [[buffer(1)]],
+    constant const int& output_rows [[buffer(2)]]) {
+  arguments[0] = descriptor_count[0] * uint(output_rows);
+  arguments[1] = 1u;
+  arguments[2] = 1u;
+}
+
 // Exact Direct-order BM8 gate/up projection and SwiGLU for grouped prefill.
 // Each descriptor is one expert-local route tile. The original hidden tile is
 // addressed indirectly, removing the sorted-hidden copy while preserving the

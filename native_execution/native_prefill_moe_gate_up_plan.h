@@ -30,6 +30,11 @@ public:
       const mx::array &scores, const mx::array &gate_up_weight,
       const mx::array &gate_up_scale_inv, const mx::array &down_weight,
       const mx::array &down_scale_inv);
+  mx::array execute_routed_indirect(
+      const mx::array &hidden, const mx::array &expert_ids,
+      const mx::array &scores, const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv);
   mx::array execute_routed_fused(
       const mx::array &hidden, const mx::array &expert_ids,
       const mx::array &scores, const mx::array &gate_up_weight,
@@ -69,10 +74,12 @@ private:
   mx::array activated_;
   mx::array routed_down_;
   mx::array routed_output_;
+  mx::array indirect_arguments_;
   MTL::ComputePipelineState *gate_up_pipeline_{nullptr};
   MTL::ComputePipelineState *down_pipeline_{nullptr};
   MTL::ComputePipelineState *reduce_pipeline_{nullptr};
   MTL::ComputePipelineState *fused_down_reduce_pipeline_{nullptr};
+  MTL::ComputePipelineState *indirect_arguments_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 
@@ -81,7 +88,9 @@ private:
   void encode_ingress(const mx::array &hidden, const mx::array &expert_ids,
                       const mx::array &scores,
                       const mx::array &gate_up_weight,
-                      const mx::array &gate_up_scale_inv);
+                      const mx::array &gate_up_scale_inv,
+                      bool indirect = false);
+  void encode_indirect_arguments(int output_rows);
 };
 
 } // namespace glm53::native_execution

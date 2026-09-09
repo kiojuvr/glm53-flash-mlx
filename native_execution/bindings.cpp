@@ -180,6 +180,11 @@ NB_MODULE(_ext, module) {
            "hidden"_a, "expert_ids"_a, "scores"_a,
            "gate_up_weight"_a, "gate_up_scale_inv"_a,
            "down_weight"_a, "down_scale_inv"_a)
+      .def("execute_routed_indirect",
+           &NativePrefillMoEGateUpPlan::execute_routed_indirect,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a)
       .def("execute_routed_fused",
            &NativePrefillMoEGateUpPlan::execute_routed_fused,
            "hidden"_a, "expert_ids"_a, "scores"_a,
@@ -247,6 +252,13 @@ NB_MODULE(_ext, module) {
   nb::class_<NativePrefillMoEPlan>(module, "NativePrefillMoEPlan")
       .def(nb::init<int>(), "expert_count"_a = 288)
       .def("execute", &NativePrefillMoEPlan::execute,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def("execute_indirect", &NativePrefillMoEPlan::execute_indirect,
            "hidden"_a, "expert_ids"_a, "scores"_a,
            "gate_up_weight"_a, "gate_up_scale_inv"_a,
            "down_weight"_a, "down_scale_inv"_a,
