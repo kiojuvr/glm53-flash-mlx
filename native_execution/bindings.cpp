@@ -148,6 +148,11 @@ NB_MODULE(_ext, module) {
            "hidden"_a, "expert_ids"_a, "scores"_a,
            "gate_up_weight"_a, "gate_up_scale_inv"_a,
            "down_weight"_a, "down_scale_inv"_a)
+      .def("execute_routed_fused",
+           &NativePrefillMoEGateUpPlan::execute_routed_fused,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a)
       .def_prop_ro("query_rows", &NativePrefillMoEGateUpPlan::query_rows)
       .def_prop_ro("route_rows", &NativePrefillMoEGateUpPlan::route_rows)
       .def_prop_ro("hidden_size", &NativePrefillMoEGateUpPlan::hidden_size)
@@ -168,6 +173,8 @@ NB_MODULE(_ext, module) {
                    &NativePrefillMoEGateUpPlan::returned_route_metadata_bytes)
       .def_prop_ro("materialized_sorted_hidden_bytes",
                    &NativePrefillMoEGateUpPlan::materialized_sorted_hidden_bytes)
+      .def_prop_ro("fused_materialized_routed_down_bytes",
+                   &NativePrefillMoEGateUpPlan::fused_materialized_routed_down_bytes)
       .def_prop_ro("scratch_bytes", &NativePrefillMoEGateUpPlan::scratch_bytes)
       .def_prop_ro("buffer_identities",
                    &NativePrefillMoEGateUpPlan::buffer_identities)
@@ -214,6 +221,14 @@ NB_MODULE(_ext, module) {
            "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
            "shared_up_weight"_a, "shared_up_scale_inv"_a,
            "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def("execute_fused_down_reduce",
+           &NativePrefillMoEPlan::execute_fused_down_reduce,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a)
       .def_prop_ro("query_rows", &NativePrefillMoEPlan::query_rows)
       .def_prop_ro("hidden_size", &NativePrefillMoEPlan::hidden_size)
       .def_prop_ro("execution_count", &NativePrefillMoEPlan::execution_count)
@@ -226,6 +241,8 @@ NB_MODULE(_ext, module) {
                    &NativePrefillMoEPlan::host_synchronization_count)
       .def_prop_ro("returned_intermediate_tensor_bytes",
                    &NativePrefillMoEPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("fused_materialized_routed_down_bytes",
+                   &NativePrefillMoEPlan::fused_materialized_routed_down_bytes)
       .def_prop_ro("scratch_bytes", &NativePrefillMoEPlan::scratch_bytes)
       .def_prop_ro("buffer_identities",
                    &NativePrefillMoEPlan::buffer_identities);

@@ -1726,6 +1726,20 @@ production prefill backend. Any renewed MoE work must change the routed-down
 dataflow or amortize it inside a complete layer/cross-layer plan; another
 standalone route, gate/up, or row-tile kernel is explicitly out of scope.
 
+The final routed-down structural alternative is also closed. A fused kernel
+removes the 2,048x4,096 BF16 routed-down surface (16 MiB) and performs each
+down projection immediately followed by the same expert-sorted, contribution-
+rounded BF16 top-8 accumulation. The complete routed+shared output remains
+byte exact and the plan still has fixed buffers, zero graph construction, and
+zero host synchronization. However, serializing eight down reductions inside
+each token/output group increases the layer-3 median from 110.733 to
+159.324 ms; it is only 0.812x versus the 129.343 ms Direct oracle. The fixed
+1.20x gate and 0.50 ms incremental-saving gate both fail. Prefill MoE kernel
+exploration is therefore complete: the materialized exact BM8 implementation
+remains the numerical/structural oracle, while subsequent work moves to the
+actual DSA output-projection, HC, norm, and router seams of a complete native
+layer plan.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

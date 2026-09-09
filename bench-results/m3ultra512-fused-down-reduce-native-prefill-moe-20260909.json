@@ -1,0 +1,46 @@
+{
+  "accepted": false,
+  "checks": {
+    "fixed_arena_submission_contract": true,
+    "full_native_moe_speedup_at_least_1_20x": false,
+    "fused_boundary_saves_at_least_0_50ms": false,
+    "fused_down_reduce_full_moe_is_byte_exact": true,
+    "fused_path_does_not_materialize_routed_down": true,
+    "materialized_native_remains_byte_exact": true,
+    "repeat_is_byte_exact": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_exact_native_prefill_moe_on_structural_performance",
+  "eliminated_routed_down_bytes": 16777216,
+  "fused_native_timing": {
+    "median_wall_ms": 159.324,
+    "samples_ms": [
+      159.324,
+      159.473042,
+      158.690042
+    ]
+  },
+  "incremental_saving_ms": -48.591166000000015,
+  "layer": 3,
+  "materialized_native_timing": {
+    "median_wall_ms": 110.732834,
+    "samples_ms": [
+      110.596167,
+      110.732834,
+      110.762584
+    ]
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 129.342917,
+    "samples_ms": [
+      129.338709,
+      129.342917,
+      129.452458
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-fused-down-reduce-native-prefill-moe-v1",
+  "speedup": 0.8118231842032587
+}

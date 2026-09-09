@@ -30,6 +30,11 @@ public:
       const mx::array &scores, const mx::array &gate_up_weight,
       const mx::array &gate_up_scale_inv, const mx::array &down_weight,
       const mx::array &down_scale_inv);
+  mx::array execute_routed_fused(
+      const mx::array &hidden, const mx::array &expert_ids,
+      const mx::array &scores, const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv);
 
   int query_rows() const { return kQueryRows; }
   int route_rows() const { return kRouteRows; }
@@ -43,6 +48,7 @@ public:
   uint64_t host_synchronization_count() const { return 0; }
   uint64_t returned_route_metadata_bytes() const { return 0; }
   uint64_t materialized_sorted_hidden_bytes() const { return 0; }
+  uint64_t fused_materialized_routed_down_bytes() const { return 0; }
   uint64_t scratch_bytes() const;
   std::vector<uint64_t> buffer_identities() const;
   mx::array debug_route_order() const { return route_plan_.sorted_route_order(); }
@@ -66,6 +72,7 @@ private:
   MTL::ComputePipelineState *gate_up_pipeline_{nullptr};
   MTL::ComputePipelineState *down_pipeline_{nullptr};
   MTL::ComputePipelineState *reduce_pipeline_{nullptr};
+  MTL::ComputePipelineState *fused_down_reduce_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 

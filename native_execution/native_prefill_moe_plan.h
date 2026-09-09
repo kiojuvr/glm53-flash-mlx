@@ -29,6 +29,16 @@ public:
       const mx::array &shared_up_scale_inv,
       const mx::array &shared_down_weight,
       const mx::array &shared_down_scale_inv);
+  mx::array execute_fused_down_reduce(
+      const mx::array &hidden, const mx::array &expert_ids,
+      const mx::array &scores, const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+      const mx::array &shared_gate_scale_inv,
+      const mx::array &shared_up_weight,
+      const mx::array &shared_up_scale_inv,
+      const mx::array &shared_down_weight,
+      const mx::array &shared_down_scale_inv);
 
   int query_rows() const { return 256; }
   int hidden_size() const { return 4096; }
@@ -38,6 +48,9 @@ public:
   uint64_t shape_discovery_count() const { return 0; }
   uint64_t host_synchronization_count() const { return 0; }
   uint64_t returned_intermediate_tensor_bytes() const { return 0; }
+  uint64_t fused_materialized_routed_down_bytes() const {
+    return routed_plan_.fused_materialized_routed_down_bytes();
+  }
   uint64_t scratch_bytes() const;
   std::vector<uint64_t> buffer_identities() const;
 
@@ -51,6 +64,8 @@ private:
   MTL::ComputePipelineState *add_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
+
+  mx::array finish(const mx::array &routed, const mx::array &shared);
 };
 
 } // namespace glm53::native_execution

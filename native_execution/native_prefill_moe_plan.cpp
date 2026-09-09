@@ -56,6 +56,29 @@ mx::array NativePrefillMoEPlan::execute(
   auto shared = shared_plan_.execute(
       hidden, shared_gate_weight, shared_gate_scale_inv, shared_up_weight,
       shared_up_scale_inv, shared_down_weight, shared_down_scale_inv);
+  return finish(routed, shared);
+}
+
+mx::array NativePrefillMoEPlan::execute_fused_down_reduce(
+    const mx::array &hidden, const mx::array &expert_ids,
+    const mx::array &scores, const mx::array &gate_up_weight,
+    const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+    const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+    const mx::array &shared_gate_scale_inv,
+    const mx::array &shared_up_weight, const mx::array &shared_up_scale_inv,
+    const mx::array &shared_down_weight,
+    const mx::array &shared_down_scale_inv) {
+  auto routed = routed_plan_.execute_routed_fused(
+      hidden, expert_ids, scores, gate_up_weight, gate_up_scale_inv,
+      down_weight, down_scale_inv);
+  auto shared = shared_plan_.execute(
+      hidden, shared_gate_weight, shared_gate_scale_inv, shared_up_weight,
+      shared_up_scale_inv, shared_down_weight, shared_down_scale_inv);
+  return finish(routed, shared);
+}
+
+mx::array NativePrefillMoEPlan::finish(
+    const mx::array &routed, const mx::array &shared) {
   auto &encoder = mx::metal::get_command_encoder(stream_);
   encoder.barrier();
   encoder.set_compute_pipeline_state(add_pipeline_);

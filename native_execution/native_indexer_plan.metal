@@ -2104,6 +2104,89 @@ glm53_native_virtual_bk16_av_bfloat16(
   }
 }
 
+// Consume each token's eight expert-local BF16 hidden rows, execute the down
+// projections, and immediately apply the Direct expert-order weighted BF16
+// accumulation.  The 16 MiB sorted-down surface and its following dispatch
+// disappear without moving either rounding boundary.
+[[kernel]] void glm53_native_prefill_moe_fused_down_reduce(
+    device const bfloat16_t* activated [[buffer(0)]],
+    device const uint* expert_ids [[buffer(1)]],
+    device const float* scores [[buffer(2)]],
+    device const uint* inverse_route_order [[buffer(3)]],
+    device const uint* expert_offsets [[buffer(4)]],
+    device const uint8_t* weight [[buffer(5)]],
+    device const float* scale_inv [[buffer(6)]],
+    device bfloat16_t* output [[buffer(7)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u;
+  constexpr uint kIntermediate = 2048u;
+  constexpr uint kTopK = 8u;
+  constexpr uint kScaleRows = 32u;
+  constexpr uint kScaleCols = 16u;
+  constexpr uint kThreads = 256u;
+  constexpr uint kNSimd = 8u;
+  uint token = group_id / kHidden;
+  uint out_row = group_id % kHidden;
+  threadgroup float partial[kNSimd];
+  threadgroup bfloat16_t running;
+  if (tid == 0) running = bfloat16_t(0.0f);
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+
+  uint used = 0u;
+  for (uint rank = 0; rank < kTopK; ++rank) {
+    uint chosen_slot = 0u;
+    uint chosen_expert = 0xffffffffu;
+    for (uint slot = 0; slot < kTopK; ++slot) {
+      uint expert = expert_ids[token * kTopK + slot];
+      if ((used & (1u << slot)) == 0u && expert < chosen_expert) {
+        chosen_expert = expert;
+        chosen_slot = slot;
+      }
+    }
+    used |= 1u << chosen_slot;
+    uint route = token * kTopK + chosen_slot;
+    uint sorted = inverse_route_order[route];
+    uint expert_routes =
+        expert_offsets[chosen_expert + 1u] - expert_offsets[chosen_expert];
+    const device uint8_t* wr = weight +
+        (size_t(chosen_expert) * kHidden + out_row) * kIntermediate;
+    uint scale_row = out_row / 128u;
+    float acc = 0.0f;
+    for (uint k = tid; k < kIntermediate; k += kThreads) {
+      float input = float(
+          activated[size_t(sorted) * kIntermediate + k]);
+      float scale = scale_inv[
+          (size_t(chosen_expert) * kScaleRows + scale_row) * kScaleCols +
+          k / 128u];
+      if (expert_routes == 1u) {
+        acc += input * glm53_native_e4m3(wr[k]) * scale;
+      } else {
+        float decoded = glm53_native_e4m3(wr[k]) * scale;
+        acc += input * decoded;
+      }
+    }
+    acc = simd_sum(acc);
+    if (lane == 0) partial[simd_id] = acc;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simd_id == 0) {
+      float total = lane < kNSimd ? partial[lane] : 0.0f;
+      total = simd_sum(total);
+      if (lane == 0) {
+        bfloat16_t down = bfloat16_t(total);
+        bfloat16_t contribution = bfloat16_t(float(down) * scores[route]);
+        running = bfloat16_t(float(running) + float(contribution));
+      }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+  }
+  if (tid == 0) {
+    output[size_t(token) * kHidden + out_row] = running;
+  }
+}
+
 [[kernel]] void glm53_native_prefill_shared_bm8_gate_up_swiglu(
     device const bfloat16_t* hidden [[buffer(0)]],
     device const uint8_t* gate_weight [[buffer(1)]],

@@ -52,6 +52,8 @@ NativePrefillMoEGateUpPlan::NativePrefillMoEGateUpPlan(int expert_count)
       "glm53_native_prefill_moe_bm8_down", library);
   reduce_pipeline_ = device.get_kernel(
       "glm53_native_prefill_moe_direct_order_reduce", library);
+  fused_down_reduce_pipeline_ = device.get_kernel(
+      "glm53_native_prefill_moe_fused_down_reduce", library);
   initial_buffer_identities_ = buffer_identities();
 }
 
@@ -161,6 +163,40 @@ mx::array NativePrefillMoEGateUpPlan::execute_routed(
   ++execution_count_;
   if (buffer_identities() != initial_buffer_identities_) {
     throw std::runtime_error("native prefill routed MoE buffer identity changed");
+  }
+  return routed_output_;
+}
+
+mx::array NativePrefillMoEGateUpPlan::execute_routed_fused(
+    const mx::array &hidden, const mx::array &expert_ids,
+    const mx::array &scores, const mx::array &gate_up_weight,
+    const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+    const mx::array &down_scale_inv) {
+  encode_ingress(hidden, expert_ids, scores, gate_up_weight,
+                 gate_up_scale_inv);
+  validate_input(down_weight, "down_weight", mx::uint8,
+                 static_cast<size_t>(expert_count_) * kHiddenSize *
+                     kIntermediateSize);
+  validate_input(down_scale_inv, "down_scale_inv", mx::float32,
+                 static_cast<size_t>(expert_count_) * kScaleCols * 16);
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.barrier();
+  encoder.set_compute_pipeline_state(fused_down_reduce_pipeline_);
+  encoder.set_input_array(activated_, 0);
+  encoder.set_input_array(expert_ids, 1);
+  encoder.set_input_array(scores, 2);
+  encoder.set_input_array(route_plan_.inverse_route_order(), 3);
+  encoder.set_input_array(route_plan_.expert_offsets(), 4);
+  encoder.set_input_array(down_weight, 5);
+  encoder.set_input_array(down_scale_inv, 6);
+  encoder.set_output_array(routed_output_, 7);
+  encoder.dispatch_threadgroups(
+      MTL::Size(static_cast<NS::UInteger>(kQueryRows) * kHiddenSize, 1, 1),
+      MTL::Size(256, 1, 1));
+  ++execution_count_;
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error(
+        "native fused-down prefill MoE buffer identity changed");
   }
   return routed_output_;
 }
