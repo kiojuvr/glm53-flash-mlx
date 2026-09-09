@@ -1692,6 +1692,40 @@ therefore closed; the accepted island can now move into the complete native
 prefill layer execution plan, where MoE and cross-layer scheduling determine
 the next wall-time gain.
 
+The first MoE-stage gate fixes routing semantics before expert arithmetic is
+changed. For a Q256/top-8 chunk, the native fixed arena reproduces MLX's stable
+expert order, inverse order, FP32 scores, all 289 expert offsets, and every
+BM8 tile descriptor byte-for-byte. Expert ties retain original route order,
+an invalid expert produces a device-resident fail-closed flag, and the next
+valid execution clears it exactly. Expert kernels can address the original
+hidden tile through `sorted_route_order / 8`, avoiding a 16 MiB sorted-hidden
+copy. The route boundary is deliberately not independently promotable: its
+0.414x standalone result demonstrates the same synchronization tax seen in
+earlier partial Metal kernels. It is accepted only as an internal stage of a
+single encoder scope that immediately executes exact grouped experts; the
+next composed gates were therefore measured before making a promotion
+decision. Route + BM8 gate/up/SwiGLU is byte exact on real layer-3 checkpoint
+weights and removes the sorted-hidden copy, but reaches only 1.1955x against a
+fixed 1.20x gate. Extending the same island through down projection and exact
+expert-order BF16 reduction remains byte exact but falls to 1.1319x. A BM16
+row-tile experiment both regressed and changed the Direct BM8 bit pattern, so
+it was reverted rather than weakening exactness. The exact routed BM8 native
+plan is therefore stopped on performance; the next independent MoE target is
+the shared expert, after which only a full routed+shared layer composition can
+justify promotion.
+
+That final MoE composition gate is now resolved. The Q256 shared-expert island
+is byte exact and improves 11.664 to 6.736 ms (1.732x) with a fixed 3 MiB
+arena. Combining it with the exact routed island and a final BF16 add preserves
+the complete layer-3 MoE output byte-for-byte and keeps all route/intermediate
+buffers native, but improves only 129.392 to 110.742 ms (1.1684x). The fixed
+1.20x gate is not relaxed. The limiting region is routed down/reduction: adding
+it reduces the gate/up-only 1.1955x to 1.1319x. Exact scalar BM8 native MoE is
+therefore archived as a numerical oracle and structural prototype, not a
+production prefill backend. Any renewed MoE work must change the routed-down
+dataflow or amortize it inside a complete layer/cross-layer plan; another
+standalone route, gate/up, or row-tile kernel is explicitly out of scope.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

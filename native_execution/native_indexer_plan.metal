@@ -1781,3 +1781,425 @@ glm53_native_virtual_bk16_av_bfloat16(
       output + size_t(head) * kValueDimension + output_column;
   mma_op.store_result_safe(destination, kValueDimension, short2(kBN, 1));
 }
+
+// Count each expert independently. The extra work item counts invalid routes,
+// producing a device-resident fail-closed signal without an atomic/reset race.
+[[kernel]] void glm53_native_prefill_moe_count_routes(
+    device const uint* expert_ids [[buffer(0)]],
+    device uint* expert_counts [[buffer(1)]],
+    device uint* invalid_route_count [[buffer(2)]],
+    constant const int& expert_count [[buffer(3)]],
+    constant const int& route_rows [[buffer(4)]],
+    uint target [[thread_position_in_grid]]) {
+  if (target > uint(expert_count)) return;
+  uint count = 0;
+  if (target == uint(expert_count)) {
+    for (uint route = 0; route < uint(route_rows); ++route) {
+      count += uint(expert_ids[route] >= uint(expert_count));
+    }
+    invalid_route_count[0] = count;
+    return;
+  }
+  for (uint route = 0; route < uint(route_rows); ++route) {
+    count += uint(expert_ids[route] == target);
+  }
+  expert_counts[target] = count;
+}
+
+[[kernel]] void glm53_native_prefill_moe_expert_prefix(
+    device uint* expert_offsets [[buffer(0)]],
+    constant const int& expert_count [[buffer(1)]]) {
+  uint running = 0;
+  for (uint expert = 0; expert < uint(expert_count); ++expert) {
+    uint count = expert_offsets[expert];
+    expert_offsets[expert] = running;
+    running += count;
+  }
+  expert_offsets[expert_count] = running;
+}
+
+// One work item owns one expert bucket and walks original routes in ascending
+// order. This gives deterministic stable ties without the O(routes^2) rank
+// scan used by the rejected first prototype.
+[[kernel]] void glm53_native_prefill_moe_stable_scatter_routes(
+    device const uint* expert_ids [[buffer(0)]],
+    device const float* scores [[buffer(1)]],
+    device const uint* expert_offsets [[buffer(2)]],
+    device uint* sorted_route_order [[buffer(3)]],
+    device uint* inverse_route_order [[buffer(4)]],
+    device uint* sorted_experts [[buffer(5)]],
+    device float* sorted_scores [[buffer(6)]],
+    constant const int& expert_count [[buffer(7)]],
+    constant const int& route_rows [[buffer(8)]],
+    uint expert [[thread_position_in_grid]]) {
+  if (expert >= uint(expert_count)) return;
+  uint position = expert_offsets[expert];
+  for (uint route = 0; route < uint(route_rows); ++route) {
+    if (expert_ids[route] == expert) {
+      sorted_route_order[position] = route;
+      inverse_route_order[route] = position;
+      sorted_experts[position] = expert;
+      sorted_scores[position] = scores[route];
+      ++position;
+    }
+  }
+}
+
+[[kernel]] void glm53_native_prefill_moe_tile_descriptors(
+    device const uint* expert_offsets [[buffer(0)]],
+    device uint* tile_experts [[buffer(1)]],
+    device uint* tile_starts [[buffer(2)]],
+    device uint* tile_lengths [[buffer(3)]],
+    device uint* descriptor_count [[buffer(4)]],
+    constant const int& expert_count [[buffer(5)]],
+    constant const int& route_rows [[buffer(6)]],
+    constant const int& tile_rows [[buffer(7)]],
+    constant const int& descriptor_capacity [[buffer(8)]],
+    uint descriptor [[thread_position_in_grid]]) {
+  if (descriptor >= uint(descriptor_capacity)) return;
+  uint preceding_tiles = 0;
+  uint total_tiles = 0;
+  uint owner = 0;
+  uint owner_local_tile = 0;
+  bool found = false;
+  for (uint expert = 0; expert < uint(expert_count); ++expert) {
+    uint count = expert_offsets[expert + 1] - expert_offsets[expert];
+    uint tiles = (count + uint(tile_rows) - 1u) / uint(tile_rows);
+    if (!found && descriptor >= preceding_tiles &&
+        descriptor < preceding_tiles + tiles) {
+      owner = expert;
+      owner_local_tile = descriptor - preceding_tiles;
+      found = true;
+    }
+    preceding_tiles += tiles;
+  }
+  total_tiles = preceding_tiles;
+  if (descriptor == 0) descriptor_count[0] = total_tiles;
+  if (!found) {
+    tile_experts[descriptor] = 0;
+    tile_starts[descriptor] = uint(route_rows);
+    tile_lengths[descriptor] = 0;
+    return;
+  }
+  uint start = expert_offsets[owner] + owner_local_tile * uint(tile_rows);
+  uint end = expert_offsets[owner + 1];
+  tile_experts[descriptor] = owner;
+  tile_starts[descriptor] = start;
+  tile_lengths[descriptor] = min(uint(tile_rows), end - start);
+}
+
+// Exact Direct-order BM8 gate/up projection and SwiGLU for grouped prefill.
+// Each descriptor is one expert-local route tile. The original hidden tile is
+// addressed indirectly, removing the sorted-hidden copy while preserving the
+// singleton GEMV and multi-row GEMM expression trees used by the oracle.
+[[kernel]] void glm53_native_prefill_moe_bm8_gate_up_swiglu(
+    device const bfloat16_t* hidden [[buffer(0)]],
+    device const uint* sorted_route_order [[buffer(1)]],
+    device const uint* tile_experts [[buffer(2)]],
+    device const uint* tile_starts [[buffer(3)]],
+    device const uint* tile_lengths [[buffer(4)]],
+    device const uint* expert_offsets [[buffer(5)]],
+    device const uint8_t* weight [[buffer(6)]],
+    device const float* scale_inv [[buffer(7)]],
+    device bfloat16_t* activated [[buffer(8)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u;
+  constexpr uint kIntermediate = 2048u;
+  constexpr uint kTopK = 8u;
+  constexpr uint kRoutes = 2048u;
+  constexpr uint kTileRows = 8u;
+  constexpr uint kBankRows = 4096u;
+  constexpr uint kScaleRows = 32u;
+  constexpr uint kScaleCols = 32u;
+  constexpr uint kThreads = 256u;
+  constexpr uint kNSimd = 8u;
+  constexpr float kLimit = 10.0f;
+
+  uint descriptor = group_id / kIntermediate;
+  uint out_row = group_id % kIntermediate;
+  uint first_sorted = tile_starts[descriptor];
+  uint valid_rows = tile_lengths[descriptor];
+  if (first_sorted >= kRoutes || valid_rows == 0) return;
+  uint expert = tile_experts[descriptor];
+  uint expert_routes = expert_offsets[expert + 1] - expert_offsets[expert];
+  const device uint8_t* gate_weight = weight +
+      (size_t(expert) * kBankRows + out_row) * kHidden;
+  const device uint8_t* up_weight = weight +
+      (size_t(expert) * kBankRows + kIntermediate + out_row) * kHidden;
+  uint gate_scale_row = out_row / 128u;
+  uint up_scale_row = 16u + gate_scale_row;
+  thread float gate_acc[kTileRows];
+  thread float up_acc[kTileRows];
+  for (uint row = 0; row < kTileRows; ++row) {
+    gate_acc[row] = 0.0f;
+    up_acc[row] = 0.0f;
+  }
+  for (uint k = tid; k < kHidden; k += kThreads) {
+    float gate_scale = scale_inv[
+        (size_t(expert) * kScaleRows + gate_scale_row) * kScaleCols +
+        k / 128u];
+    float up_scale = scale_inv[
+        (size_t(expert) * kScaleRows + up_scale_row) * kScaleCols +
+        k / 128u];
+    float gate_decoded = glm53_native_e4m3(gate_weight[k]) * gate_scale;
+    float up_decoded = glm53_native_e4m3(up_weight[k]) * up_scale;
+    for (uint row = 0; row < kTileRows; ++row) {
+      if (row < valid_rows) {
+        uint route = sorted_route_order[first_sorted + row];
+        uint token = route / kTopK;
+        float input = float(hidden[size_t(token) * kHidden + k]);
+        if (expert_routes == 1u) {
+          gate_acc[row] += input * glm53_native_e4m3(gate_weight[k]) *
+              gate_scale;
+          up_acc[row] += input * glm53_native_e4m3(up_weight[k]) * up_scale;
+        } else {
+          gate_acc[row] += input * gate_decoded;
+          up_acc[row] += input * up_decoded;
+        }
+      }
+    }
+  }
+  for (uint row = 0; row < kTileRows; ++row) {
+    gate_acc[row] = simd_sum(gate_acc[row]);
+    up_acc[row] = simd_sum(up_acc[row]);
+  }
+  threadgroup float gate_partial[kTileRows][kNSimd];
+  threadgroup float up_partial[kTileRows][kNSimd];
+  if (lane == 0) {
+    for (uint row = 0; row < kTileRows; ++row) {
+      gate_partial[row][simd_id] = gate_acc[row];
+      up_partial[row][simd_id] = up_acc[row];
+    }
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    for (uint row = 0; row < valid_rows; ++row) {
+      float gate_total = lane < kNSimd ? gate_partial[row][lane] : 0.0f;
+      float up_total = lane < kNSimd ? up_partial[row][lane] : 0.0f;
+      gate_total = simd_sum(gate_total);
+      up_total = simd_sum(up_total);
+      if (lane == 0) {
+        bfloat16_t gate_bf16 = bfloat16_t(gate_total);
+        bfloat16_t up_bf16 = bfloat16_t(up_total);
+        bfloat16_t gate_value = bfloat16_t(min(float(gate_bf16), kLimit));
+        bfloat16_t up_value = bfloat16_t(
+            clamp(float(up_bf16), -kLimit, kLimit));
+        auto sigmoid_tail =
+            1 / (1 + metal::fast::exp(metal::abs(gate_value)));
+        bfloat16_t sigmoid_value = gate_value < 0
+            ? sigmoid_tail
+            : 1 - sigmoid_tail;
+        bfloat16_t silu_value = gate_value * sigmoid_value;
+        activated[size_t(first_sorted + row) * kIntermediate + out_row] =
+            bfloat16_t(silu_value * up_value);
+      }
+    }
+  }
+}
+
+[[kernel]] void glm53_native_prefill_moe_bm8_down(
+    device const bfloat16_t* activated [[buffer(0)]],
+    device const uint* tile_experts [[buffer(1)]],
+    device const uint* tile_starts [[buffer(2)]],
+    device const uint* tile_lengths [[buffer(3)]],
+    device const uint* expert_offsets [[buffer(4)]],
+    device const uint8_t* weight [[buffer(5)]],
+    device const float* scale_inv [[buffer(6)]],
+    device bfloat16_t* output [[buffer(7)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u;
+  constexpr uint kIntermediate = 2048u;
+  constexpr uint kRoutes = 2048u;
+  constexpr uint kTileRows = 8u;
+  constexpr uint kScaleRows = 32u;
+  constexpr uint kScaleCols = 16u;
+  constexpr uint kThreads = 256u;
+  constexpr uint kNSimd = 8u;
+  uint descriptor = group_id / kHidden;
+  uint out_row = group_id % kHidden;
+  uint first_sorted = tile_starts[descriptor];
+  uint valid_rows = tile_lengths[descriptor];
+  if (first_sorted >= kRoutes || valid_rows == 0) return;
+  uint expert = tile_experts[descriptor];
+  uint expert_routes = expert_offsets[expert + 1] - expert_offsets[expert];
+  const device uint8_t* wr = weight +
+      (size_t(expert) * kHidden + out_row) * kIntermediate;
+  uint scale_row = out_row / 128u;
+  thread float acc[kTileRows];
+  for (uint row = 0; row < kTileRows; ++row) acc[row] = 0.0f;
+  for (uint k = tid; k < kIntermediate; k += kThreads) {
+    float scale = scale_inv[
+        (size_t(expert) * kScaleRows + scale_row) * kScaleCols + k / 128u];
+    float decoded = glm53_native_e4m3(wr[k]) * scale;
+    for (uint row = 0; row < kTileRows; ++row) {
+      if (row < valid_rows) {
+        float input = float(
+            activated[size_t(first_sorted + row) * kIntermediate + k]);
+        if (expert_routes == 1u) {
+          acc[row] += input * glm53_native_e4m3(wr[k]) * scale;
+        } else {
+          acc[row] += input * decoded;
+        }
+      }
+    }
+  }
+  for (uint row = 0; row < kTileRows; ++row) acc[row] = simd_sum(acc[row]);
+  threadgroup float partial[kTileRows][kNSimd];
+  if (lane == 0) {
+    for (uint row = 0; row < kTileRows; ++row) {
+      partial[row][simd_id] = acc[row];
+    }
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    for (uint row = 0; row < valid_rows; ++row) {
+      float total = lane < kNSimd ? partial[row][lane] : 0.0f;
+      total = simd_sum(total);
+      if (lane == 0) {
+        output[size_t(first_sorted + row) * kHidden + out_row] =
+            bfloat16_t(total);
+      }
+    }
+  }
+}
+
+[[kernel]] void glm53_native_prefill_moe_direct_order_reduce(
+    device const bfloat16_t* sorted_down [[buffer(0)]],
+    device const uint* expert_ids [[buffer(1)]],
+    device const float* scores [[buffer(2)]],
+    device const uint* inverse_route_order [[buffer(3)]],
+    device bfloat16_t* output [[buffer(4)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint token [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u;
+  constexpr uint kTopK = 8u;
+  for (uint column = tid; column < kHidden; column += 256u) {
+    bfloat16_t total = bfloat16_t(0.0f);
+    uint used = 0;
+    for (uint rank = 0; rank < kTopK; ++rank) {
+      uint chosen_slot = 0;
+      uint chosen_expert = 0xffffffffu;
+      for (uint slot = 0; slot < kTopK; ++slot) {
+        uint expert = expert_ids[token * kTopK + slot];
+        if ((used & (1u << slot)) == 0 && expert < chosen_expert) {
+          chosen_expert = expert;
+          chosen_slot = slot;
+        }
+      }
+      used |= 1u << chosen_slot;
+      uint route = token * kTopK + chosen_slot;
+      uint sorted = inverse_route_order[route];
+      bfloat16_t contribution = bfloat16_t(
+          float(sorted_down[size_t(sorted) * kHidden + column]) *
+          scores[route]);
+      total = bfloat16_t(float(total) + float(contribution));
+    }
+    output[size_t(token) * kHidden + column] = total;
+  }
+}
+
+[[kernel]] void glm53_native_prefill_shared_bm8_gate_up_swiglu(
+    device const bfloat16_t* hidden [[buffer(0)]],
+    device const uint8_t* gate_weight [[buffer(1)]],
+    device const float* gate_scale [[buffer(2)]],
+    device const uint8_t* up_weight [[buffer(3)]],
+    device const float* up_scale [[buffer(4)]],
+    device bfloat16_t* activated [[buffer(5)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u, kIntermediate = 2048u;
+  constexpr uint kTile = 8u, kNSimd = 8u;
+  constexpr float kLimit = 10.0f;
+  uint tile = group_id / kIntermediate;
+  uint out_row = group_id % kIntermediate;
+  uint first_row = tile * kTile;
+  const device uint8_t* gate_wr = gate_weight + size_t(out_row) * kHidden;
+  const device uint8_t* up_wr = up_weight + size_t(out_row) * kHidden;
+  thread float gate_acc[kTile];
+  thread float up_acc[kTile];
+  for (uint row = 0; row < kTile; ++row) {
+    gate_acc[row] = 0.0f; up_acc[row] = 0.0f;
+  }
+  for (uint k = tid; k < kHidden; k += 256u) {
+    float gs = gate_scale[(out_row / 128u) * 32u + k / 128u];
+    float us = up_scale[(out_row / 128u) * 32u + k / 128u];
+    float gw = glm53_native_e4m3(gate_wr[k]) * gs;
+    float uw = glm53_native_e4m3(up_wr[k]) * us;
+    for (uint row = 0; row < kTile; ++row) {
+      float input = float(hidden[size_t(first_row + row) * kHidden + k]);
+      gate_acc[row] += input * gw;
+      up_acc[row] += input * uw;
+    }
+  }
+  for (uint row = 0; row < kTile; ++row) {
+    gate_acc[row] = simd_sum(gate_acc[row]);
+    up_acc[row] = simd_sum(up_acc[row]);
+  }
+  threadgroup float gp[kTile][kNSimd];
+  threadgroup float up[kTile][kNSimd];
+  if (lane == 0) for (uint row = 0; row < kTile; ++row) {
+    gp[row][simd_id] = gate_acc[row]; up[row][simd_id] = up_acc[row];
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) for (uint row = 0; row < kTile; ++row) {
+    float g = lane < kNSimd ? gp[row][lane] : 0.0f;
+    float u = lane < kNSimd ? up[row][lane] : 0.0f;
+    g = simd_sum(g); u = simd_sum(u);
+    if (lane == 0) {
+      bfloat16_t gb = bfloat16_t(g), ub = bfloat16_t(u);
+      bfloat16_t gv = bfloat16_t(min(float(gb), kLimit));
+      bfloat16_t uv = bfloat16_t(clamp(float(ub), -kLimit, kLimit));
+      auto tail = 1 / (1 + metal::fast::exp(metal::abs(gv)));
+      bfloat16_t sig = gv < 0 ? tail : 1 - tail;
+      activated[size_t(first_row + row) * kIntermediate + out_row] =
+          bfloat16_t(bfloat16_t(gv * sig) * uv);
+    }
+  }
+}
+
+[[kernel]] void glm53_native_prefill_shared_bm8_down(
+    device const bfloat16_t* activated [[buffer(0)]],
+    device const uint8_t* weight [[buffer(1)]],
+    device const float* scale_inv [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kHidden = 4096u, kIntermediate = 2048u;
+  constexpr uint kTile = 8u, kNSimd = 8u;
+  uint tile = group_id / kHidden;
+  uint out_row = group_id % kHidden;
+  uint first_row = tile * kTile;
+  const device uint8_t* wr = weight + size_t(out_row) * kIntermediate;
+  thread float acc[kTile];
+  for (uint row = 0; row < kTile; ++row) acc[row] = 0.0f;
+  for (uint k = tid; k < kIntermediate; k += 256u) {
+    float scale = scale_inv[(out_row / 128u) * 16u + k / 128u];
+    float decoded = glm53_native_e4m3(wr[k]) * scale;
+    for (uint row = 0; row < kTile; ++row) {
+      acc[row] += float(
+          activated[size_t(first_row + row) * kIntermediate + k]) * decoded;
+    }
+  }
+  for (uint row = 0; row < kTile; ++row) acc[row] = simd_sum(acc[row]);
+  threadgroup float partial[kTile][kNSimd];
+  if (lane == 0) for (uint row = 0; row < kTile; ++row) {
+    partial[row][simd_id] = acc[row];
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) for (uint row = 0; row < kTile; ++row) {
+    float total = lane < kNSimd ? partial[row][lane] : 0.0f;
+    total = simd_sum(total);
+    if (lane == 0) output[size_t(first_row + row) * kHidden + out_row] =
+        bfloat16_t(total);
+  }
+}

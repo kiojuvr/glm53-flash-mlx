@@ -1,0 +1,44 @@
+{
+  "accepted": false,
+  "avoided_sorted_hidden_bytes": 16777216,
+  "candidate_timing": {
+    "median_wall_ms": 63.262125,
+    "samples_ms": [
+      63.262125,
+      63.036583,
+      63.265583
+    ]
+  },
+  "checks": {
+    "composed_gate_up_speedup_at_least_1_20x": false,
+    "fixed_arena_submission_contract": true,
+    "real_checkpoint_gate_up_swiglu_byte_exact": true,
+    "repeat_byte_exact": true,
+    "route_metadata_remains_internal": true,
+    "sorted_hidden_never_materialized": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_or_relocalize_native_prefill_moe_gate_up_island",
+  "geometry": {
+    "expert_count": 288,
+    "hidden_size": 4096,
+    "intermediate_size": 2048,
+    "query_rows": 256,
+    "route_rows": 2048
+  },
+  "layer": 3,
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 75.629625,
+    "samples_ms": [
+      75.678375,
+      75.396083,
+      75.629625
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-moe-gate-up-island-v1",
+  "scratch_bytes": 8429068,
+  "speedup": 1.1954961203089527
+}

@@ -1,0 +1,39 @@
+{
+  "accepted": true,
+  "candidate_timing": {
+    "median_wall_ms": 6.736083,
+    "samples_ms": [
+      6.737958,
+      6.721834,
+      6.744291,
+      6.736083,
+      6.724125
+    ]
+  },
+  "checks": {
+    "fixed_arena_submission_contract": true,
+    "intermediate_never_returned": true,
+    "native_shared_speedup_at_least_1_20x": true,
+    "real_checkpoint_shared_output_byte_exact": true,
+    "repeat_byte_exact": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_shared_expert_into_full_native_prefill_moe",
+  "layer": 3,
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 11.663958,
+    "samples_ms": [
+      11.739625,
+      11.640542,
+      11.704584,
+      11.663958,
+      11.601541
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-shared-expert-island-v1",
+  "scratch_bytes": 3145728,
+  "speedup": 1.7315638777016256
+}

@@ -1,0 +1,35 @@
+{
+  "accepted": false,
+  "candidate_timing": {
+    "median_wall_ms": 110.741541,
+    "samples_ms": [
+      110.741541,
+      110.448875,
+      110.764958
+    ]
+  },
+  "checks": {
+    "fixed_arena_submission_contract": true,
+    "full_native_moe_speedup_at_least_1_20x": false,
+    "only_final_moe_output_crosses_boundary": true,
+    "real_checkpoint_full_moe_output_byte_exact": true,
+    "repeat_byte_exact": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_or_redesign_native_prefill_full_moe",
+  "layer": 3,
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 129.392292,
+    "samples_ms": [
+      129.392292,
+      129.421458,
+      129.167375
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-full-moe-island-v1",
+  "scratch_bytes": 32546316,
+  "speedup": 1.1684169357910597
+}

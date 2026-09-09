@@ -9,6 +9,10 @@
 #include "native_packed_moe_plan.h"
 #include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
+#include "native_prefill_moe_route_plan.h"
+#include "native_prefill_moe_gate_up_plan.h"
+#include "native_prefill_shared_expert_plan.h"
+#include "native_prefill_moe_plan.h"
 #include "native_selected_v_av_plan.h"
 #include "native_selected_kv_attention_selection_plan.h"
 #include "native_selected_union_plan.h"
@@ -36,6 +40,10 @@ using glm53::native_execution::NativeProjectedQKUnionTileLoopPlan;
 using glm53::native_execution::NativeSharedPhysicalValueTilePlan;
 using glm53::native_execution::NativeQ256DSAPrefillPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
+using glm53::native_execution::NativePrefillMoERoutePlan;
+using glm53::native_execution::NativePrefillMoEGateUpPlan;
+using glm53::native_execution::NativePrefillSharedExpertPlan;
+using glm53::native_execution::NativePrefillMoEPlan;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
@@ -85,6 +93,142 @@ NB_MODULE(_ext, module) {
                    &NativePrefillLayerSubstrate::buffer_identities)
       .def_prop_ro("fixed_topology",
                    &NativePrefillLayerSubstrate::fixed_topology);
+
+  nb::class_<NativePrefillMoERoutePlan>(module,
+                                        "NativePrefillMoERoutePlan")
+      .def(nb::init<int>(), "expert_count"_a = 288)
+      .def("execute", &NativePrefillMoERoutePlan::execute,
+           "expert_ids"_a, "scores"_a)
+      .def_prop_ro("query_rows", &NativePrefillMoERoutePlan::query_rows)
+      .def_prop_ro("top_k", &NativePrefillMoERoutePlan::top_k)
+      .def_prop_ro("route_rows", &NativePrefillMoERoutePlan::route_rows)
+      .def_prop_ro("expert_count", &NativePrefillMoERoutePlan::expert_count)
+      .def_prop_ro("tile_rows", &NativePrefillMoERoutePlan::tile_rows)
+      .def_prop_ro("descriptor_capacity",
+                   &NativePrefillMoERoutePlan::descriptor_capacity)
+      .def_prop_ro("execution_count",
+                   &NativePrefillMoERoutePlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillMoERoutePlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillMoERoutePlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillMoERoutePlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillMoERoutePlan::host_synchronization_count)
+      .def_prop_ro("materialized_sorted_hidden_bytes",
+                   &NativePrefillMoERoutePlan::materialized_sorted_hidden_bytes)
+      .def_prop_ro("scratch_bytes", &NativePrefillMoERoutePlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillMoERoutePlan::buffer_identities)
+      .def_prop_ro("sorted_route_order",
+                   &NativePrefillMoERoutePlan::sorted_route_order)
+      .def_prop_ro("inverse_route_order",
+                   &NativePrefillMoERoutePlan::inverse_route_order)
+      .def_prop_ro("sorted_experts",
+                   &NativePrefillMoERoutePlan::sorted_experts)
+      .def_prop_ro("sorted_scores", &NativePrefillMoERoutePlan::sorted_scores)
+      .def_prop_ro("expert_offsets",
+                   &NativePrefillMoERoutePlan::expert_offsets)
+      .def_prop_ro("tile_experts", &NativePrefillMoERoutePlan::tile_experts)
+      .def_prop_ro("tile_starts", &NativePrefillMoERoutePlan::tile_starts)
+      .def_prop_ro("tile_lengths", &NativePrefillMoERoutePlan::tile_lengths)
+      .def_prop_ro("descriptor_count",
+                   &NativePrefillMoERoutePlan::descriptor_count)
+      .def_prop_ro("invalid_route_count",
+                   &NativePrefillMoERoutePlan::invalid_route_count);
+
+  nb::class_<NativePrefillMoEGateUpPlan>(module,
+                                         "NativePrefillMoEGateUpPlan")
+      .def(nb::init<int>(), "expert_count"_a = 288)
+      .def("execute", &NativePrefillMoEGateUpPlan::execute,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a)
+      .def("execute_routed", &NativePrefillMoEGateUpPlan::execute_routed,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a)
+      .def_prop_ro("query_rows", &NativePrefillMoEGateUpPlan::query_rows)
+      .def_prop_ro("route_rows", &NativePrefillMoEGateUpPlan::route_rows)
+      .def_prop_ro("hidden_size", &NativePrefillMoEGateUpPlan::hidden_size)
+      .def_prop_ro("intermediate_size",
+                   &NativePrefillMoEGateUpPlan::intermediate_size)
+      .def_prop_ro("expert_count", &NativePrefillMoEGateUpPlan::expert_count)
+      .def_prop_ro("execution_count",
+                   &NativePrefillMoEGateUpPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillMoEGateUpPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillMoEGateUpPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillMoEGateUpPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillMoEGateUpPlan::host_synchronization_count)
+      .def_prop_ro("returned_route_metadata_bytes",
+                   &NativePrefillMoEGateUpPlan::returned_route_metadata_bytes)
+      .def_prop_ro("materialized_sorted_hidden_bytes",
+                   &NativePrefillMoEGateUpPlan::materialized_sorted_hidden_bytes)
+      .def_prop_ro("scratch_bytes", &NativePrefillMoEGateUpPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillMoEGateUpPlan::buffer_identities)
+      .def_prop_ro("debug_route_order",
+                   &NativePrefillMoEGateUpPlan::debug_route_order)
+      .def_prop_ro("debug_sorted_experts",
+                   &NativePrefillMoEGateUpPlan::debug_sorted_experts);
+
+  nb::class_<NativePrefillSharedExpertPlan>(module,
+                                            "NativePrefillSharedExpertPlan")
+      .def(nb::init<>())
+      .def("execute", &NativePrefillSharedExpertPlan::execute,
+           "hidden"_a, "gate_weight"_a, "gate_scale_inv"_a,
+           "up_weight"_a, "up_scale_inv"_a, "down_weight"_a,
+           "down_scale_inv"_a)
+      .def_prop_ro("query_rows", &NativePrefillSharedExpertPlan::query_rows)
+      .def_prop_ro("hidden_size", &NativePrefillSharedExpertPlan::hidden_size)
+      .def_prop_ro("intermediate_size",
+                   &NativePrefillSharedExpertPlan::intermediate_size)
+      .def_prop_ro("tile_rows", &NativePrefillSharedExpertPlan::tile_rows)
+      .def_prop_ro("execution_count",
+                   &NativePrefillSharedExpertPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillSharedExpertPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillSharedExpertPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillSharedExpertPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillSharedExpertPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativePrefillSharedExpertPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativePrefillSharedExpertPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillSharedExpertPlan::buffer_identities);
+
+  nb::class_<NativePrefillMoEPlan>(module, "NativePrefillMoEPlan")
+      .def(nb::init<int>(), "expert_count"_a = 288)
+      .def("execute", &NativePrefillMoEPlan::execute,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def_prop_ro("query_rows", &NativePrefillMoEPlan::query_rows)
+      .def_prop_ro("hidden_size", &NativePrefillMoEPlan::hidden_size)
+      .def_prop_ro("execution_count", &NativePrefillMoEPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillMoEPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count", &NativePrefillMoEPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillMoEPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillMoEPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativePrefillMoEPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativePrefillMoEPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillMoEPlan::buffer_identities);
 
   nb::class_<NativeIndexSelectionPlan>(module, "NativeIndexSelectionPlan")
       .def(nb::init<std::string, int, int, std::string>(), "mode"_a,

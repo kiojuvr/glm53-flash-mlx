@@ -1,0 +1,35 @@
+{
+  "accepted": false,
+  "candidate_timing": {
+    "median_wall_ms": 103.958667,
+    "samples_ms": [
+      104.153041,
+      103.958667,
+      103.913458
+    ]
+  },
+  "checks": {
+    "composed_routed_moe_speedup_at_least_1_20x": false,
+    "fixed_arena_submission_contract": true,
+    "real_checkpoint_routed_output_byte_exact": true,
+    "repeat_byte_exact": true,
+    "route_metadata_and_sorted_hidden_do_not_cross_boundary": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_or_relocalize_native_prefill_routed_moe",
+  "layer": 3,
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 117.672167,
+    "samples_ms": [
+      117.839917,
+      117.672167,
+      117.268375
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-moe-routed-island-v1",
+  "scratch_bytes": 27303436,
+  "speedup": 1.1319130034631937
+}

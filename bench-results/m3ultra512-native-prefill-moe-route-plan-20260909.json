@@ -1,0 +1,75 @@
+{
+  "accepted": true,
+  "avoided_sorted_hidden_bytes": 16777216,
+  "checks": {
+    "all_route_metadata_byte_exact": true,
+    "fixed_arena_and_submission_contract": true,
+    "invalid_expert_sets_device_failure_flag": true,
+    "sorted_hidden_never_materialized": true,
+    "stable_equal_expert_order_matches_mlx": true,
+    "standalone_boundary_is_explicitly_non_promotable": true,
+    "valid_reexecution_clears_failure_and_is_exact": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_route_grouping_only_inside_composed_expert_island",
+  "exactness": {
+    "descriptor_count": true,
+    "expert_offsets": true,
+    "indirect_hidden_addressing": true,
+    "invalid_route_count": true,
+    "inverse_order": true,
+    "mlx_argsort_order": true,
+    "route_order": true,
+    "sorted_experts": true,
+    "sorted_scores": true,
+    "tile_experts": true,
+    "tile_lengths": true,
+    "tile_starts": true
+  },
+  "geometry": {
+    "descriptor_capacity": 544,
+    "descriptor_count": 304,
+    "expert_count": 288,
+    "query_rows": 256,
+    "route_rows": 2048,
+    "tile_rows": 8,
+    "top_k": 8
+  },
+  "invalid_route_count": 1,
+  "native_timing": {
+    "median_wall_ms": 0.971417,
+    "samples_ms": [
+      0.971417,
+      0.962666,
+      1.014375,
+      0.962959,
+      1.016875,
+      0.952083,
+      0.994375,
+      0.951875,
+      0.988709
+    ]
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 0.401792,
+    "samples_ms": [
+      0.407667,
+      0.3955,
+      0.412083,
+      0.417917,
+      0.401792,
+      0.393334,
+      0.393416,
+      0.403625,
+      0.3995
+    ]
+  },
+  "repeat_exact": true,
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-moe-route-plan-v1",
+  "scratch_bytes": 40460,
+  "speedup": 0.41361433864138675,
+  "standalone_performance_accepted": false
+}
