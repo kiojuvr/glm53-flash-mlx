@@ -16,6 +16,7 @@
 #include "native_projected_qk_union_tile_plan.h"
 #include "native_projected_qk_union_tile_loop_plan.h"
 #include "native_shared_physical_value_tile_plan.h"
+#include "native_q256_dsa_prefill_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -33,6 +34,7 @@ using glm53::native_execution::NativeIndirectSelectedLatentPlan;
 using glm53::native_execution::NativeProjectedQKUnionTilePlan;
 using glm53::native_execution::NativeProjectedQKUnionTileLoopPlan;
 using glm53::native_execution::NativeSharedPhysicalValueTilePlan;
+using glm53::native_execution::NativeQ256DSAPrefillPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
@@ -673,4 +675,37 @@ NB_MODULE(_ext, module) {
                    &NativeSharedPhysicalValueTilePlan::debug_physical_probabilities)
       .def_prop_ro("debug_projected_values",
                    &NativeSharedPhysicalValueTilePlan::debug_projected_values);
+
+  nb::class_<NativeQ256DSAPrefillPlan>(module, "NativeQ256DSAPrefillPlan")
+      .def(nb::init<int, int>(), "physical_k"_a, "tile_rows"_a = 65536)
+      .def("execute", &NativeQ256DSAPrefillPlan::execute,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a,
+           "key_weight"_a, "value_weight"_a, "attention_query"_a,
+           "attention_scale"_a)
+      .def_prop_ro("physical_k", &NativeQ256DSAPrefillPlan::physical_k)
+      .def_prop_ro("tile_rows", &NativeQ256DSAPrefillPlan::tile_rows)
+      .def_prop_ro("tile_count", &NativeQ256DSAPrefillPlan::tile_count)
+      .def_prop_ro("query_rows", &NativeQ256DSAPrefillPlan::query_rows)
+      .def_prop_ro("execution_count", &NativeQ256DSAPrefillPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativeQ256DSAPrefillPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count", &NativeQ256DSAPrefillPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativeQ256DSAPrefillPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativeQ256DSAPrefillPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativeQ256DSAPrefillPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("materialized_selected_key_bytes",
+                   &NativeQ256DSAPrefillPlan::materialized_selected_key_bytes)
+      .def_prop_ro("materialized_query_local_selected_value_bytes",
+                   &NativeQ256DSAPrefillPlan::materialized_query_local_selected_value_bytes)
+      .def_prop_ro("scratch_bytes", &NativeQ256DSAPrefillPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativeQ256DSAPrefillPlan::buffer_identities)
+      .def_prop_ro("debug_probabilities",
+                   &NativeQ256DSAPrefillPlan::debug_probabilities)
+      .def_prop_ro("debug_scores", &NativeQ256DSAPrefillPlan::debug_scores)
+      .def_prop_ro("debug_union_count",
+                   &NativeQ256DSAPrefillPlan::debug_union_count);
 }

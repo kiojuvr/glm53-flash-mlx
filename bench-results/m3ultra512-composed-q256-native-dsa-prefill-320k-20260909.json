@@ -1,0 +1,47 @@
+{
+  "accepted": true,
+  "anchors": {
+    "q256_attention_output": true,
+    "qk_precise_probabilities": true,
+    "union_count": true
+  },
+  "candidate_timing": {
+    "median_wall_ms": 911.541542,
+    "samples_ms": [
+      911.541542,
+      911.024625,
+      911.632166
+    ]
+  },
+  "checks": {
+    "320k_qk_softmax_q256_attention_byte_exact": true,
+    "composed_320k_speedup_at_least_1_20x": true,
+    "scratch_at_most_6gib": true,
+    "selected_k_and_query_local_selected_v_never_materialized": true,
+    "single_fixed_native_execution_scope": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_composed_native_dsa_into_prefill_layer_execution_plan",
+  "geometry": {
+    "physical_k": 327680,
+    "query_blocks": 4,
+    "query_rows": 256,
+    "tile_count": 5,
+    "tile_rows": 65536,
+    "union_count": 327251
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 1283.348917,
+    "samples_ms": [
+      1282.208666,
+      1283.764292,
+      1283.348917
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-composed-q256-native-dsa-prefill-320k-v1",
+  "scratch_bytes": 6141236238,
+  "speedup": 1.407888568834968
+}

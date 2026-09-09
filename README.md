@@ -1677,6 +1677,21 @@ return, and query-local selected-V storage are all zero. The remaining prefill
 DSA gate is long-context composition with the already-qualified QK/softmax
 plan at the 320K target.
 
+That final 320K composition gate now passes. One persistent Q256 plan joins
+the device-resident selected union, projected-QK tile loop, precise BF16
+softmax, shared physical V tiles, and four BM64 AV blocks. At 327,680 physical
+rows the fixture contains 327,251 union rows and executes five 65,536-row
+tiles. The complete probability surface and final attention output are byte
+exact against the independently qualified QK/softmax plus four-BM64 oracle.
+Sharing V projection lowers median wall from 1,283.35 to 911.54 ms (1.408x).
+Fixed scratch is 6,141,236,238 bytes, under the 6 GiB feasibility gate; both
+selected-K and query-local selected-V materializations remain zero, as do
+execute-time allocation, graph construction, shape discovery, host
+synchronization, and intermediate return. Prefill DSA design exploration is
+therefore closed; the accepted island can now move into the complete native
+prefill layer execution plan, where MoE and cross-layer scheduling determine
+the next wall-time gain.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

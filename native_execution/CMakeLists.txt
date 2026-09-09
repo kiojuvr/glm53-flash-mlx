@@ -37,6 +37,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_projected_qk_union_tile_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_projected_qk_union_tile_loop_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_shared_physical_value_tile_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_q256_dsa_prefill_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_layer_plan.cpp)
 target_include_directories(
