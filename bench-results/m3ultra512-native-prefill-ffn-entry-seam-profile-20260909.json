@@ -1,0 +1,85 @@
+{
+  "accepted": true,
+  "checks": {
+    "all_stage_anchors_repeat_byte_exact": true,
+    "official_geometry_is_q256_hc4_hidden4096_experts288_top8": true,
+    "profile_has_no_nan": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "stop_standalone_ffn_entry_native_island_and_move_to_cross_layer_plan",
+  "full_boundary": {
+    "median_wall_ms": 0.709084,
+    "samples_ms": [
+      0.694959,
+      0.719666,
+      0.709084,
+      0.718166,
+      0.67575
+    ]
+  },
+  "geometry": {
+    "experts": 288,
+    "hc_branches": 4,
+    "hidden_size": 4096,
+    "query_rows": 256,
+    "top_k": 8
+  },
+  "largest_synchronized_stage": "ffn_hc_collapse",
+  "layer": 3,
+  "profiling_only": true,
+  "maximum_standalone_wall_headroom_ms": 0.709084,
+  "standalone_native_implementation_warranted": false,
+  "repeat_exact": {
+    "collapsed": true,
+    "indices": true,
+    "logits": true,
+    "normalized": true,
+    "scores": true
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-ffn-entry-seam-profile-v1",
+  "synchronized_component_sum_ms": 1.354376,
+  "synchronized_stages": {
+    "ffn_hc_collapse": {
+      "median_wall_ms": 0.435292,
+      "samples_ms": [
+        0.454625,
+        0.435292,
+        0.428292,
+        0.467667,
+        0.432875
+      ]
+    },
+    "post_attention_norm": {
+      "median_wall_ms": 0.2255,
+      "samples_ms": [
+        0.230292,
+        0.291042,
+        0.210208,
+        0.2255,
+        0.222792
+      ]
+    },
+    "router_logits": {
+      "median_wall_ms": 0.375625,
+      "samples_ms": [
+        0.377584,
+        0.373167,
+        0.383625,
+        0.375625,
+        0.372542
+      ]
+    },
+    "router_selection": {
+      "median_wall_ms": 0.317959,
+      "samples_ms": [
+        0.316875,
+        0.323083,
+        0.328083,
+        0.317959,
+        0.310834
+      ]
+    }
+  }
+}

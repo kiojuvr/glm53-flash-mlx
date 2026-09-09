@@ -1764,6 +1764,17 @@ shape discovery, synchronization, and intermediate return remain zero. This
 is therefore a durable native layer seam rather than an isolated-kernel win;
 the next boundary is FFN HC collapse, post-attention norm, and router.
 
+That FFN-entry boundary is now attributed and deliberately not split into
+more standalone native kernels. At Q256 the complete `ffn_hc -> RMSNorm ->
+router logits -> top-8` sequence is only 0.709 ms. Individually synchronized,
+HC collapse is the largest stage at 0.435 ms, followed by router logits at
+0.376 ms, selection at 0.318 ms, and norm at 0.226 ms. All captured BF16/FP32
+anchors, indices, and scores repeat byte-for-byte. Even deleting the entire
+combined boundary cannot meet the fixed 0.75 ms standalone wall-gain gate, so
+native HC/norm/router primitives would repeat the rejected partial-boundary
+pattern. These operations may be absorbed by a complete layer or cross-layer
+plan, but they are closed as independent optimization targets.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
