@@ -1775,6 +1775,16 @@ native HC/norm/router primitives would repeat the rejected partial-boundary
 pattern. These operations may be absorbed by a complete layer or cross-layer
 plan, but they are closed as independent optimization targets.
 
+The first exact complete-layer composition also establishes that simply
+wrapping the existing scalar BM8 MoE is insufficient. Actual layer-3
+`o_proj + attention HC`, MLX FFN-entry glue, the exact materialized native
+MoE, and final HC expansion reproduce the Direct layer output byte-for-byte.
+They reduce median Q256 wall from 161.945 to 136.651 ms (1.1851x), but the
+fixed complete-layer gate is 1.20x and requires another 1.698 ms. Eliminating
+the entire 0.709 ms FFN-entry boundary still cannot close that gap. The next
+implementation therefore changes routed expert scheduling itself; it does
+not add native HC/norm/router glue around the current MoE topology.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。
