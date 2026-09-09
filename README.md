@@ -1797,6 +1797,15 @@ the fixed 1.20x layer gate by 8.887 ms. This is the first routed scheduling
 change justified for the complete native prefill layer; the remaining work is
 to absorb FFN-entry and final-HC glue into one native encoder scope.
 
+The native exit now also includes final FFN HyperConnection expansion. Routed
+and shared expert outputs are added in BF16 and consumed immediately by the
+same qualified four-branch HC kernel; the intermediate MoE hidden tensor no
+longer crosses back to MLX. The complete layer remains byte exact and improves
+161.874 to 125.870 ms (1.2860x). This is a small additional wall gain over the
+indirect-MoE composition, but it establishes the correct layer-output ABI:
+one owned `[256,4,4096]` branch state. Only FFN HC collapse, RMSNorm, and router
+selection still interrupt the native command topology.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

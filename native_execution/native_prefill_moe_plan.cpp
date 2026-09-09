@@ -33,11 +33,14 @@ uint64_t identity(const mx::array &array) {
 NativePrefillMoEPlan::NativePrefillMoEPlan(int expert_count)
     : stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
       routed_plan_(expert_count), shared_plan_(),
-      output_(owned_array({kQueryRows, kHiddenSize}, mx::bfloat16)) {
+      output_(owned_array({kQueryRows, kHiddenSize}, mx::bfloat16)),
+      hc_output_(owned_array({kQueryRows, 4, kHiddenSize}, mx::bfloat16)) {
   auto &device = mx::metal::device(stream_.device);
   auto *library =
       device.get_library("glm53_native_execution", current_binary_dir());
   add_pipeline_ = device.get_kernel("glm53_native_add_routed_shared", library);
+  hc_expand_pipeline_ = device.get_kernel(
+      "glm53_native_prefill_post_attention_hc_expand", library);
   initial_buffer_identities_ = buffer_identities();
 }
 
@@ -95,6 +98,68 @@ mx::array NativePrefillMoEPlan::execute_indirect(
   return finish(routed, shared);
 }
 
+mx::array NativePrefillMoEPlan::execute_indirect_hc(
+    const mx::array &hidden, const mx::array &expert_ids,
+    const mx::array &scores, const mx::array &gate_up_weight,
+    const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+    const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+    const mx::array &shared_gate_scale_inv,
+    const mx::array &shared_up_weight, const mx::array &shared_up_scale_inv,
+    const mx::array &shared_down_weight,
+    const mx::array &shared_down_scale_inv, const mx::array &residual,
+    const mx::array &post, const mx::array &comb) {
+  auto routed = routed_plan_.execute_routed_indirect(
+      hidden, expert_ids, scores, gate_up_weight, gate_up_scale_inv,
+      down_weight, down_scale_inv);
+  auto shared = shared_plan_.execute(
+      hidden, shared_gate_weight, shared_gate_scale_inv, shared_up_weight,
+      shared_up_scale_inv, shared_down_weight, shared_down_scale_inv);
+  finish(routed, shared);
+  return finish_hc(residual, post, comb);
+}
+
+void NativePrefillMoEPlan::validate_hc_input(
+    const mx::array &value, const char *name, mx::Dtype dtype,
+    size_t elements) const {
+  if (value.dtype() != dtype || value.size() != elements) {
+    throw std::invalid_argument(std::string(name) + " shape/dtype mismatch");
+  }
+  if (!value.flags().row_contiguous) {
+    throw std::invalid_argument(std::string(name) + " must be row-contiguous");
+  }
+  if (value.status() == mx::array::Status::unscheduled) {
+    throw std::invalid_argument(
+        std::string(name) + " must be scheduled before submission");
+  }
+}
+
+mx::array NativePrefillMoEPlan::finish_hc(
+    const mx::array &residual, const mx::array &post,
+    const mx::array &comb) {
+  validate_hc_input(
+      residual, "residual", mx::bfloat16,
+      static_cast<size_t>(kQueryRows) * 4 * kHiddenSize);
+  validate_hc_input(
+      post, "post", mx::float32, static_cast<size_t>(kQueryRows) * 4);
+  validate_hc_input(
+      comb, "comb", mx::float32, static_cast<size_t>(kQueryRows) * 4 * 4);
+  auto &encoder = mx::metal::get_command_encoder(stream_);
+  encoder.barrier();
+  encoder.set_compute_pipeline_state(hc_expand_pipeline_);
+  encoder.set_input_array(output_, 0);
+  encoder.set_input_array(residual, 1);
+  encoder.set_input_array(post, 2);
+  encoder.set_input_array(comb, 3);
+  encoder.set_output_array(hc_output_, 4);
+  constexpr uint32_t elements = kQueryRows * 4 * kHiddenSize;
+  encoder.set_bytes(elements, 5);
+  encoder.dispatch_threads(MTL::Size(elements, 1, 1), MTL::Size(256, 1, 1));
+  if (buffer_identities() != initial_buffer_identities_) {
+    throw std::runtime_error("native prefill MoE HC buffer identity changed");
+  }
+  return hc_output_;
+}
+
 mx::array NativePrefillMoEPlan::finish(
     const mx::array &routed, const mx::array &shared) {
   auto &encoder = mx::metal::get_command_encoder(stream_);
@@ -115,13 +180,14 @@ mx::array NativePrefillMoEPlan::finish(
 
 uint64_t NativePrefillMoEPlan::scratch_bytes() const {
   return routed_plan_.scratch_bytes() + shared_plan_.scratch_bytes() +
-      output_.nbytes();
+      output_.nbytes() + hc_output_.nbytes();
 }
 std::vector<uint64_t> NativePrefillMoEPlan::buffer_identities() const {
   auto values = routed_plan_.buffer_identities();
   auto shared = shared_plan_.buffer_identities();
   values.insert(values.end(), shared.begin(), shared.end());
   values.push_back(identity(output_));
+  values.push_back(identity(hc_output_));
   return values;
 }
 } // namespace glm53::native_execution

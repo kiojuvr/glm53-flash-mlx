@@ -265,6 +265,14 @@ NB_MODULE(_ext, module) {
            "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
            "shared_up_weight"_a, "shared_up_scale_inv"_a,
            "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def("execute_indirect_hc", &NativePrefillMoEPlan::execute_indirect_hc,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a,
+           "residual"_a, "post"_a, "comb"_a)
       .def("execute_fused_down_reduce",
            &NativePrefillMoEPlan::execute_fused_down_reduce,
            "hidden"_a, "expert_ids"_a, "scores"_a,

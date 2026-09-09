@@ -49,6 +49,17 @@ public:
       const mx::array &shared_up_scale_inv,
       const mx::array &shared_down_weight,
       const mx::array &shared_down_scale_inv);
+  mx::array execute_indirect_hc(
+      const mx::array &hidden, const mx::array &expert_ids,
+      const mx::array &scores, const mx::array &gate_up_weight,
+      const mx::array &gate_up_scale_inv, const mx::array &down_weight,
+      const mx::array &down_scale_inv, const mx::array &shared_gate_weight,
+      const mx::array &shared_gate_scale_inv,
+      const mx::array &shared_up_weight,
+      const mx::array &shared_up_scale_inv,
+      const mx::array &shared_down_weight,
+      const mx::array &shared_down_scale_inv, const mx::array &residual,
+      const mx::array &post, const mx::array &comb);
 
   int query_rows() const { return 256; }
   int hidden_size() const { return 4096; }
@@ -71,11 +82,17 @@ private:
   NativePrefillMoEGateUpPlan routed_plan_;
   NativePrefillSharedExpertPlan shared_plan_;
   mx::array output_;
+  mx::array hc_output_;
   MTL::ComputePipelineState *add_pipeline_{nullptr};
+  MTL::ComputePipelineState *hc_expand_pipeline_{nullptr};
   std::vector<uint64_t> initial_buffer_identities_;
   uint64_t execution_count_{0};
 
   mx::array finish(const mx::array &routed, const mx::array &shared);
+  mx::array finish_hc(const mx::array &residual, const mx::array &post,
+                      const mx::array &comb);
+  void validate_hc_input(const mx::array &value, const char *name,
+                         mx::Dtype dtype, size_t elements) const;
 };
 
 } // namespace glm53::native_execution

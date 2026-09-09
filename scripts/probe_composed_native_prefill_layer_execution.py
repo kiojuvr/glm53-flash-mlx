@@ -87,13 +87,20 @@ def _direct(layer, head_major, residual, attn_post, attn_comb):
     return output
 
 
-def _native_moe(plan, moe, hidden, indices, scores, *, indirect=False):
+def _native_moe(
+    plan, moe, hidden, indices, scores, *, indirect=False, final_hc=None
+):
     shared = moe.shared_experts
     flat_indices = mx.contiguous(indices.reshape(-1))
     flat_scores = mx.contiguous(scores.reshape(-1))
     mx.eval(flat_indices, flat_scores)
-    method = plan.execute_indirect if indirect else plan.execute
-    output = method(
+    if final_hc is not None:
+        if not indirect:
+            raise ValueError("native final HC requires indirect native MoE")
+        method = plan.execute_indirect_hc
+    else:
+        method = plan.execute_indirect if indirect else plan.execute
+    arguments = [
         hidden,
         flat_indices,
         flat_scores,
@@ -107,7 +114,10 @@ def _native_moe(plan, moe, hidden, indices, scores, *, indirect=False):
         shared.up_proj.weight_scale_inv,
         shared.down_proj.weight,
         shared.down_proj.weight_scale_inv,
-    )
+    ]
+    if final_hc is not None:
+        arguments.extend(final_hc)
+    output = method(*arguments)
     mx.eval(output)
     mx.synchronize()
     return output
@@ -115,7 +125,7 @@ def _native_moe(plan, moe, hidden, indices, scores, *, indirect=False):
 
 def _candidate(
     dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
-    *, indirect_moe=False
+    *, indirect_moe=False, native_final_hc=False
 ):
     state = dsa_plan.execute_hc(
         head_major,
@@ -136,8 +146,13 @@ def _candidate(
         indices,
         scores,
         indirect=indirect_moe,
+        final_hc=(state, post, comb) if native_final_hc else None,
     )
-    output = hc_expand(moe[None], state, post, comb)
+    output = (
+        moe.reshape(1, 256, 4, 4096)
+        if native_final_hc
+        else hc_expand(moe[None], state, post, comb)
+    )
     mx.eval(output)
     mx.synchronize()
     return output
@@ -163,6 +178,7 @@ def main(argv=None) -> int:
     parser.add_argument("--layer", type=int, default=3)
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--indirect-moe", action="store_true")
+    parser.add_argument("--native-final-hc", action="store_true")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args(argv)
 
@@ -189,11 +205,13 @@ def main(argv=None) -> int:
     actual = _candidate(
         dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
         indirect_moe=args.indirect_moe,
+        native_final_hc=args.native_final_hc,
     )
     actual_bits = _bits(actual).copy()
     repeat = _candidate(
         dsa_plan, moe_plan, layer, head_major, residual, attn_post, attn_comb,
         indirect_moe=args.indirect_moe,
+        native_final_hc=args.native_final_hc,
     )
     repeat_bits = _bits(repeat).copy()
 
@@ -212,6 +230,7 @@ def main(argv=None) -> int:
             attn_post,
             attn_comb,
             indirect_moe=args.indirect_moe,
+            native_final_hc=args.native_final_hc,
         ),
         args.samples,
     )
@@ -266,7 +285,8 @@ def main(argv=None) -> int:
             "mlx_ffn_entry_glue": True,
             "native_exact_materialized_moe": True,
             "device_sized_indirect_moe_dispatch": args.indirect_moe,
-            "mlx_final_hc_expand": True,
+            "native_final_hc_expand": args.native_final_hc,
+            "mlx_final_hc_expand": not args.native_final_hc,
             "single_native_scope": False,
         },
         "probe_only": True,
