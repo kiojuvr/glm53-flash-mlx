@@ -22,7 +22,8 @@ class NativeSharedPhysicalValueTilePlan {
 public:
   explicit NativeSharedPhysicalValueTilePlan(int physical_k,
                                              int tile_rows = 0,
-                                             int query_rows = 64);
+                                             int query_rows = 64,
+                                             int value_dim = 128);
 
   mx::array execute(const mx::array &selected_probabilities,
                     const mx::array &selected_indices,
@@ -34,6 +35,7 @@ public:
   int tile_rows() const { return tile_rows_; }
   int tile_count() const { return tile_count_; }
   int query_rows() const { return query_rows_; }
+  int value_dim() const { return value_dim_; }
   int query_blocks() const { return query_rows_ / kQueryBlockRows; }
   int selected_width() const { return kSelectedWidth; }
   uint64_t execution_count() const { return execution_count_; }
@@ -54,7 +56,6 @@ private:
   static constexpr int kQueryBlockRows = 64;
   static constexpr int kHeads = 64;
   static constexpr int kLatentDim = 512;
-  static constexpr int kValueDim = 128;
   static constexpr int kSelectedWidth = 2051;
   static constexpr int kBK = 16;
 
@@ -62,6 +63,7 @@ private:
   int tile_rows_;
   int tile_count_;
   int query_rows_;
+  int value_dim_;
   mx::Stream stream_;
   mx::array physical_probabilities_;
   mx::array projected_values_;

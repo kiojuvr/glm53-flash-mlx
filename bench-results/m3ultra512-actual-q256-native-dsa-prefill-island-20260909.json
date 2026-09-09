@@ -1,0 +1,54 @@
+{
+  "accepted": true,
+  "candidate_timing": {
+    "median_wall_ms": 112.721042,
+    "samples_ms": [
+      112.906292,
+      112.585291,
+      112.721042
+    ]
+  },
+  "checks": {
+    "actual_qk_precise_softmax_is_byte_exact": true,
+    "actual_v256_attention_output_is_byte_exact": true,
+    "composition_does_not_regress_more_than_2_percent": true,
+    "fixed_owned_buffers": true,
+    "repeat_is_byte_exact": true,
+    "single_native_scope_returns_only_actual_attention_output": true
+  },
+  "complete": true,
+  "composition_speedup": 0.9948508549095918,
+  "coverage": {
+    "bm64_av": true,
+    "key_projection": true,
+    "output_projection": false,
+    "physical_value_projection_v256": true,
+    "post_attention_hc": false,
+    "precise_softmax": true,
+    "qk_scores": true,
+    "query_scale": true,
+    "selected_union": true
+  },
+  "date": "2026-09-09",
+  "decision": "close_dsa_body_and_advance_45_layer_native_prefill_plan",
+  "geometry": {
+    "heads": 64,
+    "physical_k": 16384,
+    "qk_latent_dim": 512,
+    "query_rows": 256,
+    "tile_rows": 8192,
+    "value_dim": 256
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 112.140625,
+    "samples_ms": [
+      112.381416,
+      112.140625,
+      111.907917
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-actual-q256-native-dsa-prefill-island-v1",
+  "scratch_bytes": 1059395086
+}

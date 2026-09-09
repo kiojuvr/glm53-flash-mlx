@@ -5,9 +5,9 @@
 namespace glm53::native_execution {
 
 NativeQ256DSAPrefillPlan::NativeQ256DSAPrefillPlan(
-    int physical_k, int tile_rows)
+    int physical_k, int tile_rows, int value_dim)
     : qk_plan_(physical_k, 256, tile_rows, true, false),
-      value_plan_(physical_k, tile_rows, 256) {
+      value_plan_(physical_k, tile_rows, 256, value_dim) {
   initial_buffer_identities_ = buffer_identities();
 }
 

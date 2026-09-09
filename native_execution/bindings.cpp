@@ -9,6 +9,8 @@
 #include "native_packed_moe_plan.h"
 #include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
+#include "native_prefill_45_layer_submission_plan.h"
+#include "native_prefill_kda_recurrent_plan.h"
 #include "native_prefill_moe_route_plan.h"
 #include "native_prefill_moe_gate_up_plan.h"
 #include "native_prefill_shared_expert_plan.h"
@@ -42,6 +44,8 @@ using glm53::native_execution::NativeSharedPhysicalValueTilePlan;
 using glm53::native_execution::NativeQ256DSAPrefillPlan;
 using glm53::native_execution::NativePrefillDSAOutputPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
+using glm53::native_execution::NativePrefill45LayerSubmissionPlan;
+using glm53::native_execution::NativePrefillKDARecurrentPlan;
 using glm53::native_execution::NativePrefillMoERoutePlan;
 using glm53::native_execution::NativePrefillMoEGateUpPlan;
 using glm53::native_execution::NativePrefillSharedExpertPlan;
@@ -50,6 +54,54 @@ using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
+  nb::class_<NativePrefill45LayerSubmissionPlan>(
+      module, "NativePrefill45LayerSubmissionPlan")
+      .def(nb::init<>())
+      .def("execute_layer", &NativePrefill45LayerSubmissionPlan::execute_layer,
+           "hidden"_a, "layer_index"_a)
+      .def("execute_all", &NativePrefill45LayerSubmissionPlan::execute_all,
+           "hidden"_a)
+      .def_prop_ro("layer_count", &NativePrefill45LayerSubmissionPlan::layer_count)
+      .def_prop_ro("query_rows", &NativePrefill45LayerSubmissionPlan::query_rows)
+      .def_prop_ro("hidden_size", &NativePrefill45LayerSubmissionPlan::hidden_size)
+      .def_prop_ro("kda_layer_count", &NativePrefill45LayerSubmissionPlan::kda_layer_count)
+      .def_prop_ro("dsa_layer_count", &NativePrefill45LayerSubmissionPlan::dsa_layer_count)
+      .def_prop_ro("dense_ffn_layer_count", &NativePrefill45LayerSubmissionPlan::dense_ffn_layer_count)
+      .def_prop_ro("moe_layer_count", &NativePrefill45LayerSubmissionPlan::moe_layer_count)
+      .def_prop_ro("all_execution_count", &NativePrefill45LayerSubmissionPlan::all_execution_count)
+      .def_prop_ro("layer_execution_count", &NativePrefill45LayerSubmissionPlan::layer_execution_count)
+      .def_prop_ro("dynamic_allocation_count", &NativePrefill45LayerSubmissionPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count", &NativePrefill45LayerSubmissionPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count", &NativePrefill45LayerSubmissionPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count", &NativePrefill45LayerSubmissionPlan::host_synchronization_count)
+      .def_prop_ro("native_calls_per_all_execute", &NativePrefill45LayerSubmissionPlan::native_calls_per_all_execute)
+      .def_prop_ro("native_calls_per_layerwise_execute", &NativePrefill45LayerSubmissionPlan::native_calls_per_layerwise_execute)
+      .def_prop_ro("returned_intermediate_tensor_bytes", &NativePrefill45LayerSubmissionPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("arena_bytes", &NativePrefill45LayerSubmissionPlan::arena_bytes)
+      .def_prop_ro("buffer_identities_stable", &NativePrefill45LayerSubmissionPlan::buffer_identities_stable)
+      .def_prop_ro("buffer_identities", &NativePrefill45LayerSubmissionPlan::buffer_identities)
+      .def_prop_ro("attention_types", &NativePrefill45LayerSubmissionPlan::attention_types)
+      .def_prop_ro("ffn_types", &NativePrefill45LayerSubmissionPlan::ffn_types);
+  nb::class_<NativePrefillKDARecurrentPlan>(
+      module, "NativePrefillKDARecurrentPlan")
+      .def(nb::init<>())
+      .def("execute", &NativePrefillKDARecurrentPlan::execute,
+           "q"_a, "k"_a, "v"_a, "g"_a, "beta"_a, "state"_a,
+           "mask"_a, "has_mask"_a)
+      .def_prop_ro("query_rows", &NativePrefillKDARecurrentPlan::query_rows)
+      .def_prop_ro("heads", &NativePrefillKDARecurrentPlan::heads)
+      .def_prop_ro("key_dim", &NativePrefillKDARecurrentPlan::key_dim)
+      .def_prop_ro("value_dim", &NativePrefillKDARecurrentPlan::value_dim)
+      .def_prop_ro("row_block", &NativePrefillKDARecurrentPlan::row_block)
+      .def_prop_ro("execution_count", &NativePrefillKDARecurrentPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count", &NativePrefillKDARecurrentPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count", &NativePrefillKDARecurrentPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count", &NativePrefillKDARecurrentPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count", &NativePrefillKDARecurrentPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes", &NativePrefillKDARecurrentPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("arena_bytes", &NativePrefillKDARecurrentPlan::arena_bytes)
+      .def_prop_ro("buffer_identities_stable", &NativePrefillKDARecurrentPlan::buffer_identities_stable)
+      .def_prop_ro("buffer_identities", &NativePrefillKDARecurrentPlan::buffer_identities);
   nb::class_<NativePrefillDSAOutputPlan>(module,
                                          "NativePrefillDSAOutputPlan")
       .def(nb::init<>())
@@ -849,8 +901,8 @@ NB_MODULE(_ext, module) {
 
   nb::class_<NativeSharedPhysicalValueTilePlan>(
       module, "NativeSharedPhysicalValueTilePlan")
-      .def(nb::init<int, int, int>(), "physical_k"_a, "tile_rows"_a = 0,
-           "query_rows"_a = 64)
+      .def(nb::init<int, int, int, int>(), "physical_k"_a, "tile_rows"_a = 0,
+           "query_rows"_a = 64, "value_dim"_a = 128)
       .def("execute", &NativeSharedPhysicalValueTilePlan::execute,
            "selected_probabilities"_a, "selected_indices"_a,
            "selected_valid"_a, "latent"_a, "value_weight"_a)
@@ -862,6 +914,8 @@ NB_MODULE(_ext, module) {
                    &NativeSharedPhysicalValueTilePlan::tile_count)
       .def_prop_ro("query_rows",
                    &NativeSharedPhysicalValueTilePlan::query_rows)
+      .def_prop_ro("value_dim",
+                   &NativeSharedPhysicalValueTilePlan::value_dim)
       .def_prop_ro("query_blocks",
                    &NativeSharedPhysicalValueTilePlan::query_blocks)
       .def_prop_ro("selected_width",
@@ -890,7 +944,8 @@ NB_MODULE(_ext, module) {
                    &NativeSharedPhysicalValueTilePlan::debug_projected_values);
 
   nb::class_<NativeQ256DSAPrefillPlan>(module, "NativeQ256DSAPrefillPlan")
-      .def(nb::init<int, int>(), "physical_k"_a, "tile_rows"_a = 65536)
+      .def(nb::init<int, int, int>(), "physical_k"_a,
+           "tile_rows"_a = 65536, "value_dim"_a = 128)
       .def("execute", &NativeQ256DSAPrefillPlan::execute,
            "selected_indices"_a, "selected_valid"_a, "latent"_a,
            "key_weight"_a, "value_weight"_a, "attention_query"_a,
@@ -899,6 +954,7 @@ NB_MODULE(_ext, module) {
       .def_prop_ro("tile_rows", &NativeQ256DSAPrefillPlan::tile_rows)
       .def_prop_ro("tile_count", &NativeQ256DSAPrefillPlan::tile_count)
       .def_prop_ro("query_rows", &NativeQ256DSAPrefillPlan::query_rows)
+      .def_prop_ro("value_dim", &NativeQ256DSAPrefillPlan::value_dim)
       .def_prop_ro("execution_count", &NativeQ256DSAPrefillPlan::execution_count)
       .def_prop_ro("dynamic_allocation_count",
                    &NativeQ256DSAPrefillPlan::dynamic_allocation_count)

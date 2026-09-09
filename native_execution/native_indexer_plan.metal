@@ -909,6 +909,98 @@ instantiate_kernel(
   if (gid < elements) output[gid] = bfloat16_t(0.0f);
 }
 
+// Exact fixed-geometry Q256 GLM-5.3 KDA recurrence. This is the accepted R=4
+// row-blocked ordering from the all-34-layer MLX probe, moved into the native
+// metallib so a model-wide executor can encode it without constructing an MLX
+// graph or returning the recurrent output between layers.
+[[kernel]] void glm53_native_prefill_kda_recurrent_r4_bfloat16(
+    device const bfloat16_t* q [[buffer(0)]],
+    device const bfloat16_t* k [[buffer(1)]],
+    device const bfloat16_t* v [[buffer(2)]],
+    device const float* g [[buffer(3)]],
+    device const bfloat16_t* beta [[buffer(4)]],
+    device const float* state_in [[buffer(5)]],
+    device const bool* mask [[buffer(6)]],
+    device bfloat16_t* y [[buffer(7)]],
+    device float* state_out [[buffer(8)]],
+    constant const bool& has_mask [[buffer(9)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint3 grid [[thread_position_in_grid]],
+    uint3 group [[threadgroup_position_in_grid]]) {
+  constexpr uint T = 256;
+  constexpr uint H = 64;
+  constexpr uint D = 128;
+  constexpr uint ROW_BLOCK = 4;
+  constexpr uint N_PER_THREAD = D / 32;
+  uint head = grid.z;
+  uint dv_base = group.y * ROW_BLOCK;
+
+  const device bfloat16_t* q_ptr = q + head * D;
+  const device bfloat16_t* k_ptr = k + head * D;
+  const device bfloat16_t* v_ptr = v + head * D;
+  device bfloat16_t* y_ptr = y + head * D;
+  const device float* g_ptr = g + head * D;
+  const device bfloat16_t* beta_ptr = beta + head;
+
+  thread float local_state[ROW_BLOCK][N_PER_THREAD];
+  for (uint row = 0; row < ROW_BLOCK; ++row) {
+    uint dv = dv_base + row;
+    const device float* source = state_in + (head * D + dv) * D;
+    for (uint i = 0; i < N_PER_THREAD; ++i) {
+      local_state[row][i] = source[N_PER_THREAD * lane + i];
+    }
+  }
+
+  for (uint token = 0; token < T; ++token) {
+    if (!has_mask || mask[token]) {
+      thread float memory[ROW_BLOCK] = {0.0f, 0.0f, 0.0f, 0.0f};
+      for (uint i = 0; i < N_PER_THREAD; ++i) {
+        uint feature = N_PER_THREAD * lane + i;
+        float decay = g_ptr[feature];
+        float key = float(k_ptr[feature]);
+        for (uint row = 0; row < ROW_BLOCK; ++row) {
+          local_state[row][i] *= decay;
+          memory[row] += local_state[row][i] * key;
+        }
+      }
+      for (uint row = 0; row < ROW_BLOCK; ++row) {
+        memory[row] = simd_sum(memory[row]);
+      }
+      for (uint row = 0; row < ROW_BLOCK; ++row) {
+        uint dv = dv_base + row;
+        float delta =
+            (float(v_ptr[dv]) - memory[row]) * float(beta_ptr[0]);
+        float result = 0.0f;
+        for (uint i = 0; i < N_PER_THREAD; ++i) {
+          uint feature = N_PER_THREAD * lane + i;
+          local_state[row][i] += float(k_ptr[feature]) * delta;
+          result += local_state[row][i] * float(q_ptr[feature]);
+        }
+        result = simd_sum(result);
+        if (lane == 0) y_ptr[dv] = bfloat16_t(result);
+      }
+    } else if (lane == 0) {
+      for (uint row = 0; row < ROW_BLOCK; ++row) {
+        y_ptr[dv_base + row] = bfloat16_t(0.0f);
+      }
+    }
+    q_ptr += H * D;
+    k_ptr += H * D;
+    v_ptr += H * D;
+    y_ptr += H * D;
+    g_ptr += H * D;
+    beta_ptr += H;
+  }
+
+  for (uint row = 0; row < ROW_BLOCK; ++row) {
+    uint dv = dv_base + row;
+    device float* destination = state_out + (head * D + dv) * D;
+    for (uint i = 0; i < N_PER_THREAD; ++i) {
+      destination[N_PER_THREAD * lane + i] = local_state[row][i];
+    }
+  }
+}
+
 [[kernel]] void
 glm53_native_scatter_bm64_probabilities_to_physical_bfloat16(
     device const bfloat16_t* selected_probabilities [[buffer(0)]],
@@ -955,6 +1047,7 @@ glm53_native_bm64_physical_value_tile_continue_bfloat16(
     constant const bool& final_tile [[buffer(6)]],
     constant const int& query_offset [[buffer(7)]],
     constant const int& query_rows [[buffer(8)]],
+    constant const int& value_dim [[buffer(9)]],
     uint lane [[thread_index_in_simdgroup]],
     uint simd_id [[simdgroup_index_in_threadgroup]],
     uint3 group [[threadgroup_position_in_grid]]) {
@@ -977,20 +1070,20 @@ glm53_native_bm64_physical_value_tile_continue_bfloat16(
   const device bfloat16_t* A = physical_probabilities +
       size_t(head) * kBM * uint(tile_rows);
   const device bfloat16_t* B = projected_values +
-      size_t(head) * uint(tile_rows) * 128u + output_column;
+      size_t(head) * uint(tile_rows) * uint(value_dim) + output_column;
   device float* C = accumulator +
-      (size_t(head) * uint(query_rows) + uint(query_offset)) * 128u +
+      (size_t(head) * uint(query_rows) + uint(query_offset)) * uint(value_dim) +
       output_column;
   device bfloat16_t* D = output +
-      (size_t(head) * uint(query_rows) + uint(query_offset)) * 128u +
+      (size_t(head) * uint(query_rows) + uint(query_offset)) * uint(value_dim) +
       output_column;
 
   thread loader_a_t loader_a(A, tile_rows, As, simd_id, lane);
-  thread loader_b_t loader_b(B, 128, Bs, simd_id, lane);
+  thread loader_b_t loader_b(B, value_dim, Bs, simd_id, lane);
   thread mma_t mma_op(simd_id, lane);
   if (!first_tile) {
-    const device float* source = C + mma_op.sm * 128 + mma_op.sn;
-    mma_op.Ctile.template load<float, kWM, kWN>(source, 128);
+    const device float* source = C + mma_op.sm * value_dim + mma_op.sn;
+    mma_op.Ctile.template load<float, kWM, kWN>(source, value_dim);
   }
 
   for (int block = 0; block < tile_rows / kBK; ++block) {
@@ -1005,10 +1098,10 @@ glm53_native_bm64_physical_value_tile_continue_bfloat16(
 
   threadgroup_barrier(mem_flags::mem_none);
   if (final_tile) {
-    mma_op.store_result(D, 128);
+    mma_op.store_result(D, value_dim);
   } else {
-    device float* destination = C + mma_op.sm * 128 + mma_op.sn;
-    mma_op.Ctile.template store<float, kWM, kWN>(destination, 128);
+    device float* destination = C + mma_op.sm * value_dim + mma_op.sn;
+    mma_op.Ctile.template store<float, kWM, kWN>(destination, value_dim);
   }
 }
 

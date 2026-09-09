@@ -34,7 +34,7 @@ def test_native_plan_has_direct_bm64_and_shared_physical_contract():
     assert "glm53_native_scatter_bm64_probabilities_to_physical_bfloat16" in metal
     assert "materialized_query_local_selected_value_bytes() const { return 0; }" in header
     assert "{kHeads, kQueryBlockRows, tile_rows_}" in source
-    assert "{kHeads, tile_rows_, kValueDim}" in source
+    assert "{kHeads, tile_rows_, value_dim_}" in source
 
 
 def test_probe_contract_and_artifact():

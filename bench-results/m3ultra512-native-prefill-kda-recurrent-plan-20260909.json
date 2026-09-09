@@ -1,0 +1,100 @@
+{
+  "accepted": true,
+  "arena_bytes": 8388608,
+  "candidate_timing": {
+    "median_wall_ms": 0.557709,
+    "samples_ms": [
+      0.555125,
+      0.548875,
+      0.559291,
+      0.555708,
+      0.625291,
+      0.587041,
+      0.557709
+    ]
+  },
+  "checks": {
+    "fixed_owned_native_arena": true,
+    "fixed_q256_h64_d128_r4_geometry": true,
+    "operator_speedup_at_least_1_15x": true,
+    "zero_nonzero_and_mask_fixtures_byte_exact": true
+  },
+  "complete": true,
+  "coverage": {
+    "conv": false,
+    "exact_recurrence": true,
+    "gate_preparation": false,
+    "gated_norm": false,
+    "output_projection": false,
+    "post_attention_hc": false,
+    "qkv_projection": false
+  },
+  "date": "2026-09-09",
+  "decision": "advance_native_kda_recurrence_into_complete_kda_layer_plan",
+  "fixtures": [
+    {
+      "initial": "zero",
+      "mask": "none",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    },
+    {
+      "initial": "zero",
+      "mask": "tail",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    },
+    {
+      "initial": "zero",
+      "mask": "internal_gap",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    },
+    {
+      "initial": "nonzero",
+      "mask": "none",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    },
+    {
+      "initial": "nonzero",
+      "mask": "tail",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    },
+    {
+      "initial": "nonzero",
+      "mask": "internal_gap",
+      "output_byte_exact": true,
+      "repeat_output_byte_exact": true,
+      "repeat_state_byte_exact": true,
+      "state_byte_exact": true
+    }
+  ],
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 0.776542,
+    "samples_ms": [
+      0.663458,
+      0.760333,
+      0.79075,
+      0.718334,
+      0.840833,
+      0.789959,
+      0.776542
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-kda-recurrent-plan-v1",
+  "speedup": 1.3923784626032571
+}

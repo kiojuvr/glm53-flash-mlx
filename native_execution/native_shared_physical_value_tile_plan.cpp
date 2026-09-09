@@ -73,22 +73,31 @@ int checked_query_rows(int query_rows) {
   return query_rows;
 }
 
+int checked_value_dim(int value_dim) {
+  if (value_dim != 128 && value_dim != 256) {
+    throw std::invalid_argument(
+        "shared physical value pass value dimension must be 128 or 256");
+  }
+  return value_dim;
+}
+
 } // namespace
 
 NativeSharedPhysicalValueTilePlan::NativeSharedPhysicalValueTilePlan(
-    int physical_k, int tile_rows, int query_rows)
+    int physical_k, int tile_rows, int query_rows, int value_dim)
     : physical_k_(checked_physical_k(physical_k)),
       tile_rows_(checked_tile_rows(physical_k_, tile_rows)),
       tile_count_(physical_k_ / tile_rows_),
       query_rows_(checked_query_rows(query_rows)),
+      value_dim_(checked_value_dim(value_dim)),
       stream_(mx::default_stream(mx::Device(mx::Device::gpu))),
       physical_probabilities_(owned_array(
           {kHeads, kQueryBlockRows, tile_rows_}, mx::bfloat16)),
       projected_values_(owned_array(
-          {kHeads, tile_rows_, kValueDim}, mx::bfloat16)),
-      output_(owned_array({kHeads, query_rows_, kValueDim}, mx::bfloat16)),
+          {kHeads, tile_rows_, value_dim_}, mx::bfloat16)),
+      output_(owned_array({kHeads, query_rows_, value_dim_}, mx::bfloat16)),
       fp32_accumulator_(owned_array(
-          {kHeads, query_rows_, kValueDim}, mx::float32)) {
+          {kHeads, query_rows_, value_dim_}, mx::float32)) {
   auto &device = mx::metal::device(stream_.device);
   if (device.get_architecture().back() != 'd' ||
       device.get_architecture_gen() >= 17) {
@@ -165,21 +174,21 @@ mx::array NativeSharedPhysicalValueTilePlan::execute(
       static_cast<size_t>(physical_k_) * kLatentDim);
   validate_input(
       value_weight, "value_weight", mx::bfloat16,
-      static_cast<size_t>(kHeads) * kValueDim * kLatentDim);
+      static_cast<size_t>(kHeads) * value_dim_ * kLatentDim);
 
   constexpr int bm = 64;
   constexpr int bn = 64;
   constexpr int bk = 16;
   constexpr int projection_wn = 2;
   const int projection_tiles_m = tile_rows_ / bm;
-  constexpr int projection_tiles_n = kValueDim / bn;
+  const int projection_tiles_n = value_dim_ / bn;
   mlx::steel::GEMMParams projection_params{
-      tile_rows_, kValueDim, kLatentDim,
-      kLatentDim, kLatentDim, kValueDim,
+      tile_rows_, value_dim_, kLatentDim,
+      kLatentDim, kLatentDim, value_dim_,
       projection_tiles_n, projection_tiles_m,
       0,
-      static_cast<int64_t>(kValueDim) * kLatentDim,
-      static_cast<int64_t>(tile_rows_) * kValueDim,
+      static_cast<int64_t>(value_dim_) * kLatentDim,
+      static_cast<int64_t>(tile_rows_) * value_dim_,
       0, kLatentDim / bk, 1};
 
   const uint32_t probability_elements = static_cast<uint32_t>(
@@ -236,8 +245,9 @@ mx::array NativeSharedPhysicalValueTilePlan::execute(
       encoder.set_bytes(final_tile, 6);
       encoder.set_bytes(query_offset, 7);
       encoder.set_bytes(query_rows_, 8);
+      encoder.set_bytes(value_dim_, 9);
       encoder.dispatch_threadgroups(
-          MTL::Size(kValueDim / bn, 1, kHeads), MTL::Size(32, 2, 2));
+          MTL::Size(value_dim_ / bn, 1, kHeads), MTL::Size(32, 2, 2));
       encoder.barrier();
     }
   }

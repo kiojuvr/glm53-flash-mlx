@@ -17,7 +17,8 @@ namespace mx = mlx::core;
 // native command topology. Only the final attention output is returned.
 class NativeQ256DSAPrefillPlan {
 public:
-  explicit NativeQ256DSAPrefillPlan(int physical_k, int tile_rows = 65536);
+  explicit NativeQ256DSAPrefillPlan(int physical_k, int tile_rows = 65536,
+                                    int value_dim = 128);
 
   mx::array execute(const mx::array &selected_indices,
                     const mx::array &selected_valid,
@@ -31,6 +32,7 @@ public:
   int tile_rows() const { return qk_plan_.tile_rows(); }
   int tile_count() const { return qk_plan_.tile_count(); }
   int query_rows() const { return 256; }
+  int value_dim() const { return value_plan_.value_dim(); }
   uint64_t execution_count() const { return execution_count_; }
   uint64_t dynamic_allocation_count() const { return 0; }
   uint64_t graph_node_count() const { return 0; }
