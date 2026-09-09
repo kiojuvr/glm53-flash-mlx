@@ -1,0 +1,43 @@
+{
+  "accepted": true,
+  "checks": {
+    "head_to_row_layout_is_byte_exact": true,
+    "official_dsa_geometry_is_64x256x256_to_4096": true,
+    "official_fp8_o_projection_is_byte_exact": true,
+    "output_projection_speedup_at_least_1_20x": true,
+    "repeat_is_byte_exact": true,
+    "single_fixed_native_execution_scope": true
+  },
+  "complete": true,
+  "date": "2026-09-09",
+  "decision": "advance_dsa_output_into_native_hc_norm_router_seam",
+  "geometry": {
+    "heads": 64,
+    "hidden_size": 4096,
+    "projection_input": 16384,
+    "query_rows": 256,
+    "value_dim": 256
+  },
+  "layer": 3,
+  "native_timing": {
+    "median_wall_ms": 25.314917,
+    "samples_ms": [
+      25.355833,
+      25.31375,
+      25.314917
+    ]
+  },
+  "probe_only": true,
+  "reference_timing": {
+    "median_wall_ms": 31.744584,
+    "samples_ms": [
+      31.573,
+      31.829917,
+      31.744584
+    ]
+  },
+  "runtime_changes": false,
+  "schema": "glm53-native-prefill-dsa-output-projection-v1",
+  "scratch_bytes": 10485760,
+  "speedup": 1.253987283466108
+}

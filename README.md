@@ -1740,6 +1740,18 @@ remains the numerical/structural oracle, while subsequent work moves to the
 actual DSA output-projection, HC, norm, and router seams of a complete native
 layer plan.
 
+The first real complete-layer seam now passes at the official checkpoint
+geometry. `NativePrefillDSAOutputPlan` consumes the actual head-major
+`[64,256,256]` sparse-attention result, writes its `[256,16384]` row-major
+form into a fixed arena, and immediately applies the layer-3 block-128 E4M3
+`o_proj [4096,16384]`. Both the layout boundary and final BF16 hidden output
+are byte exact against the runtime operator. Median wall falls from 31.745 to
+25.315 ms (1.254x), fixed scratch is 10 MiB, buffer identities remain stable,
+and execute-time allocation, graph construction, shape discovery, host
+synchronization, and intermediate return are zero. This is the first native
+prefill layer component qualified on the model's unreduced DSA output shape;
+the next seam is post-attention HyperConnection followed by FFN norm/router.
+
 ## Provenance
 
 GLM-5.3 numerical fixesとstreaming converterはApache-2.0の[PipeNetwork/glm53-flash-mlx](https://github.com/PipeNetwork/glm53-flash-mlx) revision `b6665e8126c3b937031493e0580ef1e1c24f06cf`を基にしています。Server/APIとMetal primitiveはMITの`mlx-vlm` revision `e82d557d9f4b804cb1fc3eaaebc25488ba778a98`およびApple MLXを使用します。

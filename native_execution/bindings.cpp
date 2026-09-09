@@ -21,6 +21,7 @@
 #include "native_projected_qk_union_tile_loop_plan.h"
 #include "native_shared_physical_value_tile_plan.h"
 #include "native_q256_dsa_prefill_plan.h"
+#include "native_prefill_dsa_output_plan.h"
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -39,6 +40,7 @@ using glm53::native_execution::NativeProjectedQKUnionTilePlan;
 using glm53::native_execution::NativeProjectedQKUnionTileLoopPlan;
 using glm53::native_execution::NativeSharedPhysicalValueTilePlan;
 using glm53::native_execution::NativeQ256DSAPrefillPlan;
+using glm53::native_execution::NativePrefillDSAOutputPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativePrefillMoERoutePlan;
 using glm53::native_execution::NativePrefillMoEGateUpPlan;
@@ -48,6 +50,31 @@ using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
+  nb::class_<NativePrefillDSAOutputPlan>(module,
+                                         "NativePrefillDSAOutputPlan")
+      .def(nb::init<>())
+      .def("execute", &NativePrefillDSAOutputPlan::execute,
+           "head_major"_a, "weight"_a, "scale_inv"_a)
+      .def_prop_ro("query_rows", &NativePrefillDSAOutputPlan::query_rows)
+      .def_prop_ro("heads", &NativePrefillDSAOutputPlan::heads)
+      .def_prop_ro("value_dim", &NativePrefillDSAOutputPlan::value_dim)
+      .def_prop_ro("hidden_size", &NativePrefillDSAOutputPlan::hidden_size)
+      .def_prop_ro("execution_count", &NativePrefillDSAOutputPlan::execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillDSAOutputPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillDSAOutputPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillDSAOutputPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillDSAOutputPlan::host_synchronization_count)
+      .def_prop_ro("returned_intermediate_tensor_bytes",
+                   &NativePrefillDSAOutputPlan::returned_intermediate_tensor_bytes)
+      .def_prop_ro("scratch_bytes", &NativePrefillDSAOutputPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillDSAOutputPlan::buffer_identities)
+      .def_prop_ro("debug_row_major",
+                   &NativePrefillDSAOutputPlan::debug_row_major);
   nb::class_<NativePrefillLayerSubstrate>(module,
                                           "NativePrefillLayerSubstrate")
       .def(nb::init<>())

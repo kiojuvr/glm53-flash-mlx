@@ -2187,6 +2187,76 @@ glm53_native_virtual_bk16_av_bfloat16(
   }
 }
 
+[[kernel]] void glm53_native_prefill_dsa_head_to_row_bfloat16(
+    device const bfloat16_t* head_major [[buffer(0)]],
+    device bfloat16_t* row_major [[buffer(1)]],
+    constant const uint& elements [[buffer(2)]],
+    uint position [[thread_position_in_grid]]) {
+  constexpr uint kRows = 256u;
+  constexpr uint kHeads = 64u;
+  constexpr uint kValueDim = 256u;
+  if (position >= elements) return;
+  uint dimension = position % kValueDim;
+  uint coordinate = position / kValueDim;
+  uint row = coordinate % kRows;
+  uint head = coordinate / kRows;
+  row_major[(size_t(row) * kHeads + head) * kValueDim + dimension] =
+      head_major[position];
+}
+
+// Exact AOT form of glm53_block128_e4m3_tiled8_gemm for the official sparse
+// attention o_proj [4096,16384]. Keeping the identical reduction tree makes
+// this a durable numerical seam rather than a new projection algorithm.
+[[kernel]] void glm53_native_prefill_dsa_o_proj_e4m3(
+    device const bfloat16_t* input [[buffer(0)]],
+    device const uint8_t* weight [[buffer(1)]],
+    device const float* scale_inv [[buffer(2)]],
+    device bfloat16_t* output [[buffer(3)]],
+    uint tid [[thread_position_in_threadgroup]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simd_id [[simdgroup_index_in_threadgroup]],
+    uint group_id [[threadgroup_position_in_grid]]) {
+  constexpr uint kRows = 256u;
+  constexpr uint kTileRows = 8u;
+  constexpr uint kInput = 16384u;
+  constexpr uint kOutput = 4096u;
+  constexpr uint kScaleCols = 128u;
+  constexpr uint kNSimd = 8u;
+  uint out_row = group_id % kOutput;
+  uint tile = group_id / kOutput;
+  uint first_row = tile * kTileRows;
+  if (first_row >= kRows) return;
+  thread float acc[kTileRows];
+  for (uint row = 0; row < kTileRows; ++row) acc[row] = 0.0f;
+  const device uint8_t* wr = weight + size_t(out_row) * kInput;
+  uint scale_row = out_row / 128u;
+  for (uint k = tid; k < kInput; k += 256u) {
+    float decoded = glm53_native_e4m3(wr[k]) *
+        scale_inv[scale_row * kScaleCols + k / 128u];
+    for (uint row = 0; row < kTileRows; ++row) {
+      acc[row] += float(input[size_t(first_row + row) * kInput + k]) * decoded;
+    }
+  }
+  for (uint row = 0; row < kTileRows; ++row) acc[row] = simd_sum(acc[row]);
+  threadgroup float partial[kTileRows][kNSimd];
+  if (lane == 0) {
+    for (uint row = 0; row < kTileRows; ++row) {
+      partial[row][simd_id] = acc[row];
+    }
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (simd_id == 0) {
+    for (uint row = 0; row < kTileRows; ++row) {
+      float total = lane < kNSimd ? partial[row][lane] : 0.0f;
+      total = simd_sum(total);
+      if (lane == 0) {
+        output[size_t(first_row + row) * kOutput + out_row] =
+            bfloat16_t(total);
+      }
+    }
+  }
+}
+
 [[kernel]] void glm53_native_prefill_shared_bm8_gate_up_swiglu(
     device const bfloat16_t* hidden [[buffer(0)]],
     device const uint8_t* gate_weight [[buffer(1)]],
