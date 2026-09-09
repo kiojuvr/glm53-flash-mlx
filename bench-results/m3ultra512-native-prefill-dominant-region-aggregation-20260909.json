@@ -1,0 +1,71 @@
+{
+  "accepted": false,
+  "checks": {
+    "dominant_regions_are_at_least_95_percent_of_diagnostic_wall": true,
+    "fixed_owned_arena_without_graph_allocation_or_sync": true,
+    "host_submission_speedup_at_least_1_20x": false,
+    "identical_11_dsa_42_moe_terminal_anchors_are_byte_exact": true,
+    "python_native_boundaries_reduce_from_53_to_1": true,
+    "same_arithmetic_wall_speedup_at_least_1_02x": false
+  },
+  "complete": true,
+  "composed_timing": {
+    "host_samples_ms": [
+      12.410583,
+      12.905333
+    ],
+    "median_host_submission_ms": 12.657958,
+    "median_synchronized_wall_ms": 16582.2490625,
+    "wall_samples_ms": [
+      16583.539542,
+      16580.958583
+    ]
+  },
+  "date": "2026-09-09",
+  "decision": "aggregation_only_is_insufficient_build_dependency_connected_plan",
+  "diagnostic_wall_share": 0.9523578869793784,
+  "evidence": {
+    "m3ultra512-composed-q256-native-dsa-prefill-320k-20260909.json": {
+      "sha256": "255ac97798ee47c5d11abfbf7b029d3310807bd9dca7050439242aabd42967c2"
+    },
+    "m3ultra512-native-final-hc-prefill-layer-execution-20260909.json": {
+      "sha256": "1dc302a4980fc0e24ea9cc1883defc78912c63c7bded553d0e1da8e3a64851d0"
+    },
+    "m3ultra512-native-prefill-critical-path-20260908.json": {
+      "sha256": "2a49707330d927d6cec7cef2ede05035518ab027ece2eeb1393633b8187e979a"
+    }
+  },
+  "geometry": {
+    "composed_native_calls": 1,
+    "dsa_layers": 11,
+    "layerwise_native_calls": 53,
+    "moe_layers": 42,
+    "physical_k": 327680,
+    "query_rows": 256
+  },
+  "host_submission_speedup": 0.9596745778426503,
+  "layerwise_timing": {
+    "host_samples_ms": [
+      12.055916,
+      12.239125
+    ],
+    "median_host_submission_ms": 12.147520499999999,
+    "median_synchronized_wall_ms": 16583.3756045,
+    "wall_samples_ms": [
+      16582.228125,
+      16584.523084
+    ]
+  },
+  "probe_only": true,
+  "returned_diagnostic_anchor_bytes": 4194304,
+  "runtime_changes": false,
+  "same_arithmetic_wall_speedup": 1.000067936622816,
+  "schema": "glm53-native-prefill-dominant-region-aggregation-v1",
+  "scope": {
+    "input_dependent_layer_handoffs": false,
+    "production_runtime_change": false,
+    "python_native_call_aggregation": true,
+    "same_native_arithmetic_and_barriers": true
+  },
+  "scratch_bytes": 7278981670
+}

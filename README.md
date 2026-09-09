@@ -222,6 +222,13 @@ uv run python scripts/probe_composed_native_prefill_layer_substrate.py
 
 このsubstrateは512K/Q256、DSA row block 128×2、64MiB score scratch、hidden ping-pong、selected/route/MoE scratchを一つのnative objectへ事前確保します。executeは一つのnative encoder scopeを使い、allocation、shape discovery、MLX graph、host syncを行いません。現段階はpass-through限定であり、prefill性能やDSA/MoE arithmetic correctnessの証拠には使用しません。
 
+45層化によるcall集約だけの効果も、実kernel列で独立に測定しています。320K/Q256でdiagnostic wallの95.24%を占める11 DSA＋42 MoEを、同じfixed arena、同じkernel、同じbarrierのまま53 Python/native callsから1 callへまとめました。terminal anchorsはbyte-exactですが、wallは16,583.376→16,582.249 ms（1.00007x）、host submissionも12.148→12.658 ms（0.960x）で、call集約単独の性能効果はありませんでした。したがって45層planの価値はbinding回数ではなく、input-dependentなHC/norm/router/layer handoffをarena内へ移し、中間MLX tensorとmaterializationを消した場合にだけ成立します。このnegative gateを飛ばしてpass-through topologyをproduction性能根拠に使うことは禁止します。
+
+```bash
+uv run python scripts/probe_native_prefill_dominant_region_aggregation.py \
+  /Volumes/KIOXIA-PRO-2/models/zai-org/GLM-5.3-Flash
+```
+
 exact DSA arithmeticはQ256全体の32-head scoreを保持しません。Q=4でSteel GEMMのM=128を作り、512KでもBF16 head-score 32MiB、reduced score 1MiBに抑えたmicrotileを64回再利用します。次のprobeは32K/128K/320K/512Kでhead-score、index-score、top-k、expanded tokenをDirectとbyte-exact比較します。
 
 ```bash

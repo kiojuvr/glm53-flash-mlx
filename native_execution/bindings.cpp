@@ -10,6 +10,7 @@
 #include "native_prefill_av_plan.h"
 #include "native_prefill_layer_plan.h"
 #include "native_prefill_45_layer_submission_plan.h"
+#include "native_prefill_dominant_region_plan.h"
 #include "native_prefill_kda_recurrent_plan.h"
 #include "native_prefill_moe_route_plan.h"
 #include "native_prefill_moe_gate_up_plan.h"
@@ -45,6 +46,7 @@ using glm53::native_execution::NativeQ256DSAPrefillPlan;
 using glm53::native_execution::NativePrefillDSAOutputPlan;
 using glm53::native_execution::NativePrefillLayerSubstrate;
 using glm53::native_execution::NativePrefill45LayerSubmissionPlan;
+using glm53::native_execution::NativePrefillDominantRegionPlan;
 using glm53::native_execution::NativePrefillKDARecurrentPlan;
 using glm53::native_execution::NativePrefillMoERoutePlan;
 using glm53::native_execution::NativePrefillMoEGateUpPlan;
@@ -54,6 +56,60 @@ using glm53::native_execution::NativeRoutedSigmoidFormulaSweep;
 
 NB_MODULE(_ext, module) {
   module.doc() = "Probe-only persistent native execution bridge for GLM-5.3";
+  nb::class_<NativePrefillDominantRegionPlan>(
+      module, "NativePrefillDominantRegionPlan")
+      .def(nb::init<int, int, int>(), "physical_k"_a,
+           "tile_rows"_a = 65536, "expert_count"_a = 288)
+      .def("execute_dsa", &NativePrefillDominantRegionPlan::execute_dsa,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a,
+           "key_weight"_a, "value_weight"_a, "attention_query"_a,
+           "attention_scale"_a, "output_weight"_a,
+           "output_scale_inv"_a)
+      .def("execute_moe", &NativePrefillDominantRegionPlan::execute_moe,
+           "hidden"_a, "expert_ids"_a, "scores"_a,
+           "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def("execute_all", &NativePrefillDominantRegionPlan::execute_all,
+           "selected_indices"_a, "selected_valid"_a, "latent"_a,
+           "key_weight"_a, "value_weight"_a, "attention_query"_a,
+           "attention_scale"_a, "output_weight"_a,
+           "output_scale_inv"_a, "hidden"_a, "expert_ids"_a,
+           "scores"_a, "gate_up_weight"_a, "gate_up_scale_inv"_a,
+           "down_weight"_a, "down_scale_inv"_a,
+           "shared_gate_weight"_a, "shared_gate_scale_inv"_a,
+           "shared_up_weight"_a, "shared_up_scale_inv"_a,
+           "shared_down_weight"_a, "shared_down_scale_inv"_a)
+      .def_prop_ro("dsa_layer_count",
+                   &NativePrefillDominantRegionPlan::dsa_layer_count)
+      .def_prop_ro("moe_layer_count",
+                   &NativePrefillDominantRegionPlan::moe_layer_count)
+      .def_prop_ro("layerwise_native_calls",
+                   &NativePrefillDominantRegionPlan::layerwise_native_calls)
+      .def_prop_ro("composed_native_calls",
+                   &NativePrefillDominantRegionPlan::composed_native_calls)
+      .def_prop_ro("layerwise_execution_count",
+                   &NativePrefillDominantRegionPlan::layerwise_execution_count)
+      .def_prop_ro("composed_execution_count",
+                   &NativePrefillDominantRegionPlan::composed_execution_count)
+      .def_prop_ro("dynamic_allocation_count",
+                   &NativePrefillDominantRegionPlan::dynamic_allocation_count)
+      .def_prop_ro("graph_node_count",
+                   &NativePrefillDominantRegionPlan::graph_node_count)
+      .def_prop_ro("shape_discovery_count",
+                   &NativePrefillDominantRegionPlan::shape_discovery_count)
+      .def_prop_ro("host_synchronization_count",
+                   &NativePrefillDominantRegionPlan::host_synchronization_count)
+      .def_prop_ro("returned_diagnostic_anchor_bytes",
+                   &NativePrefillDominantRegionPlan::returned_diagnostic_anchor_bytes)
+      .def_prop_ro("scratch_bytes",
+                   &NativePrefillDominantRegionPlan::scratch_bytes)
+      .def_prop_ro("buffer_identities_stable",
+                   &NativePrefillDominantRegionPlan::buffer_identities_stable)
+      .def_prop_ro("buffer_identities",
+                   &NativePrefillDominantRegionPlan::buffer_identities);
   nb::class_<NativePrefill45LayerSubmissionPlan>(
       module, "NativePrefill45LayerSubmissionPlan")
       .def(nb::init<>())

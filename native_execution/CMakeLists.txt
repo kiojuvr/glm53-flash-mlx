@@ -46,6 +46,7 @@ target_sources(
   ${CMAKE_CURRENT_LIST_DIR}/native_packed_moe_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_layer_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_45_layer_submission_plan.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/native_prefill_dominant_region_plan.cpp
   ${CMAKE_CURRENT_LIST_DIR}/native_prefill_kda_recurrent_plan.cpp)
 target_include_directories(
   glm53_native_execution_core PUBLIC ${CMAKE_CURRENT_LIST_DIR})
